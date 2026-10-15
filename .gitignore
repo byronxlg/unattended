@@ -5,6 +5,7 @@ state/tick.lock
 state/supervisor.pid
 state/supervisor.out
 state/supervisor.err
+state/supervisor.last
 state/model.limited
 state/next-run-after
 state/jobs/*/events.jsonl
