@@ -20,7 +20,7 @@ jobs:
         run: bin/lint
       - name: Tests
         run: |
-          if ls tests/test_*.py product/tests/test_*.py >/dev/null 2>&1; then
+          if ls tests/test_*.py >/dev/null 2>&1; then
             uv run --with pytest pytest -q
           else
             echo "no tests yet"
