@@ -36,3 +36,33 @@ cache measured 2.0 GiB both before and after at `du -sh` resolution; a precise
 cache delta was not recorded. Free space remained 2.6 GiB.
 The backend is build-only, pinned to setuptools 75.8.0 in build-system and a
 non-default `build` dependency group so its distribution is included in uv.lock.
+
+## Observer and snapshot workflow
+
+Increment 2 adds `uv run python -m fleet_audit.acceptance observer --offline`.
+It proves rule-1 coverage failures retain declared jobs and checks frozen real
+service and override evidence. `declared` remains the only product CLI command;
+this increment's section specifies no new product CLI command.
+
+The Python capture API is `capture_snapshot(directory, domain, "audit")` in
+`fleet_audit.capture` ("observer" is also accepted). It reads validated runbooks
+and plists, then collects `/bin/launchctl print` for the domain and each job,
+followed independently by `print-disabled`. Each command has a 10-second deadline
+and a combined 4 MiB stream limit. Children are killed and reaped on limits.
+No job programs run and no launchd state changes.
+
+Pass the returned snapshot and a binary stdout stream to `emit_archive`.
+It emits an uncompressed tar archive and writes no filesystem files. The
+supervisor materializes it into a chosen directory, reviews `expected.json`,
+and uses `load_snapshot(Path(directory))` and `replay(snapshot, "observer")`.
+Members have bounded sizes, SHA-256 and source metadata. Logical absolute paths
+are lookup keys only. Replay uses recorded evidence and clocks, with no live
+fallback. Missing entries or unsafe references are invalid input; recorded
+command or file failures remain evidence. Environment values are removed before
+archive export; plist keys and command environment keys remain.
+
+Only the rule-1 coverage guard is implemented. A passing guard has a null verdict,
+not a health claim; observer reports exit 2. No freshness, receipt interpretation,
+drift, audit/scan verdict engine, scan capture or audit/scan CLI ships here.
+Receipt transport is deferred. Capture placeholders have `reviewed: false`;
+acceptance refuses unreviewed expectations.

@@ -1,0 +1,45 @@
+{
+  "provenance": {
+    "kind": "real",
+    "source": "spike commit 18c8e8c spike/audit.json",
+    "captured_at": "2026-10-15T13:37:56.188884+00:00",
+    "timestamp_limit": "row observed_at retained separately; capture clock is not command time",
+    "transformation": "environment values removed; keys retained"
+  },
+  "record": {
+    "plist_path": "/Users/byron/Library/LaunchAgents/com.google.keystone.agent.plist",
+    "declared": {},
+    "declaration_error": null,
+    "record": {
+      "state": null,
+      "pid": null,
+      "runs": null,
+      "last_exit_code": null,
+      "program": null,
+      "argv": null,
+      "working_directory": null,
+      "schedule": null,
+      "plist_path": null,
+      "last_exit_text": null,
+      "collection_error": {
+        "returncode": null,
+        "stdout": "",
+        "stderr": "No declared Label"
+      },
+      "parse_warnings": []
+    },
+    "collection": null,
+    "observed_at": 1792071476.1597178,
+    "loaded": null,
+    "override_known": true,
+    "override": null,
+    "disabled": false,
+    "schedule": null,
+    "logs": [],
+    "receipt": null,
+    "completion_verified": false,
+    "policy": null,
+    "verdict": "cannot_determine",
+    "reason": "Plist has no usable declared Label; filename is not identity"
+  }
+}

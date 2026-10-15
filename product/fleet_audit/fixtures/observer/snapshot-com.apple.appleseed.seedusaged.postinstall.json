@@ -1,0 +1,37 @@
+{
+  "provenance": {
+    "kind": "real",
+    "source": "spike commit 18c8e8c spike/snapshot.json and spike/records.json",
+    "captured_at": "2026-10-15T13:24:32.844438+00:00",
+    "timestamp_limit": "capture-level clock only",
+    "transformation": "environment values removed; keys retained"
+  },
+  "record": {
+    "command": {
+      "command": [
+        "launchctl",
+        "print",
+        "gui/501/com.apple.appleseed.seedusaged.postinstall"
+      ],
+      "returncode": 0,
+      "stdout": "gui/501/com.apple.appleseed.seedusaged.postinstall = {\n\tactive count = 0\n\tpath = /System/Library/LaunchAgents/com.apple.appleseed.seedusaged.postinstall.plist\n\ttype = LaunchAgent\n\tstate = not running\n\n\tprogram = /System/Library/CoreServices/Applications/Feedback Assistant.app/Contents/Library/LaunchServices/seedusaged\n\targuments = {\n\t\toneShot\n\t}\n\n\tinherited environment = {\n\t\tSSH_AUTH_SOCK => [redacted]\n\t}\n\n\tdefault environment = {\n\t\tPATH => [redacted]\n\t}\n\n\tenvironment = {\n\t\tOSLogRateLimit => [redacted]\n\t\tMallocSpaceEfficient => [redacted]\n\t\tXPC_SERVICE_NAME => [redacted]\n\t}\n\n\tdomain = gui/501 [100024]\n\tasid = 100024\n\tminimum runtime = 10\n\tbase minimum runtime = 10\n\texit timeout = 5\n\truns = 1\n\tlast exit code = 0\n\n\tresource coalition = {\n\t\tID = 1034\n\t\ttype = resource\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = com.apple.appleseed.seedusaged.postinstall\n\t}\n\n\tjetsam coalition = {\n\t\tID = 1035\n\t\ttype = jetsam\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = com.apple.appleseed.seedusaged.postinstall\n\t}\n\n\tspawn type = daemon (3)\n\tjetsam priority = 40\n\tjetsam memory limit (active, soft) = 15 MB\n\tjetsam memory limit (inactive, soft) = 15 MB\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\texponential throttling grace limit = 10\n\n\tproperties = runatload | system service | exponential throttling | tle system\n}\n",
+      "stderr": ""
+    },
+    "normalized": {
+      "state": "not running",
+      "pid": null,
+      "runs": 1,
+      "last_exit_code": 0,
+      "program": "/System/Library/CoreServices/Applications/Feedback Assistant.app/Contents/Library/LaunchServices/seedusaged",
+      "argv": [
+        "oneShot"
+      ],
+      "working_directory": null,
+      "schedule": null,
+      "plist_path": "/System/Library/LaunchAgents/com.apple.appleseed.seedusaged.postinstall.plist",
+      "last_exit_text": null,
+      "collection_error": null,
+      "parse_warnings": []
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "provenance": {
+    "kind": "synthetic",
+    "source": "increment 2 test recipe",
+    "captured_at": null
+  },
+  "recipe": {
+    "replace": [
+      "last exit code = 0",
+      "last exit code = (never exited)"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "provenance": {
+    "kind": "real",
+    "source": "spike commit 18c8e8c spike/fixtures/com.google.GoogleUpdater.wake.json",
+    "captured_at": "2026-10-15T13:24:32.844438+00:00",
+    "timestamp_limit": "capture-level clock only; command timestamp unavailable",
+    "transformation": "environment values removed; keys retained"
+  },
+  "record": {
+    "command": [
+      "launchctl",
+      "print",
+      "gui/501/com.google.GoogleUpdater.wake"
+    ],
+    "returncode": 0,
+    "stdout": "gui/501/com.google.GoogleUpdater.wake = {\n\tactive count = 0\n\tpath = /Users/byron/Library/LaunchAgents/com.google.GoogleUpdater.wake.plist\n\ttype = LaunchAgent\n\tstate = not running\n\n\tprogram = /Users/byron/Library/Application Support/Google/GoogleUpdater/Current/GoogleUpdater.app/Contents/MacOS/GoogleUpdater\n\targuments = {\n\t\t/Users/byron/Library/Application Support/Google/GoogleUpdater/Current/GoogleUpdater.app/Contents/MacOS/GoogleUpdater\n\t\t--wake-all\n\t\t--enable-logging\n\t\t--vmodule=*/components/update_client/*=2,*/chrome/enterprise_companion/*=2,*/chrome/updater/*=2\n\t}\n\n\tinherited environment = {\n\t\tSSH_AUTH_SOCK => [redacted]\n\t}\n\n\tdefault environment = {\n\t\tPATH => [redacted]\n\t}\n\n\tenvironment = {\n\t\tOSLogRateLimit => [redacted]\n\t\tXPC_SERVICE_NAME => [redacted]\n\t}\n\n\tdomain = gui/501 [100024]\n\tasid = 100024\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 1301\n\tlast exit code = 0\n\n\tresource coalition = {\n\t\tID = 5300\n\t\ttype = resource\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = com.google.GoogleUpdater.wake\n\t}\n\n\tjetsam coalition = {\n\t\tID = 5301\n\t\ttype = jetsam\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = com.google.GoogleUpdater.wake\n\t}\n\n\tspawn type = daemon (3)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\trun interval = 3600 seconds\n\n\tproperties = abandon process group | inferred program | managed LWCR | has LWCR\n}\n",
+    "stderr": ""
+  }
+}

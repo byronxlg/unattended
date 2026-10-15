@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Immutable records with explicit evidence presence and trust."""
 from dataclasses import dataclass
 from typing import Generic, TypeVar
@@ -132,10 +133,10 @@ class JobRecord:
     plist_path: str
     observations: tuple[tuple[str, Observation], ...]
     loaded: Value[bool] = Unknown("not requested")
-    disabled: Value[bool] = Unknown("not requested")
+    disabled: Value[bool] | DisabledState = Unknown("not requested")
     comparisons: tuple = ()
     drift: tuple = ()
-    verdict: str = "declared"
+    verdict: str | Verdict | None = "declared"
     uncertainties: tuple = ()
 
 
@@ -144,3 +145,100 @@ class RegistryResult:
     jobs: tuple[JobRecord, ...]
     errors: tuple[ValidationError, ...]
     discovery: Observation[tuple[str, ...]]
+
+
+@dataclass(frozen=True)
+class CommandData:
+    argv: tuple[str, ...]
+    stdout: str
+    stderr: str
+    timed_out: bool
+    truncated: bool
+    duration_seconds: float | None
+
+
+@dataclass(frozen=True)
+class DomainData:
+    domain: str
+    labels: tuple[str, ...]
+    complete: bool
+    warnings: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ServiceData:
+    identity: Identity
+    loaded: Value[bool]
+    state: Value[str]
+    pid: Value[int]
+    runs: Value[int]
+    last_exit_code: Value[int]
+    last_exit_text: Value[str]
+    program: Value[str]
+    argv: Value[tuple[str, ...]]
+    working_directory: Value[str]
+    plist_path: Value[str]
+    schedule: Schedule
+    properties: Value[tuple[str, ...]]
+    missing_fields: tuple[str, ...]
+    warnings: tuple[str, ...]
+    structural_valid: bool
+
+
+@dataclass(frozen=True)
+class OverrideData:
+    entries: tuple[tuple[str, bool], ...]
+    complete: bool
+    warnings: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class DisabledState:
+    value: Value[bool]
+    origin: str
+    entry: str
+    evidence_refs: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class Verdict:
+    name: str
+    rule_id: int
+    reason: str
+    evidence_refs: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class Coverage:
+    complete: bool
+    issues: tuple[str, ...]
+    observations: tuple[tuple[str, Observation], ...]
+
+
+@dataclass(frozen=True)
+class FleetObservation:
+    domain: str
+    observed_at: str | None
+    jobs: tuple[JobRecord, ...]
+    coverage: Coverage
+
+
+@dataclass(frozen=True)
+class Manifest:
+    format_version: int
+    capture_clock: str
+    domain: str
+    macos_label: str
+    indexes: dict
+    provenance: dict
+
+
+@dataclass(frozen=True)
+class Snapshot:
+    manifest: Manifest
+    runbooks: dict
+    plists: dict
+    commands: dict
+    stats: dict
+    receipts: dict
+    expected: dict

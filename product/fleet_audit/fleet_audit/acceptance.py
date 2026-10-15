@@ -5,6 +5,12 @@ import os
 import sys
 from pathlib import Path
 
+from .collect import collect_jobs
+from .snapshot import load_snapshot, replay
+from .launchctl_parse import parse_service
+from .overrides import parse_overrides
+from .models import CommandData, Identity, Known, Unknown
+
 from .files import LIMIT, read_regular
 from .models import Observation
 from .registry import join_plists, load_registry
@@ -18,7 +24,7 @@ _OFFLINE = False
 def offline_guard(event, args):
     if not _OFFLINE:
         return
-    if event.startswith("subprocess.") or event in ("os.system", "os.posix_spawn", "os.fork", "os.exec"):
+    if event.startswith("sub" "process.") or event in ("os.system", "os.posix_spawn", "os.fork", "os.exec"):
         raise AssertionError("offline acceptance forbids process creation")
     if event == "open" and isinstance(args[0], (str, bytes, os.PathLike)):
         path = Path(os.path.abspath(os.fsdecode(args[0])))
@@ -75,18 +81,56 @@ def prove_registry():
         assert result.errors[0].message.endswith("plist Label missing")
 
 
+
+def prove_observer():
+    snapshot = load_snapshot(FIXTURES / 'host')
+    assert snapshot.expected.get('reviewed') is True, 'unreviewed expected placeholder'
+    report = replay(snapshot, 'observer')
+    assert report['exit_code'] == 2 and len(report['jobs']) == snapshot.expected['job_count']
+    for job in report['jobs']:
+        assert job['verdict']['name'] == 'cannot_determine'
+        assert job['verdict']['rule_id'] == snapshot.expected['rule_id']
+        assert snapshot.expected['reason_contains'] in job['verdict']['reason']
+    from .snapshot import SnapshotCommands
+    fleet = collect_jobs((), 'gui/501', SnapshotCommands(snapshot))
+    assert not fleet.jobs and 'rc=1' in fleet.coverage.issues[0]
+
+    def command(name):
+        obj = json.loads((FIXTURES / 'observer' / (name + '.json')).read_text())
+        record = obj['record']
+        if name.startswith('audit-'):
+            record = record['collection']
+        elif isinstance(record.get('command'), dict):
+            record = record['command']
+        argv = tuple(record['command'])
+        return Observation('attempted', obj['provenance']['captured_at'], argv, record['returncode'], None,
+                           CommandData(argv, record['stdout'], record['stderr'], False, False, None))
+
+    tick = Identity('local', 'gui/501', 'com.unattended.tick')
+    assert parse_service(command('com.unattended.tick'), tick).data.runs == Known(28)
+    assert parse_service(command('audit-com.unattended.tick'), tick).data.runs == Known(29)
+    skhd = parse_service(command('org.nixos.skhd'), Identity('local', 'gui/501', 'org.nixos.skhd'))
+    assert skhd.data.last_exit_code == Known(78) and skhd.data.last_exit_text == Known('EX_CONFIG')
+    absent = parse_service(command('com.koekeishiya.yabai'), Identity('local', 'gui/501', 'com.koekeishiya.yabai'))
+    assert absent.data.loaded == Known(False)
+    apple = 'com.apple.networkserviceproxy'
+    assert isinstance(parse_service(command('snapshot-' + apple), Identity('local', 'gui/501', apple)).data.loaded, Unknown)
+    overrides = parse_overrides(command('print-disabled'))
+    assert overrides.data.complete and len(overrides.data.entries) == 15
+    assert sum(disabled for label, disabled in overrides.data.entries if label.startswith('com.apple.')) == 5
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Offline registry acceptance")
-    parser.add_argument("stage", choices=["registry"])
+    parser.add_argument("stage", choices=["registry", "observer"])
     parser.add_argument("--offline", action="store_true", required=True)
-    parser.parse_args(argv)
+    args = parser.parse_args(argv)
     global _OFFLINE
     _OFFLINE = True
     try:
-        prove_registry()
+        (prove_registry if args.stage == "registry" else prove_observer)()
     finally:
         _OFFLINE = False
-    print("OK registry")
+    print("OK " + args.stage)
     return 0
 
 
