@@ -250,7 +250,7 @@ def validate_entries(snapshot):
 
 def replay(snapshot, command):
     if command not in ('observer', 'audit'):
-        raise ValueError('only observer replay is implemented')
+        raise ValueError('only observer and audit replay are implemented')
     validate_entries(snapshot)
     registry = join_plists(registry_from(snapshot), SnapshotFiles(snapshot))
     if registry.errors:

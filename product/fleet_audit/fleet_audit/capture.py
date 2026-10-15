@@ -21,7 +21,7 @@ from .snapshot import command_key
 
 def capture_snapshot(directory, domain, mode, *, files=None, commands=None, clock=None, macos_label=None):
     if mode not in ('observer', 'audit') or directory is None or not re.fullmatch(r'gui/\d+', domain):
-        raise ValueError('capture requires observer mode, runbook directory and gui domain')
+        raise ValueError('capture requires observer or audit mode, runbook directory and gui domain')
     from .collect import LiveCommands
     if files is None and commands is None and domain != f'gui/{os.getuid()}':
         raise ValueError('capture requires current-user domain')

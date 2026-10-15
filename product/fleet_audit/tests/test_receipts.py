@@ -1,7 +1,6 @@
 """Producer branches, physical tail boundaries and metadata races."""
 import hashlib
 import json
-from dataclasses import replace
 
 import pytest
 

@@ -17,7 +17,7 @@ class Parser(argparse.ArgumentParser):
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = Parser(prog="fleet-audit", description="Validate declarations and join disk plists; no live observation.")
+    parser = Parser(prog="fleet-audit", description="Validate declarations or audit launchd state and freshness.")
     commands = parser.add_subparsers(dest="command", required=True, parser_class=Parser)
     declared = commands.add_parser("declared", help="validate runbooks and their plist labels")
     declared.add_argument("directory", type=Path)

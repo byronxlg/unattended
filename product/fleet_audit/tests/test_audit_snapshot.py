@@ -1,13 +1,12 @@
 """Audit transport, validation, CLI, and frozen-only acceptance."""
 import builtins
-import io
 from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
 from fleet_audit.acceptance import FIXTURES
-from fleet_audit.capture import capture_snapshot, emit_archive
+from fleet_audit.capture import capture_snapshot
 from fleet_audit.cli import main
 from fleet_audit.snapshot import SnapshotCommands, SnapshotFiles, load_snapshot, replay
 from test_snapshot import materialize

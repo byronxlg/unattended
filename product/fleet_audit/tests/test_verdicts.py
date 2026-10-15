@@ -132,8 +132,6 @@ def test_declaration_budgets_and_no_contract():
 
 
 def test_running_invalid_receipt_retains_uncertainty():
-    from fleet_audit.models import Observation
-    from fleet_audit.reports import serialize
     snap = scenario('running-old-exit')
     bad = scenario('invalid-producer-fields')
     report = replay(replace(snap, receipts=bad.receipts), 'audit')

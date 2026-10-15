@@ -1,4 +1,4 @@
-"""Stable declared reports without live service observations."""
+"""Stable declaration and audit reports with explicit exit precedence."""
 import json
 import base64
 from dataclasses import fields, is_dataclass
