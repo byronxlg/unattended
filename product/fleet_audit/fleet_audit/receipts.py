@@ -19,7 +19,7 @@ def timestamp(value):
     try:
         parsed = datetime.fromisoformat(value)
         return parsed.astimezone(timezone.utc).isoformat().replace('+00:00', 'Z') if parsed.utcoffset() is not None else None
-    except ValueError:
+    except (ValueError, OverflowError):
         return None
 
 

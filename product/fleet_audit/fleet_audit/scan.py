@@ -50,6 +50,8 @@ def scan_fleet(discovered, files, commands):
                     cache[path] = observe_output(path, files)
                 observations[f'output:{index}'] = cache[path]
         errors = tuple(f'{name}: {obs.error.message}' for name, obs in observations.items() if obs.error)
+        if plist.data is not None:
+            errors += tuple(f'plist: {error.message}' for error in plist.data.field_errors)
         job = replace(job, observations=tuple(observations.items()), uncertainties=errors)
         verdict = evaluate(job, coverage, 'scan')
         if job.identity.label is None:

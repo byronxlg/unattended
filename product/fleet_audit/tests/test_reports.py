@@ -230,3 +230,35 @@ def test_audit_observation_references_and_utc_receipt():
                               'supervisor':{'ran':False,'rc':None,'error':None}})
     assert receipt.ts == '2026-10-16T00:00:00Z'
     assert receipt.last_object['ts'] == receipt.ts
+
+
+def test_scan_plist_field_errors_are_uncertain():
+    from fleet_audit.reports import build_report
+    snap = snapshot()
+    path = '/Users/byron/Library/LaunchAgents/homebrew.mxcl.ollama.plist'
+    class Files(SnapshotFiles):
+        def discover_plists(self, directory):
+            return replace(super().discover_plists(directory), data=(path,))
+        def read_regular(self, path, limit):
+            obs = super().read_regular(path, limit)
+            value = plistlib.loads(obs.data)
+            value['StandardOutPath'] = 42
+            return replace(obs, data=plistlib.dumps(value))
+    files = Files(snap)
+    fleet = scan_fleet(scan_plists('/scan', files, 'gui/501'), files, SnapshotCommands(snap))
+    result = build_report('scan', fleet)
+    job = result['jobs'][0]
+    assert job['verdict'] == 'running'
+    assert 'plist: StandardOutPath: invalid value' in job['uncertainties']
+    assert result['summary']['uncertainties'] == 1
+    assert result['exit_code'] == 2
+
+
+def test_receipt_timestamp_overflow_is_invalid():
+    from fleet_audit.receipts import normalize_tick
+    value = {'ts': '0001-01-01T00:00:00+01:00',
+             'supervisor': {'ran': False, 'rc': None, 'error': None}}
+    receipt = normalize_tick(value)
+    assert receipt.ts is None
+    assert receipt.parsing_errors == ('invalid receipt ts',)
+    assert receipt == normalize_tick(value | {'ts': 'invalid'})
