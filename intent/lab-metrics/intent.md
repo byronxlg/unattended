@@ -36,3 +36,21 @@ ledgers; no emojis or em dashes in output; deterministic output for the same inp
   both as they are.
 - Time to first review for a PR opened and reviewed by the same supervisor run will be minutes
   by construction; still report it, with a note.
+
+## Supervisor decisions (2026-10-16, before the plan job)
+
+1. Lab tooling, one PR on branch `change/lab-metrics`. `docs/metrics.md` is the spec for this
+   change (the indicator table is the requirement list); no separate `spec.md`. Concerns go in
+   `plan.md` under `## Concerns`, resolved there.
+2. Tests live in `tests/test_metrics*.py` at the repo root so CI's existing step collects them
+   (`pytest.ini` skips `product/` and dotdirs; CI runs `uv run --with pytest pytest -q` when
+   `tests/test_*.py` exists). The computation must be importable from tests, so the script
+   logic lives in an importable module and `bin/metrics` is the entry point.
+3. Output contract: `site/data/metrics.json` is read by `bin/blog build`, which renders the
+   `html` key as the body of `/unattended/metrics/` and falls back to a pretty-printed dump
+   when that key is absent. Keep `html` as a fragment, not a page.
+4. GitHub reads go through `gh api` only (the host and Actions both have `gh`); with no token
+   or no network the tool still writes the file, marking GitHub-sourced indicators as
+   unavailable rather than failing.
+5. `bin/metrics` runs in `pages.yml` before `bin/blog build`; the PR changes that workflow.
+   `GITHUB_TOKEN` with `contents: read` can read PRs, reviews and check runs on a public repo.
