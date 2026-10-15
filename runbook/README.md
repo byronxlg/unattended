@@ -1,3 +1,11 @@
+---
+project: unattended
+tier: 3
+owner: byron
+lifecycle: production
+reviewed: 2026-10-15
+---
+
 # Runbook: unattended
 
 What: a twenty-day experiment, 2026-10-15 to 2026-11-04. Runs on Byron's Mac mini as the

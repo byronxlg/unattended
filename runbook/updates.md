@@ -1,3 +1,10 @@
+---
+project: unattended
+reviewed: 2026-10-15
+deploy_path: push-to-main
+rollback_minutes: 10
+---
+
 # Updates
 
 How change reaches the lab and the blog.
