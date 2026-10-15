@@ -57,10 +57,14 @@ class LocalFiles:
             directory = Path(directory)
             if directory.is_symlink() or not directory.is_dir():
                 raise OSError('expected LaunchAgents directory')
-            paths = tuple(sorted(str(p) for p in directory.iterdir() if p.name.endswith('.plist')))
-            if len(paths) > 1000:
-                raise OSError('discovery exceeds 1000 files')
-            return observed(paths, ('discover_plists', str(directory)))
+            paths = []
+            with os.scandir(directory) as entries:
+                for entry in entries:
+                    if entry.name.endswith('.plist'):
+                        paths.append(entry.path)
+                        if len(paths) > 1000:
+                            raise OSError('discovery exceeds 1000 files')
+            return observed(tuple(sorted(paths)), ('discover_plists', str(directory)))
         except OSError as exc:
             return observed(None, ('discover_plists', str(directory)), Error('discovery', str(exc)))
 

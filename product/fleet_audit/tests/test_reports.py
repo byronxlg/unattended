@@ -1,6 +1,5 @@
 """Scan contracts, transport isolation and public reports."""
 import builtins
-import io
 import json
 import plistlib
 from dataclasses import replace
@@ -10,9 +9,9 @@ import pytest
 
 from fleet_audit import acceptance, cli
 from fleet_audit.acceptance import FIXTURES, STAMP
-from fleet_audit.capture import capture_snapshot, emit_archive
+from fleet_audit.capture import capture_snapshot
 from fleet_audit.models import Error, Observation
-from fleet_audit.reports import exit_code, render_json, render_text, serialize
+from fleet_audit.reports import exit_code, render_json, render_text
 from fleet_audit.scan import scan_fleet, scan_plists
 from fleet_audit.snapshot import SnapshotCommands, SnapshotFiles, load_snapshot, replay
 from test_snapshot import materialize
@@ -200,3 +199,34 @@ def test_fleet_acceptance_offline_and_review_required(monkeypatch):
     monkeypatch.setattr(acceptance,'load_snapshot',lambda path: replace(load(path),expected={'reviewed':False}))
     with pytest.raises(AssertionError, match='unreviewed'): acceptance.main(['fleet','--offline'])
     assert not acceptance._OFFLINE
+
+
+def test_scan_discovery_is_bounded_and_nonrecursive(tmp_path):
+    from fleet_audit.files import LocalFiles
+    files = LocalFiles()
+    (tmp_path / 'nested').mkdir()
+    (tmp_path / 'nested' / 'hidden.plist').write_bytes(b'')
+    (tmp_path / 'b.plist').write_bytes(b'')
+    (tmp_path / 'a.plist').write_bytes(b'')
+    assert files.discover_plists(tmp_path).data == (str(tmp_path/'a.plist'), str(tmp_path/'b.plist'))
+    for i in range(999):
+        (tmp_path / f'{i}.plist').write_bytes(b'')
+    obs = files.discover_plists(tmp_path)
+    assert obs.data is None and obs.error.message == 'discovery exceeds 1000 files'
+    assert files.discover_plists(tmp_path/'missing').error is not None
+
+
+def test_audit_observation_references_and_utc_receipt():
+    from fleet_audit.receipts import normalize_tick
+    result = replay(load_snapshot(FIXTURES/'verdicts/completed-no-result'), 'audit')
+    job = result['jobs'][0]
+    for ref in job['evidence_refs']:
+        assert ref in job['observations']
+    for comparison in job['comparisons']:
+        assert all(ref in job['observations'] for ref in comparison['evidence_refs'])
+    registry = job['observations']['registry']
+    assert registry['data'] == job['registry'] and registry['status'] == 'attempted'
+    receipt = normalize_tick({'ts':'2026-10-16T13:00:00+13:00',
+                              'supervisor':{'ran':False,'rc':None,'error':None}})
+    assert receipt.ts == '2026-10-16T00:00:00Z'
+    assert receipt.last_object['ts'] == receipt.ts
