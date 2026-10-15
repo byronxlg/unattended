@@ -4,6 +4,7 @@ import math
 import re
 import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -54,10 +55,29 @@ def day(value):
     return datetime.fromisoformat(stamp).astimezone(NZ).date().isoformat() if stamp else None
 
 
-def normalize(row, result):
+def normalize(row, result, depth=0):
+    if depth > 20:
+        result.warn("excessive_nesting")
+        return {}
     out = {}
     for key, value in row.items():
         if key in ("last_message", "result", "notes"):
+            continue
+        if key in ("usage", "rate_limits", "supervisor", "head", "app", "user", "check_suite") and value is not None and not isinstance(value, dict):
+            result.warn("invalid_" + key)
+            out[key] = None
+            continue
+        if key in ("occurrences", "reasons", "prs") and value is not None and not isinstance(value, list):
+            result.warn("invalid_" + key)
+            out[key] = []
+            continue
+        if key in ("ran", "killed", "passed", "plan_match") and value is not None and not isinstance(value, bool):
+            result.warn("invalid_" + key)
+            out[key] = None
+            continue
+        if key in ("kind", "change", "outcome", "origin", "eval", "name", "state", "status", "conclusion", "sha", "merge_commit_sha", "body", "html_url") and value is not None and not isinstance(value, str):
+            result.warn("invalid_" + key)
+            out[key] = None
             continue
         if key in ("started", "ended", "ts", "incident_at", "submitted_at", "created_at",
                    "closed_at", "merged_at", "started_at", "completed_at", "updated_at",
@@ -69,9 +89,9 @@ def normalize(row, result):
                      "number", "run_attempt"):
             out[key] = number(value, result, integer=True)
         elif isinstance(value, dict):
-            out[key] = normalize(value, result)
+            out[key] = normalize(value, result, depth+1)
         elif isinstance(value, list):
-            out[key] = [normalize(v, result) if isinstance(v, dict) else v for v in value]
+            out[key] = [normalize(v, result, depth+1) if isinstance(v, dict) else v for v in value]
         else:
             out[key] = value
     return out
@@ -86,7 +106,8 @@ def records(rows, identity, result=None):
             result.warn("invalid_record")
             continue
         ident = row.get(identity)
-        if isinstance(ident, bool) or not isinstance(ident, (str, int)) or not str(ident):
+        if (isinstance(ident, bool) or not isinstance(ident, (str, int)) or not str(ident)
+                or (identity == "slug" and (not isinstance(ident, str) or not re.fullmatch(r"[a-zA-Z0-9_-]+", ident)))):
             result.skipped += 1
             result.warn("missing_identity")
             continue
@@ -167,8 +188,11 @@ def git(root, args):
 
 
 def read_head(root):
-    sha, stamp = git(root, ["show", "-s", "--format=%H%x09%cI", "HEAD"]).strip().split("\t")
-    return Head(sha, timestamp(stamp))
+    parts = git(root, ["show", "-s", "--format=%H%x09%cI", "HEAD"]).strip().split("\t")
+    if len(parts) != 2:
+        return Head("", None)
+    sha, stamp = parts
+    return Head(sha if re.fullmatch("[0-9a-fA-F]+", sha) else "", timestamp(stamp))
 
 
 def read_artifact_history(root, slugs):
@@ -178,10 +202,13 @@ def read_artifact_history(root, slugs):
     except (OSError, subprocess.SubprocessError):
         return SourceResult(False, "git history unavailable")
     positions = {sha: i for i, sha in enumerate(ordered)}
-    for slug in sorted(set(slugs)):
+    valid_slugs = []
+    for slug in slugs:
         if not isinstance(slug, str) or not re.fullmatch(r"[a-zA-Z0-9_-]+", slug):
             result.warn("invalid_slug")
-            continue
+        else:
+            valid_slugs.append(slug)
+    for slug in sorted(set(valid_slugs)):
         for artifact in ("intent", "spec", "plan"):
             path = f"intent/{slug}/{artifact}.md"
             try:
@@ -299,21 +326,44 @@ def read_gates(repo, deadline):
 def read_github(repo, pr_numbers, deadline):
     client = Client(repo, deadline)
     snap = GitHubSnapshot()
-    snap.sources["prs"] = client.read("pulls?state=all", identity="number")
+
+    def batch(specs):
+        # Deduplicating endpoint work also avoids concurrent cache writes for shared heads.
+        unique = list(dict.fromkeys((endpoint, collection, identity)
+                                    for key, endpoint, collection, identity in specs))
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = {}
+            for offset in range(0, len(unique), 2):
+                chunk = unique[offset:offset+2]
+                if client.stopped or time.monotonic() >= deadline:
+                    reason = client.stopped or "github budget exhausted"
+                    results.update({item: SourceResult(False, reason) for item in unique[offset:]})
+                    break
+                futures = [(item, pool.submit(client.read, *item)) for item in chunk]
+                for item, future in futures:
+                    results[item] = future.result()
+        for key, endpoint, collection, identity in specs:
+            snap.sources[key] = results[endpoint, collection, identity]
+
+    batch([
+        ("prs", "pulls?state=all", None, "number"),
+        ("gates", "issues?state=all&labels=needs-byron", None, "number"),
+        ("ci.yml", "actions/workflows/ci.yml/runs", "workflow_runs", "id"),
+        ("pages.yml", "actions/workflows/pages.yml/runs", "workflow_runs", "id"),
+    ])
+    details = []
     for pr in snap.get("prs").data:
         n = pr["number"]
         if n not in pr_numbers:
             continue
-        snap.sources[f"reviews:{n}"] = client.read(f"pulls/{n}/reviews")
-        snap.sources[f"comments:{n}"] = client.read(f"pulls/{n}/comments")
+        details.extend([(f"reviews:{n}", f"pulls/{n}/reviews", None, "id"),
+                        (f"comments:{n}", f"pulls/{n}/comments", None, "id")])
         head = pr.get("head")
         sha = head.get("sha") if isinstance(head, dict) else None
         if isinstance(sha, str) and re.fullmatch("[0-9a-fA-F]+", sha):
-            snap.sources[f"checks:{n}"] = client.read(f"commits/{sha}/check-runs?filter=all", "check_runs")
-    for workflow in ("ci.yml", "pages.yml"):
-        snap.sources[workflow] = client.read(f"actions/workflows/{workflow}/runs", "workflow_runs")
+            details.append((f"checks:{n}", f"commits/{sha}/check-runs?filter=all", "check_runs", "id"))
     for run in snap.get("pages.yml").data:
-        snap.sources[f"jobs:{run['id']}"] = client.read(f"actions/runs/{run['id']}/jobs?filter=all", "jobs")
-    snap.sources["gates"] = client.read("issues?state=all&labels=needs-byron", identity="number")
+        details.append((f"jobs:{run['id']}", f"actions/runs/{run['id']}/jobs?filter=all", "jobs", "id"))
+    batch(details)
     snap.get("gates").data = [r for r in snap.get("gates").data if "pull_request" not in r]
     return snap

@@ -100,3 +100,24 @@ def test_synthetic_fixture_pipeline():
     assert rows["wall_time"]["value"] == 6
     assert rows["deployment_lead_time"]["value"] == 1
     assert rows["total_tokens"]["value"] == 120
+
+
+def test_repeated_negative_diagnostics_are_deterministic():
+    s=snapshot(changes=[change(started="2026-01-02T00:00:00Z",prs=[1],outcome="merged")],prs=[pr()])
+    assert document(s) == document(s)
+    assert s.diagnostics["calculation"]["negative_interval"] > 0
+
+
+def test_last_calendar_day_compute_render():
+    s=snapshot(jobs=[dict(id="x",started="9999-12-31T00:00:00Z",ended="9999-12-31T01:00:00Z")])
+    rows={r["name"]:r for r in json.loads(document(s))["indicators"]}
+    assert rows["mean_jobs"]["value"] == 1
+    assert s.diagnostics["calculation"]["calendar_boundary"] == 2
+
+
+def test_aggregate_overflow_is_diagnosed():
+    s=snapshot(jobs=[dict(id=str(i),usage={"input_tokens":1e308}) for i in range(2)])
+    rows={r["name"]:r for r in json.loads(document(s))["indicators"]}
+    assert rows["input_tokens"]["value"] is None
+    assert not rows["input_tokens"]["available"]
+    assert s.diagnostics["calculation"]["aggregate_overflow"] == 1

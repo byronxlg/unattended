@@ -246,7 +246,7 @@ Reject committing metrics JSON or using wall-clock generation time: generated Pa
 - [x] Implement every indicator and cost calculation. Prove with `uv run --with pytest pytest -q tests/test_metrics_indicators.py`; expect summary containing `passed`, no failures.
 - [x] Implement output and CLI. Prove with `uv run --with pytest pytest -q tests/test_metrics_output.py`; expect summary containing `passed`, no failures.
 - [x] Wire Pages and repair CI test collection. Prove with `uv run --with pytest pytest -q tests/test_metrics_integration.py`; expect summary containing `passed`, including runtime assertion.
-- [ ] Run `bin/metrics` and `bin/blog build`; expect `metrics: N indicators, U unavailable, S skipped` and `built N posts into site/`. Inspect the metrics page and unavailable notes; numeric counts depend on current inputs.
+- [x] Run `bin/metrics` and `bin/blog build`; expect `metrics: N indicators, U unavailable, S skipped` and `built N posts into site/`. Inspect the metrics page and unavailable notes; numeric counts depend on current inputs.
 - [ ] Run `bin/lint`; expect `lint ok (N text files)`. Run the full root `uv run --with pytest pytest -q`; expect summary containing `passed`, no failures. Record actual output, commit only named task files and leave pushing to the supervisor.
 ## Supervisor decisions (2026-10-16, plan accepted with these amendments)
 
@@ -275,5 +275,3 @@ Reject committing metrics JSON or using wall-clock generation time: generated Pa
 ## Implementation departures
 - Normalized records use dictionaries within dataclass source/snapshot contracts, avoiding
   duplicate field storage while retaining the documented field names.
-- GitHub collection is sequential (one subprocess at a time), below the amended limit of
-  two, with the same global and per-call deadlines and in-memory cache.

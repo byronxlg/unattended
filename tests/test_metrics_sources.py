@@ -77,3 +77,49 @@ def test_git_first_addition_and_touches(tmp_path):
         rows = s.read_artifact_history(tmp_path, ["x"]).data
         assert len(rows) == 6
         assert rows[0]["added"] and not rows[1]["added"]
+
+def test_nested_yaml_and_invalid_slug(tmp_path):
+    p=tmp_path/"changes.yaml"
+    p.write_text("changes:\n  - slug: 12\n  - slug: good\n    usage: &loop\n      usage: *loop\n")
+    r=s.read_changes(p)
+    assert r.skipped == 1
+    assert r.warnings["excessive_nesting"] == 1
+
+def test_github_concurrency_cache_and_global_stop():
+    import threading
+    active=peak=0
+    calls=[]
+    lock=threading.Lock()
+    def run(args, **kw):
+        nonlocal active,peak
+        endpoint=args[args.index("GET")+1]
+        with lock:
+            active+=1
+            peak=max(peak,active)
+            calls.append(endpoint)
+        time.sleep(0.005)
+        if "/pulls?" in endpoint:
+            payload=[[{"number":1,"head":{"sha":"abc"}},{"number":2,"head":{"sha":"abc"}}]]
+        elif "/runs?" in endpoint:
+            payload=[{"workflow_runs":[]}]
+        elif "check-runs?" in endpoint:
+            payload=[{"check_runs":[]}]
+        else:
+            payload=[[]]
+        with lock:
+            active-=1
+        return subprocess.CompletedProcess(args,0,json.dumps(payload),"")
+    with patch.object(s.subprocess,"run",side_effect=run):
+        snap=s.read_github("a/b",[1,2],time.monotonic()+5)
+    assert peak == 2
+    assert sum("check-runs?" in path for path in calls) == 1
+    assert snap.get("checks:1").available
+    with patch.object(s.subprocess,"run",return_value=subprocess.CompletedProcess([],1,"","401 auth")) as run:
+        s.read_github("a/b",[],time.monotonic()+5)
+        assert run.call_count <= 2
+
+def test_invalid_optional_shape_counted(tmp_path):
+    p=tmp_path/"jobs"
+    p.write_text('{"id":"x","usage":[],"rate_limits":false,"change":{},"killed":"yes"}\n')
+    r=s.read_jobs(p)
+    assert sum(r.warnings.values()) == 4

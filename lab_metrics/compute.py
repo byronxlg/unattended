@@ -2,6 +2,8 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 from statistics import mean
+import re
+import math
 
 from .models import Indicator
 from .sources import NZ, USAGE, day, number, timestamp
@@ -38,7 +40,7 @@ def compute(snapshot):
     s = snapshot
     out = []
     diagnostics = s.diagnostics
-    diagnostics.setdefault("calculation", {})
+    diagnostics["calculation"] = {}
     counts = diagnostics["calculation"]
 
     def warn(code):
@@ -77,6 +79,10 @@ def compute(snapshot):
         values = [v for v, _ in samples]
         value = (sum(values) if mode == "sum" else 100*sum(values)/len(values) if mode == "percent"
                  else mean(values)) if values else None
+        if value is not None and not math.isfinite(value):
+            warn("aggregate_overflow")
+            value, n, available = None, 0, False
+            note = "not shown: aggregate overflow"
         if available and not n:
             note = (note + "; " if note else "") + "no data (n=0)"
         skipped = sum(d.skipped + sum(d.warnings.values()) for d in deps)
@@ -204,7 +210,11 @@ def compute(snapshot):
             cursor = a
             while cursor < b:
                 local = cursor.astimezone(NZ)
-                tomorrow = datetime.combine(local.date()+timedelta(days=1), datetime.min.time(), NZ)
+                try:
+                    tomorrow = datetime.combine(local.date()+timedelta(days=1), datetime.min.time(), NZ)
+                except (ValueError, OverflowError):
+                    warn("calendar_boundary")
+                    tomorrow = b
                 end = min(b, tomorrow)
                 daily[local.date().isoformat()].append((cursor, end))
                 cursor = end
@@ -235,15 +245,17 @@ def compute(snapshot):
         src = s.github.get(f"checks:{n}")
         check_deps.append(src)
         groups = defaultdict(list)
+        invalid_group = False
         for check in src.data:
             app = text(mapping(check.get("app")).get("slug"))
             name = text(check.get("name"))
             if not app or not name or not timestamp(check.get("started_at")):
                 warn("invalid_check_group")
+                invalid_group = True
                 continue
             groups[app, name].append(check)
         first_checks = [min(values, key=lambda r: (r["started_at"], r["id"])) for values in groups.values()]
-        if first_checks and all(r.get("status") == "completed" and isinstance(r.get("conclusion"), str) for r in first_checks):
+        if not invalid_group and first_checks and all(r.get("status") == "completed" and isinstance(r.get("conclusion"), str) for r in first_checks):
             ci_samples.append((int(all(r.get("conclusion") == "success" for r in first_checks)), pr.get("created_at")))
     emit("Test", "first_pass_ci", "PRs whose earliest check in every app/name group succeeded",
          "percent", ci_samples, mode="percent", deps=check_deps, kind="leading",
@@ -335,7 +347,7 @@ def compute(snapshot):
     failed_runs = [r for r in ci.data if r.get("status") == "completed" and r.get("conclusion") in FAILURES]
     bodies = [text(g.get("body")) for g in gates.data]
     emit("CI/CD", "unpaged_failure_proxy", "Terminal failed CI runs without a run URL in a gate / failed CI runs",
-         "percent", [(int(not any(text(r.get("html_url")) in body for body in bodies))
+         "percent", [(int(not any(re.search(re.escape(text(r.get("html_url"))) + r"(?![A-Za-z0-9_/])", body) for body in bodies))
                       if text(r.get("html_url")) else None, r.get("updated_at")) for r in failed_runs],
          mode="percent", deps=(ci, gates), kind="leading",
          note="Absence of a linked gate does not establish triage")
@@ -362,6 +374,8 @@ def compute(snapshot):
         last = max(last, max((datetime.fromisoformat(d).date() for d in daily), default=last))
         while cursor <= last:
             frequency_samples.append((daily[cursor.isoformat()], cursor.isoformat()+"T12:00:00+13:00"))
+            if cursor == last:
+                break
             cursor += timedelta(days=1)
     emit("CI/CD", "deployment_frequency", "Successful Pages deploy jobs / observed calendar days, including zero days",
          "deployments/day", frequency_samples, deps=deploy_deps)
