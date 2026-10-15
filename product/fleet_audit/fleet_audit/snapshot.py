@@ -157,6 +157,7 @@ def load_snapshot(directory):
     for key, name in indexes['commands'].items():
         obs = command_observation(json_object(member(name)))
         expected_key = command_key(obs.source_command, raw['capture_clock'])
+        # The plan requires replaying the real blank inventory from spike 18c8e8c, which used list.
         legacy = (obs.source_command in (('launchctl', 'list'), ('/bin/launchctl', 'list'))
                   and obs.return_code == 1 and obs.data is not None
                   and obs.data.stdout == obs.data.stderr == ''

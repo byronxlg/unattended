@@ -41,14 +41,17 @@ def capture_snapshot(directory, domain, mode, *, files=None, commands=None, cloc
             if target is plists and obs.data is not None:
                 try:
                     obj = plistlib.loads(obs.data)
+                except Exception:
+                    # Replay needs the original malformed evidence to diagnose it.
+                    pass
+                else:
                     if isinstance(obj, dict) and 'EnvironmentVariables' in obj:
                         env = obj['EnvironmentVariables']
                         if not isinstance(env, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in env.items()):
-                            raise ValueError('invalid environment')
-                        obj['EnvironmentVariables'] = {key: '' for key in env}
-                    obs = replace(obs, data=plistlib.dumps(obj))
-                except Exception:
-                    obs = replace(obs, data=None, error=Error('invalid_plist', 'malformed plist'))
+                            obs = replace(obs, data=None, error=Error('invalid_plist', 'invalid environment'))
+                        else:
+                            obj['EnvironmentVariables'] = {key: '' for key in env}
+                            obs = replace(obs, data=plistlib.dumps(obj))
             target[path] = obs
             return obs
 

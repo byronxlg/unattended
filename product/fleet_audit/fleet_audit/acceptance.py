@@ -24,7 +24,7 @@ _OFFLINE = False
 def offline_guard(event, args):
     if not _OFFLINE:
         return
-    if event.startswith("sub" "process.") or event in ("os.system", "os.posix_spawn", "os.fork", "os.exec"):
+    if event.startswith("subprocess.") or event in ("os.system", "os.posix_spawn", "os.fork", "os.exec"):
         raise AssertionError("offline acceptance forbids process creation")
     if event == "open" and isinstance(args[0], (str, bytes, os.PathLike)):
         path = Path(os.path.abspath(os.fsdecode(args[0])))

@@ -100,6 +100,13 @@ def test_replay_forbids_live_commands_paths_and_clock(tmp_path, monkeypatch):
 
 def test_capture_roundtrip_and_environment_redaction(tmp_path, monkeypatch):
     import plistlib
+    plain_path = '/fleet-fixtures/com.unattended.tick.plist'
+    plain_bytes = plistlib.dumps(plistlib.loads(FixtureFiles().read_regular(plain_path).data), fmt=plistlib.FMT_BINARY)
+    class PlainFiles(FixtureFiles):
+        def read_regular(self, path, limit=1048576):
+            obs = super().read_regular(path, limit)
+            return replace(obs, data=plain_bytes) if path == plain_path else obs
+    assert captured(files=PlainFiles()).plists[plain_path].data == plain_bytes
     class EnvironmentFiles(FixtureFiles):
         def read_regular(self, path, limit=1048576):
             obs = super().read_regular(path, limit)
