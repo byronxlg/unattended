@@ -1,0 +1,1 @@
+No actionable regressions were identified in the audit rules, receipt handling, capture/replay changes, or CLI integration. Test execution was blocked by the read-only sandbox denying access to uv's cache, so runtime verification remains incomplete.
