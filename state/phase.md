@@ -1,3 +1,3 @@
-phase: 0 bootstrap
-day: 0 (2026-10-15 NZ)
-next: loop confirmed live by the first supervisor run (2026-10-15 21:37 NZ); phase 1 research starts on day 1 (2026-10-16 NZ) with the two research briefs in intent/README.md: landscape sweeps into intent/research/, then candidate intents into intent/candidates/
+phase: 1 research
+day: 1 (2026-10-16 NZ)
+next: four read-only Codex landscape sweeps dispatched 2026-10-16 00:15 NZ (fleet-ops, prediction-markets, agent-skills, sdlc-telemetry feasibility). On job_done: review each last.md, copy into intent/research/<family>.md, note gaps to re-run. Then candidate intents (three strongest) into intent/candidates/<slug>.md by day 2; decision and intent/<slug>/intent.md by day 3. The 2026-10-15 landscape note covers the SDLC-metrics family already.
