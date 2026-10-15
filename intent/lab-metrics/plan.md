@@ -241,7 +241,7 @@ Reject committing metrics JSON or using wall-clock generation time: generated Pa
 
 ## Build order and proving commands
 
-- [ ] Add package, dependency metadata and provenance-labelled fixtures. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py -k real_fixture_shapes`; expect `1 passed`.
+- [x] Add package, dependency metadata and provenance-labelled fixtures. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py -k real_fixture_shapes`; expect `1 passed`.
 - [ ] Implement readers, normalization and bounded GitHub client. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py`; expect summary containing `passed`, no failures.
 - [ ] Implement every indicator and cost calculation. Prove with `uv run --with pytest pytest -q tests/test_metrics_indicators.py`; expect summary containing `passed`, no failures.
 - [ ] Implement output and CLI. Prove with `uv run --with pytest pytest -q tests/test_metrics_output.py`; expect summary containing `passed`, no failures.
