@@ -262,3 +262,42 @@ def test_receipt_timestamp_overflow_is_invalid():
     assert receipt.ts is None
     assert receipt.parsing_errors == ('invalid receipt ts',)
     assert receipt == normalize_tick(value | {'ts': 'invalid'})
+
+
+def test_scan_unsupported_plist_values_are_uncertain():
+    from fleet_audit.reports import build_report
+    snap = snapshot()
+    path = '/Users/byron/Library/LaunchAgents/homebrew.mxcl.ollama.plist'
+    class Files(SnapshotFiles):
+        def discover_plists(self, directory):
+            return replace(super().discover_plists(directory), data=(path,))
+        def read_regular(self, path, limit):
+            obs = super().read_regular(path, limit)
+            value = plistlib.loads(obs.data)
+            value['KeepAlive'] = {'SuccessfulExit': False}
+            return replace(obs, data=plistlib.dumps(value))
+    files = Files(snap)
+    fleet = scan_fleet(scan_plists('/scan', files, 'gui/501'), files, SnapshotCommands(snap))
+    result = build_report('scan', fleet)
+    uncertainty = 'plist: KeepAlive: KeepAlive mappings are unsupported'
+    assert result['jobs'][0]['verdict'] == 'running'
+    assert result['jobs'][0]['uncertainties'] == [uncertainty]
+    assert 'uncertainty: ' + uncertainty in render_text(result)
+    assert result['summary']['uncertainties'] == 1
+    assert result['exit_code'] == 2
+
+
+def test_output_mtime_out_of_range_is_uncertain(monkeypatch):
+    import os
+    import stat
+    from fleet_audit.files import stat_output
+    for mtime in (253402300800, 1e20):
+        info = os.stat_result((stat.S_IFREG | 0o600, 1, 1, 1, 501, 20, 42, 0, mtime, 0))
+        with monkeypatch.context() as scoped:
+            scoped.setattr('fleet_audit.files.os.stat', lambda path: info)
+            observation = stat_output('/synthetic/output.log')
+        assert observation.error.code == 'stat'
+        assert observation.data.stat_error == observation.error
+        assert observation.data.exists is True
+        assert observation.data.mtime is None
+        assert observation.data.age_seconds is None

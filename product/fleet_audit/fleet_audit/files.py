@@ -107,9 +107,10 @@ def stat_output(path):
             raise OSError('not a regular file')
         stamp = datetime.fromtimestamp(info.st_mtime, timezone.utc).isoformat().replace('+00:00', 'Z')
         return observed(OutputData(path, True, info.st_size, stamp, None, None), ('stat', path))
-    except OSError as exc:
+    except (OSError, ValueError, OverflowError) as exc:
         error = Error('missing' if isinstance(exc, FileNotFoundError) else 'stat', str(exc))
-        return observed(OutputData(path, False if isinstance(exc, FileNotFoundError) else None,
+        exists = True if isinstance(exc, (ValueError, OverflowError)) else False if isinstance(exc, FileNotFoundError) else None
+        return observed(OutputData(path, exists,
                                    None, None, None, error), ('stat', path), error)
 
 

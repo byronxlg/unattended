@@ -1,11 +1,29 @@
 """Undeclared LaunchAgent discovery and stat-only evidence."""
-from dataclasses import replace
+from dataclasses import fields, replace
 from pathlib import Path
 
-from .models import Coverage, FleetObservation, Identity, JobRecord, Known, Observation, Verdict
+from .models import Coverage, FleetObservation, Identity, JobRecord, Known, Observation, Schedule, Unsupported, Verdict
 from .plists import observe_plist
 from .output import observe_output
 from .verdicts import evaluate
+
+
+PLIST_KEYS = {
+    'label': 'Label', 'program': 'Program', 'arguments': 'ProgramArguments',
+    'working_directory': 'WorkingDirectory', 'disabled': 'Disabled',
+    'stdout_path': 'StandardOutPath', 'stderr_path': 'StandardErrorPath',
+    'environment_keys': 'EnvironmentVariables', 'interval_seconds': 'StartInterval',
+    'calendar': 'StartCalendarInterval', 'keep_alive': 'KeepAlive', 'run_at_load': 'RunAtLoad',
+}
+
+
+def unsupported_plist_uncertainties(data):
+    for field in fields(data):
+        value = getattr(data, field.name)
+        if isinstance(value, Unsupported):
+            yield f'plist: {PLIST_KEYS.get(field.name, field.name)}: {value.reason}'
+        elif isinstance(value, Schedule):
+            yield from unsupported_plist_uncertainties(value)
 
 
 def scan_plists(directory, files, domain=None):
@@ -52,7 +70,8 @@ def scan_fleet(discovered, files, commands):
         errors = tuple(f'{name}: {obs.error.message}' for name, obs in observations.items() if obs.error)
         if plist.data is not None:
             errors += tuple(f'plist: {error.message}' for error in plist.data.field_errors)
-        job = replace(job, observations=tuple(observations.items()), uncertainties=errors)
+            errors += tuple(unsupported_plist_uncertainties(plist.data))
+        job = replace(job, observations=tuple(observations.items()), uncertainties=tuple(dict.fromkeys(errors)))
         verdict = evaluate(job, coverage, 'scan')
         if job.identity.label is None:
             verdict = Verdict('cannot_determine', 1,
