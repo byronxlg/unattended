@@ -217,6 +217,8 @@ def registry_from(snapshot):
 
 def validate_entries(snapshot):
     registry = registry_from(snapshot)
+    if registry.errors:
+        return
     for job in registry.jobs:
         if job.plist_path not in snapshot.plists:
             raise ValueError('missing plist entry')

@@ -133,6 +133,34 @@ def test_capture_roundtrip_and_environment_redaction(tmp_path, monkeypatch):
     plist = next(iter(restored.plists.values())).data
     assert plistlib.loads(plist)['EnvironmentVariables'] == {'SYNTHETIC_KEY': ''}
 
+    class MalformedFiles(FixtureFiles):
+        def read_regular(self, path, limit=1048576):
+            obs = super().read_regular(path, limit)
+            if path.endswith('.plist'):
+                malformed = plistlib.dumps({'EnvironmentVariables': {'SYNTHETIC_KEY': 'malformed-secret-marker'}})
+                obs = replace(obs, data=malformed.replace(b'</plist>', b''))
+            return obs
+    malformed = captured(files=MalformedFiles())
+    archive_bytes = materialize(malformed, tmp_path/'malformed')
+    assert b'malformed-secret-marker' not in archive_bytes
+    from fleet_audit.models import Error
+    entry = load_snapshot(tmp_path/'malformed').plists[plain_path]
+    assert entry.data is None
+    assert entry.error == Error('invalid_plist', 'malformed plist; bytes withheld')
+
+
+def test_invalid_registry_capture_replays_duplicate_identity(tmp_path):
+    files = FixtureFiles('registry-duplicate-identity')
+    commands = Commands()
+    snapshot = capture_snapshot(str(FIXTURES/'registry-duplicate-identity'), 'gui/501', 'observer',
+                                files=files, commands=commands, clock=lambda: STAMP, macos_label='synthetic')
+    assert not snapshot.plists and not snapshot.commands and not commands.calls
+    materialize(snapshot, tmp_path)
+    report = replay(load_snapshot(tmp_path), 'observer')
+    assert report['exit_code'] == 3
+    assert any(issue['message'].endswith('duplicate identity local/gui/501/com.unattended.tick')
+               for issue in report['issues'])
+
 
 @pytest.mark.parametrize('failure', ['timeout', 'truncated', 'spawn', 'missing_plist'])
 def test_recorded_failures_are_valid_snapshot_evidence(tmp_path, failure):

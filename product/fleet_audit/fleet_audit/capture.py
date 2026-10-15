@@ -42,8 +42,8 @@ def capture_snapshot(directory, domain, mode, *, files=None, commands=None, cloc
                 try:
                     obj = plistlib.loads(obs.data)
                 except Exception:
-                    # Replay needs the original malformed evidence to diagnose it.
-                    pass
+                    # Unparseable bytes cannot be safely redacted.
+                    obs = replace(obs, data=None, error=Error('invalid_plist', 'malformed plist; bytes withheld'))
                 else:
                     if isinstance(obj, dict) and 'EnvironmentVariables' in obj:
                         env = obj['EnvironmentVariables']
