@@ -236,3 +236,11 @@ def test_wall_time():
                        prs=[pr()],jobs=[dict(id="x",change="x",duration_s=100)]))
     assert m["wall_time"].value == 6
     assert m["job_time"].value == 100
+
+
+def test_invalid_closed_gate_is_not_open():
+    s=snapshot(gates=[dict(number=1,created_at="2026-01-01T00:00:00Z",closed_at="invalid")])
+    m=metrics(s)
+    assert m["closed_gate_wait"].n == 0
+    assert m["open_gate_age"].n == 0
+    assert s.github.get("gates").warnings["invalid_timestamp"] == 1

@@ -29,7 +29,10 @@ def render_document(head, indicators, diagnostics):
         if isinstance(value, list):
             return [clean(v, precision) for v in value]
         if isinstance(value, dict):
-            return {clean_text(str(k)): clean(v, precision) for k, v in sorted(value.items(), key=lambda kv: str(kv[0]))}
+            cleaned = {clean_text(str(k)): clean(v, precision) for k, v in sorted(value.items(), key=lambda kv: str(kv[0]))}
+            if value.get("value") is not None and cleaned.get("value") is None:
+                cleaned.update(available=False, n=0, note="not shown: invalid aggregate")
+            return cleaned
         serialization_errors += 1
         return None
 

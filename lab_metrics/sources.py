@@ -61,7 +61,7 @@ def normalize(row, result, depth=0):
         return {}
     out = {}
     for key, value in row.items():
-        if key in ("last_message", "result", "notes"):
+        if key in ("last_message", "result", "notes", "_invalid_fields"):
             continue
         if key in ("usage", "rate_limits", "supervisor", "head", "app", "user", "check_suite") and value is not None and not isinstance(value, dict):
             result.warn("invalid_" + key)
@@ -83,6 +83,8 @@ def normalize(row, result, depth=0):
                    "closed_at", "merged_at", "started_at", "completed_at", "updated_at",
                    "run_started_at", "committed_at", "detected_at"):
             out[key] = timestamp(value, result)
+            if value is not None and out[key] is None:
+                out.setdefault("_invalid_fields", []).append(key)
         elif key in ("duration_s", "duration_ms", "cost_usd", "used_percent") or key in USAGE:
             out[key] = number(value, result)
         elif key in ("attempts", "turns", "jobs_running", "window_minutes", "resets_at",

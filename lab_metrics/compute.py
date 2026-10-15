@@ -313,7 +313,7 @@ def compute(snapshot):
     emit("Deploy", "human_free_resolution", "Comments resolved without human branch edits", "percent",
          available=False, reason="REST comments do not establish resolution or branch-editor identity", kind="leading")
     emit("Deploy", "agent_resolution_proxy", "Merged commented PRs / PRs with root review comments",
-         "percent", [(int(bool(prs[n].get("merged_at"))), None) for n in comments if comments[n]],
+         "percent", [(int(bool(prs[n].get("merged_at"))), None) for n in comments if comments[n] and "merged_at" not in prs[n].get("_invalid_fields", [])],
          mode="percent", deps=comment_deps, dated=False, kind="leading",
          note="Assumes merged comments were agent-resolved; human-free editing is not verified")
     emit("Deploy", "defects_caught", "Unique defects caught before merge", "defects",
@@ -331,6 +331,8 @@ def compute(snapshot):
     gates = s.github.get("gates")
     closed, opened = [], []
     for gate in gates.data:
+        if "closed_at" in gate.get("_invalid_fields", []):
+            continue
         end = gate.get("closed_at")
         if end:
             closed.append((delta(gate.get("created_at"), end), end))
