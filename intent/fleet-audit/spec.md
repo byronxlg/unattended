@@ -305,3 +305,10 @@ decisions below; where a decision differs from the body above, the decision wins
 12. **Package layout.** `product/fleet_audit/` holds `pyproject.toml` with a `fleet-audit`
     script entry, the package `fleet_audit/`, `fixtures/`, and `tests/`. The acceptance module
     runs offline only; any attempt at live collection under `--offline` is a test failure.
+13. **Declaration directory.** The lab's declaration is `runbook/fleet/fleet.md`, and the
+    tool is pointed at `runbook/fleet`, not `runbook/`. Discovery validates every
+    frontmatter-bearing Markdown file (above), and `runbook/README.md` and
+    `runbook/updates.md` carry the management operator's registry frontmatter, which is a
+    different schema; `declared runbook` exits 3 on them, by design. Nothing in the tool
+    changes: a declaration directory holds declarations only. The supervisor found this when
+    writing the declaration on 2026-10-16 (NZ) and moved the file; the plan's path is amended.

@@ -271,7 +271,7 @@ Branch `change/fleet-audit-4`.
 
 Branch `change/fleet-audit-5`.
 
-- Complete scan and text/JSON reports, report tests, fleet acceptance, capture scan mode and package README. Add `/Users/byron/repos/unattended/runbook/fleet.md` with the accepted lab declaration only.
+- Complete scan and text/JSON reports, report tests, fleet acceptance, capture scan mode and package README. Add `/Users/byron/repos/unattended/runbook/fleet/fleet.md` with the accepted lab declaration only (its own directory: supervisor decision 13; written by the supervisor before this increment).
 - Lab paths: plist `/Users/byron/Library/LaunchAgents/com.unattended.tick.plist`; program `/bin/bash`; full argv `/bin/bash` then `/Users/byron/repos/unattended/bin/tick`; working directory `/Users/byron/repos/unattended`; receipt `/Users/byron/repos/unattended/state/ticks.jsonl`; domain `gui/501`, interval 600, max age 1200, grace 1800. Observe RunAtLoad without declaring it as an expectation.
 - Reuse all twelve real audit rows and three real receipt contents. Freeze synthetic `scan-apple-filter`, `scan-no-label`, `scan-disabled`, `scan-loaded-disabled`, `scan-service-absent`, `scan-empty-coverage`, `report-escaping`, `report-mixed-exits`, `report-unattempted`, and `report-environment-redaction`.
 - `test_scan_twelve_rows_and_both_nix_failures`: retain every non-Apple row, both exit-78 failures and both no-label rows; never infer filename labels.
