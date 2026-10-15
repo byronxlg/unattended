@@ -2,7 +2,7 @@
 import argparse
 from unittest.mock import patch
 from datetime import datetime
-from . import receipts, output, capture, drift
+from . import receipts, output, capture, drift, scan
 import json
 import os
 import sys
@@ -188,15 +188,53 @@ def prove_drift():
                 assert len(value.value) == (2 if 'talagent' in name else 1), name
 
 
+def prove_fleet():
+    class FrozenOnly(datetime):
+        @classmethod
+        def now(cls, *args, **kwargs):
+            raise AssertionError('offline fleet forbids live clock')
+    with patch('fleet_audit.files.datetime', FrozenOnly), patch('fleet_audit.collect.datetime', FrozenOnly), patch('fleet_audit.capture.datetime', FrozenOnly):
+        for path in sorted((FIXTURES / 'fleet').iterdir()):
+            snapshot = load_snapshot(path)
+            expected = snapshot.expected
+            assert expected.get('reviewed') is True, 'unreviewed expected placeholder'
+            report = replay(snapshot, 'scan')
+            assert [j['verdict'] for j in report['jobs']] == expected['verdicts'], path.name
+            assert report['exit_code'] == expected['exit_code'], path.name
+            assert json.loads(render_json(report)) == report
+            assert len(render_text(report).splitlines()) >= len(report['jobs']) + 1
+            for job in report['jobs']:
+                assert job['project'] is None and job['registry'] is None
+                assert all(ref in job['observations'] for ref in job['evidence_refs'])
+                assert job['observations']['receipt']['status'] == 'not_applicable'
+                assert job['verdict'] not in ('healthy_idle', 'late', 'declared_not_loaded')
+            if path.name == 'real-twelve':
+                assert len(report['jobs']) == 12
+                assert sum(j['identity']['label'] is None for j in report['jobs']) == 2
+                for job in report['jobs']:
+                    if job['identity']['label'] in ('org.nixos.skhd', 'org.nixos.yabai'):
+                        assert job['verdict'] == 'failing' and '78 EX_CONFIG' in job['reason']
+                    if job['identity']['label'] == 'homebrew.mxcl.ollama':
+                        assert job['verdict'] == 'running'
+                        assert job['reason'].endswith('useful work not established')
+        # Real receipt contents retain their separate synthetic timing compositions.
+        for name in ('real-content-ran-zero', 'real-content-not-ran', 'real-content-usage-limit'):
+            snapshot = load_snapshot(FIXTURES / 'verdicts' / name)
+            assert snapshot.expected.get('reviewed') is True, 'unreviewed expected placeholder'
+            report = replay(snapshot, 'audit')
+            assert report['jobs'][0]['observations']['receipt']['data']['outcome'] == 'completed'
+            assert report['exit_code'] == snapshot.expected['exit_code']
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Offline registry acceptance")
-    parser.add_argument("stage", choices=["registry", "observer", "verdicts", "drift"])
+    parser.add_argument("stage", choices=["registry", "observer", "verdicts", "drift", "fleet"])
     parser.add_argument("--offline", action="store_true", required=True)
     args = parser.parse_args(argv)
     global _OFFLINE
     _OFFLINE = True
     try:
-        {"registry": prove_registry, "observer": prove_observer, "verdicts": prove_verdicts, "drift": prove_drift}[args.stage]()
+        {"registry": prove_registry, "observer": prove_observer, "verdicts": prove_verdicts, "drift": prove_drift, "fleet": prove_fleet}[args.stage]()
     finally:
         _OFFLINE = False
     print("OK " + args.stage)

@@ -1,132 +1,115 @@
 # Fleet Audit
 
-Python 3.12, with PyYAML 6.0.2. From this directory:
+Read-only Python 3.12 CLI for the current user's launchd GUI domain. Runtime
+requires only PyYAML 6.0.2. From `product/fleet_audit`, install with
+`uv sync --locked`; `uv run fleet-audit --help` lists the commands.
+
+## Commands
+
+`declared` validates version 1 Markdown frontmatter and joins each declaration to
+its plist Label. It collects no service, output or receipt evidence.
 
 ```sh
-uv sync --locked
-uv run fleet-audit --help
-uv run fleet-audit declared /absolute/runbook/directory
-uv run fleet-audit declared /absolute/runbook/directory --json
+uv run fleet-audit declared /Users/byron/repos/unattended/runbook/fleet
+```
+
+`audit` validates first, then observes services, effective disablement, declared
+outputs, receipt completion and three-way drift. Invalid input prevents live
+collection. Explicit domains must match the current user and declarations.
+
+```sh
+uv run fleet-audit audit /Users/byron/repos/unattended/runbook/fleet --domain gui/501 --json
+```
+
+`scan` enumerates `~/Library/LaunchAgents` without a runbook. A valid Label
+beginning `com.apple.` is excluded. Unreadable or no-label plists are excluded
+only when the filename begins `com.apple.`. Other no-label rows remain identified
+by path; filenames never become service labels and those rows have no lookup.
+
+```sh
+uv run fleet-audit scan --domain gui/501
+```
+
+Scan reports `running`, `failing`, `disabled`, `loaded_disabled`, or
+`cannot_determine`. It stats only plist-declared stdout/stderr paths, once per
+unique path across the fleet, without reading their contents. It invents no
+freshness contract, deadline, receipt or drift expectation. Idle interval jobs
+remain uncertain. Running with a pid establishes process presence, not useful
+work; an old log cannot override it. Scan does not inspect system LaunchDaemons,
+cron, other users, executables or working directories. It never runs job programs
+or changes launchd state.
+
+A declaration directory contains declarations only. Use `runbook/fleet`, where
+the supervisor's lab declaration lives at `runbook/fleet/fleet.md`. Do not point
+at `runbook/`: its management frontmatter uses a different schema and correctly
+fails validation. Discovery validates every frontmatter-bearing Markdown file.
+The lab declares interval 600, receipt maximum age 1200 and grace 1800 seconds;
+RunAtLoad is observed but is not a declared expectation.
+
+## Reports and exits
+
+All three commands accept `--json`. Text has one escaped line per job, followed
+by drift and uncertainty details, issues and a summary. Invalid declared text
+reports go to stderr. JSON is one document with schema_version, command, domain,
+observed_at, jobs, issues, summary and exit_code. It includes explicit unknowns,
+unattempted observations, UTC timestamps, ordered argv and observation references.
+Environment keys can appear; environment values are removed.
+
+Exit precedence is **3, 1, 2, 0**:
+
+- **3**: invalid CLI, declaration, plist join or snapshot.
+- **1**: failing, late, declared_not_loaded, loaded_disabled, drift or unexpected disablement.
+- **2**: unresolved uncertainty, incomplete/empty coverage or ancillary errors.
+  Scan disabled has unknown intent and exits 2 unless a definite finding wins.
+- **0**: a nonempty complete fleet containing only running, healthy_idle or
+  explicitly expected-disabled jobs, without drift or uncertainty. Declared
+  returns 0 only for a valid nonempty registry.
+
+Audit compares each requested program, complete argv, directory and schedule
+component across registry-to-disk, registry-to-loaded and disk-to-loaded.
+Unknown comparisons are incomplete, never equal. Loaded policies are not
+inferred from disk for drift. Paths and argv remain literal, without expansion
+or shell splitting. Drift survives a running or failing verdict.
+
+The ticks_jsonl v1 contract parses only the final physical line within a bounded
+64 KiB tail. A tick completes when ran=false with null or `skipped:` error, or
+ran=true with rc=0 and null error. Result text is never a success enum.
+Malformed final lines and concurrent modifications remain uncertain. Receipt
+age uses its timestamp, not log age or mtime. A<=M is fresh, M<A<=M+G is uncertain,
+and A>M+G is late. Future timestamps are uncertain. Mtime-based healthy_idle
+requires explicit mtime sufficiency. Sequential collection is not atomic;
+cross-version launchctl compatibility and supervisor semantic success are not shown.
+
+## Snapshots and verification
+
+Audit and scan accept `--fixture <snapshot-directory>`. Replay uses only indexed
+members and frozen times: no original-path reads, commands or live clock.
+Missing members are invalid input; recorded observation failures remain evidence.
+Real stat projections with unavailable sizes retain null, never an invented zero.
+
+Supervisor capture emits an uncompressed tar stream to stdout and diagnostics
+to stderr. Materialization and live report publication are supervisor tasks.
+
+```sh
+uv run python -m fleet_audit.capture audit /Users/byron/repos/unattended/runbook/fleet --domain gui/501
+uv run python -m fleet_audit.capture scan --domain gui/501
+```
+
+Commands have a 10-second deadline and 4 MiB combined stream bound. Capture
+redacts environment values before archiving, includes member hashes/provenance,
+and emits `expected.json` with `reviewed: false`. Acceptance refuses unreviewed
+expectations. Review assertions independently before using a capture for acceptance.
+
+```sh
 uv run python -m fleet_audit.acceptance registry --offline
+uv run python -m fleet_audit.acceptance observer --offline
+uv run python -m fleet_audit.acceptance verdicts --offline
+uv run python -m fleet_audit.acceptance drift --offline
+uv run python -m fleet_audit.acceptance fleet --offline
 uv run --with pytest pytest -q
 ```
 
-`declared` recursively validates version 1 Markdown frontmatter, reads the declared
-plists, and checks their labels. It returns 0 for a nonempty valid registry and 3
-for invalid input. JSON includes validation errors; errors also go to stderr.
-Paths and complete argument arrays are literal. `declared` opens no executable, working directory,
-output, or receipt. Environment observations contain keys only.
-
-A declared line proves only the registry and plist join.
-It does not establish whether a service is loaded or doing useful work.
-
-Fixtures are adjacent to the installed editable package in this checkout.
-Acceptance uses injected fixture storage and never opens an original host path.
-Synthetic runbooks use `/fleet-fixtures/` logical plist paths. For a console demo,
-copy them into a temporary directory and replace `/fleet-fixtures/` with the
-absolute directory containing copies of the fixture plists. Tests do this preparation
-explicitly; the CLI never rewrites paths.
-See `fixtures/README.md` for provenance and limitations.
-
-Measured on the implementation host: package venv 1.0 MiB before temporary
-console-demo fixtures; installed PyYAML files total 849,283 bytes (including
-metadata and bytecode). The venv did not exist before installation. The shared uv
-cache measured 2.0 GiB both before and after at `du -sh` resolution; a precise
-cache delta was not recorded. Free space remained 2.6 GiB.
-The backend is build-only, pinned to setuptools 75.8.0 in build-system and a
-non-default `build` dependency group so its distribution is included in uv.lock.
-
-## Observer and snapshot workflow
-
-Increment 2 adds `uv run python -m fleet_audit.acceptance observer --offline`.
-It proves rule-1 coverage failures retain declared jobs and checks frozen real
-service and override evidence. Observer replay retains its rule-1-only behavior.
-
-The Python capture API is `capture_snapshot(directory, domain, "audit")` in
-`fleet_audit.capture` ("observer" is also accepted). It reads validated runbooks
-and plists, then collects `/bin/launchctl print` for the domain and each job,
-followed independently by `print-disabled`. Each command has a 10-second deadline
-and a combined 4 MiB stream limit. Children are killed and reaped on limits.
-No job programs run and no launchd state changes.
-
-Pass the returned snapshot and a binary stdout stream to `emit_archive`.
-It emits an uncompressed tar archive and writes no filesystem files. The
-supervisor materializes it into a chosen directory, reviews `expected.json`,
-and uses `load_snapshot(Path(directory))` and `replay(snapshot, "observer")`.
-Members have bounded sizes, SHA-256 and source metadata. Logical absolute paths
-are lookup keys only. Replay uses recorded evidence and clocks, with no live
-fallback. Missing entries or unsafe references are invalid input; recorded
-command or file failures remain evidence. Environment values are removed before
-archive export; plist keys and command environment keys remain.
-
-## Audit and freshness
-
-```sh
-uv run fleet-audit audit /absolute/runbook/directory --domain gui/501 --json
-uv run fleet-audit audit /ignored --fixture fixtures/verdicts/completed-no-result
-uv run python -m fleet_audit.capture audit /absolute/runbook/directory --domain gui/501
-uv run python -m fleet_audit.acceptance verdicts --offline
-```
-
-Audit validates declarations before live collection, observes declared output,
-then evaluates the fourteen rules in order. A running pid establishes process
-presence only. Exit precedence is 3 (invalid input), 1 (definite finding),
-2 (unresolved uncertainty), then 0 (nonempty, complete running, healthy idle,
-or explicitly expected-disabled fleet). Unexpected disabled jobs exit 1;
-ancillary collection errors on running jobs exit 2 unless another finding wins.
-The audit fixture option uses snapshot domains and frozen observation times.
-
-The ticks_jsonl v1 contract reads at most the final 64 KiB of a regular file,
-removes exactly one terminal LF and parses only the last physical line. Blank,
-oversized, malformed UTF-8/JSON, duplicate-key or nonobject final lines fail;
-metadata changes before/after reading or path replacement yield uncertainty,
-without retries. Same-metadata modifications may evade detection. The receipt
-requires timezone-aware `ts`, Boolean `supervisor.ran`, null/integer/decimal-string
-`rc`, and null/string `error`; optional `result` is null/string and never interpreted.
-A tick completes when ran=false with null or `skipped:` error, or ran=true with
-rc=0 and null error. Other non-null errors or a nonzero supervisor rc on ran=true
-fail; other cases remain unestablished. Receipt age uses `ts`, never mtime or logs.
-Freshness budgets come from the declaration: A<=M is fresh, M<A<=M+G is uncertain,
-and A>M+G is late. Future timestamps are uncertain with no skew allowance.
-Explicit mtime sufficiency is required for mtime-based healthy idle.
-
-Original stat-only spike evidence cannot prove receipt completion.
-Capture includes receipt tail bytes and metadata in `receipts/index.json`, plus
-output observations in `stats.json`. Capture placeholders have `reviewed: false`;
-acceptance refuses them until expected assertions are reviewed. No receipt text
-becomes a path or environment input. Replay opens only indexed snapshot members.
-
-
-## Three-way drift
-
-Increment 4 compares each requested program, complete argv, working directory,
-and schedule component across registry-to-disk, registry-to-loaded, and
-disk-to-loaded. Reports retain every comparison and finding independently of the
-verdict. A running job can have drift; any drift finding forces exit 1 unless
-invalid input takes precedence. Text includes finding reasons and JSON includes
-values, status and evidence references.
-
-Program uses the disk Program key when present, otherwise ProgramArguments[0].
-Missing argv is never invented from Program. Arguments retain argv[0], order,
-spaces and empty elements. Paths are literal normalized strings without expansion
-or realpath resolution. Only requested components are compared; all observed
-schedule components remain in evidence. Calendar key and alternative ordering do
-not matter, duplicates collapse, Sunday 7 equals 0, and omitted keys are wildcards.
-Interval and calendar may coexist. Calendar timezone local is an interpretation,
-not a separately observed loaded field.
-
-Unknown, unsupported or absent values make a comparison unknown with an
-uncertainty, never a drift finding. Required unknown comparisons block healthy
-idle. Service absence makes loaded pairs not applicable; omitted expectations
-produce no comparison. Disk omitted KeepAlive and RunAtLoad mean false, but loaded
-policy is never inferred from disk. Only the frozen positive `keepalive` and
-`runatload` property tokens prove true; missing tokens remain unknown and
-unsupported forms retain raw evidence. Rule 8's health-only disk fallback does
-not apply to drift.
-
-```sh
-uv run python -m fleet_audit.acceptance drift --offline
-uv run fleet-audit audit /ignored --fixture fixtures/drift/running-drift --json
-```
-
-Increment 4 adds no scan verdicts, scan CLI/capture, or lab adoption.
+Run `bin/lint` from the repository root. See `fixtures/README.md` for sources,
+synthetic transformations and timestamp limitations. Earlier installation
+measurement: PyYAML files 849,283 bytes including metadata and bytecode; the
+build backend is pinned to setuptools 75.8.0 and is not a runtime dependency.

@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from typing import Protocol
 
 from .launchctl_parse import parse_domain, parse_service, redact_environment
-from .models import CommandData, Coverage, Error, FleetObservation, Observation
+from .models import CommandData, Coverage, Error, FleetObservation, Observation, Unknown
 from .overrides import effective_disabled, parse_overrides
 from .verdicts import coverage_failure
 
@@ -89,10 +89,11 @@ def collect_jobs(jobs, domain, source):
         raise ValueError('job domain mismatch')
     inventory = parse_domain(source.run(('/bin/launchctl', 'print', domain)), domain)
     services = [parse_service(source.run(('/bin/launchctl', 'print', f'{domain}/{job.identity.label}')), job.identity)
+                if job.identity.label is not None else Observation('not_applicable', None, (), None, None, None)
                 for job in jobs]
     overrides = parse_overrides(source.run(('/bin/launchctl', 'print-disabled', domain)))
     globals_ = (('inventory', inventory), ('override', overrides))
-    issues = tuple(f'cannot establish {name}: {" ".join(obs.source_command)} rc={obs.return_code}: {obs.error.message}'
+    issues = tuple(f'cannot establish {name}: {" ".join(obs.source_command)} rc={obs.return_code if obs.return_code is not None else 'unknown'}: {obs.error.message}'
                    for name, obs in globals_ if obs.error is not None)
     if not jobs and not issues:
         issues = ('cannot establish coverage: no discoverable jobs',)
@@ -100,7 +101,7 @@ def collect_jobs(jobs, domain, source):
     observed = []
     for job, service in zip(jobs, services):
         disabled = effective_disabled(job.identity.label, dict(job.observations).get('plist'), overrides)
-        job = replace(job, loaded=service.data.loaded, disabled=disabled,
+        job = replace(job, loaded=service.data.loaded if service.data is not None else Unknown("no usable Label"), disabled=disabled,
                       observations=job.observations + globals_ + (('service', service),))
         observed.append(replace(job, verdict=coverage_failure(job, coverage)))
     return FleetObservation(domain, inventory.observed_at, tuple(observed), coverage)

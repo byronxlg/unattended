@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>KeepAlive</key>
+	<true/>
+	<key>Label</key>
+	<string>org.nixos.skhd</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/nix/store/hfjky7jn05yhiir7x5qwpj7xadz3wxr6-skhd-0.3.9/bin/skhd</string>
+		<string>-c</string>
+		<string>/etc/skhdrc</string>
+	</array>
+</dict>
+</plist>

@@ -63,7 +63,7 @@ class Observation(Generic[T]):
 class Identity:
     host: str
     domain: str
-    label: str
+    label: str | None
 
 
 @dataclass(frozen=True)
@@ -128,8 +128,8 @@ class PlistData:
 @dataclass(frozen=True)
 class JobRecord:
     identity: Identity
-    project: Project
-    registry: Declaration
+    project: Project | None
+    registry: Declaration | None
     plist_path: str
     observations: tuple[tuple[str, Observation], ...]
     loaded: Value[bool] = Unknown("not requested")

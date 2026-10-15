@@ -17,7 +17,7 @@ class Parser(argparse.ArgumentParser):
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = Parser(prog="fleet-audit", description="Validate declarations or audit launchd state and freshness.")
+    parser = Parser(prog="fleet-audit", description="Validate declarations, audit contracts, or scan user LaunchAgents.")
     commands = parser.add_subparsers(dest="command", required=True, parser_class=Parser)
     declared = commands.add_parser("declared", help="validate runbooks and their plist labels")
     declared.add_argument("directory", type=Path)
@@ -27,8 +27,12 @@ def main(argv: list[str] | None = None) -> int:
     audit.add_argument("--domain")
     audit.add_argument("--fixture", type=Path)
     audit.add_argument("--json", action="store_true")
+    scan = commands.add_parser('scan', help='observe non-Apple user LaunchAgents without contracts')
+    scan.add_argument('--domain')
+    scan.add_argument('--fixture', type=Path)
+    scan.add_argument('--json', action='store_true')
     args = parser.parse_args(argv)
-    if args.command == 'audit':
+    if args.command in ('audit', 'scan'):
         try:
             report = run_audit(args)
         except (ValueError, OSError) as exc:
@@ -44,8 +48,12 @@ def main(argv: list[str] | None = None) -> int:
         print(render_json(report))
     elif not registry.errors:
         print(render_text(report))
-    for error in registry.errors:
-        print(error.message, file=sys.stderr)
+    if registry.errors:
+        if args.json:
+            for error in registry.errors:
+                print(error.message, file=sys.stderr)
+        else:
+            print(render_text(report), file=sys.stderr)
     return report["exit_code"]
 
 
@@ -57,11 +65,15 @@ def run_audit(args):
         snapshot = load_snapshot(args.fixture)
         if args.domain is not None and args.domain != snapshot.manifest.domain:
             raise ValueError('domain mismatch')
-        return replay(snapshot, 'audit')
+        return replay(snapshot, args.command)
     domain = args.domain or f'gui/{os.getuid()}'
     if not re.fullmatch(r'gui/\d+', domain) or domain != f'gui/{os.getuid()}':
-        raise ValueError('audit requires current-user domain')
+        raise ValueError(f'{args.command} requires current-user domain')
     files = LocalFiles()
+    if args.command == 'scan':
+        from .scan import scan_plists, scan_fleet
+        discovered = scan_plists(str(Path.home() / 'Library/LaunchAgents'), files, domain)
+        return build_report('scan', scan_fleet(discovered, files, LiveCommands()))
     registry = join_plists(load_registry(args.directory, os.getuid(), files), files)
     if registry.errors:
         return build_report(registry, domain) | {'command': 'audit'}

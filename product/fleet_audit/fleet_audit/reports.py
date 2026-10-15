@@ -29,11 +29,11 @@ def build_report(registry, domain):
     if isinstance(registry, str):
         return audit_report(registry, domain)
     jobs = []
-    for job in sorted(registry.jobs, key=lambda j: (j.project.project, j.registry.id, j.plist_path)):
+    for job in sorted(registry.jobs, key=lambda j: (j.project.project if j.project else 'scan', j.registry.id if j.registry else j.plist_path, j.plist_path)):
         item = serialize(job)
         item["observations"] = {name: serialize(obs) for name, obs in job.observations}
-        for name in ("service", "override", "output", "receipt"):
-            item["observations"][name] = serialize(Observation("not_requested", None, (), None, None, None))
+        for name in ("registry", "plist", "inventory", "service", "override", "output", "receipt"):
+            item["observations"].setdefault(name, serialize(Observation("not_requested", None, (), None, None, None)))
         item["reason"] = ("invalid registry or plist join" if registry.errors else
                           f"joined plist {job.plist_path}; live state not observed")
         item["evidence_refs"] = [name for name, _ in job.observations]
@@ -54,8 +54,8 @@ def render_text(report):
     lines = []
     for job in report["jobs"]:
         identity = job["identity"]
-        lines.append(f"{escaped(job['project']['project'])}/{escaped(job['registry']['id'])} "
-                     f"{escaped(identity['domain'])}/{escaped(identity['label'])} {escaped(job['verdict'])}: {escaped(job['reason'])}")
+        lines.append(f"{escaped(job['project']['project'] if job['project'] else 'scan')}/{escaped(job['registry']['id'] if job['registry'] else job['plist_path'])} "
+                     f"{escaped(identity['domain'])}/{escaped(identity['label'] if identity['label'] is not None else 'no_label')} {escaped(job['verdict'])}: {escaped(job['reason'])}")
     if report["command"] != "declared":
         for job in report["jobs"]:
             lines.extend("drift: " + escaped(finding["reason"]) for finding in job["drift"])
@@ -63,6 +63,7 @@ def render_text(report):
         lines.extend("issue: " + escaped(issue) for issue in report["issues"])
         lines.append("summary: " + json.dumps(report["summary"], sort_keys=True))
         return "\n".join(lines)
+    lines.extend('issue: ' + escaped(issue['message']) for issue in report['issues'])
     lines.append(f"summary: {len(report['jobs'])} declared, {len(report['issues'])} invalid-input errors")
     return "\n".join(lines)
 
@@ -73,7 +74,7 @@ def render_json(report):
 
 def audit_report(command, fleet):
     jobs, counts = [], {}
-    for job in sorted(fleet.jobs, key=lambda j: (j.project.project, j.registry.id, j.plist_path)):
+    for job in sorted(fleet.jobs, key=lambda j: (j.project.project if j.project else 'scan', j.registry.id if j.registry else j.plist_path, j.plist_path)):
         item = serialize(job)
         item['observations'] = {name: serialize(obs) for name, obs in job.observations}
         item['verdict'] = job.verdict.name
@@ -95,14 +96,18 @@ def audit_report(command, fleet):
 def exit_code(report):
     if report['summary'].get('invalid_input_errors', 0):
         return 3
+    if any(isinstance(issue, dict) and issue.get('exit_code') == 3 for issue in report['issues']):
+        return 3
+    if any(isinstance(issue, dict) and issue.get('exit_code') == 1 for issue in report['issues']):
+        return 1
     definite = {'failing', 'late', 'declared_not_loaded', 'loaded_disabled'}
     for job in report['jobs']:
-        if job['verdict'] in definite or job['drift'] or (job['verdict'] == 'disabled' and job['registry']['expected_enabled'] is True):
+        if job['verdict'] in definite or job['drift'] or (job['verdict'] == 'disabled' and (job['registry'] or {}).get('expected_enabled') is True):
             return 1
     if not report['jobs'] or report['issues'] or report['summary'].get('uncertainties', 0):
         return 2
     if any(job['verdict'] not in ('running', 'healthy_idle', 'disabled') or
-           job['verdict'] == 'disabled' and job['registry']['expected_enabled'] is not False for job in report['jobs']):
+           job['verdict'] == 'disabled' and (job['registry'] or {}).get('expected_enabled') is not False for job in report['jobs']):
         return 2
     return 0
 

@@ -140,3 +140,43 @@ produce uncertainty without findings. `running-drift` proves rule 6 remains
 running while independent findings force exit 1.
 
 Increment 1 to 3 fixtures and tests are unchanged.
+
+## Increment 5: scan and complete reports
+
+`fleet/` adds ten small synthetic snapshots: `scan-apple-filter`, `scan-no-label`,
+`scan-disabled`, `scan-loaded-disabled`, `scan-service-absent`,
+`scan-empty-coverage`, `report-escaping`, `report-mixed-exits`,
+`report-unattempted`, and `report-environment-redaction`. They are hand-authored
+cases with synthetic clock 2026-10-16T00:00:00Z. Expected verdicts and exits come
+from decisions 1, 2, 6 and 9, independently of evaluator output. Their manifests
+label sources, timestamp limitations and every member's hash and byte count.
+The redaction snapshot contains a key with an empty placeholder; the test injects
+an ephemeral sentinel to verify that text, JSON and capture remove values.
+
+`fleet/real-twelve` reuses all twelve `observer/audit-*` rows. The composition
+and reconstructed plist bytes are synthetic, not a new host capture. Real
+command members preserve service stdout/stderr and rc from those rows, with
+argv executable canonicalized from `launchctl` to `/bin/launchctl` for indexed
+replay. The separate real snapshot inventory and supervisor print-disabled
+capture corroborate coverage; they are not represented as simultaneous evidence.
+Source is spike commit 18c8e8c and the existing print-disabled fixture. No
+original host paths are opened, and no additional fields are invented.
+
+The composition identity is 2026-10-15T13:37:56.188884Z; discovery is synthetic.
+Per-command and original plist read times remain null. Log mtimes are converted
+from the recorded epoch numbers to UTC; their observation clock is the recorded
+row time, not a newly asserted stat time. Sizes were not captured and remain
+null. Log existence is established by the captured mtime; no contents are read.
+Homebrew skhd, caffeinate and Ollama have running pids; both nix jobs retain
+exit 78/EX_CONFIG. Keystone rows retain null labels and unattempted lookups.
+The tick's RunAtLoad remains observed, and its unavailable environment keys
+are not fabricated from later evidence.
+
+Fleet acceptance also reuses the three `verdicts/real-content-*` compositions
+and their exact real receipt contents; synthetic timing does not assert they
+were final lines during the spike capture. Earlier fixtures and tests remain
+unchanged. The supervisor's declaration now exists at `runbook/fleet/fleet.md`;
+the increment 3 note about its absence describes that earlier increment.
+
+The fleet stage runs under the same fixture-only filesystem/process guard and
+live-clock traps as other stages, and rejects any unreviewed expected placeholder.

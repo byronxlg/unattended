@@ -168,7 +168,7 @@ def load_snapshot(directory):
         commands[key] = obs
     discovery = observation(indexes['discovery'], indexes['discovery']['data'])
     if discovery.data is not None and (not isinstance(discovery.data, list) or not all(isinstance(v, str) for v in discovery.data) or len(discovery.data) > 1000 or len(discovery.data) != len(set(discovery.data))
-                                      or set(discovery.data) != set(groups['runbooks'])):
+                                      or set(discovery.data) != set(groups['plists'] if raw['provenance'].get('mode') == 'scan' else groups['runbooks'])):
         raise ValueError('missing runbook entry')
     snapshot = Snapshot(Manifest(**raw), groups['runbooks'], groups['plists'], commands,
                         json_object(member(indexes['stats'])), json_object(member(indexes['receipts'])),
@@ -194,6 +194,9 @@ class SnapshotFiles:
     def discover(self, directory):
         obj = self.snapshot.manifest.indexes['discovery']
         return observation(obj, tuple(obj['data']) if obj['data'] is not None else None)
+
+    def discover_plists(self, directory):
+        return self.discover(directory)
 
     def stat_output(self, path):
         if path not in self.snapshot.stats:
@@ -233,6 +236,23 @@ def registry_from(snapshot):
 
 
 def validate_entries(snapshot):
+    if snapshot.manifest.provenance.get('mode') == 'scan':
+        from .scan import scan_plists
+        files = SnapshotFiles(snapshot)
+        fleet = scan_plists('/snapshot-plists', files, snapshot.manifest.domain)
+        source = SnapshotCommands(snapshot)
+        source.run(('/bin/launchctl', 'print', fleet.domain))
+        source.run(('/bin/launchctl', 'print-disabled', fleet.domain))
+        for job in fleet.jobs:
+            if job.identity.label is not None:
+                source.run(('/bin/launchctl', 'print', f'{fleet.domain}/{job.identity.label}'))
+            plist = dict(job.observations)['plist']
+            if plist.data is not None:
+                from .models import Known
+                for value in (plist.data.stdout_path, plist.data.stderr_path):
+                    if isinstance(value, Known):
+                        files.stat_output(value.value)
+        return
     registry = registry_from(snapshot)
     if registry.errors:
         return
@@ -249,6 +269,16 @@ def validate_entries(snapshot):
 
 
 def replay(snapshot, command):
+    if command == 'scan':
+        if snapshot.manifest.provenance.get('mode') != 'scan':
+            raise ValueError('scan requires scan snapshot')
+        validate_entries(snapshot)
+        from .scan import scan_plists, scan_fleet
+        files = SnapshotFiles(snapshot)
+        fleet = scan_plists('/snapshot-plists', files, snapshot.manifest.domain)
+        return build_report('scan', scan_fleet(fleet, files, SnapshotCommands(snapshot)))
+    if snapshot.manifest.provenance.get('mode') == 'scan':
+        raise ValueError('audit requires declaration snapshot')
     if command not in ('observer', 'audit'):
         raise ValueError('only observer and audit replay are implemented')
     validate_entries(snapshot)
@@ -290,7 +320,7 @@ def output_observation(obj, path):
         error = data['stat_error']
         if error is not None and (not isinstance(error, dict) or set(error) != {'code', 'message'} or not all(isinstance(v, str) for v in error.values())):
             raise ValueError('invalid stat error')
-        if (data['exists'] is True and (data['size'] is None or data['mtime'] is None or error is not None)
+        if (data['exists'] is True and (data['mtime'] is None or error is not None)
                 or data['exists'] is not True and (data['size'] is not None or data['mtime'] is not None or error is None)):
             raise ValueError('inconsistent output evidence')
         data = OutputData(**(data | {'stat_error': Error(**error) if error else None}))

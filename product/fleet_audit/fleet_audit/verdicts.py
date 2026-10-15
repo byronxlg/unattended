@@ -25,18 +25,18 @@ class Rule:
 
 
 def coverage_match(job, coverage):
-    failures = tuple(f'cannot establish {name}: {" ".join(obs.source_command)} rc={obs.return_code}: {obs.error.message}' for name, obs in coverage.observations if obs.error)
+    failures = tuple(f'cannot establish {name}: {" ".join(obs.source_command)} rc={obs.return_code if obs.return_code is not None else 'unknown'}: {obs.error.message}' for name, obs in coverage.observations if obs.error)
     if not coverage.complete or failures:
-        return Match(tuple(name for name, _ in coverage.observations), '; '.join(coverage.issues or failures or ('cannot establish coverage: inventory rc=None: incomplete coverage',)))
+        return Match(tuple(name for name, _ in coverage.observations), '; '.join(coverage.issues or failures or ('cannot establish coverage: inventory rc=unknown: incomplete coverage',)))
     if not valid_label(job.identity.label) or job.identity.host != 'local':
-        return Match(('registry',), 'cannot establish identity: registry rc=None: unusable identity')
+        return Match(('registry',), 'cannot establish identity: registry rc=unknown: unusable identity')
     service = dict(job.observations).get('service')
     if (not isinstance(job.loaded, Known) or service is None or service.data is None
             or not service.data.structural_valid or service.error is not None):
         source = ' '.join(service.source_command) if service else 'service'
         rc = service.return_code if service else None
         error = service.error.message if service and service.error else 'untrusted service response'
-        return Match(('service',), f'cannot establish loaded: {source} rc={rc}: {error}')
+        return Match(('service',), f'cannot establish loaded: {source} rc={rc if rc is not None else 'unknown'}: {error}')
     return NoMatch()
 
 
@@ -62,7 +62,7 @@ def rule_match(number, job, coverage):
     code = data.last_exit_code if data else None
     no_pid = isinstance(pid, Absent)
     idle = loaded and known(state, 'not running') and no_pid
-    contract = job.registry.output
+    contract = job.registry.output if job.registry else None
     evidence_name = 'receipt' if contract and contract.kind == 'ticks_jsonl' else 'output'
     observation = observations.get(evidence_name)
     evidence = observation.data if observation else None
@@ -72,13 +72,13 @@ def rule_match(number, job, coverage):
     if number == 2 and (not isinstance(disabled, Known) or type(disabled.value) is not bool):
         obs = observations.get('override')
         source = ' '.join(obs.source_command) if obs else 'override'
-        detail = f'disabled state unknown: {source} rc={obs.return_code if obs else None}: {obs.error.message if obs and obs.error else "untrusted disabled state"}'
+        detail = f'disabled state unknown: {source} rc={obs.return_code if obs and obs.return_code is not None else 'unknown'}: {obs.error.message if obs and obs.error else "untrusted disabled state"}'
         refs = ('override', 'plist')
     elif number == 3 and loaded and known(disabled, True):
         detail = f'service loaded but disabled by {origin}; lookup rc=0'
         refs += ('override', 'plist')
     elif number == 4 and absent and known(disabled, True):
-        detail = f'service absent, disabled by {origin}; expected_enabled={str(job.registry.expected_enabled).lower()}; lookup rc=113'
+        detail = f'service absent, disabled by {origin}; expected_enabled={str(job.registry.expected_enabled).lower() if job.registry else 'unknown'}; lookup rc=113'
         refs += ('override', 'plist', 'registry')
     elif number == 5 and absent and known(disabled, False):
         detail = 'service absent; lookup rc=113; load history unknown'
@@ -162,10 +162,14 @@ RULES = (Rule(1, coverage_match, lambda match: Verdict('cannot_determine', 1, ma
 
 
 def evaluate(job, coverage, mode='audit'):
-    if mode != 'audit':
-        raise ValueError('only audit verdicts are implemented')
+    if mode not in ('audit', 'scan'):
+        raise ValueError('unsupported verdict mode')
     for rule in RULES:
         match = rule.predicate(job, coverage)
         if isinstance(match, Match):
+            if mode == 'scan' and rule.id == 5:
+                return Verdict('cannot_determine', 5, 'plist on disk, service absent; not declared', match.evidence_refs)
+            if mode == 'scan' and rule.id == 10:
+                return Verdict('cannot_determine', 10, 'no freshness contract declared', ('registry',))
             return rule.verdict_builder(match)
     raise AssertionError('rule 14 must match')

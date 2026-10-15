@@ -20,7 +20,7 @@ from .snapshot import command_key
 
 
 def capture_snapshot(directory, domain, mode, *, files=None, commands=None, clock=None, macos_label=None):
-    if mode not in ('observer', 'audit') or directory is None or not re.fullmatch(r'gui/\d+', domain):
+    if mode not in ('observer', 'audit', 'scan') or (directory is None and mode != 'scan') or not re.fullmatch(r'gui/\d+', domain):
         raise ValueError('capture requires observer or audit mode, runbook directory and gui domain')
     from .collect import LiveCommands
     if files is None and commands is None and domain != f'gui/{os.getuid()}':
@@ -35,9 +35,13 @@ def capture_snapshot(directory, domain, mode, *, files=None, commands=None, cloc
             self.discovery = files.discover(path)
             return self.discovery
 
+        def discover_plists(self, path):
+            self.discovery = files.discover_plists(path)
+            return self.discovery
+
         def read_regular(self, path, limit):
             obs = files.read_regular(path, limit)
-            target = runbooks if path in (self.discovery.data or ()) else plists
+            target = runbooks if mode != 'scan' and path in (self.discovery.data or ()) else plists
             if target is plists and obs.data is not None:
                 try:
                     obj = plistlib.loads(obs.data)
@@ -56,11 +60,17 @@ def capture_snapshot(directory, domain, mode, *, files=None, commands=None, cloc
             return obs
 
     recorder = RecordingFiles()
-    registry = join_plists(load_registry(Path(directory), int(domain.split('/')[1]), recorder), recorder)
+    if mode == 'scan':
+        from .scan import scan_plists
+        from .models import RegistryResult
+        fleet = scan_plists(directory or str(Path.home() / 'Library/LaunchAgents'), recorder, domain)
+        registry = RegistryResult(fleet.jobs, (), recorder.discovery)
+    else:
+        registry = join_plists(load_registry(Path(directory), int(domain.split('/')[1]), recorder), recorder)
     observations = {}
     if not registry.errors:
         argv_list = [('/bin/launchctl', 'print', domain)]
-        argv_list.extend(('/bin/launchctl', 'print', f'{domain}/{job.identity.label}') for job in registry.jobs)
+        argv_list.extend(('/bin/launchctl', 'print', f'{domain}/{job.identity.label}') for job in registry.jobs if job.identity.label is not None)
         argv_list.append(('/bin/launchctl', 'print-disabled', domain))
         for argv in argv_list:
             obs = commands.run(argv)
@@ -76,6 +86,14 @@ def capture_snapshot(directory, domain, mode, *, files=None, commands=None, cloc
                 stats[contract.path] = serialize(files.stat_output(contract.path))
                 if contract.kind == 'ticks_jsonl':
                     receipts[contract.path] = serialize(files.read_tail(contract.path))
+    if mode == 'scan':
+        from .models import Known
+        for job in registry.jobs:
+            plist = dict(job.observations)['plist']
+            if plist.data is not None:
+                for value in (plist.data.stdout_path, plist.data.stderr_path):
+                    if isinstance(value, Known) and value.value not in stats:
+                        stats[value.value] = serialize(files.stat_output(value.value))
     indexes = {'discovery': serialize(recorder.discovery)}
     manifest = Manifest(1, stamp, domain, macos_label if macos_label is not None else platform.mac_ver()[0], indexes,
                         {'kind': 'real' if files.__class__ is LocalFiles else 'synthetic', 'mode': mode,
@@ -125,8 +143,8 @@ def main(argv=None):
     import argparse
     import sys
     parser = argparse.ArgumentParser(description='Emit a supervisor audit snapshot tar to stdout')
-    parser.add_argument('mode', choices=['audit'])
-    parser.add_argument('directory')
+    parser.add_argument('mode', choices=['audit', 'scan'])
+    parser.add_argument('directory', nargs='?')
     parser.add_argument('--domain', required=True)
     args = parser.parse_args(argv)
     emit_archive(capture_snapshot(args.directory, args.domain, args.mode), sys.stdout.buffer)

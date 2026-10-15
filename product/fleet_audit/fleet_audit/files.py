@@ -44,12 +44,25 @@ def read_regular(path: str, limit: int = LIMIT) -> Observation[bytes]:
 class FileSource(Protocol):
     def read_regular(self, path: str, limit: int = LIMIT) -> Observation[bytes]: ...
     def discover(self, directory: Path) -> Observation[tuple[str, ...]]: ...
+    def discover_plists(self, directory: Path) -> Observation[tuple[str, ...]]: ...
     def stat_output(self, path: str) -> Observation: ...
     def read_tail(self, path: str, limit: int = 65536) -> Observation: ...
 
 
 class LocalFiles:
     read_regular = staticmethod(read_regular)
+
+    def discover_plists(self, directory):
+        try:
+            directory = Path(directory)
+            if directory.is_symlink() or not directory.is_dir():
+                raise OSError('expected LaunchAgents directory')
+            paths = tuple(sorted(str(p) for p in directory.iterdir() if p.name.endswith('.plist')))
+            if len(paths) > 1000:
+                raise OSError('discovery exceeds 1000 files')
+            return observed(paths, ('discover_plists', str(directory)))
+        except OSError as exc:
+            return observed(None, ('discover_plists', str(directory)), Error('discovery', str(exc)))
 
     def stat_output(self, path):
         return stat_output(path)
