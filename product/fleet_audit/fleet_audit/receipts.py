@@ -2,7 +2,7 @@
 import json
 import re
 from dataclasses import replace
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .models import Error, ReceiptData
 from .output import age
@@ -18,8 +18,8 @@ def timestamp(value):
         return None
     try:
         parsed = datetime.fromisoformat(value)
-        return value if parsed.utcoffset() is not None else None
-    except ValueError:
+        return parsed.astimezone(timezone.utc).isoformat().replace('+00:00', 'Z') if parsed.utcoffset() is not None else None
+    except (ValueError, OverflowError):
         return None
 
 

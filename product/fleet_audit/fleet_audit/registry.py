@@ -274,7 +274,8 @@ def parse_frontmatter(path: str, content: bytes, uid: int) -> RegistryResult:
             job.get("expected_enabled", True),
             OutputContract(output["path"], output["kind"], output["max_age_seconds"], output.get("mtime_sufficient", False))
             if output is not None else None, job.get("grace_seconds", 0))
-        jobs.append(JobRecord(declaration.identity, project, declaration, declaration.plist_path, ()))
+        jobs.append(JobRecord(declaration.identity, project, declaration, declaration.plist_path,
+                              (("registry", Observation("attempted", None, ("parse_frontmatter", path), None, None, declaration)),)))
     return unique(RegistryResult(tuple(jobs), (), discovery))
 
 
@@ -319,7 +320,9 @@ def load_registry(directory: Path, uid: int, files: FileSource) -> RegistryResul
                                              f"{path}:frontmatter: {content.error.message}"))
                 continue
             result = parse_frontmatter(path, content.data, uid)
-            jobs.extend(result.jobs)
+            jobs.extend(replace(job, observations=(("registry", replace(content, data=job.registry,
+                                                                      source_command=("parse_frontmatter", path))),))
+                        for job in result.jobs)
             errors.extend(result.errors)
     if not jobs and not errors:
         errors.append(ValidationError(str(directory), "jobs", "empty", f"{directory}:jobs: no declared jobs"))
@@ -350,5 +353,5 @@ def join_plists(registry: RegistryResult, files: FileSource) -> RegistryResult:
             message = "invalid plist: " + "; ".join(e.message for e in observation.data.field_errors)
         if message:
             errors.append(ValidationError(path, field, "plist", f"{path}:{field}: {message}"))
-        jobs.append(replace(job, observations=(("plist", observation),)))
+        jobs.append(replace(job, observations=job.observations + (("plist", observation),)))
     return replace(registry, jobs=tuple(jobs), errors=tuple(errors))

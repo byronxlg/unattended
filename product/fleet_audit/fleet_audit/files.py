@@ -44,12 +44,29 @@ def read_regular(path: str, limit: int = LIMIT) -> Observation[bytes]:
 class FileSource(Protocol):
     def read_regular(self, path: str, limit: int = LIMIT) -> Observation[bytes]: ...
     def discover(self, directory: Path) -> Observation[tuple[str, ...]]: ...
+    def discover_plists(self, directory: Path) -> Observation[tuple[str, ...]]: ...
     def stat_output(self, path: str) -> Observation: ...
     def read_tail(self, path: str, limit: int = 65536) -> Observation: ...
 
 
 class LocalFiles:
     read_regular = staticmethod(read_regular)
+
+    def discover_plists(self, directory):
+        try:
+            directory = Path(directory)
+            if directory.is_symlink() or not directory.is_dir():
+                raise OSError('expected LaunchAgents directory')
+            paths = []
+            with os.scandir(directory) as entries:
+                for entry in entries:
+                    if entry.name.endswith('.plist'):
+                        paths.append(entry.path)
+                        if len(paths) > 1000:
+                            raise OSError('discovery exceeds 1000 files')
+            return observed(tuple(sorted(paths)), ('discover_plists', str(directory)))
+        except OSError as exc:
+            return observed(None, ('discover_plists', str(directory)), Error('discovery', str(exc)))
 
     def stat_output(self, path):
         return stat_output(path)
@@ -90,9 +107,10 @@ def stat_output(path):
             raise OSError('not a regular file')
         stamp = datetime.fromtimestamp(info.st_mtime, timezone.utc).isoformat().replace('+00:00', 'Z')
         return observed(OutputData(path, True, info.st_size, stamp, None, None), ('stat', path))
-    except OSError as exc:
+    except (OSError, ValueError, OverflowError) as exc:
         error = Error('missing' if isinstance(exc, FileNotFoundError) else 'stat', str(exc))
-        return observed(OutputData(path, False if isinstance(exc, FileNotFoundError) else None,
+        exists = False if isinstance(exc, FileNotFoundError) else None
+        return observed(OutputData(path, exists,
                                    None, None, None, error), ('stat', path), error)
 
 

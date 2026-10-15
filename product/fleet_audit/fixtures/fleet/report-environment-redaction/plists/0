@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>SYNTHETIC_KEY</key>
+		<string></string>
+	</dict>
+	<key>Label</key>
+	<string>example</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/echo</string>
+		<string></string>
+		<string>two words</string>
+	</array>
+	<key>StartInterval</key>
+	<integer>600</integer>
+</dict>
+</plist>
