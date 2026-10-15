@@ -1,0 +1,18 @@
+
+	disabled services = {
+		"org.nixos.yabai" => enabled
+		"org.nixos.skhd" => enabled
+		"com.docker.helper" => enabled
+		"com.apple.ManagedClientAgent.enrollagent" => disabled
+		"homebrew.mxcl.supervisor" => enabled
+		"com.okx.a2a" => enabled
+		"com.apple.Siri.agent" => disabled
+		"com.koekeishiya.skhd" => enabled
+		"com.apple.Passwords.MenuBarExtra" => enabled
+		"com.apple.FolderActionsDispatcher" => disabled
+		"homebrew.mxcl.ollama" => enabled
+		"com.openai.chat-helper" => enabled
+		"com.koekeishiya.yabai" => disabled
+		"com.apple.appleseed.seedusaged.postinstall" => disabled
+		"com.apple.ScriptMenuApp" => disabled
+	}
