@@ -7,10 +7,9 @@ changes:
   - slug: fleet-audit
     kind: product
     started: 2026-10-15T12:40:00Z
-    outcome: in_review
-    attempts: 1
+    outcome: building
+    attempts: 3
     plan_match: null
     origin: idea
     prs: [1]
-    notes: five increments per intent/fleet-audit/plan.md; increment 1 (change/fleet-audit-1) dispatched 2026-10-15T14:22Z, built e2f9e54, supervisor review 14:39Z found two Important items (uncaught RecursionError in observe_plist; root pytest collection error), fix job build-fleet-audit-1-fix (29b2ff4) resolved both; PR #1 opened 2026-10-15T14:41:42Z, fresh review review-fleet-audit-1 found two P2 crash paths (both reproduced, accepted as Important, decisions in PR #1 comment), fix job build-fleet-audit-1-fix-2 on the build thread; CI green on 29b2ff4
-
+    notes: five increments per intent/fleet-audit/plan.md. Increment 1 (change/fleet-audit-1) built e2f9e54, supervisor review found two Important items (uncaught RecursionError in observe_plist; root pytest collection error) fixed in 29b2ff4, fresh review found two crash paths (plistlib IndexError/AttributeError; KeepAlive data/date values breaking --json) fixed in 71dfabe; three passes reviewed; PR #1 merged 2026-10-15T14:48:17Z as 7666852, plan matched. Increment 2 (change/fleet-audit-2) dispatched 2026-10-15T14:52Z.
