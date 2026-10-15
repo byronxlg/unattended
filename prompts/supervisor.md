@@ -62,7 +62,9 @@ bounded run (45 min, hard kill), so finish cleanly: commit, push, write state, s
 5. `post_due:<date>`: write `posts/<date>.md` (format in `posts/README.md`): what happened, the
    numbers (`bin/metrics` when it exists, the ledger until then), what was learned, what is next,
    honestly including what went wrong. Commit and push; Actions publishes.
-6. Before ending: `bin/lint`; commit and push lab bookkeeping (`state/*.jsonl`, `state/*.yaml`,
+6. After merging a PR, or whenever `git push` is rejected: `git pull --rebase --autostash` (the
+   tick appends to `state/ticks.jsonl` between runs, so the tree is rarely clean).
+7. Before ending: `bin/lint`; commit and push lab bookkeeping (`state/*.jsonl`, `state/*.yaml`,
    `state/phase.md`, `posts/`, `intent/`) to `main`. Product code reaches `main` only by PR. If
    you are waiting (CI, a job), write a unix epoch into `state/next-run-after` so idle runs do
    not burn Claude usage. End with three lines: did, verified, next.
