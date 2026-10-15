@@ -16,9 +16,9 @@ changes:
   - slug: lab-metrics
     kind: lab
     started: 2026-10-15T08:35:40Z
-    outcome: accepted
+    outcome: building
     attempts: 0
     plan_match: null
     origin: idea
     prs: []
-    notes: intent written day 0 (83ba6d5); supervisor decisions appended 2026-10-16 (docs/metrics.md is the spec, tests at repo root, html fragment contract, gh api only, pages.yml step); plan job plan-lab-metrics dispatched 2026-10-15T19:05Z read-only.
+    notes: intent written day 0 (83ba6d5); supervisor decisions appended 2026-10-16 (docs/metrics.md is the spec, tests at repo root, html fragment contract, gh api only, pages.yml step); plan job plan-lab-metrics (246 s, read-only, gh offline in the sandbox so API shapes not shown) produced the plan, accepted 2026-10-15T19:15Z with seven supervisor decisions (no speculative future fields; root pyproject must not break the inline scripts; two gh processes; h2 fragment; CI guard fix in scope; CLAUDE.md layout line; untrusted-input and emit/accept pattern named); build job build-lab-metrics dispatched 2026-10-15T19:16Z in .worktrees/lab-metrics.
