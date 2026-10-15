@@ -25,3 +25,9 @@ jobs:
           else
             echo "no tests yet"
           fi
+      - name: Fleet Audit registry (Python 3.12)
+        working-directory: product/fleet_audit
+        run: |
+          uv sync --locked
+          uv run python -m fleet_audit.acceptance registry --offline
+          uv run --with pytest pytest -q

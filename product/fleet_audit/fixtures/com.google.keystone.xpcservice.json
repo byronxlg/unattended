@@ -1,0 +1,7 @@
+{
+  "source": "spike/audit.json",
+  "source_commit": "18c8e8c",
+  "collected_at": "2026-10-15T13:37:56.188884+00:00",
+  "plist_path": "/Users/byron/Library/LaunchAgents/com.google.keystone.xpcservice.plist",
+  "declared": {}
+}

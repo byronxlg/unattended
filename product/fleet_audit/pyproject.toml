@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools==75.8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fleet-audit"
+version = "0.1.0"
+requires-python = "==3.12.*"
+dependencies = ["PyYAML==6.0.2"]
+readme = "README.md"
+
+[project.scripts]
+fleet-audit = "fleet_audit.cli:main"
+
+[tool.setuptools]
+packages = ["fleet_audit"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-config --strict-markers"
+
+[dependency-groups]
+# Resolve the pinned backend into uv.lock without installing it at runtime.
+build = ["setuptools==75.8.0"]
