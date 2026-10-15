@@ -61,7 +61,7 @@ def observe_plist(path, files):
     try:
         data = parse_plist(path, content.data)
         return replace(content, data=data, source_command=("plistlib.load", path))
-    except (ValueError, TypeError, OverflowError, ExpatError, plistlib.InvalidFileException) as exc:
+    except (ValueError, TypeError, OverflowError, RecursionError, ExpatError, plistlib.InvalidFileException) as exc:
         # Parser diagnostics can quote input; retain the class, never raw plist values.
         return replace(content, data=None, source_command=("plistlib.load", path),
                        error=Error("invalid_plist", f"{type(exc).__name__}: malformed plist"))
