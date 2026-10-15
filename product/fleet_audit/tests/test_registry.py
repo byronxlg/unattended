@@ -255,10 +255,10 @@ def test_declared_entrypoint_and_no_collection(materialized, capsys, monkeypatch
     for source in package.glob('*.py'):
         for node in ast.walk(ast.parse(source.read_text())):
             if isinstance(node, ast.Import):
-                assert all(alias.name != 'subprocess' for alias in node.names)
+                assert all(alias.name != 'subprocess' or source.name == 'collect.py' for alias in node.names)
             if isinstance(node, ast.ImportFrom):
-                assert node.module != 'subprocess'
-    assert not (package/'collect.py').exists()
+                assert node.module != 'subprocess' or source.name == 'collect.py'
+    assert (package/'collect.py').exists()
     with pytest.raises(AssertionError, match='Library'):
         Path('/Users/byron/Library/forbidden').read_bytes()
     import subprocess

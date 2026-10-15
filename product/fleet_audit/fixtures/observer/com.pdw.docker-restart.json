@@ -1,0 +1,19 @@
+{
+  "provenance": {
+    "kind": "real",
+    "source": "spike commit 18c8e8c spike/fixtures/com.pdw.docker-restart.json",
+    "captured_at": "2026-10-15T13:24:32.844438+00:00",
+    "timestamp_limit": "capture-level clock only; command timestamp unavailable",
+    "transformation": "environment values removed; keys retained"
+  },
+  "record": {
+    "command": [
+      "launchctl",
+      "print",
+      "gui/501/com.pdw.docker-restart"
+    ],
+    "returncode": 0,
+    "stdout": "gui/501/com.pdw.docker-restart = {\n\tactive count = 0\n\tpath = /Users/byron/Library/LaunchAgents/com.pdw.docker-restart.plist\n\ttype = LaunchAgent\n\tstate = not running\n\n\tprogram = /bin/bash\n\targuments = {\n\t\t/bin/bash\n\t\t/Users/byron/repos/pdw/infra/host/docker-weekly-restart.sh\n\t}\n\n\tstdout path = /Users/byron/Library/Logs/pdw-docker-restart.log\n\tstderr path = /Users/byron/Library/Logs/pdw-docker-restart.log\n\tinherited environment = {\n\t\tSSH_AUTH_SOCK => [redacted]\n\t}\n\n\tdefault environment = {\n\t\tPATH => [redacted]\n\t}\n\n\tenvironment = {\n\t\tOSLogRateLimit => [redacted]\n\t\tXPC_SERVICE_NAME => [redacted]\n\t}\n\n\tdomain = gui/501 [100024]\n\tasid = 100024\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 10\n\tlast exit code = 0\n\n\tevent triggers = {\n\t\tcom.pdw.docker-restart.268435471 => {\n\t\t\tkeepalive = 0\n\t\t\tservice = com.pdw.docker-restart\n\t\t\tstream = com.apple.launchd.calendarinterval\n\t\t\tmonitor = com.apple.UserEventAgent-Aqua\n\t\t\tdescriptor = {\n\t\t\t\t\"Minute\" => 30\n\t\t\t\t\"Hour\" => 3\n\t\t\t\t\"Weekday\" => 0\n\t\t\t}\n\t\t}\n\t}\n\n\tevent channels = {\n\t\t\"com.apple.launchd.calendarinterval\" = {\n\t\t\tport = 0xa8073\n\t\t\tactive = 0\n\t\t\tmanaged = 1\n\t\t\treset = 0\n\t\t\thide = 0\n\t\t\twatching = 1\n\t\t}\n\t}\n\n\tresource coalition = {\n\t\tID = 60864\n\t\ttype = resource\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = com.pdw.docker-restart\n\t}\n\n\tjetsam coalition = {\n\t\tID = 60865\n\t\ttype = jetsam\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = com.pdw.docker-restart\n\t}\n\n\tspawn type = daemon (3)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\n\tproperties = inferred program\n}\n",
+    "stderr": ""
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "provenance": {
+    "kind": "synthetic",
+    "source": "increment 2 test recipe",
+    "captured_at": null
+  },
+  "recipe": {
+    "max_bytes": 8
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "provenance": {
+    "kind": "synthetic",
+    "source": "increment 2 test recipe",
+    "captured_at": null
+  },
+  "recipe": {
+    "replace": [
+      "gui/501/",
+      "gui/502/"
+    ]
+  }
+}

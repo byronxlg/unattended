@@ -1,0 +1,12 @@
+{
+  "provenance": {
+    "kind": "synthetic",
+    "source": "increment 2 test recipe",
+    "captured_at": null
+  },
+  "recipe": {
+    "returncode": 113,
+    "stdout": "",
+    "stderr": "Could not find unrelated service\n"
+  }
+}

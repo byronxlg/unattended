@@ -33,3 +33,43 @@ Acceptance uses an indexed file adapter; it fails on any unindexed path. Its
 synthetic observation time is fixed at 2026-10-16T00:00:00Z and is not real evidence.
 Console tests copy synthetic runbooks and replace logical fixture plist paths
 with temporary absolute paths before invoking the declared entry point.
+
+## Observer increment
+
+`observer/` retains three separate real capture groups, all from spike commit
+`18c8e8c`. Each JSON envelope labels its source, capture clock and timestamp
+limitations. The five original named command records are separate from all
+12 `audit-*` rows and the `snapshot-*` records. The original snapshot clock is
+`2026-10-15T13:24:32.844438+00:00`; audit clock is
+`2026-10-15T13:37:56.188884+00:00`. Per-command timestamps were not recorded.
+Audit row `observed_at` numbers are preserved, not merged with either clock.
+Tick run counts remain 28 in the original and 29 in the audit.
+
+Snapshot projections retain inventory, disabled map, blank exit-1 list and three
+Apple parser records. Their normalized projections come from `records.json` at
+the same commit. Apple records are parser inputs only. All environment values
+in command streams have been replaced with `[redacted]`; only keys survive.
+This also applies to default and inherited environments. Plist projections
+retain the original spike's limited fields, not invented original plist bytes.
+
+`print-disabled.json` is real supervisor evidence from
+`intent/fleet-audit/evidence/print-disabled-gui501-2026-10-16.txt`, rc 0.
+Only its capture date, 2026-10-16, is known. It preserves all 15 entries,
+including five disabled Apple labels and disabled com.koekeishiya.yabai.
+
+Synthetic recipe envelopes name blank-success, wrong-domain, wrong-label,
+unrelated-113, truncated-service, duplicate-state, invalid-pid, never-exited,
+override-denied, override-incomplete, override-absent, timeout,
+combined-output-limit, snapshot-missing-entry and snapshot-path-escape.
+Tests apply these recipes to the named real commands or fake process adapters.
+
+`host/` is a synthetic composition, not a new real host capture: registry-valid
+and its reconstructed plist, real blank exit-1 inventory, original tick service,
+and supervisor override map. The manifest indexes members with byte lengths,
+SHA-256, origin and source. Command keys include the synthetic capture identity.
+Legacy list failure is indexed as inventory evidence while its original argv
+is preserved. Synthetic envelope times use source capture clocks, with null
+for the standalone override whose time is unavailable; they are not real command times.
+The reviewed expected assertions are explicit: one retained job, rule 1,
+cannot_determine and rc=1. Capture-generated expected placeholders remain
+unreviewed and cannot be used for acceptance without review.

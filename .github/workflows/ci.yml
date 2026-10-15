@@ -30,4 +30,5 @@ jobs:
         run: |
           uv sync --locked
           uv run python -m fleet_audit.acceptance registry --offline
+          uv run python -m fleet_audit.acceptance observer --offline
           uv run --with pytest pytest -q

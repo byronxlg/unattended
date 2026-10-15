@@ -1,0 +1,1 @@
+{"status": "attempted", "observed_at": "2026-10-15T13:24:32.844438Z", "source_command": ["launchctl", "list"], "return_code": 1, "error": null, "data": {"argv": ["launchctl", "list"], "stdout": "", "stderr": "", "timed_out": false, "truncated": false, "duration_seconds": null}}

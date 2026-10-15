@@ -1,0 +1,63 @@
+{
+  "provenance": {
+    "kind": "real",
+    "source": "spike commit 18c8e8c spike/audit.json",
+    "captured_at": "2026-10-15T13:37:56.188884+00:00",
+    "timestamp_limit": "row observed_at retained separately; capture clock is not command time",
+    "transformation": "environment values removed; keys retained"
+  },
+  "record": {
+    "plist_path": "/Users/byron/Library/LaunchAgents/org.nixos.yabai.plist",
+    "declared": {
+      "Label": "org.nixos.yabai",
+      "ProgramArguments": [
+        "/nix/store/5vijhy32xnjhd42g79w6pwxrns26jg6p-yabai-7.1.5/bin/yabai",
+        "-c",
+        "/nix/store/l7czwzxpa6lqpkq3z2zlvj2lr8bjfcwq-yabairc"
+      ],
+      "KeepAlive": true,
+      "RunAtLoad": true
+    },
+    "declaration_error": null,
+    "record": {
+      "state": "spawn scheduled",
+      "pid": null,
+      "runs": 1,
+      "last_exit_code": 78,
+      "program": "/nix/store/5vijhy32xnjhd42g79w6pwxrns26jg6p-yabai-7.1.5/bin/yabai",
+      "argv": [
+        "/nix/store/5vijhy32xnjhd42g79w6pwxrns26jg6p-yabai-7.1.5/bin/yabai",
+        "-c",
+        "/nix/store/l7czwzxpa6lqpkq3z2zlvj2lr8bjfcwq-yabairc"
+      ],
+      "working_directory": null,
+      "schedule": null,
+      "plist_path": "/Users/byron/Library/LaunchAgents/org.nixos.yabai.plist",
+      "last_exit_text": "EX_CONFIG",
+      "collection_error": null,
+      "parse_warnings": []
+    },
+    "collection": {
+      "command": [
+        "launchctl",
+        "print",
+        "gui/501/org.nixos.yabai"
+      ],
+      "returncode": 0,
+      "stdout": "gui/501/org.nixos.yabai = {\n\tactive count = 0\n\tpath = /Users/byron/Library/LaunchAgents/org.nixos.yabai.plist\n\ttype = LaunchAgent\n\tstate = spawn scheduled\n\n\tprogram = /nix/store/5vijhy32xnjhd42g79w6pwxrns26jg6p-yabai-7.1.5/bin/yabai\n\targuments = {\n\t\t/nix/store/5vijhy32xnjhd42g79w6pwxrns26jg6p-yabai-7.1.5/bin/yabai\n\t\t-c\n\t\t/nix/store/l7czwzxpa6lqpkq3z2zlvj2lr8bjfcwq-yabairc\n\t}\n\n\tinherited environment = {\n\t\tSSH_AUTH_SOCK => [redacted]\n\t}\n\n\tdefault environment = {\n\t\tPATH => [redacted]\n\t}\n\n\tenvironment = {\n\t\tOSLogRateLimit => [redacted]\n\t\tPATH => [redacted]\n\t\tXPC_SERVICE_NAME => [redacted]\n\t}\n\n\tdomain = gui/501 [100024]\n\tasid = 100024\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 1\n\tlast exit code = 78: EX_CONFIG\n\n\tevent triggers = {\n\t\torg.nixos.yabai => {\n\t\t\tkeepalive = 0\n\t\t\tservice = org.nixos.yabai\n\t\t\tstream = com.apple.launchd.helper\n\t\t\tmonitor = com.apple.UserEventAgent-Aqua\n\t\t\tdescriptor = {\n\t\t\t\t\"Executable\" => \"/nix/store/5vijhy32xnjhd42g79w6pwxrns26jg6p-yabai-7.1.5/bin/yabai\"\n\t\t\t\t\"SkipImmediatePoll\" => false\n\t\t\t}\n\t\t}\n\t}\n\n\tevent channels = {\n\t\t\"com.apple.launchd.helper\" = {\n\t\t\tport = 0x0\n\t\t\tactive = 0\n\t\t\tmanaged = 1\n\t\t\treset = 0\n\t\t\thide = 0\n\t\t\twatching = 0\n\t\t}\n\t}\n\n\tresource coalition = {\n\t\tID = 1048\n\t\ttype = resource\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = org.nixos.yabai\n\t}\n\n\tjetsam coalition = {\n\t\tID = 1049\n\t\ttype = jetsam\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = org.nixos.yabai\n\t}\n\n\tspawn type = daemon (3)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tjetsam thread limit = 32\n\tcpumon = default\n\n\tproperties = keepalive | runatload | penalty box | inferred program | managed LWCR | has LWCR\n}\n",
+      "stderr": ""
+    },
+    "observed_at": 1792071476.1888509,
+    "loaded": true,
+    "override_known": true,
+    "override": "enabled",
+    "disabled": false,
+    "schedule": null,
+    "logs": [],
+    "receipt": null,
+    "completion_verified": false,
+    "policy": null,
+    "verdict": "failing",
+    "reason": "KeepAlive=True; spawn scheduled, no PID; exit 78 EX_CONFIG"
+  }
+}
