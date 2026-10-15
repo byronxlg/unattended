@@ -31,7 +31,7 @@ done
 [ -n "$ID" ] && [ -f "$PROMPT" ] || { echo "need --id and --prompt <file>" >&2; exit 2; }
 case "$SANDBOX" in read-only|workspace-write) ;; *) echo "sandbox must be read-only or workspace-write" >&2; exit 2;; esac
 JOB="$ROOT/state/jobs/$ID"; mkdir -p "$JOB"
-cp "$PROMPT" "$JOB/prompt.md"
+[ "$(cd "$(dirname "$PROMPT")" && pwd)/$(basename "$PROMPT")" = "$JOB/prompt.md" ] || cp "$PROMPT" "$JOB/prompt.md"
 ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 
 if [ $BG -eq 1 ]; then
