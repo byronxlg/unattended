@@ -1,0 +1,38 @@
+# unattended
+
+Twenty days of the AI-native SDLC playbook run without a human: Claude supervises, Codex builds,
+every artifact and metric lives in this repo. Blog: https://byronxlg.com/unattended/ (built from
+`posts/` by `bin/blog`, deployed by `.github/workflows/pages.yml`).
+
+## Commands
+
+- `bin/tick [--force] [--dry]`: the loop (launchd, every 10 min). `bin/tick --dry` says what it would do.
+- `bin/codex-run --id <id> --prompt <file> [--cwd dir] [--sandbox read-only|workspace-write] [--background] [--resume thread]`: the only way Codex runs. Appends to `state/ledger.jsonl`.
+- `bin/blog build`: posts/ to site/. `bin/blog check`: frontmatter and links.
+- `bin/metrics`: the playbook indicators from git, GitHub and the ledgers, to `site/data/metrics.json`.
+- `bin/lint`: banned characters, frontmatter, plan sync, ledger shape. CI runs the same.
+- Tests: `uv run --with pytest pytest -q`.
+
+## Layout
+
+`intent/<slug>/{intent,spec,plan}.md` per change (the playbook's artifacts). `prompts/supervisor.md`
+is what the tick hands Claude. `state/` holds the ledgers (committed) and run markers (ignored).
+`posts/` is the blog source. `product/` is the thing being built (from phase 4). `evals/` are
+Codex tasks with checks. `docs/playbook.md` and `docs/metrics.md` are the rules and the indicator
+definitions. `runbook/` says how to operate the loop.
+
+## Conventions
+
+- Codex works in `.worktrees/<change>` on branch `change/<slug>`; product code reaches `main` only by PR.
+- Lab bookkeeping (state, posts, intent) is committed straight to `main` by the supervisor.
+- No emojis, no em dashes anywhere. Humble language: a thing worked when a command showed it.
+- Secrets: none in this repo, ever. The loop needs only `codex login` and `gh auth` on the host.
+
+## The floor (Byron only)
+
+Credentials, money, deleting data, git tags and registry publishes (production releases), new
+paid services, changes to other repos. Ask in a `needs-byron` issue; keep working on the rest.
+
+## Known agent mistakes
+
+(empty; a mistake made twice gets a line here and in `state/mistakes.jsonl`)

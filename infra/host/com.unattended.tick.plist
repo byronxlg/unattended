@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.unattended.tick</string>
+  <!-- The lab's outer loop. launchd re-runs bin/tick every 600 s whatever the previous run did;
+       the script decides whether the supervisor (headless Claude) is needed. Install:
+       cp infra/host/com.unattended.tick.plist ~/Library/LaunchAgents/ &&
+       launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.unattended.tick.plist -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/byron/repos/unattended/bin/tick</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>600</integer>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>WorkingDirectory</key>
+  <string>/Users/byron/repos/unattended</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/Users/byron/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key>
+    <string>/Users/byron</string>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/byron/Library/Logs/unattended-tick.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/byron/Library/Logs/unattended-tick.log</string>
+</dict>
+</plist>

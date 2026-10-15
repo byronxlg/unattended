@@ -1,0 +1,126 @@
+#!/bin/bash
+# The outer loop. launchd runs this every 600 s; it is deterministic bash and invokes the
+# supervisor (headless Claude Code) only when there is something for it to judge:
+#   job_done   a Codex job finished and has not been reviewed (no state/jobs/<id>/reviewed)
+#   post_due   no posts/<today NZ>.md yet and it is 19:00 NZ or later
+#   issue      a new comment or issue on github.com/byronxlg/unattended (Byron's channel)
+#   idle       nothing running, backoff elapsed (state/next-run-after), >= 30 min since the last run
+#   heartbeat  the supervisor has not run for 3 h whatever the other reasons say
+# It skips when a supervisor is already running (pid file) or when a Claude usage limit was hit
+# in the last 60 min (state/model.limited). Codex jobs run detached (bin/codex-run --background),
+# so a running job never blocks the tick; the next tick after it finishes carries the job_done.
+#
+# Usage: bin/tick [--force] [--dry]      Env: SUP_TIMEOUT (s, 2700), SUP_BUDGET_USD (8)
+# Evidence: state/ticks.jsonl, ~/Library/Logs/unattended-tick.log
+set -u
+PATH="/Users/byron/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+# run from a private copy so an in-place edit (git pull) cannot garble a running tick
+if [ -z "${TICK_SELF:-}" ]; then
+  _copy=$(mktemp "${TMPDIR:-/tmp}/utick.XXXXXX") && cat "$0" > "$_copy" && TICK_SELF="$0" exec bash "$_copy" "$@"
+fi
+ROOT="/Users/byron/repos/unattended"; cd "$ROOT" || exit 1
+STATE="$ROOT/state"; mkdir -p "$STATE/jobs"
+PIDF="$STATE/supervisor.pid"; TICKS="$STATE/ticks.jsonl"
+SUP_TIMEOUT="${SUP_TIMEOUT:-2700}"; SUP_BUDGET_USD="${SUP_BUDGET_USD:-8}"
+FORCE=0; DRY=0; for a in "$@"; do case "$a" in --force) FORCE=1;; --dry) DRY=1;; esac; done
+ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+log() { echo "$(ts) $*"; }
+NZ_DATE=$(TZ=Pacific/Auckland date +%F); NZ_HOUR=$(TZ=Pacific/Auckland date +%H)
+TODAY_SHORT=$(TZ=Pacific/Auckland date +%Y%m%d)
+
+# 1. a supervisor already running?
+if [ -f "$PIDF" ] && kill -0 "$(cut -d' ' -f1 "$PIDF")" 2>/dev/null; then
+  log "supervisor running (pid $(cut -d' ' -f1 "$PIDF")), skip"; exit 0
+fi
+rm -f "$PIDF"
+
+# 2. reasons
+REASONS=()
+RUNNING_JOBS=$(ls "$STATE"/jobs/*/running 2>/dev/null | wc -l | tr -d ' ')
+for d in "$STATE"/jobs/*/; do
+  [ -d "$d" ] || continue
+  [ -f "$d/running" ] && continue
+  [ -f "$d/reviewed" ] && continue
+  [ -f "$d/prompt.md" ] || continue
+  # a job that ended (ledger line or killed) and nobody has reviewed
+  if ls "$d"/last.md "$d"/events.jsonl >/dev/null 2>&1; then REASONS+=("job_done:$(basename "$d")"); fi
+done
+[ ! -f "posts/$NZ_DATE.md" ] && [ "$NZ_HOUR" -ge 19 ] && REASONS+=("post_due:$NZ_DATE")
+# Byron's channel: issues and comments newer than the last seen timestamp
+SEEN=$(cat "$STATE/issues.seen" 2>/dev/null || echo "1970-01-01T00:00:00Z")
+LATEST=$(gh api "repos/byronxlg/unattended/issues?state=all&sort=updated&direction=desc&per_page=5" --jq '[.[].updated_at] | max // empty' 2>/dev/null)
+[ -n "$LATEST" ] && [[ "$LATEST" > "$SEEN" ]] && REASONS+=("issue:$LATEST")
+LAST_RUN=$(stat -f %m "$STATE/supervisor.last" 2>/dev/null || echo 0); NOW=$(date +%s)
+NEXT_AFTER=$(cat "$STATE/next-run-after" 2>/dev/null || echo 0)
+if [ "$RUNNING_JOBS" = "0" ] && [ $((NOW-LAST_RUN)) -ge 1800 ] && [ "$NOW" -ge "${NEXT_AFTER:-0}" ]; then REASONS+=("idle"); fi
+[ $((NOW-LAST_RUN)) -ge 10800 ] && REASONS+=("heartbeat")
+[ $FORCE -eq 1 ] && REASONS+=("force")
+
+SUP_RAN=0; SUP_RC=""; SUP_ERR=""
+if [ ${#REASONS[@]} -eq 0 ]; then
+  log "nothing to do (jobs running: $RUNNING_JOBS)"
+elif [ $DRY -eq 1 ]; then
+  log "dry: would run supervisor for ${REASONS[*]}"
+elif [ -n "$(find "$STATE/model.limited" -mmin -60 2>/dev/null)" ]; then
+  SUP_ERR="skipped: usage limit marker under 60 min old"; log "$SUP_ERR (${REASONS[*]})"
+else
+  SUP_RAN=1; touch "$STATE/supervisor.last"
+  LEDGER_TAIL=$(tail -5 "$STATE/ledger.jsonl" 2>/dev/null | cut -c1-600)
+  ISSUES=$(gh issue list -R byronxlg/unattended --state open --json number,title,updatedAt,author --jq '.[] | "#\(.number) \(.updatedAt) \(.author.login): \(.title)"' 2>/dev/null | head -20)
+  CONTEXT="$(cat prompts/supervisor.md)
+
+---
+## This run
+time_utc: $(ts)  (NZ: $(TZ=Pacific/Auckland date '+%F %H:%M'))
+reasons: ${REASONS[*]}
+codex_jobs_running: $RUNNING_JOBS
+disk_free_gib: $(df -k /System/Volumes/Data | awk 'NR==2{printf "%.1f",$4/1048576}')
+phase:
+$(cat state/phase.md 2>/dev/null || echo none)
+open_issues:
+${ISSUES:-none}
+ledger_tail:
+${LEDGER_TAIL:-none}
+git_log:
+$(git log --oneline -8)"
+  OUT="$STATE/supervisor.out"; ERR="$STATE/supervisor.err"; : > "$OUT"
+  TOOLS=("Bash(bin/*:*)" "Bash(git:*)" "Bash(gh:*)" "Bash(uv:*)" "Bash(python3:*)" "Bash(rg:*)" "Bash(fd:*)" \
+         "Bash(ls:*)" "Bash(cat:*)" "Bash(head:*)" "Bash(tail:*)" "Bash(wc:*)" "Bash(jq:*)" "Bash(df:*)" "Bash(date:*)" \
+         "Bash(mkdir:*)" "Bash(cp:*)" "Bash(mv:*)" "Bash(touch:*)" "Bash(diff:*)" "Bash(sed -n:*)" "Bash(sort:*)" "Bash(uniq:*)" \
+         "Bash(curl -s:*)" "Bash(codex login status)" "Bash(/Users/byron/repos/management/bin/tg:*)" \
+         "Read" "Write" "Edit" "Glob" "Grep" "Agent" "WebFetch" "WebSearch")
+  ( exec claude -p "$CONTEXT" --output-format stream-json --verbose --max-budget-usd "$SUP_BUDGET_USD" \
+      --allowedTools "${TOOLS[@]}" > "$OUT" 2> "$ERR" ) &
+  CPID=$!; echo "$CPID $(ts)" > "$PIDF"
+  waited=0
+  while kill -0 "$CPID" 2>/dev/null; do
+    sleep 5; waited=$((waited+5))
+    if [ "$waited" -ge "$SUP_TIMEOUT" ]; then kill "$CPID" 2>/dev/null; sleep 2; kill -9 "$CPID" 2>/dev/null; SUP_ERR="killed after ${SUP_TIMEOUT}s"; break; fi
+  done
+  wait "$CPID" 2>/dev/null; SUP_RC=$?; rm -f "$PIDF"
+  if grep -qiE "usage limit|rate limit|session limit|limit reached|out of extra usage" "$OUT" "$ERR" 2>/dev/null; then
+    touch "$STATE/model.limited"; SUP_ERR="${SUP_ERR:+$SUP_ERR; }usage limit seen, backing off 60 min"
+  fi
+  [ -n "$LATEST" ] && echo "$LATEST" > "$STATE/issues.seen"
+fi
+
+# 3. record
+TICK_TS="$(ts)" REASONS_STR="${REASONS[*]:-}" RUNNING_JOBS="$RUNNING_JOBS" SUP_RAN="$SUP_RAN" SUP_RC="$SUP_RC" SUP_ERR="$SUP_ERR" \
+OUT="${OUT:-}" TICKS="$TICKS" python3 - <<'PY'
+import json, os
+e = os.environ
+rec = {"ts": e["TICK_TS"], "reasons": e["REASONS_STR"].split() if e["REASONS_STR"] else [], "jobs_running": int(e["RUNNING_JOBS"]),
+       "supervisor": {"ran": e["SUP_RAN"] == "1", "rc": e["SUP_RC"] or None, "error": e["SUP_ERR"] or None,
+                      "cost_usd": None, "turns": None, "duration_ms": None, "result": None}}
+if rec["supervisor"]["ran"] and e["OUT"] and os.path.exists(e["OUT"]):
+    last = None
+    for line in open(e["OUT"], errors="replace"):
+        try: o = json.loads(line)
+        except ValueError: continue
+        if isinstance(o, dict) and o.get("type") == "result": last = o
+    if last:
+        rec["supervisor"].update({"cost_usd": last.get("total_cost_usd"), "turns": last.get("num_turns"),
+                                  "duration_ms": last.get("duration_ms"), "result": " ".join(str(last.get("result", "")).split())[:500]})
+with open(e["TICKS"], "a") as f: f.write(json.dumps(rec) + "\n")
+print(json.dumps(rec)[:400])
+PY

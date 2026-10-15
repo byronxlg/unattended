@@ -1,0 +1,16 @@
+# generated site (built by Actions and by bin/blog locally)
+site/
+# per-tick noise and in-flight markers; the ledgers are committed
+state/tick.lock
+state/supervisor.pid
+state/supervisor.out
+state/supervisor.err
+state/model.limited
+state/next-run-after
+state/jobs/*/events.jsonl
+state/jobs/*/stderr.txt
+state/jobs/*/running
+# task worktrees
+.worktrees/
+__pycache__/
+.venv/

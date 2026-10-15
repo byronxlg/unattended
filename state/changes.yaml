@@ -1,0 +1,6 @@
+# One entry per change (a unit of work with its own intent/<slug>/). The supervisor keeps it.
+# Fields: slug, kind (lab|product), started (first conversation, UTC), outcome
+# (open|accepted|closed|building|in_review|merged|reverted), attempts (implementation passes
+# reviewed), plan_match (true|false|null at merge), origin (idea|finding|issue), prs [numbers],
+# notes. bin/metrics reads this with git and GitHub.
+changes: []

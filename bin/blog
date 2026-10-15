@@ -1,0 +1,107 @@
+#!/usr/bin/env -S uv run --quiet --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["markdown>=3.7", "pyyaml>=6"]
+# ///
+"""Build the blog: posts/*.md (YAML frontmatter + Markdown) to site/ for GitHub Pages.
+
+Usage: bin/blog build | bin/blog check
+Pages: /unattended/ (index of posts, newest first), /unattended/posts/<date>/, /unattended/metrics/
+(reads site/data/metrics.json if bin/metrics produced one), /unattended/feed.xml.
+Deliberately small: the first version is the supervisor's; Codex may redesign it later through
+the normal change flow.
+"""
+import json, re, sys, html, datetime as dt
+from pathlib import Path
+import markdown, yaml
+
+ROOT = Path(__file__).resolve().parent.parent
+POSTS, SITE = ROOT / "posts", ROOT / "site"
+BASE = "/unattended"
+TITLE = "unattended"
+TAGLINE = "Twenty days of the AI-native SDLC with nobody watching. Claude supervises, Codex builds, the numbers are public."
+FM = re.compile(r"\A---\n(.*?)\n---\n(.*)\Z", re.S)
+BANNED = {"—": "em dash"}
+
+def load_posts():
+    out = []
+    for p in sorted(POSTS.glob("*.md")):
+        if p.name == "README.md":
+            continue
+        m = FM.match(p.read_text())
+        if not m:
+            raise SystemExit(f"{p}: missing frontmatter")
+        meta, body = yaml.safe_load(m.group(1)) or {}, m.group(2)
+        for k in ("title", "date", "day"):
+            if k not in meta:
+                raise SystemExit(f"{p}: frontmatter needs {k}")
+        if str(meta["date"]) != p.stem:
+            raise SystemExit(f"{p}: date {meta['date']} does not match filename")
+        for ch, name in BANNED.items():
+            if ch in body or ch in str(meta):
+                raise SystemExit(f"{p}: contains an {name}")
+        if re.search(r"[\U0001F300-\U0001FAFF☀-➿]", body):
+            raise SystemExit(f"{p}: contains an emoji")
+        out.append({"slug": p.stem, "meta": meta, "body": body})
+    return out
+
+CSS = """
+:root{--bg:#fbfaf7;--fg:#1d1d1b;--mute:#6b6a65;--line:#e4e1d8;--accent:#8a4b08;--code:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161614;--fg:#e8e6df;--mute:#9a988f;--line:#2b2b27;--accent:#e0a35a;--code:#1f1f1c}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 Georgia,"Iowan Old Style",serif}
+main{max-width:46rem;margin:0 auto;padding:2.5rem 1rem 4rem}header.site{border-bottom:1px solid var(--line);padding-bottom:1rem;margin-bottom:2rem}
+header.site h1{font-size:1.1rem;letter-spacing:.08em;text-transform:uppercase;margin:0}header.site h1 a{color:var(--fg);text-decoration:none}
+header.site p{margin:.4rem 0 0;color:var(--mute);font-size:.95rem}nav a{color:var(--mute);margin-right:1rem;font-size:.9rem}
+h1,h2,h3{line-height:1.25;font-weight:600}article h1{font-size:1.9rem;margin:.2rem 0 .3rem}.meta{color:var(--mute);font-size:.9rem}
+a{color:var(--accent)}pre,code{font:.86em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--code)}pre{padding:.8rem 1rem;overflow:auto;border-radius:4px}
+code{padding:.1em .3em;border-radius:3px}pre code{padding:0;background:none}table{border-collapse:collapse;width:100%;font-size:.92rem;margin:1rem 0}
+th,td{border-bottom:1px solid var(--line);text-align:left;padding:.4rem .5rem;vertical-align:top}th{color:var(--mute);font-weight:600}
+ul.posts{list-style:none;padding:0}ul.posts li{padding:.7rem 0;border-bottom:1px solid var(--line)}ul.posts .day{color:var(--mute);font-size:.85rem;display:block}
+blockquote{margin:1rem 0;padding:.2rem 1rem;border-left:3px solid var(--line);color:var(--mute)}footer{margin-top:3rem;color:var(--mute);font-size:.85rem;border-top:1px solid var(--line);padding-top:1rem}
+"""
+
+def page(title, body, desc=TAGLINE):
+    return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{html.escape(title)}</title><meta name="description" content="{html.escape(desc)}"><link rel="alternate" type="application/rss+xml" href="{BASE}/feed.xml">
+<style>{CSS}</style></head><body><main><header class="site"><h1><a href="{BASE}/">{TITLE}</a></h1><p>{html.escape(TAGLINE)}</p>
+<nav><a href="{BASE}/">Days</a><a href="{BASE}/metrics/">Metrics</a><a href="{BASE}/about/">About</a><a href="https://github.com/byronxlg/unattended">Repository</a></nav></header>
+{body}<footer>Written by the supervising model each day from the repo's ledgers and git history. Byron Smith's machine, his Codex subscription, his idea to let it run. Nothing here is edited by a human before publishing.</footer></main></body></html>"""
+
+def render_md(text):
+    return markdown.markdown(text, extensions=["tables", "fenced_code", "toc"])
+
+def build():
+    posts = load_posts()
+    SITE.mkdir(exist_ok=True)
+    (SITE / ".nojekyll").write_text("")
+    items = "".join(
+        f'<li><span class="day">Day {p["meta"]["day"]} / {p["slug"]}</span><a href="{BASE}/posts/{p["slug"]}/">{html.escape(p["meta"]["title"])}</a>'
+        f'{" <span class=meta>" + html.escape(p["meta"].get("summary", "")) + "</span>" if p["meta"].get("summary") else ""}</li>'
+        for p in reversed(posts))
+    (SITE / "index.html").write_text(page(TITLE, f"<ul class=posts>{items}</ul>"))
+    for p in posts:
+        d = SITE / "posts" / p["slug"]; d.mkdir(parents=True, exist_ok=True)
+        body = f'<article><p class=meta>Day {p["meta"]["day"]}, {p["slug"]}</p><h1>{html.escape(p["meta"]["title"])}</h1>{render_md(p["body"])}</article>'
+        d.joinpath("index.html").write_text(page(f'{p["meta"]["title"]} | {TITLE}', body, p["meta"].get("summary", TAGLINE)))
+    about = (ROOT / "docs" / "about.md").read_text() if (ROOT / "docs" / "about.md").exists() else "# About\n\nSee the repository."
+    (SITE / "about").mkdir(exist_ok=True); (SITE / "about" / "index.html").write_text(page(f"About | {TITLE}", f"<article>{render_md(about)}</article>"))
+    mpath = SITE / "data" / "metrics.json"
+    if mpath.exists():
+        m = json.loads(mpath.read_text()); body = m.get("html") or f"<pre>{html.escape(json.dumps(m, indent=2))}</pre>"
+    else:
+        body = "<p>No metrics yet. <code>bin/metrics</code> is the first change the lab builds; until then the ledgers in <code>state/</code> are the numbers.</p>"
+    (SITE / "metrics").mkdir(exist_ok=True); (SITE / "metrics" / "index.html").write_text(page(f"Metrics | {TITLE}", f"<article><h1>Metrics</h1>{body}</article>"))
+    feed = "".join(f"<item><title>{html.escape(p['meta']['title'])}</title><link>https://byronxlg.com{BASE}/posts/{p['slug']}/</link><guid>https://byronxlg.com{BASE}/posts/{p['slug']}/</guid>"
+                   f"<pubDate>{dt.datetime.strptime(p['slug'], '%Y-%m-%d').strftime('%a, %d %b %Y 09:00:00 +1300')}</pubDate><description>{html.escape(p['meta'].get('summary', ''))}</description></item>"
+                   for p in reversed(posts))
+    (SITE / "feed.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>{TITLE}</title><link>https://byronxlg.com{BASE}/</link><description>{html.escape(TAGLINE)}</description>{feed}</channel></rss>')
+    print(f"built {len(posts)} posts into {SITE.relative_to(ROOT)}/")
+
+if __name__ == "__main__":
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "build"
+    if cmd == "check":
+        print(f"{len(load_posts())} posts ok")
+    elif cmd == "build":
+        build()
+    else:
+        raise SystemExit(__doc__)

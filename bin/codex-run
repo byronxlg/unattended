@@ -1,0 +1,136 @@
+#!/bin/bash
+# Run one Codex job and account for it. The only way Codex is invoked in this repo.
+#
+# Usage: bin/codex-run --id <job-id> --prompt <file> [--cwd <dir>] [--sandbox read-only|workspace-write]
+#                      [--timeout <s>] [--background] [--resume <thread-id>] [--model <m>] [--effort <e>]
+#                      [--kind research|build|review|fix|docs|plan] [--change <slug>] [--review-base <branch>]
+#                      [--web live|cached|disabled] [--hooks]
+#
+# What it records (state/ledger.jsonl, one JSON line per job, the metrics source):
+#   id, kind, change, started, ended, duration_s, rc, killed, sandbox, cwd, model, thread_id,
+#   usage (input/cached/output/reasoning tokens), rate_limits (weekly used_percent after the run),
+#   diff (files/insertions/deletions in cwd vs HEAD, build jobs), last_message (first 400 chars).
+# Everything the run printed is in state/jobs/<id>/ (events.jsonl is gitignored; last.md is kept).
+#
+# Why a wrapper: the playbook's indicators need every agent invocation timestamped and attributed;
+# a bare `codex exec` leaves that in ~/.codex/sessions where nothing reads it.
+set -u
+PATH="/Users/byron/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ID=""; PROMPT=""; CWD="$ROOT"; SANDBOX="workspace-write"; TIMEOUT=3600; BG=0; RESUME=""; MODEL=""; EFFORT=""; KIND="build"; CHANGE=""; REVIEW_BASE=""; WEB="live"; HOOKS=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --id) ID="$2"; shift 2;; --prompt) PROMPT="$2"; shift 2;; --cwd) CWD="$2"; shift 2;;
+    --sandbox) SANDBOX="$2"; shift 2;; --timeout) TIMEOUT="$2"; shift 2;; --background) BG=1; shift;;
+    --resume) RESUME="$2"; shift 2;; --model) MODEL="$2"; shift 2;; --effort) EFFORT="$2"; shift 2;;
+    --kind) KIND="$2"; shift 2;; --change) CHANGE="$2"; shift 2;; --review-base) REVIEW_BASE="$2"; shift 2;;
+    --web) WEB="$2"; shift 2;; --hooks) HOOKS=1; shift;;
+    *) echo "unknown arg $1" >&2; exit 2;;
+  esac
+done
+[ -n "$ID" ] && [ -f "$PROMPT" ] || { echo "need --id and --prompt <file>" >&2; exit 2; }
+case "$SANDBOX" in read-only|workspace-write) ;; *) echo "sandbox must be read-only or workspace-write" >&2; exit 2;; esac
+JOB="$ROOT/state/jobs/$ID"; mkdir -p "$JOB"
+cp "$PROMPT" "$JOB/prompt.md"
+ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+
+if [ $BG -eq 1 ]; then
+  nohup "$0" --id "$ID" --prompt "$PROMPT" --cwd "$CWD" --sandbox "$SANDBOX" --timeout "$TIMEOUT" \
+    ${RESUME:+--resume "$RESUME"} ${MODEL:+--model "$MODEL"} ${EFFORT:+--effort "$EFFORT"} --kind "$KIND" ${CHANGE:+--change "$CHANGE"} \
+    ${REVIEW_BASE:+--review-base "$REVIEW_BASE"} --web "$WEB" $([ $HOOKS -eq 1 ] && echo --hooks) \
+    > "$JOB/wrapper.log" 2>&1 &
+  echo "started job $ID in background (pid $!), state/jobs/$ID/"; exit 0
+fi
+
+echo "$$ $(ts)" > "$JOB/running"
+START=$(date +%s); STARTED="$(ts)"
+BASE_SHA=$(git -C "$CWD" rev-parse HEAD 2>/dev/null || echo "")
+# Common overrides. The user config says approval never and full access; exec gets the sandbox
+# it was asked for, network inside it (packages, docs), live web search, and no approval prompts
+# (exec cannot answer them anyway). Hooks in <cwd>/.codex/hooks.json only run with the trust
+# bypass, so --hooks is explicit. docs/codex-notes.md has the evidence for each flag.
+COMMON=(--json -C "$CWD" -o "$JOB/last.md" -c "sandbox_mode=\"$SANDBOX\"" -c 'sandbox_workspace_write.network_access=true'
+        -c 'approval_policy="never"' -c "web_search=\"$WEB\"")
+[ -n "$MODEL" ] && COMMON+=(-m "$MODEL")
+[ -n "$EFFORT" ] && COMMON+=(-c "model_reasoning_effort=\"$EFFORT\"")
+[ $HOOKS -eq 1 ] && COMMON+=(--dangerously-bypass-hook-trust)
+if [ -n "$REVIEW_BASE" ]; then
+  # a fresh-context review of the branch against its base; the prompt file carries extra focus
+  ARGS=(exec "${COMMON[@]}" review --base "$REVIEW_BASE")
+elif [ -n "$RESUME" ]; then
+  ARGS=(exec "${COMMON[@]}" resume "$RESUME" -)
+else
+  ARGS=(exec "${COMMON[@]}" -)
+fi
+( exec codex "${ARGS[@]}" < "$JOB/prompt.md" > "$JOB/events.jsonl" 2> "$JOB/stderr.txt" ) &
+CPID=$!
+KILLED=0; waited=0
+while kill -0 "$CPID" 2>/dev/null; do
+  sleep 5; waited=$((waited+5))
+  if [ "$waited" -ge "$TIMEOUT" ]; then kill "$CPID" 2>/dev/null; sleep 3; kill -9 "$CPID" 2>/dev/null; KILLED=1; break; fi
+done
+wait "$CPID" 2>/dev/null; RC=$?
+END=$(date +%s); ENDED="$(ts)"
+rm -f "$JOB/running"
+
+# Account for the run. Python reads the event stream and the session rollout (for rate limits).
+JOB="$JOB" ID="$ID" KIND="$KIND" CHANGE="$CHANGE" STARTED="$STARTED" ENDED="$ENDED" DUR=$((END-START)) RC="$RC" KILLED="$KILLED" \
+SANDBOX="$SANDBOX" CWD="$CWD" BASE_SHA="$BASE_SHA" ROOT="$ROOT" MODEL_ARG="$MODEL" python3 - <<'PY'
+import json, os, glob, subprocess, re
+e = os.environ; job = e["JOB"]
+events = []
+for line in open(f"{job}/events.jsonl", errors="replace"):
+    try: events.append(json.loads(line))
+    except ValueError: pass
+thread = next((x.get("thread_id") for x in events if x.get("type") == "thread.started"), None)
+usage = {}
+for x in events:
+    if x.get("type") == "turn.completed" and isinstance(x.get("usage"), dict):
+        for k, v in x["usage"].items():
+            if isinstance(v, (int, float)): usage[k] = usage.get(k, 0) + v
+items = [x.get("item", {}) for x in events if x.get("type") == "item.completed"]
+kinds = {}
+for it in items: kinds[it.get("type", "?")] = kinds.get(it.get("type", "?"), 0) + 1
+# rate limits and model from the session rollout, which carries what the --json stream does not
+rate, model = None, e["MODEL_ARG"] or None
+if thread:
+    for f in glob.glob(os.path.expanduser(f"~/.codex/sessions/*/*/*/rollout-*{thread}*.jsonl")):
+        def find(o, key):
+            if isinstance(o, dict):
+                if key in o and o[key] is not None: return o[key]
+                for v in o.values():
+                    r = find(v, key)
+                    if r is not None: return r
+            elif isinstance(o, list):
+                for v in o:
+                    r = find(v, key)
+                    if r is not None: return r
+            return None
+        for line in open(f, errors="replace"):
+            try: o = json.loads(line)
+            except ValueError: continue
+            r = find(o, "rate_limits")
+            if isinstance(r, dict) and r.get("primary"):
+                rate = {"primary": r.get("primary"), "secondary": r.get("secondary"), "plan_type": r.get("plan_type")}
+            if not model:
+                m = find(o, "model")
+                if isinstance(m, str): model = m
+diff = None
+if e["SANDBOX"] == "workspace-write" and e["BASE_SHA"]:
+    try:
+        out = subprocess.run(["git", "-C", e["CWD"], "diff", "--shortstat", e["BASE_SHA"]], capture_output=True, text=True, timeout=30).stdout
+        nums = {k: int(v) for v, k in re.findall(r"(\d+) (file|insertion|deletion)", out)}
+        diff = {"files": nums.get("file", 0), "insertions": nums.get("insertion", 0), "deletions": nums.get("deletion", 0)}
+    except Exception: pass
+last = ""
+try: last = open(f"{job}/last.md").read()
+except OSError: pass
+rec = {"id": e["ID"], "kind": e["KIND"], "change": e["CHANGE"] or None, "started": e["STARTED"], "ended": e["ENDED"],
+       "duration_s": int(e["DUR"]), "rc": int(e["RC"]), "killed": e["KILLED"] == "1", "sandbox": e["SANDBOX"],
+       "cwd": os.path.relpath(e["CWD"], e["ROOT"]), "model": model, "thread_id": thread, "usage": usage or None,
+       "rate_limits": rate, "items": kinds or None, "diff": diff, "last_message": " ".join(last.split())[:400] or None}
+with open(f"{e['ROOT']}/state/ledger.jsonl", "a") as f: f.write(json.dumps(rec) + "\n")
+print(json.dumps({k: rec[k] for k in ("id", "duration_s", "rc", "killed", "usage", "diff")}))
+if rate and rate.get("primary"): print("codex weekly window used:", rate["primary"].get("used_percent"), "%")
+PY
+exit "$RC"
