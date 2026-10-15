@@ -215,6 +215,8 @@ def test_plist_join_errors():
              (None, Error('unreadable', 'denied'), 'plist unreadable: denied'),
              (None, Error('too_large', 'file exceeds 1048576 bytes'), 'plist unreadable: file exceeds 1048576 bytes'),
              (b'invalid', None, 'invalid plist: InvalidFileException: malformed plist'),
+             (b'<plist><key>x</key></plist>', None, 'invalid plist: IndexError: malformed plist'),
+             (b'<plist><date>x</date></plist>', None, 'invalid plist: AttributeError: malformed plist'),
              (plistlib.dumps({}), None, 'plist Label missing'),
              (plistlib.dumps({'Label': 'wrong'}), None, 'plist Label wrong differs from com.unattended.tick')]
     class FakeFiles:

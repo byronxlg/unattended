@@ -2,10 +2,13 @@ import json
 import plistlib
 import struct
 from dataclasses import replace
+from datetime import datetime
+
+import pytest
 
 from fleet_audit.acceptance import FIXTURES, FixtureFiles
 from fleet_audit.files import LIMIT, observed
-from fleet_audit.models import Absent, Known, Unknown, Unsupported
+from fleet_audit.models import Absent, Error, Known, Unknown, Unsupported
 from fleet_audit.plists import parse_plist
 from fleet_audit.registry import join_plists, load_registry
 from fleet_audit.reports import build_report, serialize
@@ -44,6 +47,20 @@ def test_xml_binary_presence_and_environment_keys():
     tick = parse_plist('tick', (FIXTURES/'com.unattended.tick.plist').read_bytes())
     assert tick.schedule.run_at_load == Known(True)
     assert tick.schedule.interval_seconds == Known(600)
+
+
+@pytest.mark.parametrize('value', [b'a', datetime(2026, 10, 16)])
+@pytest.mark.parametrize('nesting', ['direct', 'list', 'dict'])
+def test_keep_alive_rejects_non_json_values(value, nesting):
+    nested = {'direct': value, 'list': [value], 'dict': {'nested': value}}[nesting]
+    content = plistlib.dumps({'KeepAlive': {'x': nested}})
+    parsed = parse_plist('invalid-policy', content)
+    assert parsed.schedule.keep_alive == Unknown('invalid value')
+    assert parsed.field_errors == (Error('plist_field', 'KeepAlive: invalid value'),)
+    report = json.loads(json.dumps(serialize(parsed)))
+    assert report['schedule']['keep_alive'] == {
+        'status': 'unknown', 'value': None, 'reason': 'invalid value'}
+    assert report['field_errors'] == [{'code': 'plist_field', 'message': 'KeepAlive: invalid value'}]
 
 
 def test_recursive_binary_plist_join_error(monkeypatch):

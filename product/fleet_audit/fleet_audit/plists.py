@@ -1,7 +1,6 @@
 """Typed plist fields, preserving presence without retaining environment values."""
 import plistlib
 from dataclasses import replace
-from xml.parsers.expat import ExpatError
 
 from .files import LIMIT
 from .models import Absent, Error, Known, PlistData, Schedule, Unknown, Unsupported
@@ -13,6 +12,14 @@ def frozen(value):
     if isinstance(value, list):
         return tuple(frozen(v) for v in value)
     return value
+
+
+def safe_policy_value(value):
+    if isinstance(value, dict):
+        return all(isinstance(k, str) and safe_policy_value(v) for k, v in value.items())
+    if isinstance(value, list):
+        return all(safe_policy_value(v) for v in value)
+    return type(value) in (bool, int, str)
 
 
 def parse_plist(path: str, content: bytes) -> PlistData:
@@ -37,7 +44,9 @@ def parse_plist(path: str, content: bytes) -> PlistData:
     if "Program" not in obj and isinstance(arguments, Known):
         program = Known(arguments.value[0])
     if isinstance(obj.get("KeepAlive"), dict):
-        keep_alive = Unsupported(frozen(obj["KeepAlive"]), "KeepAlive mappings are unsupported")
+        keep_alive = field("KeepAlive", safe_policy_value, frozen)
+        if isinstance(keep_alive, Known):
+            keep_alive = Unsupported(keep_alive.value, "KeepAlive mappings are unsupported")
     else:
         keep_alive = field("KeepAlive", lambda v: type(v) is bool, default=False)
     environment = field("EnvironmentVariables", lambda v: isinstance(v, dict)
@@ -61,7 +70,8 @@ def observe_plist(path, files):
     try:
         data = parse_plist(path, content.data)
         return replace(content, data=data, source_command=("plistlib.load", path))
-    except (ValueError, TypeError, OverflowError, RecursionError, ExpatError, plistlib.InvalidFileException) as exc:
+    except Exception as exc:
+        # Untrusted plist parsing can raise exceptions beyond plistlib's documented errors.
         # Parser diagnostics can quote input; retain the class, never raw plist values.
         return replace(content, data=None, source_command=("plistlib.load", path),
                        error=Error("invalid_plist", f"{type(exc).__name__}: malformed plist"))
