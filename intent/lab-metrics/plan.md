@@ -243,7 +243,7 @@ Reject committing metrics JSON or using wall-clock generation time: generated Pa
 
 - [x] Add package, dependency metadata and provenance-labelled fixtures. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py -k real_fixture_shapes`; expect `1 passed`.
 - [x] Implement readers, normalization and bounded GitHub client. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py`; expect summary containing `passed`, no failures.
-- [ ] Implement every indicator and cost calculation. Prove with `uv run --with pytest pytest -q tests/test_metrics_indicators.py`; expect summary containing `passed`, no failures.
+- [x] Implement every indicator and cost calculation. Prove with `uv run --with pytest pytest -q tests/test_metrics_indicators.py`; expect summary containing `passed`, no failures.
 - [ ] Implement output and CLI. Prove with `uv run --with pytest pytest -q tests/test_metrics_output.py`; expect summary containing `passed`, no failures.
 - [ ] Wire Pages and repair CI test collection. Prove with `uv run --with pytest pytest -q tests/test_metrics_integration.py`; expect summary containing `passed`, including runtime assertion.
 - [ ] Run `bin/metrics` and `bin/blog build`; expect `metrics: N indicators, U unavailable, S skipped` and `built N posts into site/`. Inspect the metrics page and unavailable notes; numeric counts depend on current inputs.

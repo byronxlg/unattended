@@ -173,6 +173,11 @@ def read_head(root):
 
 def read_artifact_history(root, slugs):
     result = SourceResult()
+    try:
+        ordered = git(root, ["rev-list", "--reverse", "--topo-order", "HEAD"]).splitlines()
+    except (OSError, subprocess.SubprocessError):
+        return SourceResult(False, "git history unavailable")
+    positions = {sha: i for i, sha in enumerate(ordered)}
     for slug in sorted(set(slugs)):
         if not isinstance(slug, str) or not re.fullmatch(r"[a-zA-Z0-9_-]+", slug):
             result.warn("invalid_slug")
@@ -198,7 +203,7 @@ def read_artifact_history(root, slugs):
                 seen.add(sha)
                 result.data.append(dict(slug=slug, artifact=artifact, sha=sha,
                                         committed_at=timestamp(stamp, result),
-                                        added=sha == first, order=order))
+                                        added=sha == first, order=positions.get(sha, order)))
     return result
 
 
