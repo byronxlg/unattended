@@ -242,7 +242,7 @@ Reject committing metrics JSON or using wall-clock generation time: generated Pa
 ## Build order and proving commands
 
 - [x] Add package, dependency metadata and provenance-labelled fixtures. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py -k real_fixture_shapes`; expect `1 passed`.
-- [ ] Implement readers, normalization and bounded GitHub client. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py`; expect summary containing `passed`, no failures.
+- [x] Implement readers, normalization and bounded GitHub client. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py`; expect summary containing `passed`, no failures.
 - [ ] Implement every indicator and cost calculation. Prove with `uv run --with pytest pytest -q tests/test_metrics_indicators.py`; expect summary containing `passed`, no failures.
 - [ ] Implement output and CLI. Prove with `uv run --with pytest pytest -q tests/test_metrics_output.py`; expect summary containing `passed`, no failures.
 - [ ] Wire Pages and repair CI test collection. Prove with `uv run --with pytest pytest -q tests/test_metrics_integration.py`; expect summary containing `passed`, including runtime assertion.
@@ -271,3 +271,9 @@ Reject committing metrics JSON or using wall-clock generation time: generated Pa
    timezone conversion must degrade to a diagnostic (skipped, counted, named in `diagnostics`),
    never raise; and every shape `compute` emits must be accepted by `render_document`, proved
    by tests that run the two together on the synthetic fixtures.
+
+## Implementation departures
+- Normalized records use dictionaries within dataclass source/snapshot contracts, avoiding
+  duplicate field storage while retaining the documented field names.
+- GitHub collection is sequential (one subprocess at a time), below the amended limit of
+  two, with the same global and per-call deadlines and in-memory cache.
