@@ -37,3 +37,25 @@ the worktree's commits go through. Nothing was lost (the files were on disk, the
 committed them on the spike branches) but it is a lab tooling bug, not a Codex mistake:
 bin/codex-run now passes `--add-dir <root>/.git` and `--add-dir ~/.cache/uv` for workspace-write
 jobs. The uv cache was the other sandbox collision; each spike worked around it differently.
+
+## Spike 2 (fleet-audit interpretation), 02:50 NZ
+
+Job spike-fleet-audit-2, rc 0, 356 seconds, weekly window 7 percent after it. Proving command in
+the same worktree: `uv run --with pytest pytest -q spike/` printed `62 passed in 0.07s`.
+
+Pass criterion from the provisional decision: at least one true finding a person would act on, and
+no wrong verdict against the plist and the service's own evidence. Result: pass.
+
+- True findings: org.nixos.skhd and org.nixos.yabai, both KeepAlive, loaded, no PID, state
+  `spawn scheduled`, last exit `78: EX_CONFIG`. The supervisor re-ran `launchctl print
+  gui/501/org.nixos.skhd` and `plutil -p` on its plist: same state, exit code and KeepAlive true.
+  A person would reconcile the two installations (nix and Homebrew) of each window manager.
+- Also checked: com.koekeishiya.yabai is `disabled` in `launchctl print-disabled gui/501`, and
+  com.google.keystone.agent.plist is an empty dictionary. Both verdicts match.
+- The six cannot_determine verdicts are honest: the policy gives freshness contracts only to the
+  ticks, and an mtime cannot show supervisor completion. Codex's reading of bin/tick is right
+  (a skip can exit 0 before the receipt append; the result field is inside the receipt). The
+  intent takes this as a requirement: receipts are read as JSONL, not statted, when declared.
+- Policy error found by the spike: 20 minutes plus 30 grace was implemented as a 50 minute
+  threshold on the receipt mtime. The intent fixes the contract: max age and grace are separate
+  fields with defined meanings, and a 45 minute supervisor run must not read as late.
