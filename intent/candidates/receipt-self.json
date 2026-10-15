@@ -1,0 +1,16 @@
+{
+  "before": {
+    "timestamp_utc": "2026-10-15T13:21:43.220341+00:00",
+    "git rev-parse --abbrev-ref HEAD": "spike/pr-evidence\n",
+    "git rev-parse HEAD": "4e8a18d820eeb1cb360547885a09fae6c2b9d655\n",
+    "git status --porcelain=v1": "",
+    "git rev-parse --show-toplevel": "/Users/byron/repos/unattended/.worktrees/spike-pr-evidence\n"
+  },
+  "after": {
+    "timestamp_utc": "2026-10-15T13:26:20.466059+00:00",
+    "git rev-parse --abbrev-ref HEAD": "spike/pr-evidence\n",
+    "git rev-parse HEAD": "4e8a18d820eeb1cb360547885a09fae6c2b9d655\n",
+    "git status --porcelain=v1": "?? spike/\n",
+    "git rev-parse --show-toplevel": "/Users/byron/repos/unattended/.worktrees/spike-pr-evidence\n"
+  }
+}

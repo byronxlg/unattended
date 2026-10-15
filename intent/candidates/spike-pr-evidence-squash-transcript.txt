@@ -1,0 +1,42 @@
+repo=/tmp/pr-evidence-hls2_whv
+$ git -C /tmp/pr-evidence-hls2_whv init -q -b main
+$ git -C /tmp/pr-evidence-hls2_whv config user.name Spike
+$ git -C /tmp/pr-evidence-hls2_whv config user.email spike@example.invalid
+$ git -C /tmp/pr-evidence-hls2_whv commit -q --allow-empty -m base
+$ git -C /tmp/pr-evidence-hls2_whv switch -q -c change/demo
+$ git -C /tmp/pr-evidence-hls2_whv rev-parse HEAD
+c22209bcd48ea666e992ecf438f256bb4c97d325
+$ git -C /tmp/pr-evidence-hls2_whv status --porcelain=v1
+$ git -C /tmp/pr-evidence-hls2_whv add work.txt
+$ git -C /tmp/pr-evidence-hls2_whv commit -q -m work-1
+$ git -C /tmp/pr-evidence-hls2_whv add work.txt
+$ git -C /tmp/pr-evidence-hls2_whv commit -q -m work-2
+$ git -C /tmp/pr-evidence-hls2_whv add work.txt
+$ git -C /tmp/pr-evidence-hls2_whv commit -q -m work-3
+$ git -C /tmp/pr-evidence-hls2_whv rev-parse HEAD
+b3be192f6e7b3a0531c1f16f8946bd630538a285
+$ git -C /tmp/pr-evidence-hls2_whv status --porcelain=v1
+$ git -C /tmp/pr-evidence-hls2_whv merge-base --is-ancestor c22209bcd48ea666e992ecf438f256bb4c97d325 b3be192f6e7b3a0531c1f16f8946bd630538a285
+$ git -C /tmp/pr-evidence-hls2_whv rev-list --reverse c22209bcd48ea666e992ecf438f256bb4c97d325..b3be192f6e7b3a0531c1f16f8946bd630538a285
+091195156f0e5fa8d8fae1a47b5c6f380becc15c
+3ca3f53f8541c688880b948f79d3c78c92c08db4
+b3be192f6e7b3a0531c1f16f8946bd630538a285
+$ git -C /tmp/pr-evidence-hls2_whv switch -q main
+$ git -C /tmp/pr-evidence-hls2_whv merge --squash change/demo
+Updating c22209b..b3be192
+Fast-forward
+Squash commit -- not updating HEAD
+ work.txt | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 work.txt
+$ git -C /tmp/pr-evidence-hls2_whv commit -q -m squash
+$ git -C /tmp/pr-evidence-hls2_whv rev-parse HEAD
+d1c501f29dfc45f508fd1d8ca654d1e696195d05
+$ git -C /tmp/pr-evidence-hls2_whv branch -D change/demo
+Deleted branch change/demo (was b3be192).
+$ git -C /tmp/pr-evidence-hls2_whv rev-list main
+d1c501f29dfc45f508fd1d8ca654d1e696195d05
+c22209bcd48ea666e992ecf438f256bb4c97d325
+saved snapshot: exact, 3 original commits
+walking main: 0/3 original commits
+squash attributed to invocation: False

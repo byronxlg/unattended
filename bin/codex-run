@@ -51,6 +51,9 @@ BASE_SHA=$(git -C "$CWD" rev-parse HEAD 2>/dev/null || echo "")
 # bypass, so --hooks is explicit. docs/codex-notes.md has the evidence for each flag.
 COMMON=(--json -C "$CWD" -o "$JOB/last.md" -c "sandbox_mode=\"$SANDBOX\"" -c 'sandbox_workspace_write.network_access=true'
         -c 'approval_policy="never"' -c "web_search=\"$WEB\"")
+# Worktrees share the main repo's .git (index.lock, objects) and uv needs its cache; without these
+# every workspace-write job in a worktree ends with "Unable to create index.lock" (three spikes, day 1).
+[ "$SANDBOX" = "workspace-write" ] && COMMON+=(--add-dir "$ROOT/.git" --add-dir "$HOME/.cache/uv")
 [ -n "$MODEL" ] && COMMON+=(-m "$MODEL")
 [ -n "$EFFORT" ] && COMMON+=(-c "model_reasoning_effort=\"$EFFORT\"")
 [ $HOOKS -eq 1 ] && COMMON+=(--dangerously-bypass-hook-trust)

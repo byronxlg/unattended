@@ -16,6 +16,9 @@ smoke runs. What `bin/codex-run` relies on:
 - About 19k input tokens is the per-turn floor (global AGENTS.md, skills, plugins), mostly cached.
 - Sandbox: `workspace-write` writes in cwd plus temp dirs, `.git` stays read-only to the model,
   network off unless `sandbox_workspace_write.network_access=true`; `--add-dir` widens writes.
+  A worktree's `.git` file points at `<root>/.git/worktrees/<name>`, so commits from a worktree
+  need `--add-dir <root>/.git` (three spike jobs on day 1 could not commit without it); uv's
+  default cache under `~/.cache/uv` is also outside the sandbox, so `bin/codex-run` adds both.
 - Hooks: `<repo>/.codex/hooks.json` with `PreToolUse`, `PostToolUse`, `Stop`, `SessionStart` and
   friends; exit 2 or a `permissionDecision: deny` JSON blocks. Untrusted hooks are skipped
   silently under exec unless `--dangerously-bypass-hook-trust` (the `--hooks` flag here).
