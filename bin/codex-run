@@ -128,6 +128,10 @@ if e["SANDBOX"] == "workspace-write" and e["BASE_SHA"]:
 last = ""
 try: last = open(f"{job}/last.md").read()
 except OSError: pass
+if "\u2014" in last or "\u2013" in last:
+    # house rule: no em or en dashes anywhere; Codex's own prose gets them normalised (review-fleet-audit-1, day 1)
+    last = last.replace("\u2014", "-").replace("\u2013", "-")
+    with open(f"{job}/last.md", "w") as f: f.write(last)
 rec = {"id": e["ID"], "kind": e["KIND"], "change": e["CHANGE"] or None, "started": e["STARTED"], "ended": e["ENDED"],
        "duration_s": int(e["DUR"]), "rc": int(e["RC"]), "killed": e["KILLED"] == "1", "sandbox": e["SANDBOX"],
        "cwd": os.path.relpath(e["CWD"], e["ROOT"]), "model": model, "thread_id": thread, "usage": usage or None,
