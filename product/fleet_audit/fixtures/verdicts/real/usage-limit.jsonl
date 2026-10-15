@@ -1,0 +1,1 @@
+{"ts": "2026-10-15T11:24:08Z", "reasons": ["job_done:research-agent-skills-d1", "job_done:research-fleet-ops-d1", "job_done:research-prediction-markets-d1"], "jobs_running": 1, "supervisor": {"ran": false, "rc": null, "error": "skipped: usage limit marker under 60 min old", "cost_usd": null, "turns": null, "duration_ms": null, "result": null}}

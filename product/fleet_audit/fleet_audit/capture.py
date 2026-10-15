@@ -68,11 +68,19 @@ def capture_snapshot(directory, domain, mode, *, files=None, commands=None, cloc
                 obs = replace(obs, data=replace(obs.data, stdout=redact_environment(obs.data.stdout),
                                                 stderr=redact_environment(obs.data.stderr)))
             observations[command_key(argv, stamp)] = obs
+    stats, receipts = {}, {}
+    if mode == 'audit' and not registry.errors:
+        for job in registry.jobs:
+            contract = job.registry.output
+            if contract is not None:
+                stats[contract.path] = serialize(files.stat_output(contract.path))
+                if contract.kind == 'ticks_jsonl':
+                    receipts[contract.path] = serialize(files.read_tail(contract.path))
     indexes = {'discovery': serialize(recorder.discovery)}
     manifest = Manifest(1, stamp, domain, macos_label if macos_label is not None else platform.mac_ver()[0], indexes,
                         {'kind': 'real' if files.__class__ is LocalFiles else 'synthetic', 'mode': mode,
                          'environment': 'keys only; values removed'})
-    return Snapshot(manifest, runbooks, plists, observations, {}, {}, {'reviewed': False})
+    return Snapshot(manifest, runbooks, plists, observations, stats, receipts, {'reviewed': False})
 
 
 def emit_archive(snapshot, stream):
@@ -111,3 +119,19 @@ def emit_archive(snapshot, stream):
             info = tarfile.TarInfo(name)
             info.size, info.mode, info.mtime = len(content), 0o600, 0
             archive.addfile(info, io.BytesIO(content))
+
+
+def main(argv=None):
+    import argparse
+    import sys
+    parser = argparse.ArgumentParser(description='Emit a supervisor audit snapshot tar to stdout')
+    parser.add_argument('mode', choices=['audit'])
+    parser.add_argument('directory')
+    parser.add_argument('--domain', required=True)
+    args = parser.parse_args(argv)
+    emit_archive(capture_snapshot(args.directory, args.domain, args.mode), sys.stdout.buffer)
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
