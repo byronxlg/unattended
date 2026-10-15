@@ -21,7 +21,8 @@ BASE = "/unattended"
 TITLE = "unattended"
 TAGLINE = "Twenty days of the AI-native SDLC with nobody watching. Claude supervises, Codex builds, the numbers are public."
 FM = re.compile(r"\A---\n(.*?)\n---\n(.*)\Z", re.S)
-BANNED = {"—": "em dash"}
+EMOJI = re.compile("[%s-%s%s-%s]" % (chr(0x1F300), chr(0x1FAFF), chr(0x2600), chr(0x27BF)))
+BANNED = {chr(0x2014): "em dash"}
 
 def load_posts():
     out = []
@@ -40,7 +41,7 @@ def load_posts():
         for ch, name in BANNED.items():
             if ch in body or ch in str(meta):
                 raise SystemExit(f"{p}: contains an {name}")
-        if re.search(r"[\U0001F300-\U0001FAFF☀-➿]", body):
+        if EMOJI.search(body):
             raise SystemExit(f"{p}: contains an emoji")
         out.append({"slug": p.stem, "meta": meta, "body": body})
     return out

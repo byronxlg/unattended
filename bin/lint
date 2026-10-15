@@ -22,12 +22,12 @@ def fail(msg): fails.append(msg)
 
 tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files"], capture_output=True, text=True).stdout.split()
 texty = [p for p in tracked if p.endswith((".md", ".py", ".yml", ".yaml", ".toml", ".txt", ".html", ".css", ".js", ".sh")) or "/bin/" in f"/{p}"]
-emoji = re.compile(r"[\U0001F300-\U0001FAFF☀-➿]")
+emoji = re.compile("[%s-%s%s-%s]" % (chr(0x1F300), chr(0x1FAFF), chr(0x2600), chr(0x27BF)))
 for p in texty:
     try: txt = (ROOT / p).read_text()
     except (UnicodeDecodeError, FileNotFoundError): continue
     for i, line in enumerate(txt.splitlines(), 1):
-        if "—" in line: fail(f"{p}:{i}: em dash")
+        if chr(0x2014) in line: fail(f"{p}:{i}: em dash")
         if emoji.search(line): fail(f"{p}:{i}: emoji")
 
 fm = re.compile(r"\A---\n(.*?)\n---\n", re.S)
