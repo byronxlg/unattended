@@ -109,7 +109,7 @@ def stat_output(path):
         return observed(OutputData(path, True, info.st_size, stamp, None, None), ('stat', path))
     except (OSError, ValueError, OverflowError) as exc:
         error = Error('missing' if isinstance(exc, FileNotFoundError) else 'stat', str(exc))
-        exists = True if isinstance(exc, (ValueError, OverflowError)) else False if isinstance(exc, FileNotFoundError) else None
+        exists = False if isinstance(exc, FileNotFoundError) else None
         return observed(OutputData(path, exists,
                                    None, None, None, error), ('stat', path), error)
 

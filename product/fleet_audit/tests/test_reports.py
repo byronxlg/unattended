@@ -298,6 +298,21 @@ def test_output_mtime_out_of_range_is_uncertain(monkeypatch):
             observation = stat_output('/synthetic/output.log')
         assert observation.error.code == 'stat'
         assert observation.data.stat_error == observation.error
-        assert observation.data.exists is True
+        assert observation.data.exists is None
         assert observation.data.mtime is None
         assert observation.data.age_seconds is None
+
+
+def test_output_mtime_out_of_range_round_trips_snapshot(monkeypatch):
+    import os
+    import stat
+    from fleet_audit.files import stat_output
+    from fleet_audit.reports import serialize
+    from fleet_audit.snapshot import output_observation
+    path = '/synthetic/output.log'
+    for mtime in (253402300800, 1e20):
+        info = os.stat_result((stat.S_IFREG | 0o600, 1, 1, 1, 501, 20, 42, 0, mtime, 0))
+        with monkeypatch.context() as scoped:
+            scoped.setattr('fleet_audit.files.os.stat', lambda path: info)
+            observation = stat_output(path)
+        assert output_observation(serialize(observation), path) == observation
