@@ -11,6 +11,7 @@ state/next-run-after
 state/jobs/*/events.jsonl
 state/jobs/*/stderr.txt
 state/jobs/*/running
+state/jobs/*/wrapper.log
 # task worktrees
 .worktrees/
 __pycache__/
