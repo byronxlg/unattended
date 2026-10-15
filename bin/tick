@@ -98,7 +98,8 @@ $(git log --oneline -8)"
     if [ "$waited" -ge "$SUP_TIMEOUT" ]; then kill "$CPID" 2>/dev/null; sleep 2; kill -9 "$CPID" 2>/dev/null; SUP_ERR="killed after ${SUP_TIMEOUT}s"; break; fi
   done
   wait "$CPID" 2>/dev/null; SUP_RC=$?; rm -f "$PIDF"
-  if grep -qiE "usage limit|rate limit|session limit|limit reached|out of extra usage" "$OUT" "$ERR" 2>/dev/null; then
+  # Only a failed run can have hit the limit; a summary that merely mentions rate limits (the ledger field) must not back the loop off.
+  if [ "$SUP_RC" != "0" ] && grep -qiE "usage limit|rate limit|session limit|limit reached|out of extra usage" "$OUT" "$ERR" 2>/dev/null; then
     touch "$STATE/model.limited"; SUP_ERR="${SUP_ERR:+$SUP_ERR; }usage limit seen, backing off 60 min"
   fi
   [ -n "$LATEST" ] && echo "$LATEST" > "$STATE/issues.seen"
