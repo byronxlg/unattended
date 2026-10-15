@@ -1,0 +1,16 @@
+{
+  "source": "spike/audit.json",
+  "source_commit": "18c8e8c",
+  "collected_at": "2026-10-15T13:37:56.188884+00:00",
+  "plist_path": "/Users/byron/Library/LaunchAgents/com.google.GoogleUpdater.wake.plist",
+  "declared": {
+    "Label": "com.google.GoogleUpdater.wake",
+    "ProgramArguments": [
+      "/Users/byron/Library/Application Support/Google/GoogleUpdater/Current/GoogleUpdater.app/Contents/MacOS/GoogleUpdater",
+      "--wake-all",
+      "--enable-logging",
+      "--vmodule=*/components/update_client/*=2,*/chrome/enterprise_companion/*=2,*/chrome/updater/*=2"
+    ],
+    "StartInterval": 3600
+  }
+}
