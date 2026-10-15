@@ -3,4 +3,14 @@
 # (open|accepted|closed|building|in_review|merged|reverted), attempts (implementation passes
 # reviewed), plan_match (true|false|null at merge), origin (idea|finding|issue), prs [numbers],
 # notes. bin/metrics reads this with git and GitHub.
-changes: []
+changes:
+  - slug: fleet-audit
+    kind: product
+    started: 2026-10-15T12:40:00Z
+    outcome: building
+    attempts: 0
+    plan_match: null
+    origin: idea
+    prs: []
+    notes: five increments per intent/fleet-audit/plan.md; increment 1 (change/fleet-audit-1) dispatched 2026-10-15T14:22Z
+
