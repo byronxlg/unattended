@@ -242,3 +242,51 @@ class Snapshot:
     stats: dict
     receipts: dict
     expected: dict
+
+
+@dataclass(frozen=True)
+class FileMetadata:
+    device: int
+    inode: int
+    size: int
+    mtime_ns: int
+    ctime_ns: int
+    regular: bool
+
+
+@dataclass(frozen=True)
+class OutputData:
+    path: str
+    exists: bool | None
+    size: int | None
+    mtime: str | None
+    age_seconds: float | None
+    stat_error: Error | None
+
+
+@dataclass(frozen=True)
+class TailData:
+    path: str
+    before: FileMetadata
+    after: FileMetadata
+    path_after: FileMetadata
+    offset: int
+    bytes_read: int
+    starts_at_line_boundary: bool
+    tail_bytes: bytes
+    changed: bool
+
+
+@dataclass(frozen=True)
+class ReceiptData:
+    path: str = ''
+    tail: TailData | None = None
+    last_object: object = None
+    ts: str | None = None
+    age_seconds: float | None = None
+    ran: bool | None = None
+    rc: int | None = None
+    error: str | None = None
+    result: str | None = None
+    outcome: str = 'unestablished'
+    parsing_errors: tuple[str, ...] = ()

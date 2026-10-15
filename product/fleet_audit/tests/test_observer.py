@@ -221,7 +221,7 @@ def test_rule_one_only_and_guarded_observer_acceptance():
     import sys
     import fleet_audit.acceptance as acceptance
     from fleet_audit.verdicts import RULES
-    assert tuple(rule.id for rule in RULES) == (1,)
+    assert tuple(rule.id for rule in RULES) == tuple(range(1, 15))
     assert collect_jobs(jobs(), 'gui/501', Commands()).jobs[0].verdict is None
     acceptance.main(['observer', '--offline'])
     acceptance._OFFLINE = True

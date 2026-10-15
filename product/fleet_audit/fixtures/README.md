@@ -73,3 +73,35 @@ for the standalone override whose time is unavailable; they are not real command
 The reviewed expected assertions are explicit: one retained job, rule 1,
 cannot_determine and rc=1. Capture-generated expected placeholders remain
 unreviewed and cannot be used for acceptance without review.
+
+## Increment 3: verdicts and freshness
+
+`verdicts/real/` preserves three real receipt lines from `state/ticks.jsonl` at
+commit `d0dd7de`: `ran-zero` (2026-10-15T08:38:30Z), `usage-limit`
+(2026-10-15T11:24:08Z), and `not-ran` (2026-10-15T08:34:36Z).
+`provenance.json` records each SHA-256 over the exact line excluding its LF.
+Only producer timestamps are known; these contents do not establish what was
+the final line during a spike observation. No original file is opened in replay.
+
+Every other directory under `verdicts/` is a synthetic snapshot with frozen
+clock 2026-10-16T00:00:00Z, except real-content scenarios whose synthetic receipt
+observation time equals the producer timestamp. `real-content-*` metadata and
+clocks are synthetic with the real-content source/hash recorded in the manifest.
+Synthetic service observations derive from increment 2's real tick command and
+print-disabled captures; the inventory is reduced to one synthetic tick row.
+No environment values are retained. Each member has a byte length and SHA-256.
+The declaration is synthetic, using the spec's example runbook contract
+(M=1200, G=1800); this checkout does not yet contain `runbook/fleet.md`.
+
+Frozen scenarios: `completed-no-result`, `failed-nonzero-rc`, `failed-ran-error`,
+`failed-not-ran-error`, `unestablished-null-rc`, `missing-supervisor`,
+`invalid-producer-fields`, `mtime-sufficient`, `mtime-insufficient`,
+`running-old-exit`, `running-ancillary-error`, `keepalive-no-exit`,
+`expected-disabled`, `unexpected-disabled`, `enabled-absent`, `loaded-disabled`,
+`contradictory-state`, `permission-denied`, `future-time`, `grace-window`,
+`stale-failed-receipt`, `malformed-tail`, `concurrent-tail`, and `age-boundaries`
+(the latter indexes five snapshots at -1, 1200, 1201, 3000 and 3001 seconds).
+Expected verdict/rule/exit assertions were selected from the spec decision table,
+then checked against replay; they were not copied from evaluator output.
+The no-result fixture follows supervisor decision 4, overriding the receipt
+algorithm's statement that all producer fields must be present.

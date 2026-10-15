@@ -1,0 +1,20 @@
+{
+  "not-ran": {
+    "kind": "real",
+    "source": "state/ticks.jsonl at d0dd7de",
+    "sha256": "45b679e6668caa1552e6ad31d0065aded6cc7fcb6aaddbf731225d4e3d70bca8",
+    "timestamp_limitation": "Producer ts only; no observation time or evidence this was final at spike capture. Hash excludes LF."
+  },
+  "ran-zero": {
+    "kind": "real",
+    "source": "state/ticks.jsonl at d0dd7de",
+    "sha256": "28f0bafd0ce480a83af62c144ca610130fc7be60d219a49ada4c656dedb61918",
+    "timestamp_limitation": "Producer ts only; no observation time or evidence this was final at spike capture. Hash excludes LF."
+  },
+  "usage-limit": {
+    "kind": "real",
+    "source": "state/ticks.jsonl at d0dd7de",
+    "sha256": "4e5885dbfe02adf32494130521791f582cd73ad744b5ed65f9fd91130a1b3a8a",
+    "timestamp_limitation": "Producer ts only; no observation time or evidence this was final at spike capture. Hash excludes LF."
+  }
+}

@@ -1,0 +1,1 @@
+{"status": "attempted", "observed_at": "2026-10-15T13:24:32.844438Z", "source_command": ["/bin/launchctl", "print", "gui/501"], "return_code": 0, "error": null, "data": {"argv": ["/bin/launchctl", "print", "gui/501"], "stdout": "gui/501 = {\n\tservices = {\n\t\t0 0 com.unattended.tick\n\t}\n}\n", "stderr": "", "timed_out": false, "truncated": false, "duration_seconds": null}}

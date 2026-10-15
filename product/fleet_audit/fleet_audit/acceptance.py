@@ -1,5 +1,8 @@
 """Offline assertions using only explicitly indexed fixture files."""
 import argparse
+from unittest.mock import patch
+from datetime import datetime
+from . import receipts, output, capture
 import json
 import os
 import sys
@@ -121,15 +124,33 @@ def prove_observer():
     assert overrides.data.complete and len(overrides.data.entries) == 15
     assert sum(disabled for label, disabled in overrides.data.entries if label.startswith('com.apple.')) == 5
 
+def prove_verdicts():
+    class FrozenOnly(datetime):
+        @classmethod
+        def now(cls, *args, **kwargs):
+            raise AssertionError('offline verdicts forbid live clock')
+    with patch('fleet_audit.files.datetime', FrozenOnly), patch('fleet_audit.collect.datetime', FrozenOnly), patch('fleet_audit.capture.datetime', FrozenOnly):
+        for path in sorted((FIXTURES / 'verdicts').iterdir()):
+            if not path.is_dir() or path.name == 'real':
+                continue
+            snapshot = load_snapshot(path)
+            assert snapshot.expected.get('reviewed') is True, 'unreviewed expected placeholder'
+            report = replay(snapshot, 'audit')
+            expected = snapshot.expected
+            assert len(report['jobs']) == 1, path.name
+            job = report['jobs'][0]
+            assert (job['rule_id'], job['verdict'], report['exit_code']) == (expected['rule_id'], expected['verdict'], expected['exit_code']), (path.name, job['reason'], job['rule_id'], report['exit_code'])
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Offline registry acceptance")
-    parser.add_argument("stage", choices=["registry", "observer"])
+    parser.add_argument("stage", choices=["registry", "observer", "verdicts"])
     parser.add_argument("--offline", action="store_true", required=True)
     args = parser.parse_args(argv)
     global _OFFLINE
     _OFFLINE = True
     try:
-        (prove_registry if args.stage == "registry" else prove_observer)()
+        {"registry": prove_registry, "observer": prove_observer, "verdicts": prove_verdicts}[args.stage]()
     finally:
         _OFFLINE = False
     print("OK " + args.stage)

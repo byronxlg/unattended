@@ -1,5 +1,6 @@
 """Indexed replay with no host-path or live-clock fallback."""
 import hashlib
+import base64
 import json
 import math
 import os
@@ -173,6 +174,12 @@ def load_snapshot(directory):
                         json_object(member(indexes['stats'])), json_object(member(indexes['receipts'])),
                         json_object(member(indexes['expected'])))
     validate_entries(snapshot)
+    if not isinstance(snapshot.stats, dict) or not isinstance(snapshot.receipts, dict) or not isinstance(snapshot.expected, dict):
+        raise ValueError('invalid evidence index')
+    for path, entry in snapshot.stats.items():
+        output_observation(entry, path)
+    for path, entry in snapshot.receipts.items():
+        tail_observation(entry, path)
     return snapshot
 
 
@@ -187,6 +194,16 @@ class SnapshotFiles:
     def discover(self, directory):
         obj = self.snapshot.manifest.indexes['discovery']
         return observation(obj, tuple(obj['data']) if obj['data'] is not None else None)
+
+    def stat_output(self, path):
+        if path not in self.snapshot.stats:
+            raise ValueError("missing stat index: " + path)
+        return output_observation(self.snapshot.stats[path], path)
+
+    def read_tail(self, path, limit=65536):
+        if path not in self.snapshot.receipts:
+            raise ValueError("missing receipt index: " + path)
+        return tail_observation(self.snapshot.receipts[path], path)
 
     def read_regular(self, path, limit=1048576):
         entries = self.snapshot.runbooks | self.snapshot.plists
@@ -232,16 +249,86 @@ def validate_entries(snapshot):
 
 
 def replay(snapshot, command):
-    if command != 'observer':
-        raise ValueError('only observer replay is implemented')
+    if command not in ('observer', 'audit'):
+        raise ValueError('only observer and audit replay are implemented')
     validate_entries(snapshot)
     registry = join_plists(registry_from(snapshot), SnapshotFiles(snapshot))
     if registry.errors:
         return build_report(registry, snapshot.manifest.domain) | {'command': command}
+    if command == 'audit':
+        files = SnapshotFiles(snapshot)
+        for job in registry.jobs:
+            contract = job.registry.output
+            if contract is not None:
+                files.stat_output(contract.path)
+                if contract.kind == 'ticks_jsonl':
+                    files.read_tail(contract.path)
     from .collect import collect_jobs
     fleet = collect_jobs(registry.jobs, snapshot.manifest.domain, SnapshotCommands(snapshot))
+    if command == 'audit':
+        from .reports import audit_fleet
+        return build_report('audit', audit_fleet(fleet, SnapshotFiles(snapshot)))
     jobs = [serialize(job) for job in fleet.jobs]
     return {'schema_version': 1, 'command': command, 'domain': fleet.domain, 'observed_at': fleet.observed_at,
             'jobs': jobs, 'issues': list(fleet.coverage.issues),
             'summary': {'jobs': len(jobs), 'verdicts': {'cannot_determine': sum(j.verdict is not None for j in fleet.jobs)}},
             'exit_code': 2}
+
+
+def output_observation(obj, path):
+    from .models import OutputData
+    if not valid_path(path):
+        raise ValueError('invalid output path')
+    data = obj.get('data') if isinstance(obj, dict) else None
+    if data is not None:
+        if (not isinstance(data, dict) or set(data) != {'path', 'exists', 'size', 'mtime', 'age_seconds', 'stat_error'}
+                or data['path'] != path or data['exists'] is not None and type(data['exists']) is not bool
+                or data['size'] is not None and (type(data['size']) is not int or data['size'] < 0)
+                or data['mtime'] is not None and not valid_time(data['mtime'])
+                or data['age_seconds'] is not None and (type(data['age_seconds']) not in (int, float) or not math.isfinite(data['age_seconds']))):
+            raise ValueError('invalid output evidence')
+        error = data['stat_error']
+        if error is not None and (not isinstance(error, dict) or set(error) != {'code', 'message'} or not all(isinstance(v, str) for v in error.values())):
+            raise ValueError('invalid stat error')
+        if (data['exists'] is True and (data['size'] is None or data['mtime'] is None or error is not None)
+                or data['exists'] is not True and (data['size'] is not None or data['mtime'] is not None or error is None)):
+            raise ValueError('inconsistent output evidence')
+        data = OutputData(**(data | {'stat_error': Error(**error) if error else None}))
+    obs = observation(obj, data)
+    if obs.data is None and obs.error is None:
+        raise ValueError('missing output evidence')
+    return obs
+
+
+def tail_observation(obj, path):
+    from .models import FileMetadata, TailData
+    if not valid_path(path):
+        raise ValueError('invalid receipt path')
+    data = obj.get('data') if isinstance(obj, dict) else None
+    if data is not None:
+        if not isinstance(data, dict) or set(data) != {'path', 'before', 'after', 'path_after', 'offset', 'bytes_read', 'starts_at_line_boundary', 'tail_bytes', 'changed'} or data['path'] != path:
+            raise ValueError('invalid tail evidence')
+        values = dict(data)
+        for key in ('before', 'after', 'path_after'):
+            meta = data[key]
+            if not isinstance(meta, dict) or set(meta) != {'device', 'inode', 'size', 'mtime_ns', 'ctime_ns', 'regular'} or type(meta['regular']) is not bool or any(type(meta[k]) is not int or meta[k] < 0 for k in meta if k != 'regular'):
+                raise ValueError('invalid tail metadata')
+            values[key] = FileMetadata(**meta)
+        encoded = data['tail_bytes']
+        if not isinstance(encoded, dict) or set(encoded) != {'base64'} or not isinstance(encoded['base64'], str):
+            raise ValueError('invalid tail encoding')
+        try:
+            values['tail_bytes'] = base64.b64decode(encoded['base64'], validate=True)
+        except ValueError as exc:
+            raise ValueError('invalid tail encoding') from exc
+        if (type(data['offset']) is not int or data['offset'] < 0 or type(data['bytes_read']) is not int
+                or data['bytes_read'] != len(values['tail_bytes']) or data['bytes_read'] > 65536
+                or type(data['starts_at_line_boundary']) is not bool or type(data['changed']) is not bool
+                or data['offset'] != max(0, values['before'].size - 65536)
+                or data['starts_at_line_boundary'] != (data['offset'] == 0)):
+            raise ValueError('invalid tail bounds')
+        data = TailData(**values)
+    obs = observation(obj, data)
+    if obs.data is None and obs.error is None:
+        raise ValueError('missing tail evidence')
+    return obs
