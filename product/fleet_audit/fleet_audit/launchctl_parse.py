@@ -165,6 +165,8 @@ def parse_service(command, identity):
                 schedule = replace(schedule, interval_seconds=Known(int(match[1])) if match else Unsupported(interval, 'unsupported interval'))
             calendars = []
             triggers = one(block, 'event triggers')
+            if triggers is not None:
+                schedule = replace(schedule, calendar=Unsupported(triggers, 'unsupported event triggers'))
             if isinstance(triggers, list):
                 for _, trigger in triggers:
                     if isinstance(trigger, list) and one(trigger, 'stream') == 'com.apple.launchd.calendarinterval':
@@ -177,6 +179,9 @@ def parse_service(command, identity):
                         except (TypeError, ValueError):
                             calendars = None
                             break
+                    else:
+                        calendars = None
+                        break
                 if calendars:
                     schedule = replace(schedule, calendar=Known(freeze_calendar(calendars)))
                 elif calendars is None:
@@ -187,6 +192,14 @@ def parse_service(command, identity):
                 values['properties'] = Known(tokens)
                 schedule = replace(schedule, keep_alive=Known(True) if 'keepalive' in tokens else unknown,
                                    run_at_load=Known(True) if 'runatload' in tokens else unknown)
+            elif properties is not None:
+                values['properties'] = Unsupported(properties, 'unsupported properties')
+                schedule = replace(schedule, keep_alive=Unsupported(properties, 'unsupported properties'),
+                                   run_at_load=Unsupported(properties, 'unsupported properties'))
+            for field, key in (('keep_alive', 'KeepAlive'), ('run_at_load', 'RunAtLoad')):
+                raw = one(block, key)
+                if raw is not None:
+                    schedule = replace(schedule, **{field: Unsupported(raw, 'unsupported loaded policy')})
             loaded, valid = Known(True), True
         except ValueError as exc:
             error = Error('service_parse', str(exc))

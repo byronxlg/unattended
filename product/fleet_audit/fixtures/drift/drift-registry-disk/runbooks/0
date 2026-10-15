@@ -1,0 +1,20 @@
+---
+schema_version: 1
+project: example
+owner: Fixture owner
+reviewed: '2026-10-16'
+jobs:
+- id: tick
+  label: com.unattended.tick
+  plist_path: /fleet-fixtures/com.unattended.tick.plist
+  expected_program: /other
+  expected_arguments:
+  - /bin/bash
+  - /Users/byron/repos/unattended/bin/tick
+  output:
+    path: /fleet-fixtures/ticks.jsonl
+    kind: ticks_jsonl
+    max_age_seconds: 1200
+  grace_seconds: 1800
+---
+Synthetic declaration.

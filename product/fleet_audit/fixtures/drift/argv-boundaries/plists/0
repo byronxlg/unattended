@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.unattended.tick</string>
+	<key>Program</key>
+	<string>/bin/bash</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/alias</string>
+		<string></string>
+		<string>two words</string>
+		<string>$LITERAL</string>
+		<string>~/literal</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/Users/byron/Library/Logs/unattended-tick.log</string>
+	<key>StandardOutPath</key>
+	<string>/Users/byron/Library/Logs/unattended-tick.log</string>
+	<key>StartInterval</key>
+	<integer>600</integer>
+	<key>WorkingDirectory</key>
+	<string>/Users/byron/repos/unattended</string>
+</dict>
+</plist>
