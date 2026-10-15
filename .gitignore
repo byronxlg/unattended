@@ -16,3 +16,4 @@ state/jobs/*/wrapper.log
 .worktrees/
 __pycache__/
 .venv/
+state/jobs/*/reviewed

@@ -1,0 +1,157 @@
+# Landscape sweep: agent skills tooling, 2026-10-16 (Codex research job research-agent-skills-d1)
+
+Method: Read the lab selection criteria and previous sweep; searched live web sources, favouring official documentation, repositories and papers. No files changed or tools installed.
+Counts: Retrieved on 2026-10-16, **from page**, often rounded or cached. `gh api` failed to connect; exact last-push timestamps were not found. “Updated” below preserves GitHub’s page label, not a verified push date.
+Scope: Features are documented claims, not independently tested. Missing evidence is marked “not found”; proposed gaps are bounded search findings, not proof that competitors do not exist.
+
+## A. Skill formats and specs
+
+| Tool or project | Stars, last push | What it does | Openness and cost | Gap for this family |
+| --- | --- | --- | --- | --- |
+| [Agent Skills specification](https://agentskills.io/specification), [reference repository](https://github.com/agentskills/agentskills) | 26.2k; push not found; [Updated 2026-08-09](https://github.com/agentskills/) | Directory containing YAML-frontmatter `SKILL.md`, optional scripts and resources; progressive loading. Name limit 64 characters, description 1,024; experimental `allowed-tools`. | Code Apache-2.0, documentation CC-BY-4.0; free validation. | Portable packaging does not standardize agent tools, permissions, activation decisions or execution results. |
+| [Anthropic skills](https://github.com/anthropics/skills), [Claude Code extensions](https://code.claude.com/docs/en/skills) | 181.3k for collection; push not found; [Updated 2026-10-05](https://github.com/topics/agent-skills) | Standard skills plus Claude-specific invocation controls, argument substitution, dynamic shell content, forked contexts and hooks. | Many skills Apache-2.0; document skills explicitly source-available under separate terms. Claude execution requires service access. | A skill valid in Claude Code can fail packaging for claude.ai: its uploader accepts only the six specification fields. Body extensions also differ. |
+| [Codex skills](https://learn.chatgpt.com/docs/build-skills) and [plugin packaging](https://developers.openai.com/plugins/deploy/submission) | Feature-specific stars, push and dated activity: not found | Standard `SKILL.md`; `.agents/skills` discovery; explicit `$` invocation and implicit selection; optional `agents/openai.yaml` for metadata, policy and dependencies. Plugins support `.codex-plugin/plugin.json` and portable Agent Plugins packaging. | Public documentation; writing files is free. Execution and connected services have separate access requirements. | Shared skill text is portable; discovery precedence, context budgets, dependency configuration and plugin manifests require host-specific treatment. |
+| [AGENTS.md](https://agents.md/index), [repository](https://github.com/agentsmd/agents.md) | 24.9k; push not found; [Updated 2026-09-10](https://github.com/orgs/agentsmd/repositories) | Plain Markdown project instructions, including nested directory scope. Site reports adoption by over 60,000 open-source projects. | Open format; repository MIT; free files. | These are project instructions, not an activation-based skill package. Renaming `CLAUDE.md` does not establish identical host precedence. |
+| [Cursor rules](https://cursor.com/docs/context/rules), [skills](https://cursor.com/help/customization/skills) | Feature-specific stars, push and dated activity: not found | `.cursor/rules/*.mdc` uses `description`, `globs`, `alwaysApply`; skills use `SKILL.md`. Documentation includes migration of suitable rules and commands into skills. | Public file formats; proprietary host. Current plan prices not investigated. | `.mdc` rule selection is not equivalent to skill invocation. Current rules documentation says plain `.md` files in that directory are ignored. |
+| [Windsurf/Cascade skills](https://docs.windsurf.com/windsurf/cascade/skills) | Stars, push and dated activity: not found | Requested URL now redirects to Devin Desktop documentation. It describes `.devin/skills`, legacy `.windsurf/skills`, shared `.agents/skills`, automatic selection and `@` invocation. Rules retain four activation modes. | Public format documentation; proprietary host. Current plan prices not investigated. | Even installation paths evolve. Current documentation preserves legacy discovery, but rules, skills and slash-command workflows have different semantics. |
+| [Continue rules](https://docs.continue.dev/customize/deep-dives/rules), [repository](https://github.com/continuedev/continue) | 36.2k; push not found; [Updated 2026-10-09](https://github.com/continuedev) | Markdown/YAML rules in `.continue/rules`; selection by globs, content regex, description and `alwaysApply`; rules form the system message. | Apache-2.0 implementation; model costs depend on configuration. | First-party `SKILL.md` discovery documentation was not found in this sweep. Do not promise parity based on similar Markdown alone. |
+
+The practical interoperability boundary is the skill directory and basic metadata. Invocation syntax, rule scope, hooks, tool names, argument expansion and permissions remain host contracts. A converter must report unsupported semantics rather than silently copy fields. The [specification](https://agentskills.io/specification) explicitly calls tool allowances experimental.
+
+## B. Registries and distribution
+
+| Tool or project | Stars, last push | What it does | Openness and cost | Gap for this family |
+| --- | --- | --- | --- | --- |
+| [skills.sh](https://www.skills.sh/), [`npx skills`](https://github.com/vercel-labs/skills) | CLI 35.0k; push/activity date not found. Directory displays “All Time (1,323,624)” and 3.9M installs for `find-skills` on 2026-10-16. | Discovery, install rankings and multi-agent installation; CLI documents symlink/copy installation and support for 79 agents. | CLI MIT; public browsing and installation free. Individual skill licences vary. | Rankings measure distribution, not verified utility. The displayed directory count is not an audited count of unique, working skills. |
+| [Skillfold](https://github.com/byronxlg/skillfold) | 15; push not found; [Updated 2026-09-21](https://github.com/topics/reproducible-builds?o=desc&s=updated) in indexed page | Manifest, pinned revisions and hashes, frozen installation, offline consistency checks, global/project configuration, rules and composed skills. Sources include local paths, GitHub and npm. | MIT; free local CLI. | **Already occupies Byron’s distribution niche.** Another manifest, lockfile, installer, rule synchronizer or installation-drift checker would duplicate it. |
+| [Claude official plugin directory](https://github.com/anthropics/claude-plugins-official) | 38.2k; push not found; [Updated 2026-10-06](https://github.com/anthropics) | Curated marketplace; installation through `/plugin install`; bundles can include skills, commands and other extensions. Total current plugin count: not found. | Directory Apache-2.0; individual plugins and connected services have their own terms. | Host-native discovery and distribution already exist. Listing or review is not evidence of benefit on a particular task. |
+| [ChatGPT/Codex plugin directory](https://developers.openai.com/plugins/deploy/submission) | Stars, push, dated activity and total listing count: not found | ZIP submission, automated findings, review and publication. Skills or metadata changes require a new ZIP; eligible MCP server changes can update separately. | Hosted, reviewed directory; a comprehensive pricing statement was not found. | A competing directory faces platform distribution. Compatibility checks before submission are narrower than rebuilding publication infrastructure. |
+| [Tessl](https://tessl.io/) | Stars, push and dated activity: not found | Registry, private workspace search, skill review, before/after evals and advertised context-activation visibility. | Commercial hosted service; page says publishing/installing always free and free tier includes 1,000 credits/month in one workspace. Full platform source not found. | Direct competition for an integrated skills lifecycle product. Local operation without an account is a possible distinction, not a missing feature category. |
+| [GitHub agent-skills topic](https://github.com/topics/agent-skills) | Not a repository; indexed page shows 29,414 repositories, observed 2026-10-16; underlying crawl older | Broad repository discovery; includes skill collections, frameworks and unrelated implementations sharing the tag. | Free browsing; licences vary. | Topic counts do not measure distinct skills, maintainers, installs or successful usage. A new list has little differentiation. |
+| [GNU Stow](https://www.gnu.org/software/stow/) | GitHub stars/push: not found; [documented release 2.4.1, 2024-09-08](https://www.gnu.org/software/stow/manual/stow.pdf) | Symlink management for packages and dotfiles, suitable for distributing a checked-in configuration tree. | GPL-3.0-or-later; free. | Does not resolve skill dependencies or assess their behaviour. Byron already combines dotfile management with Skillfold. |
+
+Skillfold’s README now also documents Cursor targets and composition. Its `check` compares declared, locked and installed content. That is distinct from checking whether a pinned skill’s documented CLI flags still work, or whether a session actually used that content. New work should consume its inventory or hashes rather than become another installer. [Skillfold documentation](https://github.com/byronxlg/skillfold)
+
+## C. Testing and evaluation of skills
+
+| Tool or project | Stars, last push | What it does | Openness and cost | Gap for this family |
+| --- | --- | --- | --- | --- |
+| [Anthropic skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md?plain=1) | Parent collection 181.3k; push not found; collection activity above | Creates test prompts, runs skill/baseline comparisons, grades assertions, aggregates benchmarks and optimizes descriptions for triggering. Public instructions describe repeated trials and held-out prompts. | [Apache-2.0](https://github.com/anthropics/skills/blob/main/skills/skill-creator/LICENSE.txt); Claude inference consumes service usage. | Already implements the obvious “test my skill” product. Its orchestration and subjective grading still need task-specific validation. |
+| [UiPath Coder Eval](https://github.com/UiPath/coder_eval) | 151; push not found; [Updated 2026-10-12](https://github.com/uipath) | Declarative YAML tasks, real coding-agent execution, `skill_triggered` criteria, outcome scoring, A/B experiments and CI gates across several harnesses. | Apache-2.0; Python/uv; requires agent runtime and credentials for live runs. | Cross-agent trigger testing and custom runners are already occupied, including scheduled regression evaluation. |
+| [Promptfoo](https://github.com/promptfoo/promptfoo), [skill-testing guide](https://www.promptfoo.dev/docs/guides/test-agent-skills/) | 26.0k; push not found; [Updated 2026-10-06](https://github.com/promptfoo/) | Explicit guide for skill-version comparisons, activation, neighbouring-skill negatives, output assertions, cost and latency. Supports Claude and Codex providers. | MIT local tooling; live model execution is separately funded. | This is documented, executable integration, not merely a proposed blog workflow. A thin YAML wrapper would be hard to justify. |
+| [Inspect AI](https://github.com/UKGovernmentBEIS/inspect_ai), [documentation](https://inspect.aisi.org.uk/?lang=en-US) | 3.0k; push not found; [Updated 2026-10-10](https://github.com/UKGovernmentBEIS) | General evaluation framework with datasets, agents, tools, scorers, logs and external-agent support. | MIT; Python; inference separate. [Standard shell tools require a sandbox](https://inspect.aisi.org.uk/sandboxing.html), with Docker built in and extension support. | Flexible infrastructure, but skill-specific labels and outcome criteria remain author work. Its standard execution stack is not the lab’s smallest deployment. |
+| [NVIDIA SkillEvaluator](https://github.com/NVIDIA/SkillEvaluator) | 570; push not found; [Updated 2026-10-06](https://github.com/nvidia) | Three tiers: validation/security, semantic deduplication, paired live evaluation. Built around skill lift and NVIDIA’s verified-skills pipeline. | Apache-2.0; keyless quality check available. Semantic checks require providers; live evaluation needs an agent and sandbox, Docker by default, with local-mode support. | Strong direct competitor to a general skill-quality suite. Small, deterministic subsets could fit the lab, but “no Docker” alone is insufficient differentiation. |
+
+Trigger evaluation asks whether the right skill activated, including negative prompts and sibling competition. Outcome evaluation asks whether verifiable work improved. A forced `$skill` invocation tests execution while bypassing natural selection. Promptfoo also documents an important asymmetry: Claude exposes `Skill` calls, whereas its Codex activation signal is inferred from successful reads of the corresponding file. [Testing guide](https://www.promptfoo.dev/docs/guides/test-agent-skills/)
+
+## D. Observability
+
+| Tool or project | Stars, last push | What it does | Openness and cost | Gap for this family |
+| --- | --- | --- | --- | --- |
+| [Claude Code OTel](https://code.claude.com/docs/en/monitoring-usage) | Feature-specific stars/push/activity date: not found | `claude_code.skill_activated` records source and invocation trigger: user slash, proactive or nested. Custom names become `custom_skill` unless `OTEL_LOG_TOOL_DETAILS=1`. | Documented telemetry; local collection possible. Claude usage remains separate. | Explicit activation is observable, but the event does not prove instruction compliance or incremental benefit. Default redaction limits per-skill reports. |
+| [Claude organization skill analytics](https://platform.claude.com/docs/en/api/beta/organization/analytics/skills/list) | Stars/push/activity date: not found | Skill usage across products, users and sessions; usage-value and spend attribution fields. Excludes merely installed, preloaded, hook-injected or plain-file-read content from activation counts. | Hosted API; organization access required. Standalone endpoint pricing not found. | Usage reporting already exists commercially. Attributed request value is explicitly not the skill’s incremental cost. |
+| [skillusage](https://github.com/lovstudio/skillusage) | 2; push/activity date not found | Local Claude JSONL and Codex rollout/history parsing; manual/automatic counts, projects and trends. `--strict` excludes heuristic file-read signals. | MIT; local, free, no model calls. | Already answers “which skills did I use?” It documents transcript pruning and historical Codex classification limitations. |
+| [skilled](https://github.com/av/skilled) | 49; push/activity date not found | Local cross-agent TUI and JSON CLI; invocation history, project filters, stale skills and usage audits. | MIT; local and free. | Basic dashboards, stale-by-usage reporting and multi-agent aggregation are occupied. |
+| [eyebrow](https://github.com/alexverify/eyebrow) | 9; push/activity date not found | Discovers and hashes skills, hooks, plugins and other configuration; lockfile verification, usage hooks, local dashboard and fleet snapshots. | MIT; Go binary, free local tooling. | Inventory plus hashes plus telemetry is already a product. Any provenance candidate needs a more specific outcome-evidence contribution. |
+| [payoff](https://github.com/ayodm/payoff), [data model](https://docs.rs/payoff/latest/payoff/model/index.html) | 0; push/activity date not found | Claude session cost and later diff retention; records available skill identities/content hashes. README explicitly excludes test results and broader code quality. | MIT; local Rust tool, free. | Closest counterexample to “nobody joins skill versions to outcomes.” Availability is weaker than activation, and retained edits are a proxy, not correctness. |
+
+A useful evidence model distinguishes **available**, **explicitly activated**, **read/inferred**, **instructions followed**, and **output verified**. Historical transcripts often cannot establish the exact bytes loaded. A trustworthy report should preserve that uncertainty instead of attaching today’s skill hash to yesterday’s session. This is an inference from the documented [skillusage signals](https://github.com/lovstudio/skillusage) and [payoff snapshot model](https://docs.rs/payoff/latest/payoff/model/index.html).
+
+## E. Quality and drift
+
+| Tool or project | Stars, last push | What it does | Openness and cost | Gap for this family |
+| --- | --- | --- | --- | --- |
+| [skills-ref](https://agentskills.io/specification) | Parent specification repository 26.2k; push not found; Updated 2026-08-09 above | Official `skills-ref validate` checks package/frontmatter validity. | Apache-2.0 reference code; free. | Basic conformance is already covered; it cannot establish that prose is useful or commands remain operational. |
+| [bueti/skilllint](https://github.com/bueti/skilllint) | 0; push/activity date not found | Go linter with 16 documented rules: names, description limits, compatibility, body size and trigger-description heuristics; configurable severity and fixes. | MIT; free local binary. | A new frontmatter/description linter would duplicate a small existing implementation. Heuristics are not measured trigger accuracy. |
+| [driftlint](https://github.com/alifurkangokce/driftlint) | 60; push not found; [Updated 2026-09-30](https://github.com/topics/claude-md) | Checks stale paths, removed npm scripts/Make targets, instruction twins and configurations that may not load; also manages reviewed memory. | MIT; local Node CLI, no API key required for linting. | “Keep AGENTS.md and skills consistent with code” is occupied. External CLI behaviour is a narrower possible extension. |
+| [Mr-afroverse/agentlint](https://github.com/Mr-afroverse/agentlint) | 8; push/activity date not found | Python checks for broken references, duplicate names/content, overlapping triggers, contradictions, stale dates, source constants and configured ground truth. | MIT; free; package name `instruction-lint`. | Covers more than syntax. Some checks require configuration; semantic overlap warnings do not prove real routing collisions. |
+| [Claude `/doctor` and prompt audit](https://code.claude.com/docs/en/skills) | Feature-specific stars/push/activity date: not found | Native checks include unused extensions, context cost and slow hooks; `/doctor prompt-audit` targets outdated or conflicting instructions. | Proprietary host; interactive audit uses Claude. | “Find unused or stale skills” now competes with native functionality as well as open tools. |
+| [SkillGuard / DriftBench research](https://arxiv.org/html/2605.10990v1) | Public implementation stars/push: not found; paper submitted 2026-05-09 | Extracts environment contracts from skills and checks operational assumptions rather than every mentioned URL/version. | Paper available; appendix describes MIT code and CC-BY-4.0 benchmark, with public release upon acceptance. Runnable public repository not found. | Contract-based drift is already a researched method. A local product would be implementation and packaging work, not a novel concept. |
+
+Semantic deduplication is also explicitly covered by [NVIDIA SkillEvaluator](https://github.com/NVIDIA/SkillEvaluator). Installation drift, unused content, stale documentation, broken dependencies and changed agent behaviour are different failure classes; a single “skill health” score would obscure them.
+
+## Research or practitioner baselines
+
+- **Measured benefit can be substantial but task-dependent.** [SkillsBench v4](https://arxiv.org/abs/2602.12670) reports 87 tasks, eight domains and 18 model/harness configurations: average pass rate 33.9% without curated skills versus 50.5% with them, a 16.6-point increase. Configuration gains range from 4.1 to 25.7 points. This supports paired task verification, not a universal improvement claim.
+- **Descriptions can materially change routing.** [UiPath’s July 30 case study](https://coder-eval.com/blog/does-your-claude-skill-trigger) reports roughly 20 skills and 1,000 labelled prompts. Adding a sentence moved micro-recall from 46.3% to 67.3%; skills above 70% recall increased from four to eleven. The runner and example suite are linked publicly; this is a vendor-authored case study, not independent replication.
+- **A practical evaluation workflow already ships.** [Anthropic’s skill-creator source](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md?plain=1) describes a 60/40 training/held-out split, three executions per trigger query and up to five optimization iterations. Repeated selection against the same held-out set still warrants a final untouched regression set.
+- **Naive drift probes can be noisy.** [SkillGuard](https://arxiv.org/html/2605.10990v1) reports 40% false positives for contract-free probes, versus zero across 599 negative controls for its method; strongest-backbone known-drift recall is 76%. Its 49-skill live study reports 86% conservative precision. These are paper results, not expected performance for a twelve-day implementation.
+- **Automatic maintenance remains imperfect.** [Repo2Skill-Evo](https://arxiv.org/abs/2608.21964) studies 57 repositories and 105 selected release transitions. Six frontier agents achieve 29.9%-69.7% average macro F1 for stale-content removal. Selected transitions all contain invalidated guidance; this does not estimate how often arbitrary skills become stale.
+- **Measurement itself can miss exposure.** [Codex documentation](https://learn.chatgpt.com/docs/build-skills) says the initial skill list has a context budget, can shorten descriptions and may omit skills. A trigger test should record the available catalog and host settings, not only the target file.
+
+## Unoccupied niches
+
+These are narrow hypotheses remaining after the sweep. Neither is established as globally unoccupied.
+
+1. **Free, author-declared compatibility receipts for installed skills against local CLI versions.** Existing lint, Skillfold consistency checks and SkillGuard research cover adjacent problems.
+   Evidence: the inspected projects did not document the complete combination of explicit local probes, exact skill/tool identity, stale-receipt invalidation and Skillfold integration without inference.
+2. **A portable evidence ledger linking actual activation to independently checked outcomes, with explicit unknowns.** Usage dashboards, eyebrow and payoff already cover substantial parts.
+   Evidence: payoff excludes test results; usage parsers expose inference limits. The inspected sources did not document the complete cross-Claude/Codex join with version certainty and imported deterministic verification.
+
+## Candidate products
+
+Both are proposals, not a selection. Commands below are proposed acceptance interfaces, not existing executables. Footprints are engineering targets to verify during development.
+
+### 1. Skill Contract Check
+
+Pitch: Attach executable compatibility assertions to a skill and show which documented assumptions still hold on this machine.
+
+Five shipping increments over approximately twelve build days:
+
+1. **Days 1-2:** TOML contract schema, skill/resource hashing and source-line references; `uv run skillcheck validate examples/` accepts valid contracts and rejects malformed ones.
+2. **Days 3-4:** Check executable presence, declared versions and referenced local files; `uv run skillcheck check examples/missing-tool` produces the expected failure and nonzero exit.
+3. **Days 5-7:** Run explicitly declared argv probes in temporary fixture directories, with timeouts and exit/output assertions; `uv run skillcheck demo removed-flag` catches a deliberately incompatible CLI.
+4. **Days 8-9:** Bind receipts to skill bytes, contract bytes, executable identity and environment facts; `uv run skillcheck verify-receipt examples/changed-tool` rejects stale evidence.
+5. **Days 10-12:** Read Skillfold inventory without modifying it; emit JSON/JUnit and a line-level report; `uv run skillcheck demo fleet` distinguishes two fixture machines and passes an offline acceptance suite.
+
+Footprint: Python/uv, stdlib-first with one small parser dependency if needed; target under 30 MiB installed excluding Python/uv, under 128 MiB RAM. No Docker, model, downloaded dataset or hosted service. Fixture checks target seconds; real probes have declared time limits.
+
+Users: Byron and maintainers distributing skills that document CLIs, SDK helpers or local scripts. Scope excludes automatic execution of every Markdown code block and arbitrary cloud-operation testing.
+
+Blog interest and command demonstration: upgrade a tiny fixture CLI, watch a formerly valid skill fail, then fix the precise instruction and regenerate its receipt. Show both a real breaking change and a harmless version change to expose false positives.
+
+Strongest argument against: this may be a small extension to agentlint or an ordinary test suite. Authors must maintain contracts, and passing selected probes cannot establish that the whole skill works. SkillGuard already supplies the conceptual framing.
+
+### 2. Skill Evidence Ledger
+
+Pitch: Produce a local, auditable answer to “which skill version was used, what evidence supports that, and did its declared output checks pass?”
+
+Five shipping increments over approximately twelve build days:
+
+1. **Days 1-2:** Streaming Claude JSONL importer with provenance and deduplication; `uv run skillevidence import examples/claude.jsonl` produces a fixed expected event set.
+2. **Days 3-4:** Codex rollout adapter separating explicit mentions, injected skill content and inferred reads; `uv run skillevidence demo ambiguity` preserves ambiguous cases instead of inflating confirmed activations.
+3. **Days 5-7:** Explicit inventory snapshots, Skillfold hash import and temporal joins; `uv run skillevidence demo changed-skill` marks historical version identity unknown when evidence is insufficient.
+4. **Days 8-9:** Import deterministic verifier results tied to session and artifact hashes; `uv run skillevidence demo outcomes` distinguishes “activated but failed” from “verified output without confirmed activation.”
+5. **Days 10-12:** Local SQLite/JSON reports, coverage denominators and adapters for existing evaluation exports; `uv run skillevidence report examples/ --check` reproduces the fixture report and rejects mismatched evidence.
+
+Footprint: Python/uv with stdlib JSON, SQLite and hashing; target under 20 MiB application files excluding Python/uv, under 150 MiB RAM while streaming logs. Storage grows with normalized events, not copied transcripts. No Docker, model calls or datasets; existing logs and small synthetic fixtures suffice.
+
+Users: maintainers iterating on a personal or team skill library who already have agent sessions or evaluation outputs.
+
+Blog interest and command demonstration: reconstruct one apparently convincing “skill helped” claim, reveal a duplicate activation or wrong version join, then show the corrected evidence. Each post can expose a different measurement trap through a reproducible command.
+
+Strongest argument against: skillusage, skilled, eyebrow, payoff and hosted analytics already supply most inputs. Retrospective version identity may remain unknowable, and observational outcomes cannot prove causality. The product must earn its existence through evidence quality, not another dashboard.
+
+## Sources
+
+All counts and source observations above were collected on 2026-10-16. Sources are grouped here for reuse; URLs also appear beside the claims they support.
+
+- Formats: [Agent Skills specification](https://agentskills.io/specification), [specification repository](https://github.com/agentskills/agentskills), [repository activity](https://github.com/agentskills/).
+- Anthropic: [skills repository](https://github.com/anthropics/skills), [Claude Code skill documentation](https://code.claude.com/docs/en/skills), [organization activity](https://github.com/anthropics).
+- OpenAI: [build skills](https://learn.chatgpt.com/docs/build-skills), [plugin submission and formats](https://developers.openai.com/plugins/deploy/submission).
+- Project instructions: [AGENTS.md site](https://agents.md/index), [repository](https://github.com/agentsmd/agents.md), [repository activity](https://github.com/orgs/agentsmd/repositories).
+- Cursor: [rules](https://cursor.com/docs/context/rules), [skills](https://cursor.com/help/customization/skills).
+- Windsurf: [skills URL, redirecting to Devin documentation](https://docs.windsurf.com/windsurf/cascade/skills).
+- Continue: [rules](https://docs.continue.dev/customize/deep-dives/rules), [repository](https://github.com/continuedev/continue), [activity](https://github.com/continuedev).
+- Distribution: [skills.sh](https://www.skills.sh/), [Vercel skills CLI](https://github.com/vercel-labs/skills), [Skillfold](https://github.com/byronxlg/skillfold), [Skillfold indexed activity](https://github.com/topics/reproducible-builds?o=desc&s=updated).
+- Directories: [Claude official plugins](https://github.com/anthropics/claude-plugins-official), [Tessl](https://tessl.io/), [GitHub agent-skills topic](https://github.com/topics/agent-skills).
+- Dotfiles: [GNU Stow](https://www.gnu.org/software/stow/), [Stow manual and release date](https://www.gnu.org/software/stow/manual/stow.pdf).
+- Anthropic evaluation: [skill-creator source](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md?plain=1), [licence](https://github.com/anthropics/skills/blob/main/skills/skill-creator/LICENSE.txt).
+- UiPath: [Coder Eval](https://github.com/UiPath/coder_eval), [activity](https://github.com/uipath), [trigger case study](https://coder-eval.com/blog/does-your-claude-skill-trigger).
+- Promptfoo: [repository](https://github.com/promptfoo/promptfoo), [activity](https://github.com/promptfoo/), [skill-testing guide](https://www.promptfoo.dev/docs/guides/test-agent-skills/).
+- Inspect: [repository](https://github.com/UKGovernmentBEIS/inspect_ai), [activity](https://github.com/UKGovernmentBEIS), [overview](https://inspect.aisi.org.uk/?lang=en-US), [sandboxing](https://inspect.aisi.org.uk/sandboxing.html).
+- NVIDIA: [SkillEvaluator](https://github.com/NVIDIA/SkillEvaluator), [activity](https://github.com/nvidia).
+- Claude telemetry: [OTel monitoring](https://code.claude.com/docs/en/monitoring-usage), [organization skill analytics API](https://platform.claude.com/docs/en/api/beta/organization/analytics/skills/list).
+- Local observability: [skillusage](https://github.com/lovstudio/skillusage), [skilled](https://github.com/av/skilled), [eyebrow](https://github.com/alexverify/eyebrow), [payoff](https://github.com/ayodm/payoff), [payoff data model](https://docs.rs/payoff/latest/payoff/model/index.html).
+- Quality: [skilllint](https://github.com/bueti/skilllint), [driftlint](https://github.com/alifurkangokce/driftlint), [driftlint indexed activity](https://github.com/topics/claude-md), [agentlint](https://github.com/Mr-afroverse/agentlint).
+- Research: [SkillsBench](https://arxiv.org/abs/2602.12670), [SkillGuard and DriftBench](https://arxiv.org/html/2605.10990v1), [Repo2Skill-Evo](https://arxiv.org/abs/2608.21964).
