@@ -35,4 +35,6 @@ paid services, changes to other repos. Ask in a `needs-byron` issue; keep workin
 
 ## Known agent mistakes
 
-(empty; a mistake made twice gets a line here and in `state/mistakes.jsonl`)
+- Supervisor: a fix brief that dictates a data shape without reading the validator or consumers of
+  that shape introduced a defect twice (PR #2, PR #5). Name the invariant and where it is enforced;
+  let the engineer choose the shape, then check the diff against the validator.
