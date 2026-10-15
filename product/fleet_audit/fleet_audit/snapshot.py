@@ -1,10 +1,12 @@
 """Indexed replay with no host-path or live-clock fallback."""
 import hashlib
 import json
+import math
 import os
 import re
 import stat
 from dataclasses import replace
+from datetime import datetime
 from pathlib import Path
 
 from .models import CommandData, Error, Manifest, Observation, Snapshot
@@ -26,17 +28,28 @@ def json_object(raw):
     return json.loads(raw, object_pairs_hook=pairs)
 
 
+
+def valid_time(value):
+    if not isinstance(value, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z', value):
+        return False
+    try:
+        return datetime.fromisoformat(value).utcoffset().total_seconds() == 0
+    except ValueError:
+        return False
+
 def observation(obj, data):
     if not isinstance(obj, dict) or set(obj) != {'status', 'observed_at', 'source_command', 'return_code', 'error', 'data'}:
         raise ValueError('invalid observation')
     if obj['status'] not in ('attempted', 'not_requested', 'not_applicable'):
         raise ValueError('invalid observation status')
-    if obj['observed_at'] is not None and not isinstance(obj['observed_at'], str):
+    if obj['observed_at'] is not None and not valid_time(obj['observed_at']):
         raise ValueError('invalid observation time')
     if not isinstance(obj['source_command'], list) or not all(isinstance(v, str) for v in obj['source_command']):
         raise ValueError('invalid source argv')
     if obj['return_code'] is not None and type(obj['return_code']) is not int:
         raise ValueError('invalid return code')
+    if obj['status'] != 'attempted' and (data is not None or any(obj[k] is not None for k in ('observed_at', 'return_code', 'error', 'data'))):
+        raise ValueError('unattempted observation contains evidence')
     error = obj['error']
     if error is not None and (not isinstance(error, dict) or set(error) != {'code', 'message'}
                               or not all(isinstance(v, str) for v in error.values())):
@@ -46,12 +59,15 @@ def observation(obj, data):
 
 
 def command_observation(obj):
+    if not isinstance(obj, dict):
+        raise ValueError('invalid command envelope')
     data = obj.get('data')
     if data is not None:
         if (not isinstance(data, dict) or set(data) != {'argv', 'stdout', 'stderr', 'timed_out', 'truncated', 'duration_seconds'}
                 or not isinstance(data['argv'], list) or not all(isinstance(v, str) for v in data['argv'])
                 or not all(isinstance(data[k], str) for k in ('stdout', 'stderr'))
                 or not all(type(data[k]) is bool for k in ('timed_out', 'truncated'))
+                or (data['duration_seconds'] is not None and (type(data['duration_seconds']) not in (int, float) or not math.isfinite(data['duration_seconds']) or data['duration_seconds'] < 0))
                 or sum(len(data[k].encode()) for k in ('stdout', 'stderr')) > 4194304):
             raise ValueError('invalid command data')
         data = CommandData(**(data | {'argv': tuple(data['argv'])}))
@@ -75,7 +91,7 @@ def load_snapshot(directory):
             name = reference['name']
         else:
             name = reference
-        if not isinstance(name, str) or not name or name.startswith('/') or any(p in ('', '.', '..') for p in name.split('/')):
+        if not isinstance(name, str) or not name or any(ord(c) < 32 for c in name) or name.startswith('/') or any(p in ('', '.', '..') for p in name.split('/')):
             raise ValueError('snapshot path escape')
         current = directory
         for part in name.split('/'):
@@ -114,9 +130,9 @@ def load_snapshot(directory):
     raw = json_object(member('manifest.json'))
     if not isinstance(raw, dict) or set(raw) != {'format_version', 'capture_clock', 'domain', 'macos_label', 'indexes', 'provenance'}:
         raise ValueError('invalid manifest')
-    if type(raw['format_version']) is not int or raw['format_version'] != 1 or not re.fullmatch(r'gui/\d+', raw['domain']):
+    if type(raw['format_version']) is not int or raw['format_version'] != 1 or not isinstance(raw['domain'], str) or not re.fullmatch(r'gui/\d+', raw['domain']):
         raise ValueError('unsupported snapshot version or domain')
-    if not isinstance(raw['capture_clock'], str) or not isinstance(raw['macos_label'], str) or not isinstance(raw['provenance'], dict):
+    if not valid_time(raw['capture_clock']) or not isinstance(raw['macos_label'], str) or not isinstance(raw['provenance'], dict):
         raise ValueError('invalid manifest metadata')
     indexes = raw['indexes']
     if not isinstance(indexes, dict) or set(indexes) != {'runbooks', 'plists', 'commands', 'stats', 'receipts', 'expected', 'discovery'}:
@@ -149,7 +165,7 @@ def load_snapshot(directory):
             raise ValueError('command index mismatch')
         commands[key] = obs
     discovery = observation(indexes['discovery'], indexes['discovery']['data'])
-    if discovery.data is not None and (not isinstance(discovery.data, list) or len(discovery.data) > 1000
+    if discovery.data is not None and (not isinstance(discovery.data, list) or not all(isinstance(v, str) for v in discovery.data) or len(discovery.data) > 1000 or len(discovery.data) != len(set(discovery.data))
                                       or set(discovery.data) != set(groups['runbooks'])):
         raise ValueError('missing runbook entry')
     snapshot = Snapshot(Manifest(**raw), groups['runbooks'], groups['plists'], commands,

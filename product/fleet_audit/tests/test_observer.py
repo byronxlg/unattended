@@ -27,6 +27,7 @@ def command(name):
         record = record['command']
     argv = tuple(record['command'])
     stamp = obj['provenance']['captured_at']
+    stamp = stamp.replace('+00:00', 'Z') if 'T' in stamp else None
     return Observation('attempted', stamp, argv, record['returncode'], None,
                        CommandData(argv, record['stdout'], record['stderr'], False, False, None))
 
@@ -165,6 +166,8 @@ def test_subprocess_bounds_and_reaping(monkeypatch):
         def kill(self): self.killed, self.finished = True, True
         def wait(self, timeout=None):
             self.waited += 1
+            if scenario == 'wait_timeout' and self.waited == 1:
+                raise module.subprocess.TimeoutExpired(argv, 10)
             self.finished = True
             return -9 if self.killed else 0
         def poll(self): return 0 if self.finished else None
@@ -181,7 +184,7 @@ def test_subprocess_bounds_and_reaping(monkeypatch):
     monkeypatch.setattr(module.selectors, 'DefaultSelector', Selector)
     monkeypatch.setattr(module.os, 'set_blocking', lambda *a: None)
     argv = ('/bin/launchctl', 'print', 'gui/501')
-    for scenario in ('combined-output-limit', 'timeout', 'normal', 'spawn'):
+    for scenario in ('combined-output-limit', 'timeout', 'wait_timeout', 'normal', 'spawn'):
         proc = Process()
         chunks = {10: [b'abcd', b''], 11: [b'efghi', b'']}
         monkeypatch.setattr(module.os, 'read', lambda fd, size: chunks[fd].pop(0)[:size])
@@ -193,12 +196,13 @@ def test_subprocess_bounds_and_reaping(monkeypatch):
             if scenario == 'spawn': raise OSError('denied')
             return proc
         monkeypatch.setattr(module.subprocess, 'Popen', spawn)
-        result = run_bounded(argv, max_bytes=8 if scenario == 'combined-output-limit' else 100)
+        bounds = frozen(scenario)['recipe'] if scenario in ('timeout', 'combined-output-limit') else {}
+        result = run_bounded(argv, **bounds)
         if scenario != 'spawn':
             assert proc.waited and proc.stdout.closed and proc.stderr.closed
-        if scenario in ('timeout', 'combined-output-limit'):
+        if scenario in ('timeout', 'wait_timeout', 'combined-output-limit'):
             assert proc.killed and result.error is not None
-        if scenario == 'timeout': assert result.data.timed_out and result.return_code is None
+        if scenario in ('timeout', 'wait_timeout'): assert result.data.timed_out and result.return_code is None
         if scenario == 'combined-output-limit': assert result.data.truncated and len(result.data.stdout + result.data.stderr) <= 8
         if scenario == 'spawn': assert result.return_code is None and result.error is not None
         if scenario == 'normal': assert result.error is None and result.return_code == 0

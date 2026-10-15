@@ -125,3 +125,37 @@ def test_capture_roundtrip_and_environment_redaction(tmp_path, monkeypatch):
     assert restored.expected == {'reviewed': False}
     plist = next(iter(restored.plists.values())).data
     assert plistlib.loads(plist)['EnvironmentVariables'] == {'SYNTHETIC_KEY': ''}
+
+
+@pytest.mark.parametrize('failure', ['timeout', 'truncated', 'spawn', 'missing_plist'])
+def test_recorded_failures_are_valid_snapshot_evidence(tmp_path, failure):
+    from fleet_audit.models import Error
+    snapshot = captured()
+    if failure == 'missing_plist':
+        path, obs = next(iter(snapshot.plists.items()))
+        snapshot = replace(snapshot, plists={path: replace(obs, data=None, error=Error('missing', 'ENOENT'))})
+    else:
+        key, obs = next(iter(snapshot.commands.items()))
+        if failure == 'spawn':
+            obs = replace(obs, return_code=None, error=Error('command_io', 'PermissionError'), data=None)
+        else:
+            obs = replace(obs, return_code=None if failure == 'timeout' else -9,
+                          error=Error(failure, 'recorded failure'),
+                          data=replace(obs.data, timed_out=failure == 'timeout', truncated=failure == 'truncated'))
+        snapshot = replace(snapshot, commands=snapshot.commands | {key: obs})
+    materialize(snapshot, tmp_path)
+    report = replay(load_snapshot(tmp_path), 'observer')
+    assert report['exit_code'] == (3 if failure == 'missing_plist' else 2)
+    assert len(report['jobs']) == 1
+    if failure != 'missing_plist': assert report['jobs'][0]['verdict']['rule_id'] == 1
+
+
+@pytest.mark.parametrize('field,value', [('format_version', True), ('domain', 501),
+                                        ('capture_clock', '2026-10-16'), ('indexes', {})])
+def test_malformed_manifests_are_invalid_input(tmp_path, field, value):
+    materialize(captured(), tmp_path)
+    path = tmp_path/'manifest.json'
+    obj = json.loads(path.read_text())
+    obj[field] = value
+    path.write_text(json.dumps(obj))
+    with pytest.raises(ValueError): load_snapshot(tmp_path)

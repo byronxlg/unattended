@@ -2,6 +2,7 @@
 import hashlib
 import io
 import json
+import os
 import platform
 import plistlib
 import re
@@ -22,6 +23,8 @@ def capture_snapshot(directory, domain, mode, *, files=None, commands=None, cloc
     if mode not in ('observer', 'audit') or directory is None or not re.fullmatch(r'gui/\d+', domain):
         raise ValueError('capture requires observer mode, runbook directory and gui domain')
     from .collect import LiveCommands
+    if files is None and commands is None and domain != f'gui/{os.getuid()}':
+        raise ValueError('capture requires current-user domain')
     files = files if files is not None else LocalFiles()
     commands = commands if commands is not None else LiveCommands()
     stamp = clock() if clock else datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
@@ -84,7 +87,7 @@ def emit_archive(snapshot, stream):
         indexes['commands'][key] = name
         members[name] = json.dumps(serialize(obs)).encode()
     for group in ('stats', 'receipts', 'expected'):
-        name = f'{group}.json'
+        name = 'receipts/index.json' if group == 'receipts' else f'{group}.json'
         indexes[group] = name
         members[name] = json.dumps(getattr(snapshot, group)).encode()
     def reference(name):

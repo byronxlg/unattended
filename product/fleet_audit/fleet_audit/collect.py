@@ -70,7 +70,12 @@ def run_bounded(argv, timeout_seconds=10, max_bytes=4194304):
             process.wait()
             for stream in (process.stdout, process.stderr):
                 stream.close()
-    data = CommandData(tuple(argv), *(redact_environment(bytes(s).decode('utf-8', errors='replace')) for s in streams),
+    try:
+        decoded = [bytes(s).decode('utf-8') for s in streams]
+    except UnicodeDecodeError:
+        decoded = ['', '']
+        error = Error('command_encoding', 'invalid UTF-8 command output')
+    data = CommandData(tuple(argv), *(redact_environment(s) for s in decoded),
                        timed_out, truncated, time.monotonic() - start)
     return Observation('attempted', stamp, tuple(argv), None if timed_out else rc, error, data)
 
@@ -80,6 +85,8 @@ class LiveCommands:
 
 
 def collect_jobs(jobs, domain, source):
+    if any(job.identity.domain != domain for job in jobs):
+        raise ValueError('job domain mismatch')
     inventory = parse_domain(source.run(('/bin/launchctl', 'print', domain)), domain)
     services = [parse_service(source.run(('/bin/launchctl', 'print', f'{domain}/{job.identity.label}')), job.identity)
                 for job in jobs]

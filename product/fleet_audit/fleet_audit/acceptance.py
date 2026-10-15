@@ -103,7 +103,9 @@ def prove_observer():
         elif isinstance(record.get('command'), dict):
             record = record['command']
         argv = tuple(record['command'])
-        return Observation('attempted', obj['provenance']['captured_at'], argv, record['returncode'], None,
+        stamp = obj['provenance']['captured_at']
+        stamp = stamp.replace('+00:00', 'Z') if 'T' in stamp else None
+        return Observation('attempted', stamp, argv, record['returncode'], None,
                            CommandData(argv, record['stdout'], record['stderr'], False, False, None))
 
     tick = Identity('local', 'gui/501', 'com.unattended.tick')

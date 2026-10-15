@@ -68,8 +68,8 @@ and its reconstructed plist, real blank exit-1 inventory, original tick service,
 and supervisor override map. The manifest indexes members with byte lengths,
 SHA-256, origin and source. Command keys include the synthetic capture identity.
 Legacy list failure is indexed as inventory evidence while its original argv
-is preserved. Synthetic envelope times use source capture clocks, including
-an imprecise date for the standalone override; they are not real command times.
+is preserved. Synthetic envelope times use source capture clocks, with null
+for the standalone override whose time is unavailable; they are not real command times.
 The reviewed expected assertions are explicit: one retained job, rule 1,
 cannot_determine and rc=1. Capture-generated expected placeholders remain
 unreviewed and cannot be used for acceptance without review.
