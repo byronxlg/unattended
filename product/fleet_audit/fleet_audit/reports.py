@@ -58,6 +58,7 @@ def render_text(report):
                      f"{escaped(identity['domain'])}/{escaped(identity['label'])} {escaped(job['verdict'])}: {escaped(job['reason'])}")
     if report["command"] != "declared":
         for job in report["jobs"]:
+            lines.extend("drift: " + escaped(finding["reason"]) for finding in job["drift"])
             lines.extend("uncertainty: " + escaped(detail) for detail in job["uncertainties"])
         lines.extend("issue: " + escaped(issue) for issue in report["issues"])
         lines.append("summary: " + json.dumps(report["summary"], sort_keys=True))
@@ -108,11 +109,15 @@ def exit_code(report):
 
 def audit_fleet(fleet, files):
     from dataclasses import replace
+    from .drift import compare_job
     from .output import observe_job
     from .verdicts import evaluate
     jobs = []
     for original in fleet.jobs:
         job = observe_job(original, files)
+        comparisons, drift = compare_job(job)
+        incomplete = tuple(f'{c.field}: {c.pair} comparison unknown' for c in comparisons if c.status == 'unknown')
+        job = replace(job, comparisons=comparisons, drift=drift, uncertainties=job.uncertainties + incomplete)
         verdict = evaluate(job, fleet.coverage, 'audit')
         contract = job.registry.output
         ancillary = []

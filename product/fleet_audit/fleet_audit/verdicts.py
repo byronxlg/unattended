@@ -104,10 +104,8 @@ def rule_match(number, job, coverage):
                 details.extend(f'{name}: {error.message}' for error in getattr(obs.data, 'field_errors', ()))
         if (known(state, 'running') and no_pid or isinstance(pid, Known) and not known(state, 'running')):
             details.append('contradictory pid/state')
-        # Drift is not yet computed in increment 3; no missing comparison is treated as equal.
-        # Existing explicit comparison uncertainty remains blocking evidence.
-        details.extend('required comparison unknown' for c in job.comparisons if getattr(c, 'status', None) == 'unknown')
-        details.extend(str(finding) for finding in job.drift)
+        details.extend(f'{c.field}: {c.pair} comparison unknown' for c in job.comparisons if c.status == 'unknown')
+        details.extend(finding.reason for finding in job.drift)
         if details:
             detail = 'health unestablished: ' + '; '.join(dict.fromkeys(details))
             refs = tuple(observations)

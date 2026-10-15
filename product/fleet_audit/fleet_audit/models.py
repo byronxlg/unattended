@@ -134,8 +134,8 @@ class JobRecord:
     observations: tuple[tuple[str, Observation], ...]
     loaded: Value[bool] = Unknown("not requested")
     disabled: Value[bool] | DisabledState = Unknown("not requested")
-    comparisons: tuple = ()
-    drift: tuple = ()
+    comparisons: tuple[Comparison, ...] = ()
+    drift: tuple[DriftFinding, ...] = ()
     verdict: str | Verdict | None = "declared"
     uncertainties: tuple = ()
 
@@ -290,3 +290,22 @@ class ReceiptData:
     result: str | None = None
     outcome: str = 'unestablished'
     parsing_errors: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class Comparison:
+    field: str
+    pair: str
+    left: Value[object]
+    right: Value[object]
+    status: str
+    evidence_refs: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class DriftFinding:
+    kind: str
+    field: str
+    pair: str
+    reason: str
+    evidence_refs: tuple[str, ...]

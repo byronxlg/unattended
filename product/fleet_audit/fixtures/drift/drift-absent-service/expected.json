@@ -1,0 +1,1 @@
+{"reviewed": true, "rule_id": 5, "verdict": "declared_not_loaded", "exit_code": 1, "comparisons": {"program": ["equal", "not_applicable", "not_applicable"], "arguments": ["equal", "not_applicable", "not_applicable"]}}

@@ -90,10 +90,43 @@ Freshness budgets come from the declaration: A<=M is fresh, M<A<=M+G is uncertai
 and A>M+G is late. Future timestamps are uncertain with no skew allowance.
 Explicit mtime sufficiency is required for mtime-based healthy idle.
 
-Increment 3 adds no drift comparison, scan verdicts, scan CLI/capture, or lab
-adoption. Drift has not been computed; an empty comparison array does not prove
-equality. Original stat-only spike evidence cannot prove receipt completion.
+Original stat-only spike evidence cannot prove receipt completion.
 Capture includes receipt tail bytes and metadata in `receipts/index.json`, plus
 output observations in `stats.json`. Capture placeholders have `reviewed: false`;
 acceptance refuses them until expected assertions are reviewed. No receipt text
 becomes a path or environment input. Replay opens only indexed snapshot members.
+
+
+## Three-way drift
+
+Increment 4 compares each requested program, complete argv, working directory,
+and schedule component across registry-to-disk, registry-to-loaded, and
+disk-to-loaded. Reports retain every comparison and finding independently of the
+verdict. A running job can have drift; any drift finding forces exit 1 unless
+invalid input takes precedence. Text includes finding reasons and JSON includes
+values, status and evidence references.
+
+Program uses the disk Program key when present, otherwise ProgramArguments[0].
+Missing argv is never invented from Program. Arguments retain argv[0], order,
+spaces and empty elements. Paths are literal normalized strings without expansion
+or realpath resolution. Only requested components are compared; all observed
+schedule components remain in evidence. Calendar key and alternative ordering do
+not matter, duplicates collapse, Sunday 7 equals 0, and omitted keys are wildcards.
+Interval and calendar may coexist. Calendar timezone local is an interpretation,
+not a separately observed loaded field.
+
+Unknown, unsupported or absent values make a comparison unknown with an
+uncertainty, never a drift finding. Required unknown comparisons block healthy
+idle. Service absence makes loaded pairs not applicable; omitted expectations
+produce no comparison. Disk omitted KeepAlive and RunAtLoad mean false, but loaded
+policy is never inferred from disk. Only the frozen positive `keepalive` and
+`runatload` property tokens prove true; missing tokens remain unknown and
+unsupported forms retain raw evidence. Rule 8's health-only disk fallback does
+not apply to drift.
+
+```sh
+uv run python -m fleet_audit.acceptance drift --offline
+uv run fleet-audit audit /ignored --fixture fixtures/drift/running-drift --json
+```
+
+Increment 4 adds no scan verdicts, scan CLI/capture, or lab adoption.

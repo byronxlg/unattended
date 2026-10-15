@@ -2,7 +2,7 @@
 import argparse
 from unittest.mock import patch
 from datetime import datetime
-from . import receipts, output, capture
+from . import receipts, output, capture, drift
 import json
 import os
 import sys
@@ -142,15 +142,61 @@ def prove_verdicts():
             assert (job['rule_id'], job['verdict'], report['exit_code']) == (expected['rule_id'], expected['verdict'], expected['exit_code']), (path.name, job['reason'], job['rule_id'], report['exit_code'])
 
 
+def prove_drift():
+    class FrozenOnly(datetime):
+        @classmethod
+        def now(cls, *args, **kwargs):
+            raise AssertionError('offline drift forbids live clock')
+    with patch('fleet_audit.files.datetime', FrozenOnly), patch('fleet_audit.collect.datetime', FrozenOnly), patch('fleet_audit.capture.datetime', FrozenOnly):
+        for path in sorted((FIXTURES / 'drift').iterdir()):
+            snapshot = load_snapshot(path)
+            expected = snapshot.expected
+            assert expected.get('reviewed') is True, 'unreviewed expected placeholder'
+            report = replay(snapshot, 'audit')
+            assert len(report['jobs']) == 1, path.name
+            job = report['jobs'][0]
+            assert (job['rule_id'], job['verdict'], report['exit_code']) == (expected['rule_id'], expected['verdict'], expected['exit_code']), (path.name, job['reason'])
+            actual = {}
+            for comparison in job['comparisons']:
+                actual.setdefault(comparison['field'], []).append(comparison['status'])
+            assert actual == expected['comparisons'], (path.name, actual)
+            different = {(c['field'], c['pair']) for c in job['comparisons'] if c['status'] == 'different'}
+            assert {(f['field'], f['pair']) for f in job['drift']} == different, path.name
+            assert len(job['drift']) == len(different)
+            assert bool(job['uncertainties']) == any('unknown' in states for states in actual.values()), path.name
+            if different:
+                assert 'drift: ' in render_text(report)
+        for name, field, expected in (
+                ('com.unattended.tick', 'run_at_load', Known(True)),
+                ('org.nixos.skhd', 'keep_alive', Known(True)),
+                ('com.pdw.docker-restart', 'calendar', None),
+                ('snapshot-com.apple.talagent', 'calendar', None)):
+            obj = json.loads((FIXTURES / 'observer' / (name + '.json')).read_text())
+            record = obj['record']
+            if isinstance(record.get('command'), dict):
+                record = record['command']
+            argv = tuple(record['command'])
+            command = Observation('attempted', None, argv, record['returncode'], None,
+                                  CommandData(argv, record['stdout'], record['stderr'], False, False, None))
+            service = parse_service(command, Identity('local', 'gui/501', argv[-1].split('/')[-1]))
+            value = getattr(service.data.schedule, field)
+            assert service.error is None and isinstance(value, Known), name
+            if expected is not None:
+                assert value == expected, name
+            else:
+                assert isinstance(drift.normalize_calendar(value.value), Known), name
+                assert len(value.value) == (2 if 'talagent' in name else 1), name
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Offline registry acceptance")
-    parser.add_argument("stage", choices=["registry", "observer", "verdicts"])
+    parser.add_argument("stage", choices=["registry", "observer", "verdicts", "drift"])
     parser.add_argument("--offline", action="store_true", required=True)
     args = parser.parse_args(argv)
     global _OFFLINE
     _OFFLINE = True
     try:
-        {"registry": prove_registry, "observer": prove_observer, "verdicts": prove_verdicts}[args.stage]()
+        {"registry": prove_registry, "observer": prove_observer, "verdicts": prove_verdicts, "drift": prove_drift}[args.stage]()
     finally:
         _OFFLINE = False
     print("OK " + args.stage)

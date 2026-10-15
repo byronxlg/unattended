@@ -105,3 +105,38 @@ Expected verdict/rule/exit assertions were selected from the spec decision table
 then checked against replay; they were not copied from evaluator output.
 The no-result fixture follows supervisor decision 4, overriding the receipt
 algorithm's statement that all producer fields must be present.
+
+
+## Increment 4: three-way drift
+
+The existing real `observer/com.unattended.tick.json` runatload,
+`observer/org.nixos.skhd.json` keepalive,
+`observer/com.pdw.docker-restart.json` calendar, and
+`observer/snapshot-com.apple.talagent.json` multi-calendar records are reused
+without recapture or additional loaded fields. Their original provenance,
+source commit 18c8e8c, capture times and timestamp limitations remain in those
+records. Tests and drift acceptance parse these exact files.
+
+`drift/` contains small synthetic snapshots: `drift-registry-disk`,
+`drift-registry-loaded`, `drift-disk-loaded`, `drift-missing-side`,
+`drift-absent-service`, `argv-boundaries`, `calendar-equivalent`,
+`calendar-wildcards`, `interval-and-calendar`, `policy-positive-tokens`,
+`policy-missing`, `policy-unsupported`, and `running-drift`.
+They derive the declaration, plist, output metadata, completed synthetic receipt,
+inventory and overrides from `verdicts/completed-no-result` at b786941.
+The minimal service blocks are hand-authored synthetic inputs, with no environment
+blocks. No environment values are included anywhere in these snapshots.
+The synthetic clock is 2026-10-16T00:00:00Z; copied envelopes retain their frozen
+synthetic observation times. None is a new host capture.
+
+Each manifest identifies synthetic provenance and the timestamp limitation;
+member references include byte counts and SHA-256. Expected pair statuses and
+verdict/rule/exit values were selected directly from the specification before
+running the implementation, then checked against replay. The three pair entries
+are ordered registry-to-disk, registry-to-loaded, disk-to-loaded. Acceptance
+requires reviewed=true, validates all expected comparison statuses and findings,
+and runs under the existing offline guard with live-clock traps. Unknown cases
+produce uncertainty without findings. `running-drift` proves rule 6 remains
+running while independent findings force exit 1.
+
+Increment 1 to 3 fixtures and tests are unchanged.

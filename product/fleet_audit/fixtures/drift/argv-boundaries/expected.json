@@ -1,0 +1,1 @@
+{"reviewed": true, "rule_id": 13, "verdict": "healthy_idle", "exit_code": 0, "comparisons": {"program": ["equal", "equal", "equal"], "arguments": ["equal", "equal", "equal"]}}
