@@ -91,3 +91,23 @@ def test_failed_validation_preserves_deployment(tmp_path):
     with pytest.raises(ValueError):
         build(path, out)
     assert before == {str(p.relative_to(out)): p.read_bytes() for p in out.rglob('*') if p.is_file()}
+
+
+def test_build_cli_records_actual_checkout_environment(tmp_path, monkeypatch):
+    import importlib
+    module = importlib.import_module('product.nz_election.pipeline.build')
+    bundle = data(tmp_path)
+    monkeypatch.setenv('GITHUB_SHA', 'c' * 40)
+    monkeypatch.setenv('NZ_CODE_SHA', 'a' * 40)
+    monkeypatch.setenv('NZ_DATA_SHA', 'b' * 40)
+    monkeypatch.setenv('GITHUB_SERVER_URL', 'https://github.com')
+    monkeypatch.setenv('GITHUB_REPOSITORY', 'byronxlg/unattended')
+    monkeypatch.setenv('GITHUB_RUN_ID', '123')
+    out = tmp_path / 'output'
+    monkeypatch.setattr('sys.argv', ['build.py', '--data', str(bundle), '--out', str(out)])
+    module.main()
+    manifest = json.loads((out / 'build-manifest.json').read_text())
+    assert manifest['code_sha'] == manifest['data']['code_sha'] == 'a' * 40
+    assert manifest['data']['data_sha'] == 'b' * 40
+    assert manifest['data']['data_available'] is True
+    assert manifest['data']['build_run_url'].endswith('/actions/runs/123')

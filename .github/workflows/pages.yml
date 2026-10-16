@@ -4,21 +4,92 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      code_sha:
+        description: Trusted code commit for rollback (40 lowercase hex)
+        required: false
+        type: string
+      data_sha:
+        description: Data commit for rollback (40 lowercase hex)
+        required: false
+        type: string
+  workflow_run:
+    workflows: [NZ election hourly]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name != 'workflow_run' ||
+       (github.event.workflow_run.head_branch == 'main' &&
+        github.event.workflow_run.head_repository.full_name == github.repository))
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Validate rollback inputs
+        env:
+          CODE_SHA: ${{ inputs.code_sha }}
+          DATA_SHA: ${{ inputs.data_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for sha in "$CODE_SHA" "$DATA_SHA"; do
+            if [[ -n "$sha" && ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+              echo 'Invalid rollback SHA' >&2
+              exit 1
+            fi
+          done
+      - uses: actions/checkout@v4
+        if: inputs.code_sha != ''
+        with:
+          ref: ${{ inputs.code_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve data commit
+        id: data
+        env:
+          DATA_SHA: ${{ inputs.data_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "$DATA_SHA" ]]; then
+            sha="$DATA_SHA"
+          else
+            ref=$(git ls-remote origin refs/heads/data)
+            sha=$(printf '%s' "$ref" | cut -f1)
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        if: steps.data.outputs.sha != ''
+        with:
+          ref: ${{ steps.data.outputs.sha }}
+          path: _nz-election-data
+          persist-credentials: false
+      - name: Record actual checkouts
+        env:
+          DATA_SHA: ${{ steps.data.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "NZ_CODE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          if [[ -n "$DATA_SHA" ]]; then
+            echo "NZ_DATA_SHA=$(git -C _nz-election-data rev-parse HEAD)" >> "$GITHUB_ENV"
+          fi
       - uses: astral-sh/setup-uv@v6
       - name: Check posts
         run: bin/blog check
@@ -26,10 +97,35 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: bin/metrics
+      - name: Build election pages
+        run: uv run product/nz_election/pipeline/build.py --data _nz-election-data/product/nz_election/data --out site/nz-election
+      - name: Record build manifest
+        run: |
+          uv run python - <<'PYTHON'
+          import json
+          import os
+          from pathlib import Path
+          from product.nz_election.pipeline import export
+          root = Path('site/nz-election')
+          manifest = json.loads((root / 'build-manifest.json').read_text())
+          run = os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID']
+          manifest.update(code_sha=os.environ['NZ_CODE_SHA'], run_url=run)
+          manifest['data'].update(code_sha=os.environ['NZ_CODE_SHA'],
+                                  data_sha=os.environ.get('NZ_DATA_SHA') or None,
+                                  build_run_url=run, data_available=(root / 'data/polls.json').is_file())
+          export.pair(root, 'build-manifest', manifest)
+          PYTHON
+      - name: Verify election pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${NZ_DATA_SHA:-}" ]]; then
+            uv run product/nz_election/pipeline/verify.py all --data _nz-election-data/product/nz_election/data --site site
+          else
+            uv run product/nz_election/pipeline/verify.py all --site site
+          fi
       - name: Build the site
         run: bin/blog build
-      - name: Build election skeleton
-        run: uv run product/nz_election/pipeline/build.py --data _nz-election-no-data --out site/nz-election
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

@@ -1,4 +1,4 @@
-# M1 offline build and publication helpers
+# M1 refresh, publication and recovery
 
 Run `uv run product/nz_election/pipeline/refresh.py --fixtures --out artifacts/nz-election/data`.
 This verifies immutable captures and labels every output run `offline-verification`. It never fetches.
@@ -7,8 +7,8 @@ The latest coherent fixture window ends 18 July 2026. Do not impute missing Othe
 
 Build with `uv run product/nz_election/pipeline/build.py --data artifacts/nz-election/data --out site/nz-election`.
 For first deployment pass a nonexistent data directory. The first data run is expected by
-19 October 2026; the hourly workflow and data-branch bootstrap belong to increment 3.
-The Pages step runs after the blog. Product output never targets the blog root.
+19 October 2026. The hourly workflow bootstraps the data branch on its first publication.
+Pages builds the product after metrics and before the blog. Product output never targets the blog root.
 
 Run `uv run product/nz_election/pipeline/verify.py all`, then the root pytest suite and `bin/lint`.
 The optional `--data` and `--site` verifier arguments validate supplied exports and route presence.
@@ -29,20 +29,72 @@ Local refreshes serialize with an adjacent flock file. Read a stable copy of an 
 Git publication pins the data commit before building. Do not read a changing refresh directory in
 another process. A symlink or unallowlisted file is rejected as data, never executed.
 
-`publish.publish` accepts only a local bare git repository with an existing data ref. It is an
-offline test transport, not a command for publishing production data. It stages only allowlisted
-files, merges other dataset status entries, regenerates the manifest and retries non-fast-forward
-pushes at most three times. A newer acquisition or attempt prevents an older writer replacing it.
-The next increment must add the Actions transport, ownership registry for new source families,
-orphan bootstrap and workflow reporting. No network helper or HTTP retry policy ships here.
+`publish.publish` uses the same algorithm for local bare repositories in tests and the GitHub
+remote in Actions. Only the publication job has contents write permission. It validates the
+downloaded bundle before touching git, stages explicit allowlisted paths, merges other dataset
+status entries and regenerates the manifest. The typed result record is the validated status
+JSON inside the bundle; `validated=true` gates artifact upload and the publication job.
+Unexpected failures never emit that output. Handled failures exit nonzero but upload their
+validated bundle, and publication reports failure only after pushing the status.
 
 Capture replacement and mapping review are supervisor tasks. Keep raw capture bytes unchanged;
 review source revisions, removals and incompatible party vectors before approving new mappings.
 Poll IDs remain independent of mutable shares and revision IDs. Corrections retain prior row history.
 
-For rollback in increment 3, rebuild trusted pinned code and data SHAs through Pages. Never force
-push the data branch. Record the build run, both SHAs and screenshot manifest. Measure actual
-Pages durations after deployment; the public-repository minute estimates are duration, not cost.
+## Failed refreshes and missing data
+
+Inspect the refresh and publication Action summaries: state, error code, attempted revision
+(null if acquisition failed), last-good acquisition/run, committed SHA, attempts and outcome.
+Diagnostics are fixed codes, never upstream HTML or credentials. HTTP 429 and selected 5xx,
+transport errors and API maxlag retry serially up to three attempts. Other HTTP failures stop
+immediately. Retry-After seconds or HTTP dates are honoured up to 60 seconds; larger waits
+fail with RETRY_AFTER_EXCESSIVE. Each request uses a 20-second timeout and reads at most
+2 MiB plus one overflow sentinel byte. Redirects are rejected, including same-host redirects.
+Only fetch.py opens HTTP connections; it never follows article citations.
+
+A missing data ref is normal before first publication. The hourly job starts with no previous
+bundle; publication creates an orphan containing only product/nz_election/data/. A failed first
+fetch still publishes status, CSV, manifest and licences with unavailable state. Pages resolves
+the data ref read-only and pins the exact commit in a separate checkout. Empty resolution means
+six no-data routes; a failed resolution stops the build. No code from that checkout runs.
+If an existing branch lacks a valid bundle, validation stops instead of treating it as absent.
+Runner loss, permission errors and failed deployment cannot update public status. Inspect Actions
+and the page's build/acquisition times; the previous Pages deployment remains live on build failure.
+
+## Publication retries
+
+The publication job shares non-cancelling group nz-election-data-publication with future writers.
+It rereads the tip before each attempt and uses --force-with-lease against that tip, committing
+on its fetched parent. This preserves the existing code's lease rule rather than the plan's
+plain-push wording. Bootstrap uses a lease expecting absence, so simultaneous bootstraps retry.
+Only a changed remote ref permits another attempt, up to three. Unchanged output skips a commit;
+older acquisitions cannot replace newer successful data. A newer failure still updates attempt
+status. Retry the hourly workflow after investigating PUBLICATION_FAILED or exhausted retries;
+never push product data locally. No separate daily writer or ownership registry ships in M1.
+
+## Rollback
+
+Dispatch Publish the blog on main with optional code_sha and data_sha inputs. Use reviewed trusted
+commits, each exactly 40 lowercase hex characters. Blank code uses the triggering main commit;
+blank data resolves the current data tip. Validation runs before either input is used as a ref.
+No ref or branch is rewritten. Pages records git rev-parse HEAD from both actual checkouts in
+build-manifest.json and its CSV, together with the run URL and whether polls are available.
+The workflow stamps both build-manifest siblings after building, so rollback to the increment 2
+skeleton also records actual checkouts even though that builder predates the SHA environment
+contract. Inspect those records, the downloads page and screenshots after deployment.
+
+## Pages minutes measurement
+
+All deployment triggers share group pages with cancel-in-progress false. An active deployment
+finishes; pending builds can coalesce. workflow_run accepts completed hourly runs on main from
+the same repository regardless of conclusion, since failure status also needs deployment.
+A GITHUB_TOKEN data push alone is not expected to trigger Pages.
+For several days after merge, record hourly and Pages run URLs, run counts and job durations,
+including coalesced runs, in the supervisor's daily post. Sum actual durations and extrapolate
+using the observed cadence. The public repository's standard hosted runners are not billed;
+720 to 2,160 monthly Pages minutes is a duration estimate, not cost. Do not reduce cadence without
+a recorded supervisor decision. The supervisor performs the first live dispatch and deployment
+check; this increment's tests and local verification are fully offline.
 
 ## Export conventions
 
