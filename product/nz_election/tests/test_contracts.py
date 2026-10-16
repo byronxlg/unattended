@@ -268,3 +268,36 @@ def test_geography_registry_binding_rejects_malformed_hash(tmp_path, bad):
         export.inventory(root, 'offline-verification', 'test', '2026-10-18T02:00:00Z')
         with pytest.raises(ValueError, match='GEOGRAPHY_REGISTRY_HASH_MISMATCH'):
             export.validate_bundle(root)
+
+
+@pytest.mark.parametrize('change', ['add', 'drop', 'add-regressed'])
+def test_baseline_source_set_advancement(tmp_path, change):
+    from copy import deepcopy
+    from shutil import copytree
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.pipeline.publish import publish, git, DATA
+    original, incoming, remote = [tmp_path / s for s in ('original', 'incoming', 'remote.git')]
+    daily_refresh(original, now='2026-10-18T01:00:00Z')
+    copytree(original, incoming)
+    remote.mkdir()
+    git(remote, 'init', '--bare', '-q')
+    publish(original, remote, family='daily')
+    env = json.loads((incoming / 'baseline-2023.json').read_text())
+    env['generated_at'] = '2026-10-19T01:00:00Z'
+    source = deepcopy(next(s for s in env['source'] if s['id'].endswith('place-1.csv')))
+    source['id'] = 'ec-2023/candidate-votes-by-voting-place-21.csv'
+    source['url'] = source['url'].replace('place-1.csv', 'place-21.csv')
+    if change == 'drop':
+        env['source'] = [s for s in env['source'] if s['id'] != 'ec-2023-xml/electorates.xml']
+    else:
+        env['source'].append(source)
+        if change == 'add-regressed':
+            env['source'][0]['fetched_at'] = '2020-01-01T00:00:00Z'
+    env['fetched_at'] = max(s['fetched_at'] for s in env['source'])
+    export.pair(incoming, 'baseline-2023', env)
+    export.inventory(incoming, 'offline-verification', 'test', '2026-10-19T01:00:00Z')
+    publish(incoming, remote, family='daily')
+    for suffix in ('.json', '.csv'):
+        name = 'baseline-2023' + suffix
+        actual = git(remote, 'show', 'data:' + str(DATA / name)).stdout
+        assert actual == ((incoming if change == 'add' else original) / name).read_text()

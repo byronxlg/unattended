@@ -89,7 +89,7 @@ def spreadsheet(raw):
 
 def apply_mappings(rows, mappings):
     by_id = {r['id']: r for r in rows}
-    conflicts = []
+    conflicts, collected = [], {}
     for mapping in mappings:
         if not mapping.get('reviewer') or not mapping.get('evidence'):
             raise ValueError('UNREVIEWED_CANDIDATE_MAPPING')
@@ -101,17 +101,31 @@ def apply_mappings(rows, mappings):
                 raise ValueError('INVALID_CANDIDATE_CLAIM')
             if any(not c.get('source_id') or not c.get('locator') for c in claims):
                 raise ValueError('INVALID_CANDIDATE_CLAIM')
-            all_claims = ([dict(value=row[field], **row['field_sources'][field][0])] if row[field] is not None else []) + claims
-            if len({json.dumps(c['value'], sort_keys=True) for c in all_claims}) > 1:
-                identity = 'conflict-' + str(len(conflicts) + 1)
-                conflicts.append(dict(id=identity, person_id=row['person_id'], electorate_id=row['electorate_id'],
-                                      field=field, claims=all_claims, resolution='Unresolved', review_ref=mapping['evidence'],
-                                      source_ref=claims, observed_at=row['observed_at']))
-                row['conflict_ids'].append(identity)
-            elif claims:
-                row[field] = claims[0]['value']
-                row['field_sources'][field] = claims
+            key = row['id'], field
+            if key not in collected:
+                original = [dict(ref, value=row[field]) for ref in row['field_sources'].get(field, [])] if row[field] is not None else []
+                collected[key] = dict(claims=original, reviews=[], supplemental=[])
+            collected[key]['claims'].extend(dict(claim) for claim in claims)
+            collected[key]['supplemental'].extend(dict(claim) for claim in claims)
+            collected[key]['reviews'].append(mapping['evidence'])
         row['join_status'] = 'Unresolved' if row['conflict_ids'] else 'Reviewed'
+    # Resolve once per field, so later mappings cannot erase earlier evidence or EC provenance.
+    for (candidate_id, field), evidence in collected.items():
+        row = by_id[candidate_id]
+        all_claims = evidence['claims']
+        row['field_sources'].setdefault('reviewed_claims', {})[field] = all_claims
+        if field not in {'name', 'party_id'}:
+            row['field_sources'].setdefault(field, []).extend(evidence['supplemental'])
+        if len({json.dumps(c['value'], sort_keys=True) for c in all_claims}) > 1:
+            identity = 'conflict-' + str(len(conflicts) + 1)
+            conflicts.append(dict(id=identity, person_id=row['person_id'], electorate_id=row['electorate_id'],
+                                  field=field, claims=all_claims, resolution='Unresolved', review_ref=evidence['reviews'],
+                                  source_ref=all_claims, observed_at=row['observed_at']))
+            row['conflict_ids'].append(identity)
+        elif all_claims and field not in {'name', 'party_id'}:
+            row[field] = all_claims[0]['value']
+        if row['conflict_ids']:
+            row['join_status'] = 'Unresolved'
     return conflicts
 
 

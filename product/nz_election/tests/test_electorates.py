@@ -82,7 +82,17 @@ def test_71_pages_and_missing_data(tmp_path):
     build(path, site)
     assert len(list((site / 'electorates').glob('*/index.html'))) == 71
     assert len(list(site.rglob('index.html'))) == 77
-    assert 'No candidate baseline. Missing candidate capture.' in (site / 'electorates/mangere/index.html').read_text()
+    from copy import deepcopy
+    envs = export.validate_bundle(path)
+    central = next(r for r in config('electorates') if r['slug'] == 'auckland-central')
+    assert 'No candidate baseline' not in detail(central, envs)
+    missing = deepcopy(envs)
+    old = next(r for r in missing['baseline-2023']['data'] if r['old_electorate_id'] == 1)
+    old['candidate_votes'] = None
+    old['field_sources']['candidate_status'] = 'Missing candidate capture.'
+    html = detail(central, missing)
+    assert 'No candidate baseline. Missing candidate capture.' in html
+    assert 'Auckland Central (2023)' in html and 'party votes' in html
     row = next(r for r in config('electorates') if r['slug'] == 'te-tai-tonga')
     html = detail(row, {})
     assert 'Official candidates not available' in html and 'Map not available' in html
@@ -139,3 +149,19 @@ def test_family_failure_before_first_success(tmp_path):
     assert 'enrolment' not in envs and 'candidates' in envs
     status = next(r for r in envs['status']['data'] if r['dataset'] == 'enrolment')
     assert status['state'] == 'unavailable' and status['last_success_at'] is None
+
+
+def test_verifier_accepts_present_mangere(tmp_path, monkeypatch):
+    from copy import deepcopy
+    from product.nz_election.pipeline.verify import verify_electorates
+    original_load = baseline.load
+    def present():
+        payload, sources, hashes = original_load()
+        rows = payload['baseline-2023']
+        mangere = next(r for r in rows if r['old_electorate_id'] == 21)
+        # Synthetic presence isolates the verifier from the outstanding capture gate.
+        mangere['candidate_votes'] = deepcopy(next(r for r in rows if r['old_electorate_id'] == 1)['candidate_votes'])
+        mangere['field_sources']['candidate_status'] = None
+        return payload, sources, hashes
+    monkeypatch.setattr(baseline, 'load', present)
+    verify_electorates({}, tmp_path)

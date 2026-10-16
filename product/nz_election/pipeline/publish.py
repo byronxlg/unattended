@@ -93,9 +93,9 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                 if dataset != 'polls' and stem in current and stem in incoming:
                     old_vector = {s['id']: s['fetched_at'] for s in current[stem]['source']}
                     new_vector = {s['id']: s['fetched_at'] for s in incoming[stem]['source']}
-                    if old_vector.keys() != new_vector.keys() or any(new_vector[k] < old_vector[k] for k in old_vector):
+                    if not old_vector.keys() <= new_vector.keys() or any(new_vector[k] < old_vector[k] for k in old_vector):
                         keep_data = True
-                    elif any(new_vector[k] > old_vector[k] for k in old_vector):
+                    elif new_vector.keys() > old_vector.keys() or any(new_vector[k] > old_vector[k] for k in old_vector):
                         keep_data = False
                 keep_status = previous and previous['last_attempt_at'] > proposed['last_attempt_at']
                 all_older = all_older and bool(keep_status and keep_data)

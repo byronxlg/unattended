@@ -48,15 +48,30 @@ def test_official_spine_and_explicit_joins():
     assert len({r['electorate_id'] for r in rows if r['electorate_id']}) == 71
 
 
-def test_conflicts_preserved():
+@pytest.mark.parametrize('field', ['name', 'party_id', 'list_rank'])
+def test_conflicts_preserved(field):
     row = deepcopy(c.load()[0]['candidates'][0])
-    claim = dict(value='Different official name', source_id=c.WIKI, locator='section/box:1')
+    original = row[field]
+    official_sources = deepcopy(row['field_sources'][field])
+    agreement = dict(value=original, source_id=c.WIKI, locator='section/box:1')
+    claim = dict(value=2 if field == 'list_rank' else 'Different official value', source_id=c.WD, locator='statement:2')
     mapping = dict(candidate_id=row['id'], electorate_id=row['electorate_id'], party_id=row['party_id'],
-                   reviewer='test reviewer', evidence='synthetic reviewed identifiers', claims={'name': [claim]})
-    conflicts = c.apply_mappings([row], [mapping])
-    assert row['name'] == 'CHANG, Johan' and row['join_status'] == 'Unresolved'
-    assert [r['value'] for r in conflicts[0]['claims']] == ['CHANG, Johan', claim['value']]
+                   reviewer='test reviewer', evidence='synthetic reviewed identifiers', claims={field: [claim]})
+    conflicts = c.apply_mappings([row], [dict(mapping, claims={field: [agreement]}), mapping])
+    assert row[field] == original and row['join_status'] == 'Unresolved'
+    expected = ([original] if original is not None else []) + [original, claim['value']]
+    assert [r['value'] for r in conflicts[0]['claims']] == expected
     assert all(r['source_id'] and r['locator'] for r in conflicts[0]['claims'])
+    assert row['field_sources'][field][:len(official_sources)] == official_sources
+    assert agreement in row['field_sources']['reviewed_claims'][field]
+    assert claim in row['field_sources']['reviewed_claims'][field]
+    if field in {'name', 'party_id'}:
+        assert row['field_sources'][field] == official_sources
+    from product.nz_election.pipeline.electorate_pages import detail
+    electorate = next(r for r in config('electorates') if r['id'] == row['electorate_id'])
+    env = dict(data=[row], source=c.load()[1], run_url='offline-verification')
+    html = detail(electorate, {'candidates': env, 'candidate-review': {'data': conflicts}})
+    assert 'Unresolved' in html and claim['locator'] in html and agreement['locator'] in html
 
 
 def test_list_capacity_requires_complete_review():
@@ -87,3 +102,17 @@ def test_daily_independent_retention(tmp_path):
     assert all((path / n).read_bytes() == b for n, b in before.items())
     assert envs['baseline-2023']['generated_at'] == '2026-10-19T00:00:00Z'
     assert next(r for r in envs['status']['data'] if r['dataset'] == 'candidates')['state'] == 'stale'
+
+
+def test_agreeing_claims_keep_official_provenance():
+    row = deepcopy(c.load()[0]['candidates'][0])
+    original = deepcopy(row['field_sources'])
+    claims = {field: [dict(value=row[field], source_id=c.WIKI, locator='section/box:1')]
+              for field in ('name', 'party_id')}
+    mapping = dict(candidate_id=row['id'], electorate_id=row['electorate_id'], party_id=row['party_id'],
+                   reviewer='test reviewer', evidence='synthetic reviewed identifiers', claims=claims)
+    assert c.apply_mappings([row], [mapping]) == []
+    for field in claims:
+        assert row['field_sources'][field] == original[field]
+        assert claims[field][0] in row['field_sources']['reviewed_claims'][field]
+    assert row['join_status'] == 'Reviewed'

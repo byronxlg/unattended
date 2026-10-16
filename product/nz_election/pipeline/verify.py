@@ -185,7 +185,15 @@ def verify_electorates(envs, root):
     site = build(root / 'data', root / 'details-site')
     require(len(list((site / 'electorates').glob('*/index.html'))) == 71, '71 detail pages')
     require('Wellington Central (2023)' in (site / 'electorates/wellington-north/index.html').read_text(), 'original name comparison')
-    require('No candidate baseline' in (site / 'electorates/mangere/index.html').read_text(), 'missing baseline')
+    from copy import deepcopy
+    current = export.validate_bundle(root / 'data')
+    central = next(r for r in config('electorates') if r['slug'] == 'auckland-central')
+    require('No candidate baseline' not in detail(central, current), 'present candidate baseline')
+    missing = deepcopy(current)
+    old = next(r for r in missing['baseline-2023']['data'] if r['old_electorate_id'] == 1)
+    old['candidate_votes'] = None
+    old['field_sources']['candidate_status'] = 'Missing candidate capture.'
+    require('No candidate baseline. Missing candidate capture.' in detail(central, missing), 'controlled missing baseline')
     row = next(r for r in config('electorates') if r['slug'] == 'te-tai-tonga')
     require('Official candidates not available' in detail(row, {}), 'controlled missing data')
 
