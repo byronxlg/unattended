@@ -59,7 +59,7 @@ def check_page(page, url, site, origin):
     from product.nz_election.pipeline.scripts import validate_scripts
     assert validate_scripts(page.content())
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'PAGE_OVERFLOW: ' + url
-    for href in page.locator('a[href],link[href]').evaluate_all('(els)=>els.map(e=>e.href)'):
+    for href in page.locator('a[href],link[href]').evaluate_all('(els)=>els.map(e=>new URL(e.getAttribute("href"), document.baseURI).href)'):
         parsed = urlsplit(href)
         if not href.startswith(origin):
             continue
