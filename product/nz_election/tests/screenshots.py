@@ -12,6 +12,7 @@ import threading
 from urllib.parse import unquote, urlsplit
 
 PRODUCT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PRODUCT.parents[1]))
 PREFIX = '/unattended/'
 
 
@@ -55,7 +56,8 @@ def check_page(page, url, site, origin):
     response = page.goto(url, wait_until='networkidle')
     assert response and response.status == 200, 'ROUTE_FAILED: ' + url
     assert page.locator('main h1').count() == 1
-    assert page.locator('script').count() == 0, 'M1_MUST_NOT_LOAD_JS'
+    from product.nz_election.pipeline.scripts import validate_scripts
+    assert validate_scripts(page.content())
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'PAGE_OVERFLOW: ' + url
     for href in page.locator('a[href],link[href]').evaluate_all('(els)=>els.map(e=>e.href)'):
         parsed = urlsplit(href)
@@ -94,7 +96,14 @@ def check_page(page, url, site, origin):
     page.locator('h1').click()
     page.evaluate('scrollTo(0,0)')
     assert not errors, 'CONSOLE_ERRORS: ' + str(errors)
-    return page.locator('main').inner_text()
+    return static_text(page)
+
+
+def static_text(page):
+    return page.locator('main').evaluate("""el=>{
+      const copy=el.cloneNode(true); copy.querySelector('#coalition-explorer')?.remove();
+      return copy.textContent;
+    }""")
 
 
 def state_images(browser, out):
@@ -105,14 +114,14 @@ def state_images(browser, out):
     results = []
     with tempfile.TemporaryDirectory(prefix='nz-screenshot-states-') as tmp:
         root = Path(tmp)
-        for state in ('unavailable', 'stale', 'incomplete', 'earlier-coherent-window'):
+        for state in ('unavailable', 'stale', 'incomplete', 'earlier-coherent-window', 'coalition-edit', 'coalition-vacancy'):
             data = root / (state + '-data')
             site = root / state
             site.mkdir()
             def fail(*args):
                 raise ParseDrift('Screenshot unavailable-state verification')
             refresh(data, now='2026-10-17T01:00:00Z',
-                    end_date='2026-07-18' if state == 'earlier-coherent-window' else None,
+                    end_date='2026-07-18' if state in {'earlier-coherent-window', 'coalition-edit', 'coalition-vacancy'} else None,
                     **({'parse': fail} if state == 'unavailable' else {}),
                     run_url='local-stale-verification' if state == 'stale' else 'offline-verification')
             build(data, site / 'nz-election', built='2026-10-17T12:00:00Z')
@@ -130,13 +139,16 @@ def state_images(browser, out):
                     context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
                     page = context.new_page()
                     check_page(page, origin + PREFIX + 'nz-election/', site, origin)
-                    if state == 'earlier-coherent-window':
-                        assert page.locator('.strip').count() == 1, 'COHERENT_STRIP_REQUIRED'
+                    if state.startswith('coalition-'):
+                        from coalitions_browser import edit_state
+                        edit_state(page, state)
+                    if state in {'earlier-coherent-window', 'coalition-edit', 'coalition-vacancy'}:
+                        assert page.locator('main > .seat-figure .strip').count() == 1, 'COHERENT_STRIP_REQUIRED'
                         for box in page.locator('.seat-label,.lane').all():
                             if box.is_visible():
                                 assert box.evaluate('(e)=>e.scrollWidth<=e.clientWidth'), 'STRIP_LABEL_OVERFLOW'
                     else:
-                        assert page.locator('.strip').count() == 0, 'INVALID_CURRENT_STRIP'
+                        assert page.locator('main > .seat-figure .strip').count() == 0, 'INVALID_CURRENT_STRIP'
                     name = f'{state}-{width}x{height}.png'
                     page.screenshot(path=str(out / name), full_page=True)
                     results.append(dict(state=state, viewport=dict(width=width, height=height), path=name,
@@ -198,7 +210,7 @@ def main():
                     page.screenshot(path=str(target))
                     plain = nojs.new_page()
                     plain.goto(url, wait_until='networkidle')
-                    assert plain.locator('main').inner_text() == text, 'NO_JS_CONTENT_MISMATCH'
+                    assert static_text(plain) == text, 'NO_JS_CONTENT_MISMATCH'
                     manifest.append(dict(route=PREFIX + 'nz-election/' + path, viewport=dict(width=width, height=height),
                                          path=name, sha256=hashlib.sha256(target.read_bytes()).hexdigest(),
                                          code_sha=build['code_sha'], data_sha=build['data_sha'], browser_version=browser.version))
