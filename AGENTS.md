@@ -20,6 +20,17 @@ work; Byron is not here. Finish the task in the prompt, nothing more.
 - Final message: what changed (files), how it was verified (command and output), open questions.
   Keep it under 40 lines.
 
+## Design (any change with a UI)
+
+- Mobile first; the hero is what the reader came for, not a headline about the app. One
+  memorable element per page, everything else quiet. Visual structure encodes information
+  (no decorative numbering, dividers or eyebrow labels). Sentence case, plain voter words.
+- Avoid the generated-page tells: cream background with terracotta accent, dark page with one
+  acid accent, identical rounded cards with one shadow, all-caps tracked labels, middle-dot
+  meta strings, arrows on links, fade-up animation on every section.
+- Quality floor: keyboard focus visible, reduced motion respected, contrast checked, works at
+  390 px. Screenshots at 390x844 and 1280x800 are part of done; look at them before finishing.
+
 ## Repo
 
 `intent/<slug>/` holds the intent, spec and plan for the change you are on; read them first when
