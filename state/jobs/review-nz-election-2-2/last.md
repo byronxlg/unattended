@@ -1,0 +1,11 @@
+1. **Important - [publish.py:52](/Users/byron/repos/unattended/.worktrees/nz-election-2/product/nz_election/pipeline/publish.py:52): equal acquisition timestamps allow newer data to be replaced.** Builds from unchanged captures share `last_success_at`, even when their daily average series differ. A later failure based on an older bundle therefore sets `keep_data=False`, copies that older bundle and replaces the newer last-good run reference.
+   **Reproduction:** publish an October 18 build, then an October 19 failure retaining an October 17 build from the same capture. Read-only mocked execution printed `Result: published`, copied all six poll-family files, and selected `success-old`. The regression test changes acquisition timestamps, missing this case.
+   **Fix:** order successful bundles by successful generation chronology as well as acquisition time, independently of attempt status.
+
+2. **Important - [build.py:244](/Users/byron/repos/unattended/.worktrees/nz-election-2/product/nz_election/pipeline/build.py:244): downloads render UTC instead of the required local time.** Spec “Provenance and downloads” requires rendered timestamps in `Pacific/Auckland`, including NZST/NZDT.
+   **Reproduction:** rendering the fixture catalogue produces `<dt>Retrieved (UTC)</dt><dd>2026-10-16T12:49:36Z</dd>`. The regression checks the raw timestamp, so it accepts this violation.
+   **Fix:** render retrieval timestamps through `local_time()`, retaining UTC in the downloadable records.
+
+Existing tests are unchanged: the fix adds only `test_increment_two_regressions.py` (+205 lines). Each seven-item regression’s positive case exposes its original defect; the fatal-push negative control already passes before the fix. Read-only reproductions confirmed exact arithmetic and threshold filtering now work. Output-path guards cover blog siblings and resolved aliases; sampled lane bounds and packing passed at 288 and 736 px. Inspected all four requested screenshots; no additional visual findings.
+
+Important findings: 2.
