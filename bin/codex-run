@@ -129,7 +129,7 @@ last = ""
 try: last = open(f"{job}/last.md").read()
 except OSError: pass
 if "\u2014" in last or "\u2013" in last:
-    # house rule: no em or en dashes anywhere; Codex's own prose gets them normalised (review-fleet-audit-1, day 1)
+    # house rule: no em or en dashes anywhere; Codex's own prose gets them normalised
     last = last.replace("\u2014", "-").replace("\u2013", "-")
     with open(f"{job}/last.md", "w") as f: f.write(last)
 rec = {"id": e["ID"], "kind": e["KIND"], "change": e["CHANGE"] or None, "started": e["STARTED"], "ended": e["ENDED"],

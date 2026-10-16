@@ -1,8 +1,11 @@
 # Metrics evidence
-Real records copied verbatim from 0a4b5600849b150ce97fedf5b5947751b08e2334:
+Real records copied from 0a4b5600849b150ce97fedf5b5947751b08e2334:
 ledger lines 1-2 (smoke-0, smoke-1), ticks lines 1-2, mistakes line 1,
 and the complete changes.yaml. Expected: two jobs, two ticks, one mistake
-class with one repeat, Fleet Audit attempts 11 and five linked PRs.
+class with one repeat, retired product attempts 11 and five linked PRs.
+Product names and declaration paths in changes and mistakes are replaced with
+`retired-product`; all metric inputs and other text are preserved. Original records
+remain in the source commit and the historical state files.
 Synthetic files contain explicitly constructed evidence; test builders add
 edge cases. GitHub shapes are synthetic, not authenticated captures.
 No future regression, incident-ID or signal contracts are assumed.

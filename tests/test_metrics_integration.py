@@ -44,7 +44,6 @@ def test_ci_collects_root_tests():
     workflow=(ROOT/".github/workflows/ci.yml").read_text()
     assert "if ls tests/test_*.py >/dev/null" in workflow
     assert "uv run --with pytest pytest -q" in workflow
-    assert "working-directory: product/fleet_audit" in workflow
 
 
 def test_blog_consumes_fragment(tmp_path, capsys):

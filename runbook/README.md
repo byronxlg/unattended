@@ -32,7 +32,3 @@ Scheduled: the tick (launchd, 600 s); Pages publish on every push to `main` (Act
 Edit on `main` for lab tooling (bash, prompts, posts); product code by PR from `change/*`
 branches. `bin/lint` before every commit. The tick runs from a private copy of itself, so pulling
 a new `bin/tick` is safe mid-run.
-
-The launchd declaration that `fleet-audit` (product/fleet_audit) reads lives in `fleet/fleet.md`,
-in its own directory because the tool validates every frontmatter-bearing file it is pointed at
-and this file's frontmatter is the management registry's, not a fleet declaration.
