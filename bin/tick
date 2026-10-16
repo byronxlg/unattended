@@ -66,6 +66,21 @@ elif [ -n "$(find "$STATE/model.limited" -mmin -60 2>/dev/null)" ]; then
 else
   SUP_RAN=1; touch "$STATE/supervisor.last"
   LEDGER_TAIL=$(tail -5 "$STATE/ledger.jsonl" 2>/dev/null | cut -c1-600)
+  # Codex window: used percent from the last job that reported it, the reset time, and the
+  # share of the window the lab may spend today if the rest is spread evenly to the reset.
+  CODEX_WINDOW=$(python3 - "$STATE/ledger.jsonl" <<'PY'
+import json, sys, time
+used = reset = None
+for line in open(sys.argv[1]):
+    try: r = json.loads(line)
+    except ValueError: continue
+    rl = (r.get('rate_limits') or {}).get('primary')
+    if rl: used, reset = rl.get('used_percent'), rl.get('resets_at')
+if used is None: print('unknown'); sys.exit()
+days = max((reset - time.time()) / 86400, 0.5) if reset else 7
+print(f'used {used}% of the weekly window; resets in {days:.1f} days; even spread allows about {(100 - used) / days:.0f} points per day; stop dispatching build jobs at 90')
+PY
+)
   ISSUES=$(gh issue list -R byronxlg/unattended --state open --json number,title,updatedAt,author --jq '.[] | "#\(.number) \(.updatedAt) \(.author.login): \(.title)"' 2>/dev/null | head -20)
   CONTEXT="$(cat prompts/supervisor.md)
 
@@ -74,6 +89,7 @@ else
 time_utc: $(ts)  (NZ: $(TZ=Pacific/Auckland date '+%F %H:%M'))
 reasons: ${REASONS[*]}
 codex_jobs_running: $RUNNING_JOBS
+codex_window: $CODEX_WINDOW
 disk_free_gib: $(df -k /System/Volumes/Data | awk 'NR==2{printf "%.1f",$4/1048576}')
 phase:
 $(cat state/phase.md 2>/dev/null || echo none)

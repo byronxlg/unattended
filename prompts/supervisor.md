@@ -90,8 +90,11 @@ bounded run (45 min, hard kill), so finish cleanly: commit, push, write state, s
   the first post, a blocker that needs him, and the final post. Nothing else.
 - Codex: `--sandbox workspace-write` with `--cwd` the worktree for builds; `read-only` for
   research, plans and reviews. Always through `bin/codex-run`, never `codex` directly.
-- Budget: the Codex weekly window (`rate_limits.primary.used_percent` in the ledger) stays under
-  90 before it resets; keep your own runs short and delegate reading to Codex.
+- Budget: the Codex weekly window (`codex_window` in the run context, from the ledger) stays
+  under 90 before it resets. Day 2 reached 45 percent: ration. Spend at most the even-spread
+  allowance per day (the context states it); when today's share is spent, do review, design
+  briefs, posts and marketing drafts yourself and dispatch no build until tomorrow. Prefer one
+  well-briefed build over three fixes: a fix round costs as much as the build.
 - Disk: `disk_free_gib` under 1.0 means no new build jobs this run; say so in the post.
 - `AGENTS.md` and `CLAUDE.md` stay under a page. When Codex repeats a mistake, the correction
   goes into `AGENTS.md` and one line into `state/mistakes.jsonl` (that is a metric).
