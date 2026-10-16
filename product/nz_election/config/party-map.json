@@ -1,0 +1,105 @@
+{
+  "headers": {
+    "NAT": "nat",
+    "LAB": "lab",
+    "GRN": "grn",
+    "ACT": "act",
+    "NZF": "nzf",
+    "TPM": "tpm",
+    "OPP": "opp",
+    "Others": "others"
+  },
+  "pollsters": {
+    "1 News\u2013Verian": "verian",
+    "Anacta": "anacta",
+    "RNZ\u2013Reid Research": "reid-research",
+    "Roy Morgan": "roy-morgan",
+    "Talbot Mills": "talbot-mills",
+    "Taxpayers' Union\u2013Curia": "curia",
+    "The Post/Freshwater Strategy": "freshwater"
+  },
+  "review_ref": "62d3ff6 decision 6; pinned revision header aliases",
+  "parties": [
+    {
+      "id": "nat",
+      "label": "NAT",
+      "aggregate": false,
+      "aliases": [
+        "NAT"
+      ],
+      "qualifying_list_evidence": null
+    },
+    {
+      "id": "lab",
+      "label": "LAB",
+      "aggregate": false,
+      "aliases": [
+        "LAB"
+      ],
+      "qualifying_list_evidence": null
+    },
+    {
+      "id": "grn",
+      "label": "GRN",
+      "aggregate": false,
+      "aliases": [
+        "GRN"
+      ],
+      "qualifying_list_evidence": null
+    },
+    {
+      "id": "act",
+      "label": "ACT",
+      "aggregate": false,
+      "aliases": [
+        "ACT"
+      ],
+      "qualifying_list_evidence": null
+    },
+    {
+      "id": "nzf",
+      "label": "NZF",
+      "aggregate": false,
+      "aliases": [
+        "NZF"
+      ],
+      "qualifying_list_evidence": null
+    },
+    {
+      "id": "tpm",
+      "label": "TPM",
+      "aggregate": false,
+      "aliases": [
+        "TPM"
+      ],
+      "qualifying_list_evidence": null
+    },
+    {
+      "id": "opp",
+      "label": "OPP",
+      "aggregate": false,
+      "aliases": [
+        "OPP"
+      ],
+      "qualifying_list_evidence": null
+    },
+    {
+      "id": "others",
+      "label": "Others",
+      "aggregate": true,
+      "aliases": [
+        "Others"
+      ],
+      "qualifying_list_evidence": null
+    }
+  ],
+  "date_exceptions": [
+    {
+      "revision": "1380524613",
+      "visible": "8\u201311 Aug 2026",
+      "sort": "2026-08-12",
+      "pollster": "1 News\u2013Verian",
+      "reason": "Visible fieldwork end is 11 August; sort metadata disagrees. Build brief directs following fixture bytes."
+    }
+  ]
+}
