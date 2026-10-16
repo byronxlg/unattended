@@ -1,1 +1,0 @@
-{"reviewed": true, "rule_id": 13, "verdict": "healthy_idle", "exit_code": 0, "comparisons": {"program": ["equal", "equal", "equal"], "arguments": ["equal", "equal", "equal"], "schedule.keep_alive": ["equal", "equal", "equal"], "schedule.run_at_load": ["equal", "equal", "equal"]}}

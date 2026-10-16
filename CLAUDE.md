@@ -17,7 +17,7 @@ every artifact and metric lives in this repo. Blog: https://byronxlg.com/unatten
 
 `intent/<slug>/{intent,spec,plan}.md` per change (the playbook's artifacts). `prompts/supervisor.md`
 is what the tick hands Claude. `state/` holds the ledgers (committed) and run markers (ignored).
-`posts/` is the blog source. `product/` is the thing being built (from phase 4). `evals/` are
+`posts/` is the blog source. `product/` will hold the NZ election web app from phase 4. `evals/` are
 Codex tasks with checks. `docs/playbook.md` and `docs/metrics.md` are the rules and the indicator
 definitions. `runbook/` says how to operate the loop.
 

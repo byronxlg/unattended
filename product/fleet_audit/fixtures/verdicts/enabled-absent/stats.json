@@ -1,1 +1,0 @@
-{"/fleet-fixtures/ticks.jsonl": {"status": "attempted", "observed_at": "2026-10-16T00:00:00Z", "source_command": ["stat", "/fleet-fixtures/ticks.jsonl"], "return_code": null, "error": null, "data": {"path": "/fleet-fixtures/ticks.jsonl", "exists": true, "size": 100, "mtime": "2026-10-16T00:00:00Z", "age_seconds": null, "stat_error": null}}}

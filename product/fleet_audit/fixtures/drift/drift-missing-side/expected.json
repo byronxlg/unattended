@@ -1,1 +1,0 @@
-{"reviewed": true, "rule_id": 9, "verdict": "cannot_determine", "exit_code": 2, "comparisons": {"program": ["equal", "unknown", "unknown"], "arguments": ["equal", "equal", "equal"]}}

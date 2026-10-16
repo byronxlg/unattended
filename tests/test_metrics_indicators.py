@@ -273,7 +273,7 @@ def test_frozen_state_totals():
     from pathlib import Path
     from lab_metrics.sources import read_changes, read_mistakes
     base = Path(__file__).parent / "fixtures/metrics/real"
-    s = snapshot(jobs=[dict(id=f"fix-{i}", kind="fix", change="fleet-audit") for i in range(7)])
+    s = snapshot(jobs=[dict(id=f"fix-{i}", kind="fix", change="retired-product") for i in range(7)])
     s.changes = read_changes(base / "changes.yaml")
     s.mistakes = read_mistakes(base / "mistakes.jsonl")
     s.github.sources["prs"] = SourceResult(False, "offline")

@@ -1,1 +1,0 @@
-{"ts": "2026-10-15T08:34:36Z", "reasons": ["job_done:smoke-0", "job_done:smoke-1", "post_due:2026-10-15", "idle", "heartbeat"], "jobs_running": 0, "supervisor": {"ran": false, "rc": null, "error": null, "cost_usd": null, "turns": null, "duration_ms": null, "result": null}}
