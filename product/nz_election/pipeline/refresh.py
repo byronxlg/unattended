@@ -35,7 +35,7 @@ def code_sha():
 
 
 def utc_now():
-    return datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
+    return export.timestamp(datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z'))
 
 
 def source_entries():
@@ -99,7 +99,8 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
     if out.is_symlink():
         raise ValueError('UNSAFE_OUTPUT_PATH')
     out.parent.mkdir(parents=True, exist_ok=True)
-    now, sha = now or utc_now(), sha or code_sha()
+    now = export.timestamp(utc_now() if now is None else now, 'refresh.now')
+    sha = sha or code_sha()
     with (out.parent / ('.' + out.name + '.lock')).open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         old = export.validate_bundle(out) if out.exists() else {}

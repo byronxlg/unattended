@@ -3,6 +3,7 @@ import csv
 import hashlib
 import io
 import json
+import re
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -22,6 +23,50 @@ STEMS = {'polls', 'averages', 'seats', 'status', 'manifest'}
 ALLOWED = {s + ext for s in STEMS for ext in ('.json', '.csv')} | {'LICENCES.md'}
 META = ['schema_version', 'source_json', 'fetched_at', 'run_url', 'code_sha',
         'input_hashes_json', 'method_version', 'generated_at']
+INSTANT_FIELDS = {'fetched_at', 'generated_at', 'last_attempt_at', 'last_success_at', 'built_at', 'captured_at'}
+DATE_FIELDS = {'fieldwork_start', 'fieldwork_end', 'date', 'window_start', 'window_end'}
+DATE_PATTERN = r'[0-9]{4}-[0-9]{2}-[0-9]{2}'
+
+
+def timestamp(value, field='timestamp', *, nullable=False):
+    if value is None and nullable:
+        return None
+    if not isinstance(value, str) or not re.fullmatch(DATE_PATTERN + r'T[0-9]{2}:[0-9]{2}:[0-9]{2}Z', value):
+        raise ValueError('INVALID_TIMESTAMP: ' + field)
+    try:
+        datetime.fromisoformat(value.replace('Z', '+00:00'))
+    except ValueError:
+        raise ValueError('INVALID_TIMESTAMP: ' + field) from None
+    return value
+
+
+def calendar_date(value, field):
+    if not isinstance(value, str) or not re.fullmatch(DATE_PATTERN, value):
+        raise ValueError('INVALID_DATE: ' + field)
+    try:
+        date.fromisoformat(value)
+    except ValueError:
+        raise ValueError('INVALID_DATE: ' + field) from None
+
+
+def validate_times(value, path='envelope'):
+    # Source references and retained history can also contain acquisition metadata.
+    if isinstance(value, dict):
+        for key, item in value.items():
+            field = path + '.' + key
+            if key in INSTANT_FIELDS:
+                timestamp(item, field, nullable=key in {'fetched_at', 'last_success_at'})
+            elif key in DATE_FIELDS:
+                calendar_date(item, field)
+            elif key in {'observed_at', 'observation_start', 'observation_end'}:
+                if isinstance(item, str) and re.fullmatch(DATE_PATTERN, item):
+                    calendar_date(item, field)
+                else:
+                    timestamp(item, field, nullable=key != 'observed_at')
+            validate_times(item, field)
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            validate_times(item, f'{path}[{index}]')
 
 
 def canonical(value):
@@ -33,10 +78,13 @@ def digest(raw):
 
 
 def envelope(data, sources, run_url, code_sha, *, inputs=None, method=None, generated=None):
+    for source in sources:
+        timestamp(source['fetched_at'], 'source.fetched_at')
     result = dict(schema_version=1, source=sources, fetched_at=max((s['fetched_at'] for s in sources), default=None),
                   run_url=run_url, code_sha=code_sha, data=data)
     if inputs is not None:
         result.update(input_hashes=inputs, method_version=method, generated_at=generated)
+    validate_times(result)
     return result
 
 
@@ -47,9 +95,11 @@ def rows(env):
 def validate_envelope(env, stem):
     if set(env) not in (BASE, BASE | DERIVED) or type(env['schema_version']) is not int or env['schema_version'] != 1:
         raise ValueError('INVALID_ENVELOPE')
+    validate_times(env)
     for source in env['source']:
         if set(source) != SOURCE:
             raise ValueError('INVALID_SOURCE')
+        timestamp(source['fetched_at'], 'source.fetched_at')
     if env['fetched_at'] != max((s['fetched_at'] for s in env['source']), default=None):
         raise ValueError('INVALID_ACQUISITION')
     if stem in {'averages', 'seats'} and not DERIVED <= env.keys():
@@ -69,6 +119,18 @@ def validate_envelope(env, stem):
         if set(row) != FIELDS[stem] or row['id'] in seen or not isinstance(row['source_ref'], list):
             raise ValueError('INVALID_ROW: ' + stem)
         seen.add(row['id'])
+        if stem in {'polls', 'averages', 'seats'}:
+            calendar_date(row['observed_at'], stem + '.observed_at')
+        else:
+            timestamp(row['observed_at'], stem + '.observed_at')
+        if stem == 'manifest':
+            for key in ('observation_start', 'observation_end'):
+                value = row[key]
+                if value is not None:
+                    if Path(row['path']).stem in {'polls', 'averages', 'seats'}:
+                        calendar_date(value, 'manifest.' + key)
+                    else:
+                        timestamp(value, 'manifest.' + key)
         if stem == 'polls':
             if type(row['scale']) is not int or row['scale'] < 1 or str(row['scale']).strip('0') != '1':
                 raise ValueError('INVALID_POLL_SCALE')
@@ -83,13 +145,13 @@ def validate_envelope(env, stem):
         if stem == 'status':
             if row['state'] not in {'fresh', 'stale', 'unavailable'}:
                 raise ValueError('INVALID_STATUS')
-            datetime.fromisoformat(row['last_attempt_at'].replace('Z', '+00:00'))
             if (row['state'] == 'unavailable') != (row['last_success_at'] is None):
                 raise ValueError('INVALID_STATUS_SUCCESS')
     return env
 
 
 def csv_bytes(env):
+    validate_times(env)
     payload = rows(env)
     keys = sorted({key for row in payload for key in row})
     nested = {key for key in keys if any(isinstance(r.get(key), (list, dict)) for r in payload)}
@@ -118,6 +180,7 @@ def pair(root, stem, env):
 
 
 def inventory(root, run_url, code_sha, now):
+    timestamp(now, 'inventory.now')
     entries = []
     for path in sorted(root.iterdir()):
         if path.name.startswith('manifest.'):
@@ -126,6 +189,8 @@ def inventory(root, run_url, code_sha, now):
             raise ValueError('UNSAFE_DATA_PATH')
         stem = path.stem
         env = json.loads((root / (stem + '.json')).read_text()) if path.suffix in {'.json', '.csv'} else None
+        if env:
+            validate_envelope(env, stem)
         data = rows(env) if env else []
         observations = [r['observed_at'] for r in data]
         entries.append(dict(id=path.name, source_ref=env['source'] if env else [], observed_at=now,

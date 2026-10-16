@@ -4,7 +4,6 @@
 # ///
 """Local git test transport for owned poll publication. No branch bootstrap or network."""
 from pathlib import Path
-from datetime import datetime, timezone
 import shutil
 import subprocess
 import tempfile
@@ -25,9 +24,8 @@ def status_of(envs):
 
 def success_order(envs):
     if 'polls' not in envs:
-        return (datetime.min.replace(tzinfo=timezone.utc),) * 2
-    return tuple(datetime.fromisoformat(value.replace('Z', '+00:00')) for value in
-                 (envs['polls']['fetched_at'], envs['averages']['generated_at']))
+        return ('', '')
+    return (envs['polls']['fetched_at'], envs['averages']['generated_at'])
 
 
 def publish(bundle, repository, *, before_push=None, attempts=3):
@@ -57,6 +55,7 @@ def publish(bundle, repository, *, before_push=None, attempts=3):
             target = checkout / DATA
             current = export.validate_bundle(target)
             previous = status_of(current)
+            # Validation guarantees canonical UTC strings, so lexical order is instant order.
             # Acquisition wins first; unchanged captures use successful average-generation
             # time. Exact ties retain repository bytes, independently of attempt chronology.
             keep_data = previous and success_order(current) >= success_order(incoming)

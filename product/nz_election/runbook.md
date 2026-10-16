@@ -73,3 +73,10 @@ page build time. Attempt status merges independently, so a later failure still r
 error while preserving the newest successful bundle and its last-good reference.
 Download summaries render retrieval times in Pacific/Auckland with NZST/NZDT; the labelled
 raw-record disclosure and downloadable manifests preserve stored UTC timestamps.
+
+Operational instants must be exactly `YYYY-MM-DDTHH:MM:SSZ`, with valid calendar
+values. Validators and producers reject naive, offset and fractional timestamps with
+`INVALID_TIMESTAMP`; no implicit conversion occurs at the data-branch boundary.
+Publication compares these canonical strings for both success and attempt order.
+Missing acquisition and last-success values remain null where the schema permits them.
+Poll observation, fieldwork and averaging-window dates remain date-only.

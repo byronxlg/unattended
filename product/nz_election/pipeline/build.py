@@ -53,6 +53,7 @@ def render(name, **values):
 
 
 def local_time(value):
+    export.timestamp(value, 'local_time')
     dt = datetime.fromisoformat(value.replace('Z', '+00:00')).astimezone(ZoneInfo('Pacific/Auckland'))
     return f"{dt.hour % 12 or 12}:{dt.minute:02d} {'am' if dt.hour < 12 else 'pm'}, {dt:%A} {dt.day} {dt:%B %Y %Z}"
 
@@ -279,7 +280,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
     if data_sha and not re.fullmatch('[0-9a-f]{40}', data_sha):
         raise ValueError('INVALID_DATA_SHA')
     envs = export.validate_bundle(data) if data.exists() else {}
-    built, sha = built or utc_now(), sha or code_sha()
+    built = export.timestamp(utc_now() if built is None else built, 'build.built_at')
+    sha = sha or code_sha()
     if run_url is None:
         repository, run_id = os.environ.get('GITHUB_REPOSITORY'), os.environ.get('GITHUB_RUN_ID')
         run_url = (os.environ.get('GITHUB_SERVER_URL', 'https://github.com') + '/' + repository + '/actions/runs/' + run_id
