@@ -152,3 +152,45 @@ def test_svg_budget_current_page_unchanged(tmp_path):
     build(data, site / 'nz-election')
     html = (site / 'nz-election/electorates/index.html').read_text()
     assert svg_page_bytes(html, site) == len(g.svg(g.load(), config('electorates')).encode('utf-8')) == 284316
+
+
+def test_svg_budget_css_strings_escapes_and_comments(tmp_path):
+    from product.nz_election.tests.svg_budget import svg_page_bytes
+    maps = tmp_path / 'nz-election/maps'
+    maps.mkdir(parents=True)
+    for name in ['a"b.svg', 'map.svg', 'close).svg']:
+        (maps / name).write_bytes(b'<svg/>')
+    probes = [
+        r'<style>x{background:url("../maps/a\"b.svg")}</style>',
+        '<style>x{background:url("../maps/map.svg?x=/*")} /* real comment */</style>',
+        r'<style>x{background:u\72l("../maps/a\22 b.svg")}</style>',
+        r'<style>x{background:url(../maps/close\).svg)}</style>',
+        '<style>x{background:url("../maps/ma\\\np.svg")}</style>',
+    ]
+    for html in probes:
+        assert svg_page_bytes(html, tmp_path) == 6
+    assert svg_page_bytes('<style>/* url(x.svg) */</style>', tmp_path) == 0
+    assert svg_page_bytes('<style>x{content:\'url("x.svg")\'}</style>', tmp_path) == 0
+    css = tmp_path / 'nz-election/styles.css'
+    css.write_text(r'x{background:url("maps/a\"b.svg")} /* url(missing.svg) */')
+    assert svg_page_bytes('<link rel="stylesheet" href="../styles.css">', tmp_path) == 6
+    assert svg_page_bytes(r"""<div style='background:url("../maps/a\"b.svg")'></div>""", tmp_path) == 6
+
+
+def test_svg_budget_rejects_svg_data_uris(tmp_path):
+    import pytest
+    from product.nz_election.tests.svg_budget import svg_page_bytes
+    for uri in ['data:image/svg+xml,%3Csvg%2F%3E', 'data:image/svg+xml;base64,PHN2Zy8+',
+                'data:IMAGE/SVG+XML;charset=utf-8,%3Csvg%2F%3E']:
+        with pytest.raises(AssertionError, match='SVG_DATA_URI_NOT_BUDGETED'):
+            svg_page_bytes('<style>x{background:url("' + uri + '")}</style>', tmp_path)
+        with pytest.raises(AssertionError, match='SVG_DATA_URI_NOT_BUDGETED'):
+            svg_page_bytes('<img src="' + uri + '">', tmp_path)
+
+
+def test_svg_budget_ignores_non_svg_data_uris(tmp_path):
+    from product.nz_election.tests.svg_budget import svg_page_bytes
+    for uri in ['data:image/png;base64,iVBORw0KGgo=', 'data:font/woff;base64,d09GRg==',
+                'data:image/png,something.svg']:
+        assert svg_page_bytes('<style>x{background:url("' + uri + '")}</style>', tmp_path) == 0
+        assert svg_page_bytes('<img src="' + uri + '">', tmp_path) == 0
