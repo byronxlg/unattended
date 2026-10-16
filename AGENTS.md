@@ -36,3 +36,5 @@ work; Byron is not here. Finish the task in the prompt, nothing more.
 `intent/<slug>/` holds the intent, spec and plan for the change you are on; read them first when
 the prompt points at them. `product/` will hold the NZ election web app from phase 4. `bin/` is lab tooling (bash and Python).
 Tests: `uv run --with pytest pytest -q`. Lint: `bin/lint`.
+
+Product rules: see `product/nz_election/AGENTS.md`.
