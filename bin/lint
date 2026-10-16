@@ -5,7 +5,7 @@
 # ///
 """Repo self-checks. Exit 1 on the first class of failure found; CI runs the same.
 
-- banned characters: em dash and emoji in tracked text files (house rule)
+- banned characters: em dash and emoji in tracked text files (house rule); verbatim captures under fixtures/ are exempt
 - posts: frontmatter shape, date matches filename
 - intent: every intent/<slug>/ has intent.md; a plan.md has a checklist; a spec.md lists concerns
 - ledgers: state/ledger.jsonl and state/ticks.jsonl parse line by line
@@ -21,7 +21,7 @@ fails = []
 def fail(msg): fails.append(msg)
 
 tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files"], capture_output=True, text=True).stdout.split()
-texty = [p for p in tracked if p.endswith((".md", ".py", ".yml", ".yaml", ".toml", ".txt", ".html", ".css", ".js", ".sh")) or "/bin/" in f"/{p}"]
+texty = [p for p in tracked if not "/fixtures/" in f"/{p}" and p.endswith((".md", ".py", ".yml", ".yaml", ".toml", ".txt", ".html", ".css", ".js", ".sh")) or "/bin/" in f"/{p}"]
 emoji = re.compile("[%s-%s%s-%s]" % (chr(0x1F300), chr(0x1FAFF), chr(0x2600), chr(0x27BF)))
 for p in texty:
     try: txt = (ROOT / p).read_text()
