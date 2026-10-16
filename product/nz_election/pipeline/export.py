@@ -285,6 +285,9 @@ def validate_bundle(root):
         common = {canonical({k: envs[stem].get(k) for k in ('source', 'input_hashes', 'generated_at', 'run_url', 'code_sha')}) for stem in geo}
         if len(common) != 1:
             raise ValueError('MIXED_GEOGRAPHY_GENERATION')
+        registry_hash = digest(canonical(registry).encode('utf-8'))
+        if any(envs[stem]['input_hashes'].get('electorates.data') != registry_hash for stem in geo):
+            raise ValueError('GEOGRAPHY_REGISTRY_HASH_MISMATCH')
         for kind in ('general', 'maori'):
             validate(envs[kind + '-2025'], kind, registry)
     present = {'polls', 'averages', 'seats'} & envs.keys()

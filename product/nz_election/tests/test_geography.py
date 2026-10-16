@@ -116,3 +116,39 @@ def test_search_key_python_js_parity():
     assert json.loads(result.stdout) == [g.search_key(p) for p in probes]
     for a, b in [('ſ', 's'), ('ß', 'SS'), ('Straße', 'STRASSE'), ('ΟΣ', 'ος')]:
         assert g.search_key(a) == g.search_key(b)
+
+
+def test_svg_budget_css_references(tmp_path):
+    from product.nz_election.tests.svg_budget import svg_page_bytes
+    svg = g.svg(g.load(), config('electorates'))
+    path = tmp_path / 'nz-election/maps/general.svg'
+    path.parent.mkdir(parents=True)
+    path.write_text(svg)
+    expected = len(svg.encode('utf-8'))
+    assert svg_page_bytes('<div style="background-image:url(../maps/general.svg)"></div>', tmp_path) == expected
+    assert svg_page_bytes('<style>div {background: url("../maps/general.svg")}</style>', tmp_path) == expected
+    css = tmp_path / 'nz-election/assets/css/map.css'
+    css.parent.mkdir(parents=True)
+    css.write_text("div {background: url('../../maps/general.svg')}")
+    html = '<link rel="stylesheet" href="../assets/css/map.css">'
+    assert svg_page_bytes(html, tmp_path) == expected
+    assert svg_page_bytes(html + '<img src="../maps/general.svg">', tmp_path) == expected
+
+
+def test_svg_budget_css_rejects_unsafe_and_missing_assets(tmp_path):
+    import pytest
+    from product.nz_election.tests.svg_budget import svg_page_bytes
+    for url in ['https://example.invalid/map.svg', '/outside/map.svg', '../missing.svg', '../%2e%2e/%2e%2e/map.svg']:
+        with pytest.raises(AssertionError):
+            svg_page_bytes('<style>div {background: url("' + url + '")}</style>', tmp_path)
+
+
+def test_svg_budget_current_page_unchanged(tmp_path):
+    from product.nz_election.pipeline.build import build
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.tests.svg_budget import svg_page_bytes
+    data, site = tmp_path / 'data', tmp_path / 'site'
+    daily_refresh(data, now='2026-10-18T01:00:00Z')
+    build(data, site / 'nz-election')
+    html = (site / 'nz-election/electorates/index.html').read_text()
+    assert svg_page_bytes(html, site) == len(g.svg(g.load(), config('electorates')).encode('utf-8')) == 284316

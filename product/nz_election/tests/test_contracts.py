@@ -233,3 +233,38 @@ def test_geography_producer_checks_current_registry(tmp_path, monkeypatch):
     assert status['state'] == 'unavailable'
     assert status['error_code'] == 'REGISTRY_MISMATCH'
     assert not (tmp_path / 'data/electorates.json').exists()
+
+
+def test_geography_registry_bound_after_inventory_regeneration(tmp_path):
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    daily_refresh(tmp_path / 'data', now='2026-10-18T01:00:00Z')
+    root = tmp_path / 'data'
+    envs = export.validate_bundle(root)
+    expected = export.digest(export.canonical(envs['electorates']['data']).encode('utf-8'))
+    assert all(envs[s]['input_hashes']['electorates.data'] == expected for s in export.FAMILIES['geography'])
+    registry = envs['electorates']
+    registry['data'][0]['boundary_note'] = 'Unrecorded note despite regenerated inventory'
+    export.pair(root, 'electorates', registry)
+    export.inventory(root, registry['run_url'], registry['code_sha'], '2026-10-18T02:00:00Z')
+    with pytest.raises(ValueError, match='GEOGRAPHY_REGISTRY_HASH_MISMATCH'):
+        export.validate_bundle(root)
+
+
+@pytest.mark.parametrize('bad', ['', None, [], {}, 1.5, 10**100, 'ſ-invalid-hash'])
+def test_geography_registry_binding_rejects_malformed_hash(tmp_path, bad):
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    root = tmp_path / 'data'
+    daily_refresh(root, now='2026-10-18T01:00:00Z')
+    for stem in export.FAMILIES['geography']:
+        env = json.loads((root / (stem + '.json')).read_text())
+        env['input_hashes']['electorates.data'] = bad
+        # Write raw siblings to probe validation without the producer's exact-number gate.
+        (root / (stem + '.json')).write_text(export.canonical(env) + '\n')
+        (root / (stem + '.csv')).write_bytes(export.csv_bytes(env))
+    if isinstance(bad, float):
+        with pytest.raises(ValueError, match='INEXACT_NUMBER'):
+            export.validate_bundle(root)
+    else:
+        export.inventory(root, 'offline-verification', 'test', '2026-10-18T02:00:00Z')
+        with pytest.raises(ValueError, match='GEOGRAPHY_REGISTRY_HASH_MISMATCH'):
+            export.validate_bundle(root)

@@ -48,6 +48,8 @@ def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', lo
                                     licence=report['licence'], fetched_at=report['captured_at'], history_url=None))
                 inputs = {name: export.digest((geography.PRODUCT / name).read_bytes()) for name in
                           ('config/electorates.json', 'config/electorate-correspondence.json')}
+                # Hash the published payload, avoiding a self-reference through envelope metadata.
+                inputs['electorates.data'] = export.digest(export.canonical(rows).encode('utf-8'))
                 inputs.update({'fixtures/' + e['path']: e['sha256'] for e in entries})
                 def envelope(data):
                     return export.envelope(data, sources, run_url, sha, inputs=inputs, method='geography-v1', generated=now)
