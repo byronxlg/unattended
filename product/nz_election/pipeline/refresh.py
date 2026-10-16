@@ -2,7 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = []
 # ///
-"""Build a labelled offline bundle from checked captures; never fetch."""
+"""Refresh a validated bundle from checked captures or bounded live acquisition."""
 import argparse
 from datetime import date, datetime, timedelta, timezone
 import fcntl
@@ -69,8 +69,8 @@ def previous_parser_rows(rows):
     return [dict({k: v for k, v in p.items() if k != 'scale'}, shares=values(p)) for p in rows]
 
 
-def licences():
-    source = config('sources')['wikipedia']
+def licences(source=None):
+    source = source or config('sources')['wikipedia']
     return f'''# Dataset licences
 
 Polls, averages, theoretical seats and their CSV siblings: CC BY-SA 4.0.
@@ -94,7 +94,7 @@ no input is forced to total 100. Fixture runs are offline verification, not live
 '''
 
 
-def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline-verification', sha=None):
+def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline-verification', sha=None, acquire=None):
     out = Path(out).absolute()
     if out.is_symlink():
         raise ValueError('UNSAFE_OUTPUT_PATH')
@@ -116,7 +116,13 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
             try:
                 raw = captures()
                 sources, ec = source_entries()
-                parsed = parse(raw['wikipedia/polls-2026.wikitext'].decode(), sources[0]['revision'],
+                wikitext = raw['wikipedia/polls-2026.wikitext'].decode()
+                if acquire is not None:
+                    acquired = acquire()
+                    sources[0].update(revision=acquired['revision'], fetched_at=acquired['fetched_at'],
+                                      url='https://en.wikipedia.org/w/index.php?oldid=' + acquired['revision'])
+                    wikitext = acquired['wikitext']
+                parsed = parse(wikitext, sources[0]['revision'],
                                config('party-map'), config('poll-identities'))
                 compared = compare_revisions(previous_parser_rows(old.get('polls', {}).get('data', [])),
                                              parsed, config('poll-review'))
@@ -137,7 +143,8 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
                 export.pair(stage, 'seats', export.envelope(project(averages[-1]), sources + ec, run_url, sha,
                             inputs={'averages.json': export.digest((stage / 'averages.json').read_bytes()), **ec_hashes}, method=METHOD, generated=now))
                 state, success, good_run = 'fresh', sources[0]['fetched_at'], run_url
-                message = 'Offline verification from immutable captures. Not live data.'
+                message = ('Wikipedia revision ' + sources[0]['revision'] + ' acquired and validated.'
+                           if acquire is not None else 'Offline verification from immutable captures. Not live data.')
             except ValueError as exc:
                 # Restore the entire family, including files written before validation failed.
                 shutil.rmtree(stage)
@@ -154,7 +161,10 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
                           error_code=error, message=message)
             statuses = [s for s in good if s['dataset'] != 'polls'] + [status]
             export.pair(stage, 'status', export.envelope(statuses, [], run_url, sha))
-            (stage / 'LICENCES.md').write_text(licences())
+            if error is None:
+                (stage / 'LICENCES.md').write_text(licences(sources[0]))
+            elif not (stage / 'LICENCES.md').exists():
+                (stage / 'LICENCES.md').write_text(licences())
             export.inventory(stage, run_url, sha, now)
             export.validate_bundle(stage)
             replace_directory(stage, out)
@@ -163,13 +173,31 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--fixtures', action='store_true', required=True)
+    parser.add_argument('--fixtures', action='store_true')
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
-    status = refresh(args.out)
+    attempted_revision = None
+    if args.fixtures:
+        status = refresh(args.out)
+    else:
+        from product.nz_election.pipeline.fetch import acquire
+        run_url = os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID']
+        def live():
+            nonlocal attempted_revision
+            result = acquire()
+            attempted_revision = result['revision']
+            return result
+        status = refresh(args.out, acquire=live, run_url=run_url, sha=os.environ['GITHUB_SHA'])
+    if os.environ.get('GITHUB_OUTPUT'):
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+            output.write('validated=true\n')
+    if os.environ.get('GITHUB_STEP_SUMMARY'):
+        with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+            summary.write('## Poll refresh\n\n```json\n' + json.dumps(dict(status, attempted_revision=attempted_revision), indent=2) + '\n```\n')
     if status['state'] != 'fresh':
         raise SystemExit('FAIL refresh: ' + status['error_code'])
-    print('Offline verification: immutable captures, not live data')
+    if args.fixtures:
+        print('Offline verification: immutable captures, not live data')
     print('PASS refresh: polls bundle')
 
 

@@ -333,7 +333,8 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--data-sha')
     args = parser.parse_args()
-    build(args.data, args.out, data_sha=args.data_sha)
+    build(args.data, args.out, data_sha=args.data_sha or os.environ.get('NZ_DATA_SHA') or None,
+          sha=os.environ.get('NZ_CODE_SHA'))
     print('PASS build: 6 routes')
 
 
