@@ -53,3 +53,15 @@ will not renew and is available until the end of the billing period on 2026-11-0
 anchor in the Codex auth token is 03:14Z, so the afternoon of election day NZ); Byron has been
 asked on Telegram whether he will renew. The audience research and pages are the supervisor's
 to plan: first judgement call to send him under the new rule.
+
+## 2026-10-16T23:40Z (operator relay, Telegram)
+
+Byron, 2026-10-16 23:17Z, relayed verbatim on issue #18 by the fleet operator: "I will not renew
+codex. Claude will have to take the reins when the codex subscription actually ends."
+
+Operator actions: the decision in the first paragraph of `prompts/supervisor.md` and a new "After
+Codex" section (last build dispatched by 5 November, nothing new from the 6th, Claude writes
+product code itself from the cut in the same PR shape, a fresh-context Agent review in place of the
+Codex review, `state/codex.ended` marks the cut, the retrospective compares the two regimes);
+README and CLAUDE.md say the plan is not renewed. The fleet records it as D63; its operator checks
+the handover on 2026-11-08.

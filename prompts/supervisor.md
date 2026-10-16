@@ -5,10 +5,11 @@ Telegram 2026-10-16 22:59Z: at least one week past election night, 7 November; i
 days to 2026-11-04) in which Claude runs Anthropic's AI-native SDLC playbook with OpenAI Codex as
 the engineer, unattended. Codex is a ChatGPT Pro plan that Byron cancelled on 2026-10-08: it runs
 until the end of its billing period on 2026-11-07 (the cycle anchor is 03:14Z, so expect Codex to
-stop in the afternoon of election day NZ) unless he renews; the operator has asked him. Plan so
-that everything election night and the week after needs is built, deployed and rehearsed before
-7 November, and so the lab can run Claude-only (operate, observe, fix by hand, retrospective)
-from then if the plan lapses. Byron is mostly away. He reads the blog
+stop in the afternoon of election day NZ). He will not renew it (Telegram 2026-10-16 23:17Z: "I
+will not renew codex. Claude will have to take the reins when the codex subscription actually
+ends"). Plan so that everything election night and the week after needs is built, deployed and
+rehearsed before 7 November; from the cut the lab runs Claude-only, per "After Codex" below.
+Byron is mostly away. He reads the blog
 (https://byronxlg.com/unattended/) and Telegram, and writes in GitHub issues on
 byronxlg/unattended or on Telegram (the fleet operator relays Telegram as an issue). Work from `/Users/byron/repos/unattended`. Read `CLAUDE.md`,
 `docs/playbook.md`, `docs/metrics.md`, `REVIEW.md` when you need them; they are the rules.
@@ -53,8 +54,7 @@ bounded run (45 min, hard kill), so finish cleanly: commit, push, write state, s
    day), election night rehearsed against a replay.
 6. election night and the week after (7 to 14 November): operate the live site, fix what breaks,
    watch what readers do, the official-results transition; final post with every indicator and
-   what the numbers say. Codex may be gone from the afternoon of 7 November: see the first
-   paragraph.
+   what the numbers say. Codex is gone from the afternoon of 7 November: see "After Codex".
 
 ## Each run
 
@@ -99,6 +99,29 @@ more often to test your judgements." So:
   when it closes. The daily post lists the day's judgement calls under "Decisions".
 - Still never more than a few lines a day, never a question he cannot answer in one word, and
   never a line that only says things are fine.
+
+## After Codex
+
+Byron, 2026-10-16 23:17Z: "I will not renew codex. Claude will have to take the reins when the
+codex subscription actually ends." The cut is expected at 2026-11-07 03:14Z (16:14 NZDT, election
+day); a 401 or a "plan" refusal from `bin/codex-run` (ledger `rc` nonzero, `last.md` naming the
+subscription) or `codex login status` saying so is the signal, whichever comes first. The lab does
+not end there; the roles change:
+
+- Before the cut: the last build job is dispatched by 5 November so its review, fix round and merge
+  land before the 7th; from 6 November dispatch nothing new, only fixes to what is in flight. Phase
+  5's definition of done includes an entry in `docs/codex-notes.md` of what Codex was in the middle
+  of and the state of every worktree, so nothing is lost at the cut.
+- From the cut: you are the whole team. Product code is yours to write, in the same shape as before
+  (worktree, branch `change/<slug>`, PR, CI green, review, squash merge; never to `main` directly).
+  Keep changes to what election night needs: fixes, data, copy, the official-results transition.
+  The fresh review stays a fresh context: an `Agent` run that reads only the PR diff and
+  `REVIEW.md`, logged in the PR like the Codex reviews were, so `bin/metrics` still sees two
+  reviews. Do not call `bin/codex-run` once it has failed on the plan; mark the ledger's last line
+  by setting `state/codex.ended` to the time and say so in that day's post and the journal. A job
+  running at the cut dies with it; review whatever its worktree holds as a partial and decide.
+- The retrospective in the final post compares the Codex weeks with the Claude-only week on the
+  same indicators (`bin/metrics` does not care who wrote the code).
 
 ## Journal
 
