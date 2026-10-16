@@ -13,6 +13,8 @@ import yaml
 
 from .models import GitHubSnapshot, Head, SourceResult
 
+FAILURES = ("failure", "timed_out", "action_required", "startup_failure")
+
 NZ = ZoneInfo("Pacific/Auckland")
 USAGE = ("input_tokens", "cached_input_tokens", "cache_write_input_tokens",
          "output_tokens", "reasoning_output_tokens")
@@ -365,6 +367,8 @@ def read_github(repo, pr_numbers, deadline):
         if isinstance(sha, str) and re.fullmatch("[0-9a-fA-F]+", sha):
             details.append((f"checks:{n}", f"commits/{sha}/check-runs?filter=all", "check_runs", "id"))
     for run in snap.get("pages.yml").data:
+        if run.get("conclusion") not in FAILURES:
+            continue
         details.append((f"jobs:{run['id']}", f"actions/runs/{run['id']}/jobs?filter=all", "jobs", "id"))
     batch(details)
     snap.get("gates").data = [r for r in snap.get("gates").data if "pull_request" not in r]

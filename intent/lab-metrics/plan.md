@@ -275,3 +275,15 @@ Reject committing metrics JSON or using wall-clock generation time: generated Pa
 ## Implementation departures
 - Normalized records use dictionaries within dataclass source/snapshot contracts, avoiding
   duplicate field storage while retaining the documented field names.
+
+- Review fix: use the supervisor-approved bound of 4 + 3 * linked PRs + failed Pages
+  runs, rather than fetching jobs for every Pages run. Successful runs imply a successful
+  deploy under the existing build -> deploy workflow dependency; their updated_at is the
+  completion proxy, named in all three deployment indicator notes. Failed runs retain
+  job-level evidence; cancelled runs are excluded. Dependencies include only collected
+  job sources. This resolves the brief's stricter wording in favor of its offered route.
+- Review fix: the live-state integration test checks only runtime, row count and schema.
+  Exact totals use frozen changes/mistakes plus seven explicitly synthetic fix jobs, since
+  the frozen ledger contains only smoke jobs. Real fixtures remain byte-for-byte unchanged.
+- Review fix: compare parsed datetimes throughout computation, preserving timestamp output
+  precision. NZ daily deployment stamps now use ZoneInfo rather than a fixed offset.

@@ -6,9 +6,8 @@ import re
 import math
 
 from .models import Indicator
-from .sources import NZ, USAGE, day, number, timestamp
+from .sources import FAILURES, NZ, USAGE, day, number, timestamp
 
-FAILURES = ("failure", "timed_out", "action_required", "startup_failure")
 
 
 def mapping(value):
@@ -152,7 +151,7 @@ def compute(snapshot):
         if not numbers or any(not isinstance(p, int) or isinstance(p, bool) or p not in prs
                               or not timestamp(prs[p].get("merged_at")) for p in numbers):
             return None
-        return max(prs[p]["merged_at"] for p in numbers)
+        return max((prs[p]["merged_at"] for p in numbers), key=dt)
 
     completed = [(c, final(c)) for c in changes if c.get("outcome") in ("merged", "reverted")]
     completed = [(c, end) for c, end in completed if end]
@@ -254,7 +253,7 @@ def compute(snapshot):
                 invalid_group = True
                 continue
             groups[app, name].append(check)
-        first_checks = [min(values, key=lambda r: (r["started_at"], r["id"])) for values in groups.values()]
+        first_checks = [min(values, key=lambda r: (dt(r["started_at"]), r["id"])) for values in groups.values()]
         if not invalid_group and first_checks and all(r.get("status") == "completed" and isinstance(r.get("conclusion"), str) for r in first_checks):
             ci_samples.append((int(all(r.get("conclusion") == "success" for r in first_checks)), pr.get("created_at")))
     emit("Test", "first_pass_ci", "PRs whose earliest check in every app/name group succeeded",
@@ -271,17 +270,17 @@ def compute(snapshot):
         comments[n] = [r for r in com.data if r.get("in_reply_to_id") is None and timestamp(r.get("created_at"))]
         times = [r["submitted_at"] for r in reviews[n]]
         if times:
-            end = min(times)
+            end = min(times, key=dt)
             review_times.append((delta(pr.get("created_at"), end, 60), end))
         times += [r["created_at"] for r in comments[n]]
         if times:
-            end = min(times)
+            end = min(times, key=dt)
             first_times.append((delta(pr.get("created_at"), end, 60), end))
     emit("Test", "review_time", "First submitted non-pending review minus PR creation",
          "minutes", review_times, deps=review_deps,
          note="Submitted-review latency proxy; supervisor identity and effort are not recorded")
 
-    post_fixes = {c["slug"]: [j for j in fixes[c["slug"]] if timestamp(j.get("started")) and j["started"] > end]
+    post_fixes = {c["slug"]: [j for j in fixes[c["slug"]] if timestamp(j.get("started")) and dt(j["started"]) > dt(end)]
                   for c, end in completed}
     failure_samples = [(int(c.get("outcome") == "reverted" or bool(post_fixes[c["slug"]])), end) for c, end in completed]
     failure_deps = (prs_source, s.changes, s.jobs)
@@ -299,8 +298,8 @@ def compute(snapshot):
             eval_groups[r["eval"]].append(r)
     eval_latency = []
     for rows in eval_groups.values():
-        row = min(rows, key=lambda r: r["ts"])
-        incidents = sorted(r["incident_at"] for r in rows if timestamp(r.get("incident_at")))
+        row = min(rows, key=lambda r: dt(r["ts"]))
+        incidents = sorted((r["incident_at"] for r in rows if timestamp(r.get("incident_at"))), key=dt)
         if incidents:
             eval_latency.append((delta(incidents[0], row["ts"]), row["ts"]))
     emit("Evals", "incident_to_eval", "First result timestamp per eval minus incident_at",
@@ -320,7 +319,7 @@ def compute(snapshot):
          available=False, reason="review findings lack structured severity and identity")
     emit("Deploy", "defects_escaped", "Unique defects escaped after merge", "defects",
          available=False, reason="fix jobs do not establish unique defects")
-    caught = [(sum(r["created_at"] < pr["merged_at"] for r in comments.get(n, [])), pr["merged_at"])
+    caught = [(sum(dt(r["created_at"]) < dt(pr["merged_at"]) for r in comments.get(n, [])), pr["merged_at"])
               for n, pr in prs.items() if timestamp(pr.get("merged_at"))]
     emit("Deploy", "pre_merge_comments", "Root review comments submitted before merge (activity proxy)",
          "comments", caught, mode="sum", deps=comment_deps)
@@ -339,7 +338,7 @@ def compute(snapshot):
         else:
             opened.append((delta(gate.get("created_at"), s.head.committed_at), s.head.committed_at))
         for value in (gate.get("created_at"), end):
-            if timestamp(value) and s.head.committed_at and value > s.head.committed_at:
+            if timestamp(value) and s.head.committed_at and dt(value) > dt(s.head.committed_at):
                 warn("gate_event_after_head")
     emit("Gates", "closed_gate_wait", "Closed needs-byron issue lifetime", "hours",
          closed, deps=(gates,), kind="leading", note="Issue lifetime proxies label-addition and gate wait")
@@ -358,13 +357,30 @@ def compute(snapshot):
 
     pages = s.github.get("pages.yml")
     deploy_deps, deploys = [pages], {}
+    missing_details = False
+    deploy_note = ("Successful Pages runs imply a successful deploy job under pages.yml's "
+                   "build -> deploy dependency; run updated_at proxies deploy completed_at")
     for run in pages.data:
-        src = s.github.get(f"jobs:{run['id']}")
-        deploy_deps.append(src)
-        for job in src.data:
-            if job.get("name") == "deploy" and job.get("status") == "completed" and timestamp(job.get("completed_at")):
-                deploys[job["id"]] = {**job, "head_sha": run.get("head_sha")}
-    deployments = sorted(deploys.values(), key=lambda r: (r["completed_at"], r["id"]))
+        if run.get("conclusion") == "cancelled":
+            continue
+        key = f"jobs:{run['id']}"
+        if key in s.github.sources:
+            src = s.github.sources[key]
+            deploy_deps.append(src)
+            for job in src.data:
+                if job.get("name") == "deploy" and job.get("status") == "completed" and timestamp(job.get("completed_at")):
+                    deploys[f"job:{job['id']}"] = {**job, "head_sha": run.get("head_sha")}
+        elif run.get("conclusion") == "success":
+            if timestamp(run.get("updated_at")):
+                deploys[f"run:{run['id']}"] = dict(
+                    id=run["id"], conclusion="success", completed_at=run["updated_at"],
+                    head_sha=run.get("head_sha"))
+            else:
+                warn("invalid_successful_run_completion")
+                missing_details = True
+        elif run.get("conclusion") in FAILURES:
+            missing_details = True
+    deployments = sorted(deploys.values(), key=lambda r: (dt(r["completed_at"]), str(r["id"])))
     good = [d for d in deployments if d.get("conclusion") == "success"]
     dates = sorted({day(r.get("created_at")) for r in pages.data if day(r.get("created_at"))})
     frequency_samples = []
@@ -375,21 +391,23 @@ def compute(snapshot):
             daily[day(d["completed_at"])] += 1
         last = max(last, max((datetime.fromisoformat(d).date() for d in daily), default=last))
         while cursor <= last:
-            frequency_samples.append((daily[cursor.isoformat()], cursor.isoformat()+"T12:00:00+13:00"))
+            frequency_samples.append((daily[cursor.isoformat()], datetime.combine(cursor, datetime.min.time().replace(hour=12), NZ).isoformat()))
             if cursor == last:
                 break
             cursor += timedelta(days=1)
     emit("CI/CD", "deployment_frequency", "Successful Pages deploy jobs / observed calendar days, including zero days",
-         "deployments/day", frequency_samples, deps=deploy_deps)
+         "deployments/day", frequency_samples, deps=deploy_deps, note=deploy_note,
+         available=not missing_details, reason="missing deploy evidence")
     lead = []
     for pr in merged_prs:
         sha = text(pr.get("merge_commit_sha"))
-        matches = [d for d in good if sha and d.get("head_sha") == sha and d["completed_at"] >= pr["merged_at"]]
+        matches = [d for d in good if sha and d.get("head_sha") == sha and dt(d["completed_at"]) >= dt(pr["merged_at"])]
         if matches:
             end = matches[0]["completed_at"]
             lead.append((delta(pr["merged_at"], end), end))
     emit("CI/CD", "deployment_lead_time", "First successful deploy of exact merge SHA minus merge",
-         "hours", lead, deps=deploy_deps+[prs_source])
+         "hours", lead, deps=deploy_deps+[prs_source], note=deploy_note,
+         available=not missing_details, reason="missing deploy evidence")
     emit("CI/CD", "dora_change_failure_rate", "Change-level failure proxy, same cohort as Test change failure rate",
          "percent", failure_samples, mode="percent", deps=failure_deps)
     episode, recovery = None, []
@@ -401,7 +419,8 @@ def compute(snapshot):
             episode = None
     emit("CI/CD", "restore_time", "First failed deploy to next successful deploy; consecutive failures form one episode",
          "hours", recovery, deps=deploy_deps,
-         note=f"Pipeline recovery, not service restoration; open episodes excluded: {int(episode is not None)}")
+         available=not missing_details, reason="missing deploy evidence",
+         note=deploy_note + f"; pipeline recovery, not service restoration; open episodes excluded: {int(episode is not None)}")
     emit("Maintain", "breach_to_intent", "Band breach to first intent addition", "hours",
          available=False, reason="no structured source yet", kind="leading")
     findings = [c for c in changes if c.get("origin") == "finding"]
@@ -435,7 +454,7 @@ def compute(snapshot):
             if window.get("window_minutes") == 10080 and value is not None and timestamp(job.get("ended")):
                 snapshots.append((job["ended"], text(job.get("id")), value, window.get("resets_at")))
                 break
-    snapshots.sort()
+    snapshots.sort(key=lambda r: (dt(r[0]), r[1]))
     window = emit("Cost", "weekly_window", "Latest observed 10080-minute window per NZ day",
                   "percent", [(r[2], r[0]) for r in snapshots], deps=(s.jobs,),
                   note="Snapshot, not consumption; reset drops are not negative usage")
@@ -462,7 +481,7 @@ def compute(snapshot):
         ind.series = series(samples, "sum")
         detail = emit("Cost", f"supervisor_{field}_runs", "Reported supervisor values keyed by timestamp and source line",
                       unit, samples, deps=(s.ticks,), mode="sum")
-        detail.series = sorted(runs, key=lambda r: (text(r["ts"]), r["line"] or 0))
+        detail.series = sorted(runs, key=lambda r: (timestamp(r["ts"]) is not None, dt(r["ts"]), r["line"] or 0))
     wall = emit("Cost", "wall_time", "Final linked merge minus change started, not summed job time",
                 "hours/change", [(delta(c.get("started"), end), end) for c, end in completed],
                 deps=(s.changes, prs_source))

@@ -23,10 +23,9 @@ def test_real_state_under_60_seconds():
         doc=json.loads(render_document(s.head,compute(s),s.diagnostics))
     assert time.monotonic()-start < 60
     assert len(doc["indicators"]) == 56
-    rows={r["name"]:r for r in doc["indicators"]}
-    assert rows["rework_cycles"]["value"] == 17
-    assert rows["repeated_mistakes"]["value"] == 1
-    assert not rows["plan_to_final_merge"]["available"]
+    keys = {"stage", "kind", "name", "definition", "value", "unit",
+            "n", "available", "note", "series"}
+    assert all(set(row) == keys for row in doc["indicators"])
 
 
 def test_pages_workflow_contract():

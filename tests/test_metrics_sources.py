@@ -123,3 +123,42 @@ def test_invalid_optional_shape_counted(tmp_path):
     p.write_text('{"id":"x","usage":[],"rate_limits":false,"change":{},"killed":"yes"}\n')
     r=s.read_jobs(p)
     assert sum(r.warnings.values()) == 4
+
+
+def test_github_bounded_calls():
+    """At most 4 + 3*linked_PRs + failed_Pages_runs subprocesses: 12 here, for 500 runs."""
+    from test_metrics_indicators import snapshot, change, metrics, pr
+    calls = []
+    runs = [dict(id=i, created_at="2026-01-01T00:00:00Z",
+                 updated_at="2026-01-01T08:00:00Z", head_sha="merge",
+                 conclusion="failure" if i < 2 else "cancelled" if i % 3 == 0 else "success")
+            for i in range(500)]
+    def run(args, **kwargs):
+        endpoint = args[args.index("GET")+1]
+        calls.append(endpoint)
+        if "/pulls?" in endpoint:
+            payload = [[pr(n, head={"sha":str(n)}, merge_commit_sha="merge") for n in (1, 2)]]
+        elif "/workflows/pages.yml/runs?" in endpoint:
+            payload = [{"workflow_runs":runs[:250]}, {"workflow_runs":runs[250:]}]
+        elif "/workflows/ci.yml/runs?" in endpoint:
+            payload = [{"workflow_runs":[]}]
+        elif "/jobs?" in endpoint:
+            ident = int(endpoint.split("/runs/")[1].split("/")[0])
+            assert ident in (0, 1)
+            payload = [{"jobs":[dict(id=ident, name="deploy", status="completed",
+                                    conclusion="failure", completed_at="2026-01-01T07:00:00Z")]}]
+        elif "/check-runs?" in endpoint:
+            payload = [{"check_runs":[]}]
+        else:
+            payload = [[]]
+        return subprocess.CompletedProcess(args, 0, json.dumps(payload), "")
+    with patch.object(s.subprocess, "run", side_effect=run):
+        github = s.read_github("a/b", [1, 2], time.monotonic()+45)
+    assert len(calls) <= 12
+    assert {key for key in github.sources if key.startswith("jobs:")} == {"jobs:0", "jobs:1"}
+    snap = snapshot(changes=[change(prs=[1, 2], outcome="merged")])
+    snap.github = github
+    rows = metrics(snap)
+    for name in ("deployment_frequency", "deployment_lead_time", "restore_time"):
+        assert rows[name].available
+        assert rows[name].n > 0

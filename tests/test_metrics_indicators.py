@@ -186,14 +186,29 @@ def test_pipeline_triage_proxy():
 
 
 def test_dora():
-    runs=[dict(id=i,created_at=f"2026-01-0{i}T00:00:00Z",head_sha="merge") for i in range(1,4)]
+    runs=[dict(id=i,created_at=f"2026-01-0{i}T00:00:00Z",head_sha="merge",
+               conclusion="success" if i == 3 else "failure",
+               updated_at=f"2026-01-0{i}T02:00:00Z") for i in range(1,4)]
     jobs={f"jobs:{i}":[dict(id=i,name="deploy",status="completed",conclusion=c,
-                          completed_at=f"2026-01-0{i}T02:00:00Z")] for i,c in [(1,"failure"),(2,"failure"),(3,"success")]}
-    m=metrics(snapshot(changes=[change(prs=[1])],prs=[pr(merge_commit_sha="merge")],**{"pages.yml":runs,**jobs}))
+                          completed_at=f"2026-01-0{i}T02:00:00Z")] for i,c in [(1,"failure"),(2,"failure")]}
+    runs.extend([
+        dict(id=4, created_at="2026-01-01T00:00:00Z", conclusion="failure"),
+        dict(id=5, created_at="2026-01-01T00:00:00Z", conclusion="cancelled")])
+    jobs["jobs:4"] = [dict(id=4, name="deploy", status="completed", conclusion="skipped",
+                           completed_at="2026-01-01T01:00:00Z")]
+    jobs["jobs:5"] = [dict(id=5, name="deploy", status="completed", conclusion="success",
+                           completed_at="2026-01-01T01:00:00Z")]
+    s = snapshot(changes=[change(prs=[1])],prs=[pr(merge_commit_sha="merge")],**{"pages.yml":runs,**jobs})
+    m=metrics(s)
     assert m["deployment_frequency"].value == 1/3
     assert m["deployment_frequency"].n == 3
     assert m["deployment_lead_time"].value == 44
     assert m["restore_time"].value == 48
+    assert [r["value"] for r in m["deployment_frequency"].series] == [0, 0, 1]
+    assert all(m[name].available and "updated_at" in m[name].note for name in
+               ("deployment_frequency", "deployment_lead_time", "restore_time"))
+    s.github.sources["prs"].data[0]["merge_commit_sha"] = "different"
+    assert metrics(s)["deployment_lead_time"].n == 0
 
 
 def test_breach_to_intent():
@@ -244,3 +259,25 @@ def test_invalid_closed_gate_is_not_open():
     assert m["closed_gate_wait"].n == 0
     assert m["open_gate_age"].n == 0
     assert s.github.get("gates").warnings["invalid_timestamp"] == 1
+
+
+def test_fractional_second_fix_counts_after_merge():
+    s = snapshot(changes=[change(prs=[1], outcome="merged")], prs=[pr()],
+                 jobs=[dict(id="fix", kind="fix", change="x", started="2026-01-01T06:00:00.5Z")])
+    m = metrics(s)
+    assert m["change_failure_rate"].value == 100
+    assert m["post_merge_fixes"].value == 1
+
+
+def test_frozen_state_totals():
+    from pathlib import Path
+    from lab_metrics.sources import read_changes, read_mistakes
+    base = Path(__file__).parent / "fixtures/metrics/real"
+    s = snapshot(jobs=[dict(id=f"fix-{i}", kind="fix", change="fleet-audit") for i in range(7)])
+    s.changes = read_changes(base / "changes.yaml")
+    s.mistakes = read_mistakes(base / "mistakes.jsonl")
+    s.github.sources["prs"] = SourceResult(False, "offline")
+    m = metrics(s)
+    assert m["rework_cycles"].value == 17
+    assert m["repeated_mistakes"].value == 1
+    assert not m["plan_to_final_merge"].available
