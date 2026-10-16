@@ -142,7 +142,7 @@ def clean(text):
 
 def cell(raw):
     parts = split_markup(raw, '|')
-    if len(parts) > 1 and re.search(r'(?:style|rowspan|colspan|data-sort-value|data-sort-type|align|class)\s*=', parts[0]):
+    if len(parts) > 1 and re.search(r'(?:style|rowspan|colspan|data-sort-value|data-sort-type|align|class)\s*=', parts[0], re.I):
         attributes(parts[0])
         return parts[0], '|'.join(parts[1:])
     return '', raw

@@ -4,6 +4,9 @@ import re
 
 
 def integer(value):
+    # JSON.parse erases integral decimal/exponent spelling; normalize before exact arithmetic.
+    if type(value) is float and value.is_integer():
+        value = int(value)
     if isinstance(value, str) and re.fullmatch(r"0|[1-9][0-9]*", value):
         return int(value)
     # Larger JSON numbers lose precision in JS; use decimal strings in both runtimes.

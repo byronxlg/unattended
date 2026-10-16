@@ -1,8 +1,18 @@
 // BigInt keeps quotient ordering independent of display rounding.
+// All numeric fields accept non-negative safe integers, regardless of JSON spelling.
 function integer(v) {
   if (typeof v === 'string' && /^(0|[1-9][0-9]*)$/.test(v)) return BigInt(v);
   if (typeof v === 'number' && Number.isSafeInteger(v) && v >= 0) return BigInt(v);
   throw Error('INVALID_INPUT');
+}
+// Python compares Unicode code points; JS's default sort compares UTF-16 units.
+function comparePartyIds(left, right) {
+  const a = Array.from(left, c => c.codePointAt(0));
+  const b = Array.from(right, c => c.codePointAt(0));
+  for (let i = 0; i < Math.min(a.length, b.length); i++) {
+    if (a[i] !== b[i]) return a[i] - b[i];
+  }
+  return a.length - b.length;
 }
 function fail() { throw Error('INVALID_INPUT'); }
 const own = (obj, key) => Object.hasOwn(obj, key);
@@ -34,7 +44,7 @@ export function allocate(data) {
   const votes = Object.fromEntries(Object.entries(data.partyVotes).map(([p,v]) => [p,integer(v)]));
   const wins = Object.fromEntries(Object.entries(data.electorateWins).map(([p,v]) => [p,integer(v)]));
   const {lists, electorateWinners: winners, nonListWinners: nonlist} = data;
-  const base = integer(own(data,'baseSeats') ? data.baseSeats : 120), parties = Object.keys(votes).sort();
+  const base = integer(own(data,'baseSeats') ? data.baseSeats : 120), parties = Object.keys(votes).sort(comparePartyIds);
   const total = Object.values(votes).reduce((a,b) => a+b,0n);
   const same = obj => Object.keys(obj).length === parties.length && parties.every(p => own(obj,p));
   if (!base || !total || !same(wins)) fail();
