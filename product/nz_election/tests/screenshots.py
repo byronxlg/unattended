@@ -126,6 +126,8 @@ def static_text(page):
 
 
 def state_images(browser, out):
+    from playwright.sync_api import expect
+
     sys.path.insert(0, str(PRODUCT.parents[1]))
     results = []
     with tempfile.TemporaryDirectory(prefix='nz-screenshot-states-') as tmp:
@@ -146,11 +148,11 @@ def state_images(browser, out):
                         root_control = page.locator('[data-count="nat"]')
                         root_control.fill('72')
                         root_control.press('Tab')
-                        assert 'last valid result is shown' in page.locator('[data-warning]').inner_text()
+                        expect(page.locator('[data-warning]')).to_contain_text('last valid result is shown')
                     if state == 'invalid-link':
-                        assert 'This coalition link is invalid.' in page.locator('[data-warning]').inner_text()
+                        expect(page.locator('[data-warning]')).to_contain_text('This coalition link is invalid.')
                     if state == 'changed-inputs':
-                        assert 'This link uses different poll inputs.' in page.locator('[data-warning]').inner_text()
+                        expect(page.locator('[data-warning]')).to_contain_text('This link uses different poll inputs.')
                     if state == 'missing-baseline':
                         assert 'No 2023 candidate results for this electorate' in page.locator('main').inner_text()
                     if state == 'unresolved':
