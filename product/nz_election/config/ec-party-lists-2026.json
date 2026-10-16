@@ -1,0 +1,4660 @@
+{
+ "schema": "ec-party-lists-2026-v1",
+ "source": {
+  "path": "ec-2026/wayback-party-lists.pdf",
+  "sha256": "3a371c79576f495067ec776ee7663848570860d9bc4d16a47bfc4abc007eae20",
+  "pages": 3,
+  "origin_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf"
+ },
+ "method": "pdftotext -bbox-layout, column clustering on x, rank lines by regex; see transcribe_party_lists.py",
+ "transcribed_at": "2026-10-16T20:50:06Z",
+ "reviewer": "supervisor (Claude), unattended lab",
+ "review": {
+  "rank_contiguity": "pass",
+  "notes": []
+ },
+ "parties": [
+  {
+   "party_name": "ACT NEW ZEALAND",
+   "header_locator": {
+    "page": 1,
+    "column": 1,
+    "line": 1,
+    "y": 192.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "SEYMOUR, David",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 2,
+      "y": 208.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "McKEE, Nicole",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 3,
+      "y": 221.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "HOGGARD, Andrew",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 4,
+      "y": 234.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "HENRY, Paul",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 5,
+      "y": 247.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "CHHOUR, Karen",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 6,
+      "y": 260.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "STEPHENSON, Todd",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 7,
+      "y": 273.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "CHRISTMAS, James",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 8,
+      "y": 286.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "COURT, Simon",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 9,
+      "y": 299.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "McCLURE, Laura",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 10,
+      "y": 312.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "PARMAR, Parmjeet",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 11,
+      "y": 325.1
+     }
+    },
+    {
+     "rank": 11,
+     "name": "MURRAY, Iain",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 12,
+      "y": 338.1
+     }
+    },
+    {
+     "rank": 12,
+     "name": "LUXTON, Cameron",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 13,
+      "y": 351.1
+     }
+    },
+    {
+     "rank": 13,
+     "name": "MODKOVA, Antonia",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 14,
+      "y": 364.1
+     }
+    },
+    {
+     "rank": 14,
+     "name": "PRICE, Alex",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 15,
+      "y": 377.1
+     }
+    },
+    {
+     "rank": 15,
+     "name": "HOCKING, Janelle",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 16,
+      "y": 390.1
+     }
+    },
+    {
+     "rank": 16,
+     "name": "PARMAR, Ash",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 17,
+      "y": 403.1
+     }
+    },
+    {
+     "rank": 17,
+     "name": "QU, Yang",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 18,
+      "y": 416.1
+     }
+    },
+    {
+     "rank": 18,
+     "name": "SMOLDERS, Davina",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 19,
+      "y": 429.1
+     }
+    },
+    {
+     "rank": 19,
+     "name": "ROBERTS, Amanda",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 20,
+      "y": 442.1
+     }
+    },
+    {
+     "rank": 20,
+     "name": "SHERIDAN, Callum",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 21,
+      "y": 455.1
+     }
+    },
+    {
+     "rank": 21,
+     "name": "DEVOE, Henrietta",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 22,
+      "y": 468.1
+     }
+    },
+    {
+     "rank": 22,
+     "name": "MILLS, Samuel",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 23,
+      "y": 481.1
+     }
+    },
+    {
+     "rank": 23,
+     "name": "ELDER, Nigel",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 24,
+      "y": 494.1
+     }
+    },
+    {
+     "rank": 24,
+     "name": "SPOONER, Tom",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 25,
+      "y": 507.1
+     }
+    },
+    {
+     "rank": 25,
+     "name": "ALVAREZ DE LUGO, Juan",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 26,
+      "y": 520.1
+     }
+    },
+    {
+     "rank": 26,
+     "name": "SINGH, Manu",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 27,
+      "y": 533.1
+     }
+    },
+    {
+     "rank": 27,
+     "name": "ROZA, Helena",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 28,
+      "y": 546.1
+     }
+    },
+    {
+     "rank": 28,
+     "name": "DAHCHE, Ali",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 29,
+      "y": 559.1
+     }
+    },
+    {
+     "rank": 29,
+     "name": "SINGH, Malkiat",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 30,
+      "y": 572.1
+     }
+    },
+    {
+     "rank": 30,
+     "name": "BETTRIDGE, Ashley",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 31,
+      "y": 585.1
+     }
+    },
+    {
+     "rank": 31,
+     "name": "WELLMAN, Zac",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 32,
+      "y": 598.1
+     }
+    },
+    {
+     "rank": 32,
+     "name": "BYARS, Robbie",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 33,
+      "y": 611.1
+     }
+    },
+    {
+     "rank": 33,
+     "name": "HAGUE, Matthew",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 34,
+      "y": 624.1
+     }
+    },
+    {
+     "rank": 34,
+     "name": "PEIRCE, Nick",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 35,
+      "y": 637.1
+     }
+    },
+    {
+     "rank": 35,
+     "name": "HAWKES, Darrin",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 36,
+      "y": 650.1
+     }
+    },
+    {
+     "rank": 36,
+     "name": "PATROS, Panos",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 37,
+      "y": 663.1
+     }
+    },
+    {
+     "rank": 37,
+     "name": "ALLRED, Aaron",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 38,
+      "y": 676.1
+     }
+    },
+    {
+     "rank": 38,
+     "name": "GRAHAM, Doug",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 39,
+      "y": 689.1
+     }
+    },
+    {
+     "rank": 39,
+     "name": "SEVERIN, Toni",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 40,
+      "y": 702.1
+     }
+    },
+    {
+     "rank": 40,
+     "name": "ORMOND, John",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 41,
+      "y": 715.1
+     }
+    },
+    {
+     "rank": 41,
+     "name": "NORTON, Bryan",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 42,
+      "y": 728.1
+     }
+    },
+    {
+     "rank": 42,
+     "name": "LUNDQVIST, Martin",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 43,
+      "y": 741.1
+     }
+    },
+    {
+     "rank": 43,
+     "name": "LOCHEAD-MACMILLAN, Sarah",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 44,
+      "y": 754.1
+     }
+    },
+    {
+     "rank": 44,
+     "name": "HARPUR, Ken",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 45,
+      "y": 767.1
+     }
+    },
+    {
+     "rank": 45,
+     "name": "BEAMISH, Sean",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 46,
+      "y": 780.1
+     }
+    },
+    {
+     "rank": 46,
+     "name": "BAILLIE, Chris",
+     "locator": {
+      "page": 1,
+      "column": 1,
+      "line": 47,
+      "y": 793.1
+     }
+    }
+   ],
+   "list_size": 46
+  },
+  {
+   "party_name": "ALLIANCE PARTY",
+   "header_locator": {
+    "page": 1,
+    "column": 2,
+    "line": 1,
+    "y": 192.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "BILLOT, Victor",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 2,
+      "y": 208.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "KNIGHT, Anna",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 3,
+      "y": 221.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "GULLERY, Ethan",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 4,
+      "y": 234.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "DYATLOVA-MURPHY, Sara",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 5,
+      "y": 247.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "TURNBULL, Kyle",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 6,
+      "y": 260.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "ALE, Victoria",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 7,
+      "y": 273.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "CAMPBELL, Kelly Ann",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 8,
+      "y": 286.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "HARFORD, Joshua",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 9,
+      "y": 299.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "FRASER, Courtney",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 10,
+      "y": 312.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "LUKE, Jesse",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 11,
+      "y": 325.1
+     }
+    },
+    {
+     "rank": 11,
+     "name": "MOSS, Joshua",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 12,
+      "y": 338.1
+     }
+    },
+    {
+     "rank": 12,
+     "name": "OLSEN, Jen",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 13,
+      "y": 351.1
+     }
+    },
+    {
+     "rank": 13,
+     "name": "FINDLAY, Quentin",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 14,
+      "y": 364.1
+     }
+    },
+    {
+     "rank": 14,
+     "name": "BYRNES, Greg",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 15,
+      "y": 377.1
+     }
+    },
+    {
+     "rank": 15,
+     "name": "WILSON, Peter Gordon",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 16,
+      "y": 390.1
+     }
+    },
+    {
+     "rank": 16,
+     "name": "AITKEN, Cory",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 17,
+      "y": 403.1
+     }
+    },
+    {
+     "rank": 17,
+     "name": "BYAS, Brian",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 18,
+      "y": 416.1
+     }
+    }
+   ],
+   "list_size": 17
+  },
+  {
+   "party_name": "ANIMAL JUSTICE PARTY AOTEAROA NEW ZEALAND",
+   "header_locator": {
+    "page": 1,
+    "column": 2,
+    "line": 19,
+    "y": 478.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "McNEIL, Rob",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 22,
+      "y": 520.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "WERETA, Danette",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 23,
+      "y": 533.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "CARRINGTON, Lily",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 24,
+      "y": 546.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "KYLE, Sandra",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 25,
+      "y": 559.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "BAKER, Brian",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 26,
+      "y": 572.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "DEO, Priyanka",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 27,
+      "y": 585.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "TAVUI, Avalua",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 28,
+      "y": 598.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "TULLOCH, Lynley",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 29,
+      "y": 611.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "GRATTAN, Caitlin",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 30,
+      "y": 624.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "CONNELY, Sam",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 31,
+      "y": 637.1
+     }
+    }
+   ],
+   "list_size": 10
+  },
+  {
+   "party_name": "AOTEAROA LEGALISE CANNABIS PARTY",
+   "header_locator": {
+    "page": 1,
+    "column": 2,
+    "line": 32,
+    "y": 699.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "HERBERT, Maki",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 34,
+      "y": 728.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "APPLEBY, Michael",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 35,
+      "y": 741.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "LYE, Jeffrey",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 36,
+      "y": 754.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "LAMBERT, Paula",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 37,
+      "y": 767.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "MANAIA, Christopher",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 38,
+      "y": 780.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "GRUMBALL, Anntwinette",
+     "locator": {
+      "page": 1,
+      "column": 2,
+      "line": 39,
+      "y": 793.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "HENARE, Tania Lee",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 1,
+      "y": 143.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "ANDERSON, Blair",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 2,
+      "y": 156.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "MANNING, Romana (Marnz)",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 3,
+      "y": 169.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "McDERMOTT, Adrian",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 4,
+      "y": 182.1
+     }
+    },
+    {
+     "rank": 11,
+     "name": "BRITNELL, Irinka",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 5,
+      "y": 195.1
+     }
+    },
+    {
+     "rank": 12,
+     "name": "HAYNES, Russell Jonathan",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 6,
+      "y": 208.1
+     }
+    }
+   ],
+   "list_size": 12
+  },
+  {
+   "party_name": "CONSERVATIVE PARTY NZ",
+   "header_locator": {
+    "page": 1,
+    "column": 3,
+    "line": 7,
+    "y": 270.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "HOUGHTON, Helen",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 9,
+      "y": 299.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "THOMAS, Karl",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 10,
+      "y": 312.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "LIBRE, Mel",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 11,
+      "y": 325.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "LYELL, Douglas Robert",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 12,
+      "y": 338.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "DRURY, Marie",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 13,
+      "y": 351.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "DEACON, Paul Kenneth",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 14,
+      "y": 364.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "MARSHALL, Jonathan",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 15,
+      "y": 377.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "TURNER, AmyLorraine",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 16,
+      "y": 390.1
+     }
+    }
+   ],
+   "list_size": 8
+  },
+  {
+   "party_name": "FREE PALESTINE",
+   "header_locator": {
+    "page": 1,
+    "column": 3,
+    "line": 17,
+    "y": 452.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "MINTO, John",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 18,
+      "y": 468.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "RUAWAI, Deborah",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 19,
+      "y": 481.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "FREW, Dale",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 20,
+      "y": 494.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "BREWER, Warren",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 21,
+      "y": 507.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "ALEXANDER, William Donald",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 22,
+      "y": 520.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "CLEARWATER, Bryan Anthony",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 23,
+      "y": 533.1
+     }
+    }
+   ],
+   "list_size": 6
+  },
+  {
+   "party_name": "GREEN PARTY",
+   "header_locator": {
+    "page": 1,
+    "column": 3,
+    "line": 24,
+    "y": 595.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "DAVIDSON, Marama Mere-Ana",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 25,
+      "y": 611.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "SWARBRICK, Chlöe",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 26,
+      "y": 624.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "TUIONO, Teanau",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 27,
+      "y": 637.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "PAUL, Tamatha",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 28,
+      "y": 650.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "GENTER, Julie Anne",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 29,
+      "y": 663.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "PHAM, Lan",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 30,
+      "y": 676.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "LYNDON, Hūhana",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 31,
+      "y": 689.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "XU-NAN, Lawrence",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 32,
+      "y": 702.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "MENENDEZ MARCH, Ricardo",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 33,
+      "y": 715.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "HERNANDEZ, Francisco Bagkus",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 34,
+      "y": 728.1
+     },
+     "continuation_lines": [
+      {
+       "page": 1,
+       "column": 3,
+       "line": 35,
+       "y": 736.3
+      }
+     ]
+    },
+    {
+     "rank": 11,
+     "name": "CARTER, Kahu",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 36,
+      "y": 749.1
+     }
+    },
+    {
+     "rank": 12,
+     "name": "ABEL, Steve",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 37,
+      "y": 762.1
+     }
+    },
+    {
+     "rank": 13,
+     "name": "WAIKATO, Tania",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 38,
+      "y": 775.1
+     }
+    },
+    {
+     "rank": 14,
+     "name": "PAULING, Craig",
+     "locator": {
+      "page": 1,
+      "column": 3,
+      "line": 39,
+      "y": 788.1
+     }
+    },
+    {
+     "rank": 15,
+     "name": "WILLIS, Scott",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 1,
+      "y": 143.1
+     }
+    },
+    {
+     "rank": 16,
+     "name": "O'NEILL-STEVENS, Rohan",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 2,
+      "y": 156.1
+     }
+    },
+    {
+     "rank": 17,
+     "name": "GOODSIR, Bhen",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 3,
+      "y": 169.1
+     }
+    },
+    {
+     "rank": 18,
+     "name": "SERHAN, Yasmine",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 4,
+      "y": 182.1
+     }
+    },
+    {
+     "rank": 19,
+     "name": "HUTT, Louise",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 5,
+      "y": 195.1
+     }
+    },
+    {
+     "rank": 20,
+     "name": "DAVIDSON, Mike",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 6,
+      "y": 208.1
+     }
+    },
+    {
+     "rank": 21,
+     "name": "TE AU-SKIPWORTH, Heather",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 7,
+      "y": 221.1
+     }
+    },
+    {
+     "rank": 22,
+     "name": "PANDEY, Shreejan",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 8,
+      "y": 234.1
+     }
+    },
+    {
+     "rank": 23,
+     "name": "CRAIG, Lauren",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 9,
+      "y": 247.1
+     }
+    },
+    {
+     "rank": 24,
+     "name": "BROWN, Zephyr",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 10,
+      "y": 260.1
+     }
+    },
+    {
+     "rank": 25,
+     "name": "JACOBSEN, Josh",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 11,
+      "y": 273.1
+     }
+    },
+    {
+     "rank": 26,
+     "name": "DALTON, Angela",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 12,
+      "y": 286.1
+     }
+    },
+    {
+     "rank": 27,
+     "name": "WELLS, Alika",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 13,
+      "y": 299.1
+     }
+    },
+    {
+     "rank": 28,
+     "name": "MORGAN, Carl",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 14,
+      "y": 312.1
+     }
+    },
+    {
+     "rank": 29,
+     "name": "WHITE, Courtney",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 15,
+      "y": 325.1
+     }
+    },
+    {
+     "rank": 30,
+     "name": "SKIPWITH, Te Whatanui Leka",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 16,
+      "y": 338.1
+     }
+    },
+    {
+     "rank": 31,
+     "name": "WILLIS, Melody",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 17,
+      "y": 351.1
+     }
+    },
+    {
+     "rank": 32,
+     "name": "GREALEY, Pamela",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 18,
+      "y": 364.1
+     }
+    },
+    {
+     "rank": 33,
+     "name": "DE ANDA, Alma",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 19,
+      "y": 377.1
+     }
+    },
+    {
+     "rank": 34,
+     "name": "NORTON, Chris",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 20,
+      "y": 390.1
+     }
+    },
+    {
+     "rank": 35,
+     "name": "McKEE, Abe",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 21,
+      "y": 403.1
+     }
+    },
+    {
+     "rank": 36,
+     "name": "POWELL, Adam",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 22,
+      "y": 416.1
+     }
+    },
+    {
+     "rank": 37,
+     "name": "BEAUMONT, Andrew Charles",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 23,
+      "y": 429.1
+     }
+    },
+    {
+     "rank": 38,
+     "name": "IYER, Anjana",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 24,
+      "y": 442.1
+     }
+    },
+    {
+     "rank": 39,
+     "name": "LONG, Bernard",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 25,
+      "y": 455.1
+     }
+    },
+    {
+     "rank": 40,
+     "name": "OOSTHUIZEN, Daniël",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 26,
+      "y": 468.1
+     }
+    },
+    {
+     "rank": 41,
+     "name": "KENNEDY, Dave",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 27,
+      "y": 481.1
+     }
+    },
+    {
+     "rank": 42,
+     "name": "RICHARDS, Dave",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 28,
+      "y": 494.1
+     }
+    },
+    {
+     "rank": 43,
+     "name": "MACKENZIE MAYO, Donald",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 29,
+      "y": 507.1
+     }
+    },
+    {
+     "rank": 44,
+     "name": "TE OHAERE, Florence",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 30,
+      "y": 520.1
+     }
+    },
+    {
+     "rank": 45,
+     "name": "WALKER, Jordan",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 31,
+      "y": 533.1
+     }
+    },
+    {
+     "rank": 46,
+     "name": "TE MORENGA, Lisa",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 32,
+      "y": 546.1
+     }
+    },
+    {
+     "rank": 47,
+     "name": "LONGWORTH, Mark Norman",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 33,
+      "y": 559.1
+     }
+    },
+    {
+     "rank": 48,
+     "name": "FINLAYSON, Mike",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 34,
+      "y": 572.1
+     }
+    },
+    {
+     "rank": 49,
+     "name": "MULIPOLA, Michel",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 35,
+      "y": 585.1
+     }
+    },
+    {
+     "rank": 50,
+     "name": "McCABE, Phil",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 36,
+      "y": 598.1
+     }
+    },
+    {
+     "rank": 51,
+     "name": "WESTHEAD, Pualele Joan",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 37,
+      "y": 611.1
+     }
+    },
+    {
+     "rank": 52,
+     "name": "BOONEN, Roy Peter",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 38,
+      "y": 624.1
+     }
+    },
+    {
+     "rank": 53,
+     "name": "RICHARDS, Ryan",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 39,
+      "y": 637.1
+     }
+    },
+    {
+     "rank": 54,
+     "name": "WESLEY, Richard",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 40,
+      "y": 650.1
+     }
+    },
+    {
+     "rank": 55,
+     "name": "BUTLER, Teresa",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 41,
+      "y": 663.1
+     }
+    }
+   ],
+   "list_size": 55
+  },
+  {
+   "party_name": "LABOUR PARTY",
+   "header_locator": {
+    "page": 1,
+    "column": 4,
+    "line": 42,
+    "y": 725.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "HIPKINS, Chris",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 43,
+      "y": 741.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "SEPULONI, Carmel Jean",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 44,
+      "y": 754.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "EDMONDS, Barbara",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 45,
+      "y": 767.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "JACKSON, William",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 46,
+      "y": 780.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "WOODS, Megan",
+     "locator": {
+      "page": 1,
+      "column": 4,
+      "line": 47,
+      "y": 793.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "VERRALL, Ayesha",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 1,
+      "y": 143.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "PRIME, Willow-Jean",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 2,
+      "y": 156.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "WALTERS, Vanushi",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 3,
+      "y": 169.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "TANGAERE-MANUEL, Cushla",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 4,
+      "y": 182.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "McANULTY, Kieran",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 5,
+      "y": 195.1
+     }
+    },
+    {
+     "rank": 11,
+     "name": "BROOKING, Rachel",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 6,
+      "y": 208.1
+     }
+    },
+    {
+     "rank": 12,
+     "name": "ANDERSEN, Ginny",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 7,
+      "y": 221.1
+     }
+    },
+    {
+     "rank": 13,
+     "name": "NAIDOO, Rakesh",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 8,
+      "y": 234.1
+     }
+    },
+    {
+     "rank": 14,
+     "name": "UTIKERE, Tangi",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 9,
+      "y": 247.1
+     }
+    },
+    {
+     "rank": 15,
+     "name": "TINETTI, Jan",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 10,
+      "y": 260.1
+     }
+    },
+    {
+     "rank": 16,
+     "name": "O'CONNOR, Damien",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 11,
+      "y": 273.1
+     }
+    },
+    {
+     "rank": 17,
+     "name": "LUXTON, Jo",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 12,
+      "y": 286.1
+     }
+    },
+    {
+     "rank": 18,
+     "name": "RADHAKRISHNAN, Priyanca",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 13,
+      "y": 299.1
+     }
+    },
+    {
+     "rank": 19,
+     "name": "HALBERT, Shanan",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 14,
+      "y": 312.1
+     }
+    },
+    {
+     "rank": 20,
+     "name": "FLATT, Chris",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 15,
+      "y": 325.1
+     }
+    },
+    {
+     "rank": 21,
+     "name": "DAVIDSON, Reuben John",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 16,
+      "y": 338.1
+     }
+    },
+    {
+     "rank": 22,
+     "name": "KIRIONA, Kingi",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 17,
+      "y": 351.1
+     }
+    },
+    {
+     "rank": 23,
+     "name": "BELICH, Camilla",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 18,
+      "y": 364.1
+     }
+    },
+    {
+     "rank": 24,
+     "name": "SALESA, Jenny",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 19,
+      "y": 377.1
+     }
+    },
+    {
+     "rank": 25,
+     "name": "BENNETT, Glen",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 20,
+      "y": 390.1
+     }
+    },
+    {
+     "rank": 26,
+     "name": "HANDFORD, Sophie",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 21,
+      "y": 403.1
+     }
+    },
+    {
+     "rank": 27,
+     "name": "RUSSELL, Deborah",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 22,
+      "y": 416.1
+     }
+    },
+    {
+     "rank": 28,
+     "name": "McLELLAN, Tracey",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 23,
+      "y": 429.1
+     }
+    },
+    {
+     "rank": 29,
+     "name": "HARRIS, Max",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 24,
+      "y": 442.1
+     }
+    },
+    {
+     "rank": 30,
+     "name": "OMER, Ibrahim",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 25,
+      "y": 455.1
+     }
+    },
+    {
+     "rank": 31,
+     "name": "LEAVASA, Anae Neru",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 26,
+      "y": 468.1
+     }
+    },
+    {
+     "rank": 32,
+     "name": "DANSEY, Georgie",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 27,
+      "y": 481.1
+     }
+    },
+    {
+     "rank": 33,
+     "name": "KĀTENE, Te Pūoho",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 28,
+      "y": 494.1
+     }
+    },
+    {
+     "rank": 34,
+     "name": "CHEN, Naisi",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 29,
+      "y": 507.1
+     }
+    },
+    {
+     "rank": 35,
+     "name": "ROSEWARNE, Dan",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 30,
+      "y": 520.1
+     }
+    },
+    {
+     "rank": 36,
+     "name": "BOYACK, Rachel",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 31,
+      "y": 533.1
+     }
+    },
+    {
+     "rank": 37,
+     "name": "WHITE, Helen",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 32,
+      "y": 546.1
+     }
+    },
+    {
+     "rank": 38,
+     "name": "LEARY, Ingrid",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 33,
+      "y": 559.1
+     }
+    },
+    {
+     "rank": 39,
+     "name": "TWYFORD, Phil",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 34,
+      "y": 572.1
+     }
+    },
+    {
+     "rank": 40,
+     "name": "WILLIAMS, Arena",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 35,
+      "y": 585.1
+     }
+    },
+    {
+     "rank": 41,
+     "name": "SOSENE, Lemauga Lydia",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 36,
+      "y": 598.1
+     }
+    },
+    {
+     "rank": 42,
+     "name": "LEONI, Kerrin",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 37,
+      "y": 611.1
+     }
+    },
+    {
+     "rank": 43,
+     "name": "BOYNTON, Toni",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 38,
+      "y": 624.1
+     }
+    },
+    {
+     "rank": 44,
+     "name": "BARAL, Hannah Pia",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 39,
+      "y": 637.1
+     }
+    },
+    {
+     "rank": 45,
+     "name": "ROBERTS, Angela",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 40,
+      "y": 650.1
+     }
+    },
+    {
+     "rank": 46,
+     "name": "MULLER PALLARÈS, Estefania",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 41,
+      "y": 663.1
+     }
+    },
+    {
+     "rank": 47,
+     "name": "KANONGATA'A, Anahila",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 42,
+      "y": 676.1
+     }
+    },
+    {
+     "rank": 48,
+     "name": "PAYINDA, Gary",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 43,
+      "y": 689.1
+     }
+    },
+    {
+     "rank": 49,
+     "name": "HEDLEY, Alex",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 44,
+      "y": 702.1
+     }
+    },
+    {
+     "rank": 50,
+     "name": "RENNEY, Craig",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 45,
+      "y": 715.1
+     }
+    },
+    {
+     "rank": 51,
+     "name": "HAMPTON, George",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 46,
+      "y": 728.1
+     }
+    },
+    {
+     "rank": 52,
+     "name": "YANZICK, Dominik",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 47,
+      "y": 741.1
+     }
+    },
+    {
+     "rank": 53,
+     "name": "PATERSON, Rory William",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 48,
+      "y": 754.1
+     }
+    },
+    {
+     "rank": 54,
+     "name": "LATIMER, Ashleigh",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 49,
+      "y": 767.1
+     }
+    },
+    {
+     "rank": 55,
+     "name": "JAMIESON, Rata",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 50,
+      "y": 780.1
+     }
+    },
+    {
+     "rank": 56,
+     "name": "PERINPANAYAGAM, Naresh",
+     "locator": {
+      "page": 2,
+      "column": 1,
+      "line": 51,
+      "y": 793.1
+     }
+    },
+    {
+     "rank": 57,
+     "name": "McDONALD, Peter",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 1,
+      "y": 143.1
+     }
+    },
+    {
+     "rank": 58,
+     "name": "CLINTON-GOHDES, Amanda",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 2,
+      "y": 156.1
+     }
+    },
+    {
+     "rank": 59,
+     "name": "WILLIAMSON, Myra",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 3,
+      "y": 169.1
+     }
+    },
+    {
+     "rank": 60,
+     "name": "SINGH, Kharag",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 4,
+      "y": 182.1
+     }
+    },
+    {
+     "rank": 61,
+     "name": "LEE, Janice",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 5,
+      "y": 195.1
+     }
+    },
+    {
+     "rank": 62,
+     "name": "COLLINS, Sam",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 6,
+      "y": 208.1
+     }
+    },
+    {
+     "rank": 63,
+     "name": "MALAMA, Sange",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 7,
+      "y": 221.1
+     }
+    },
+    {
+     "rank": 64,
+     "name": "GREY, Rhieve",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 8,
+      "y": 234.1
+     }
+    },
+    {
+     "rank": 65,
+     "name": "SEVERINSEN, Karl",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 9,
+      "y": 247.1
+     }
+    },
+    {
+     "rank": 66,
+     "name": "HUNKIN-TAGALOA, Henrietta",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 10,
+      "y": 260.1
+     }
+    },
+    {
+     "rank": 67,
+     "name": "WANG, Fisher",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 11,
+      "y": 273.1
+     }
+    },
+    {
+     "rank": 68,
+     "name": "McENROE, Brendan",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 12,
+      "y": 286.1
+     }
+    },
+    {
+     "rank": 69,
+     "name": "MATTHEWS, Campbell Henry",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 13,
+      "y": 299.1
+     }
+    },
+    {
+     "rank": 70,
+     "name": "PATTEMORE, David",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 14,
+      "y": 312.1
+     }
+    },
+    {
+     "rank": 71,
+     "name": "HOWE, Nathaniel",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 15,
+      "y": 325.1
+     }
+    }
+   ],
+   "list_size": 71
+  },
+  {
+   "party_name": "NATIONAL PARTY",
+   "header_locator": {
+    "page": 2,
+    "column": 2,
+    "line": 16,
+    "y": 387.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "LUXON, Christopher",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 17,
+      "y": 403.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "WILLIS, Nicola Valentine",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 18,
+      "y": 416.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "BISHOP, Chris",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 19,
+      "y": 429.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "BROWN, Simeon",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 20,
+      "y": 442.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "STANFORD, Erica",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 21,
+      "y": 455.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "GOLDSMITH, Paul",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 22,
+      "y": 468.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "UPSTON, Louise Claire",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 23,
+      "y": 481.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "MITCHELL, Mark",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 24,
+      "y": 494.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "BROWNLEE, Gerry",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 25,
+      "y": 507.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "McCLAY, Todd",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 26,
+      "y": 520.1
+     }
+    },
+    {
+     "rank": 11,
+     "name": "POTAKA, Tama William",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 27,
+      "y": 533.1
+     }
+    },
+    {
+     "rank": 12,
+     "name": "DOOCEY, Matt",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 28,
+      "y": 546.1
+     }
+    },
+    {
+     "rank": 13,
+     "name": "WATTS, Simon",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 29,
+      "y": 559.1
+     }
+    },
+    {
+     "rank": 14,
+     "name": "SIMMONDS, Penny",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 30,
+      "y": 572.1
+     }
+    },
+    {
+     "rank": 15,
+     "name": "LU, Nancy",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 31,
+      "y": 585.1
+     }
+    },
+    {
+     "rank": 16,
+     "name": "GRIGG, Nicola",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 32,
+      "y": 598.1
+     }
+    },
+    {
+     "rank": 17,
+     "name": "MEAGER, James",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 33,
+      "y": 611.1
+     }
+    },
+    {
+     "rank": 18,
+     "name": "SIMPSON, Scott",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 34,
+      "y": 624.1
+     }
+    },
+    {
+     "rank": 19,
+     "name": "BREWER, Cameron",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 35,
+      "y": 637.1
+     }
+    },
+    {
+     "rank": 20,
+     "name": "BUTTERICK, Mike",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 36,
+      "y": 650.1
+     }
+    },
+    {
+     "rank": 21,
+     "name": "SMITH, Stuart",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 37,
+      "y": 663.1
+     }
+    },
+    {
+     "rank": 22,
+     "name": "STEPHENS, Dale Aotea",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 38,
+      "y": 676.1
+     }
+    },
+    {
+     "rank": 23,
+     "name": "MURALIDHAR, Mahesh",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 39,
+      "y": 689.1
+     }
+    },
+    {
+     "rank": 24,
+     "name": "MILNE, Katie",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 40,
+      "y": 702.1
+     }
+    },
+    {
+     "rank": 25,
+     "name": "NICHOLAS, Angee",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 41,
+      "y": 715.1
+     }
+    },
+    {
+     "rank": 26,
+     "name": "NIMON, Katie",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 42,
+      "y": 728.1
+     }
+    },
+    {
+     "rank": 27,
+     "name": "RUTHERFORD, Tom",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 43,
+      "y": 741.1
+     }
+    },
+    {
+     "rank": 28,
+     "name": "BATES, Carl",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 44,
+      "y": 754.1
+     }
+    },
+    {
+     "rank": 29,
+     "name": "LEE, Melissa",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 45,
+      "y": 767.1
+     }
+    },
+    {
+     "rank": 30,
+     "name": "BIDOIS, Dan",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 46,
+      "y": 780.1
+     }
+    },
+    {
+     "rank": 31,
+     "name": "REDMAYNE, Suze",
+     "locator": {
+      "page": 2,
+      "column": 2,
+      "line": 47,
+      "y": 793.1
+     }
+    },
+    {
+     "rank": 32,
+     "name": "KIRKPATRICK, Dana Margot",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 1,
+      "y": 143.1
+     }
+    },
+    {
+     "rank": 33,
+     "name": "CHEUNG, Carlos",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 2,
+      "y": 156.1
+     }
+    },
+    {
+     "rank": 34,
+     "name": "McCALLUM, Grant Lewis",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 3,
+      "y": 169.1
+     }
+    },
+    {
+     "rank": 35,
+     "name": "HAMILTON, Ryan",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 4,
+      "y": 182.1
+     }
+    },
+    {
+     "rank": 36,
+     "name": "WEDD, Catherine",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 5,
+      "y": 195.1
+     }
+    },
+    {
+     "rank": 37,
+     "name": "COSTLEY, Tim",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 6,
+      "y": 208.1
+     }
+    },
+    {
+     "rank": 38,
+     "name": "WEENINK, Vanessa",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 7,
+      "y": 221.1
+     }
+    },
+    {
+     "rank": 39,
+     "name": "BOURKE, Rosemary",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 8,
+      "y": 234.1
+     }
+    },
+    {
+     "rank": 40,
+     "name": "CAMERON, Blair",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 9,
+      "y": 247.1
+     }
+    },
+    {
+     "rank": 41,
+     "name": "ASUNCION, Kristine",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 10,
+      "y": 260.1
+     }
+    },
+    {
+     "rank": 42,
+     "name": "KURIGER, Barbara Joan",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 11,
+      "y": 273.1
+     }
+    },
+    {
+     "rank": 43,
+     "name": "FLEMING, Greg",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 12,
+      "y": 286.1
+     }
+    },
+    {
+     "rank": 44,
+     "name": "NAKHLE, Rima",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 13,
+      "y": 299.1
+     }
+    },
+    {
+     "rank": 45,
+     "name": "MacLEOD, David",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 14,
+      "y": 312.1
+     }
+    },
+    {
+     "rank": 46,
+     "name": "ANDERSON, Miles John",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 15,
+      "y": 325.1
+     }
+    },
+    {
+     "rank": 47,
+     "name": "CAMPBELL, Hamish",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 16,
+      "y": 338.1
+     }
+    },
+    {
+     "rank": 48,
+     "name": "VAN DE MOLEN, Tim",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 17,
+      "y": 351.1
+     }
+    },
+    {
+     "rank": 49,
+     "name": "MOONEY, Joseph",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 18,
+      "y": 364.1
+     }
+    },
+    {
+     "rank": 50,
+     "name": "UFFINDELL, Sam",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 19,
+      "y": 377.1
+     }
+    },
+    {
+     "rank": 51,
+     "name": "CHATTERTON, Emma May",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 20,
+      "y": 390.1
+     }
+    },
+    {
+     "rank": 52,
+     "name": "BANSAL, Ankit",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 21,
+      "y": 403.1
+     }
+    },
+    {
+     "rank": 53,
+     "name": "FRENCH, Matthew",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 22,
+      "y": 416.1
+     }
+    },
+    {
+     "rank": 54,
+     "name": "KINSER, Candace",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 23,
+      "y": 429.1
+     }
+    },
+    {
+     "rank": 55,
+     "name": "RAUKAWA, Coral",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 24,
+      "y": 442.1
+     }
+    },
+    {
+     "rank": 56,
+     "name": "SUMMERFIELD, Tracy",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 25,
+      "y": 455.1
+     }
+    },
+    {
+     "rank": 57,
+     "name": "LOHENI, Agnes",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 26,
+      "y": 468.1
+     }
+    },
+    {
+     "rank": 58,
+     "name": "ARYA, Lalit",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 27,
+      "y": 481.1
+     }
+    },
+    {
+     "rank": 59,
+     "name": "EVETTS, Matthew",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 28,
+      "y": 494.1
+     }
+    },
+    {
+     "rank": 60,
+     "name": "BUDD, Lloyd Sam",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 29,
+      "y": 507.1
+     }
+    },
+    {
+     "rank": 61,
+     "name": "PAUL, Matthew",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 30,
+      "y": 520.1
+     }
+    },
+    {
+     "rank": 62,
+     "name": "KUMAR, Sunil",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 31,
+      "y": 533.1
+     }
+    },
+    {
+     "rank": 63,
+     "name": "MUTHU, Karunā",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 32,
+      "y": 546.1
+     }
+    },
+    {
+     "rank": 64,
+     "name": "DAVIDS, Alexandra",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 33,
+      "y": 559.1
+     }
+    },
+    {
+     "rank": 65,
+     "name": "MAJEED, Ghouse",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 34,
+      "y": 572.1
+     }
+    },
+    {
+     "rank": 66,
+     "name": "PITTS, Jonathan",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 35,
+      "y": 585.1
+     }
+    },
+    {
+     "rank": 67,
+     "name": "LATEEF, Zabeen",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 36,
+      "y": 598.1
+     }
+    },
+    {
+     "rank": 68,
+     "name": "ROWE, Jessica",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 37,
+      "y": 611.1
+     }
+    },
+    {
+     "rank": 69,
+     "name": "ELLIOTT, Troy",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 38,
+      "y": 624.1
+     }
+    },
+    {
+     "rank": 70,
+     "name": "ATWAL, Robin",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 39,
+      "y": 637.1
+     }
+    },
+    {
+     "rank": 71,
+     "name": "NAYYAR, Ash",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 40,
+      "y": 650.1
+     }
+    },
+    {
+     "rank": 72,
+     "name": "SANSON, Maria",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 41,
+      "y": 663.1
+     }
+    }
+   ],
+   "list_size": 72
+  },
+  {
+   "party_name": "NEW ZEALAND FIRST PARTY",
+   "header_locator": {
+    "page": 2,
+    "column": 3,
+    "line": 42,
+    "y": 725.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "PETERS, Winston",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 44,
+      "y": 754.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "JONES, Shane",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 45,
+      "y": 767.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "COSTELLO, Casey",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 46,
+      "y": 780.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "PATTERSON, Mark",
+     "locator": {
+      "page": 2,
+      "column": 3,
+      "line": 47,
+      "y": 793.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "NGARO, Alfred",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 1,
+      "y": 143.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "LAWS, Michael",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 2,
+      "y": 156.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "HIPANGO-BROWNLIE, Harete",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 3,
+      "y": 169.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "STOBO, Craig H.",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 4,
+      "y": 182.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "RANDELL, Taine",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 5,
+      "y": 195.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "MARCROFT, Jenny",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 6,
+      "y": 208.1
+     }
+    },
+    {
+     "rank": 11,
+     "name": "FOSTER, Andy",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 7,
+      "y": 221.1
+     }
+    },
+    {
+     "rank": 12,
+     "name": "WILSON, David Ashley",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 8,
+      "y": 234.1
+     }
+    },
+    {
+     "rank": 13,
+     "name": "ARBUCKLE, Jamie",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 9,
+      "y": 247.1
+     }
+    },
+    {
+     "rank": 14,
+     "name": "CLEINE, Jamie",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 10,
+      "y": 260.1
+     }
+    },
+    {
+     "rank": 15,
+     "name": "COXHEAD, Tracey",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 11,
+      "y": 273.1
+     }
+    },
+    {
+     "rank": 16,
+     "name": "MARK, Ron",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 12,
+      "y": 286.1
+     }
+    },
+    {
+     "rank": 17,
+     "name": "HERRICK, Jason",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 13,
+      "y": 299.1
+     }
+    },
+    {
+     "rank": 18,
+     "name": "TOFILAU TEVAGA, Esther",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 14,
+      "y": 312.1
+     }
+    },
+    {
+     "rank": 19,
+     "name": "GAYLOR, Penny",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 15,
+      "y": 325.1
+     }
+    },
+    {
+     "rank": 20,
+     "name": "IKILEI, Elliot",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 16,
+      "y": 338.1
+     }
+    },
+    {
+     "rank": 21,
+     "name": "HAU, Vicky",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 17,
+      "y": 351.1
+     }
+    },
+    {
+     "rank": 22,
+     "name": "SOARES, Bernadette",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 18,
+      "y": 364.1
+     }
+    },
+    {
+     "rank": 23,
+     "name": "COOKSON, Robert John",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 19,
+      "y": 377.1
+     }
+    },
+    {
+     "rank": 24,
+     "name": "ARNEIL, Mark Russell",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 20,
+      "y": 390.1
+     }
+    },
+    {
+     "rank": 25,
+     "name": "SMITH, Lee",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 21,
+      "y": 403.1
+     }
+    },
+    {
+     "rank": 26,
+     "name": "McDONALD-KING, Kym",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 22,
+      "y": 416.1
+     }
+    },
+    {
+     "rank": 27,
+     "name": "GUMMER, Martin",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 23,
+      "y": 429.1
+     }
+    },
+    {
+     "rank": 28,
+     "name": "LAWRENCE, Te Kira",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 24,
+      "y": 442.1
+     }
+    },
+    {
+     "rank": 29,
+     "name": "HABRAKEN, Daryl",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 25,
+      "y": 455.1
+     }
+    },
+    {
+     "rank": 30,
+     "name": "ANDERSEN, Vincent",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 26,
+      "y": 468.1
+     }
+    },
+    {
+     "rank": 31,
+     "name": "COCURULLO, Vince",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 27,
+      "y": 481.1
+     }
+    },
+    {
+     "rank": 32,
+     "name": "EDEN-WHAITIRI, Sheldon",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 28,
+      "y": 494.1
+     }
+    },
+    {
+     "rank": 33,
+     "name": "GIBSON, Steve",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 29,
+      "y": 507.1
+     }
+    },
+    {
+     "rank": 34,
+     "name": "BROWN, Billy",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 30,
+      "y": 520.1
+     }
+    },
+    {
+     "rank": 35,
+     "name": "BOYCE, Alistair",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 31,
+      "y": 533.1
+     }
+    },
+    {
+     "rank": 36,
+     "name": "LANGEVELD, Keegan",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 32,
+      "y": 546.1
+     }
+    },
+    {
+     "rank": 37,
+     "name": "PARK, Bryce",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 33,
+      "y": 559.1
+     }
+    },
+    {
+     "rank": 38,
+     "name": "NICHOLSON, Isaac",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 34,
+      "y": 572.1
+     }
+    },
+    {
+     "rank": 39,
+     "name": "WARNER, Gerald",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 35,
+      "y": 585.1
+     }
+    },
+    {
+     "rank": 40,
+     "name": "ARNEIL, Taylor",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 36,
+      "y": 598.1
+     }
+    },
+    {
+     "rank": 41,
+     "name": "LABOYRIE, Nicola",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 37,
+      "y": 611.1
+     }
+    },
+    {
+     "rank": 42,
+     "name": "TAYLOR, Vaughan",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 38,
+      "y": 624.1
+     }
+    },
+    {
+     "rank": 43,
+     "name": "STONE, Kevin",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 39,
+      "y": 637.1
+     }
+    },
+    {
+     "rank": 44,
+     "name": "FARRELLY, Jackie",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 40,
+      "y": 650.1
+     }
+    },
+    {
+     "rank": 45,
+     "name": "WIREMU, Shane",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 41,
+      "y": 663.1
+     }
+    },
+    {
+     "rank": 46,
+     "name": "MUNDT, Elizabeth",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 42,
+      "y": 676.1
+     }
+    },
+    {
+     "rank": 47,
+     "name": "STRINGER, John",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 43,
+      "y": 689.1
+     }
+    },
+    {
+     "rank": 48,
+     "name": "BLACKSHAW, Jon",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 44,
+      "y": 702.1
+     }
+    },
+    {
+     "rank": 49,
+     "name": "WALTON, Nathan",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 45,
+      "y": 715.1
+     }
+    },
+    {
+     "rank": 50,
+     "name": "CHONG, Murray",
+     "locator": {
+      "page": 2,
+      "column": 4,
+      "line": 46,
+      "y": 728.1
+     }
+    }
+   ],
+   "list_size": 50
+  },
+  {
+   "party_name": "NEW ZEALAND LOYAL",
+   "header_locator": {
+    "page": 3,
+    "column": 1,
+    "line": 1,
+    "y": 192.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "ALP, Kelvyn",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 2,
+      "y": 208.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "TEIO, Paul",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 3,
+      "y": 221.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "FAITHFULL, Brenton Bruce",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 4,
+      "y": 234.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "HISLOP, Alexander",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 5,
+      "y": 247.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "BLOMFIELD, Kelly",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 6,
+      "y": 260.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "YOUNG, Greer",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 7,
+      "y": 273.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "CRAWFORD, Julian",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 8,
+      "y": 286.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "SALES, Lesley Margaret",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 9,
+      "y": 299.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "ALCOCK, John",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 10,
+      "y": 312.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "VERHOEVEN, Pete",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 11,
+      "y": 325.1
+     }
+    },
+    {
+     "rank": 11,
+     "name": "BLACKMAN, Collin",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 12,
+      "y": 338.1
+     }
+    },
+    {
+     "rank": 12,
+     "name": "LIND, Allan",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 13,
+      "y": 351.1
+     }
+    },
+    {
+     "rank": 13,
+     "name": "WILSON, Gordon",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 14,
+      "y": 364.1
+     }
+    },
+    {
+     "rank": 14,
+     "name": "SMITH, Jason Michael",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 15,
+      "y": 377.1
+     }
+    },
+    {
+     "rank": 15,
+     "name": "FISHER, Christine",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 16,
+      "y": 390.1
+     }
+    },
+    {
+     "rank": 16,
+     "name": "FORD, Barak",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 17,
+      "y": 403.1
+     }
+    },
+    {
+     "rank": 17,
+     "name": "THOMPSON, Glenn",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 18,
+      "y": 416.1
+     }
+    }
+   ],
+   "list_size": 17
+  },
+  {
+   "party_name": "NZ OUTDOORS & FREEDOM PARTY",
+   "header_locator": {
+    "page": 3,
+    "column": 1,
+    "line": 19,
+    "y": 478.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "GREY, Sue",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 21,
+      "y": 507.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "COOK, Aly",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 22,
+      "y": 520.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "YOUNG, Barry",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 23,
+      "y": 533.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "AFEAKI, Hine",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 24,
+      "y": 546.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "WAIT, Alistair",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 25,
+      "y": 559.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "POKERE-PHILLIPS, Donna",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 26,
+      "y": 572.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "PAVLOVICH, Alison",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 27,
+      "y": 585.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "COBB, Ray",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 28,
+      "y": 598.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "UPSON, Keith",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 29,
+      "y": 611.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "DOOLEY, Bruce",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 30,
+      "y": 624.1
+     }
+    },
+    {
+     "rank": 11,
+     "name": "DOTCOM, Liz",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 31,
+      "y": 637.1
+     }
+    },
+    {
+     "rank": 12,
+     "name": "BACKHOUSE, Cedric",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 32,
+      "y": 650.1
+     }
+    },
+    {
+     "rank": 13,
+     "name": "MUELLER-CAJAR, David",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 33,
+      "y": 663.1
+     }
+    },
+    {
+     "rank": 14,
+     "name": "GOULDER-HOROBIN, Daymond",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 34,
+      "y": 676.1
+     }
+    },
+    {
+     "rank": 15,
+     "name": "McCRACKEN, Kevin",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 35,
+      "y": 689.1
+     }
+    },
+    {
+     "rank": 16,
+     "name": "HOSKIN, Victoria",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 36,
+      "y": 702.1
+     }
+    },
+    {
+     "rank": 17,
+     "name": "WAKELAM, Noah",
+     "locator": {
+      "page": 3,
+      "column": 1,
+      "line": 37,
+      "y": 715.1
+     }
+    }
+   ],
+   "list_size": 17
+  },
+  {
+   "party_name": "OPPORTUNITY PARTY",
+   "header_locator": {
+    "page": 3,
+    "column": 2,
+    "line": 1,
+    "y": 192.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "WONG, Qiulae",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 2,
+      "y": 208.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "EB, Daniel",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 3,
+      "y": 221.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "HAMMOND, Jessica",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 4,
+      "y": 234.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "KINGDON-BEBB, Kayla",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 5,
+      "y": 247.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "SKIPPER, Eden",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 6,
+      "y": 260.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "KUNTZSCH, Jodie",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 7,
+      "y": 273.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "LUCAS, Sarah",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 8,
+      "y": 286.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "BAINBRIDGE-ZAFAR, David",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 9,
+      "y": 299.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "KNILL, Holly",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 10,
+      "y": 312.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "WHAREWERA, Pāpā",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 11,
+      "y": 325.1
+     }
+    },
+    {
+     "rank": 11,
+     "name": "BEEBE, Bianca",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 12,
+      "y": 338.1
+     }
+    },
+    {
+     "rank": 12,
+     "name": "TEVAGA, Romeo",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 13,
+      "y": 351.1
+     }
+    },
+    {
+     "rank": 13,
+     "name": "WYLIE-VAN EERD, Ben",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 14,
+      "y": 364.1
+     }
+    },
+    {
+     "rank": 14,
+     "name": "WARD, Rachel",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 15,
+      "y": 377.1
+     }
+    },
+    {
+     "rank": 15,
+     "name": "POCOCK, Naomi",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 16,
+      "y": 390.1
+     }
+    },
+    {
+     "rank": 16,
+     "name": "TAIT, Helen",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 17,
+      "y": 403.1
+     }
+    },
+    {
+     "rank": 17,
+     "name": "MARSH, Cody",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 18,
+      "y": 416.1
+     }
+    },
+    {
+     "rank": 18,
+     "name": "MACRAE-MARTIN, Adam",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 19,
+      "y": 429.1
+     }
+    },
+    {
+     "rank": 19,
+     "name": "ROACH, Mark",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 20,
+      "y": 442.1
+     }
+    },
+    {
+     "rank": 20,
+     "name": "MASON, Robert",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 21,
+      "y": 455.1
+     }
+    },
+    {
+     "rank": 21,
+     "name": "ROSS, Luke",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 22,
+      "y": 468.1
+     }
+    },
+    {
+     "rank": 22,
+     "name": "CARTER, Michael",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 23,
+      "y": 481.1
+     }
+    },
+    {
+     "rank": 23,
+     "name": "PAULL, Derrick",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 24,
+      "y": 494.1
+     }
+    },
+    {
+     "rank": 24,
+     "name": "SHEPHERD, Matt",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 25,
+      "y": 507.1
+     }
+    },
+    {
+     "rank": 25,
+     "name": "LANE, Ben",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 26,
+      "y": 520.1
+     }
+    },
+    {
+     "rank": 26,
+     "name": "SNG, Chee Khiang (CK)",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 27,
+      "y": 533.1
+     }
+    },
+    {
+     "rank": 27,
+     "name": "LILEY, Finn",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 28,
+      "y": 546.1
+     }
+    },
+    {
+     "rank": 28,
+     "name": "FRENCH, Evan",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 29,
+      "y": 559.1
+     }
+    },
+    {
+     "rank": 29,
+     "name": "ATTENBOROUGH, Jamie",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 30,
+      "y": 572.1
+     }
+    },
+    {
+     "rank": 30,
+     "name": "HARRIS, Matt",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 31,
+      "y": 585.1
+     }
+    },
+    {
+     "rank": 31,
+     "name": "HASKELL, Sacha",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 32,
+      "y": 598.1
+     }
+    },
+    {
+     "rank": 32,
+     "name": "GHIMIRE, Netra Prasad",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 33,
+      "y": 611.1
+     }
+    },
+    {
+     "rank": 33,
+     "name": "SMITH, Cail",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 34,
+      "y": 624.1
+     }
+    },
+    {
+     "rank": 34,
+     "name": "PLUMMER, Sam",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 35,
+      "y": 637.1
+     }
+    },
+    {
+     "rank": 35,
+     "name": "SMITH, Blair",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 36,
+      "y": 650.1
+     }
+    },
+    {
+     "rank": 36,
+     "name": "CHANG, Johan",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 37,
+      "y": 663.1
+     }
+    },
+    {
+     "rank": 37,
+     "name": "WONG, Almo",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 38,
+      "y": 676.1
+     }
+    },
+    {
+     "rank": 38,
+     "name": "MEE, Adrian",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 39,
+      "y": 689.1
+     }
+    },
+    {
+     "rank": 39,
+     "name": "JACKSON, Paul",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 40,
+      "y": 702.1
+     }
+    },
+    {
+     "rank": 40,
+     "name": "HUANG, Kevin",
+     "locator": {
+      "page": 3,
+      "column": 2,
+      "line": 41,
+      "y": 715.1
+     }
+    }
+   ],
+   "list_size": 40
+  },
+  {
+   "party_name": "TE PĀTI MĀORI",
+   "header_locator": {
+    "page": 3,
+    "column": 3,
+    "line": 1,
+    "y": 192.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "NORMAN, Lance",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 2,
+      "y": 208.1
+     }
+    }
+   ],
+   "list_size": 1
+  },
+  {
+   "party_name": "TE TAI TOKERAU PARTY",
+   "header_locator": {
+    "page": 3,
+    "column": 3,
+    "line": 3,
+    "y": 270.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "CAMPBELL-KAMARIERA, Kyla",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 4,
+      "y": 286.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "KAPA-KINGI, Mariameno",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 5,
+      "y": 299.1
+     }
+    }
+   ],
+   "list_size": 2
+  },
+  {
+   "party_name": "VISION NEW ZEALAND",
+   "header_locator": {
+    "page": 3,
+    "column": 3,
+    "line": 6,
+    "y": 361.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "TAMAKI, Hannah",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 7,
+      "y": 377.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "ROBERTSON, Heker",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 8,
+      "y": 390.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "JERRY, Sawan",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 9,
+      "y": 403.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "MOKARAKA, Karl",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 10,
+      "y": 416.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "MACLEAN, Naomi",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 11,
+      "y": 429.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "WILLIAMSON, Anne",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 12,
+      "y": 442.1
+     }
+    }
+   ],
+   "list_size": 6
+  },
+  {
+   "party_name": "WOMEN’S RIGHTS PARTY",
+   "header_locator": {
+    "page": 3,
+    "column": 3,
+    "line": 13,
+    "y": 504.6
+   },
+   "candidates": [
+    {
+     "rank": 1,
+     "name": "OVENS, Jill",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 15,
+      "y": 533.1
+     }
+    },
+    {
+     "rank": 2,
+     "name": "van DONGEN, Yvonne",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 16,
+      "y": 546.1
+     }
+    },
+    {
+     "rank": 3,
+     "name": "OXLEY, Hilary",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 17,
+      "y": 559.1
+     }
+    },
+    {
+     "rank": 4,
+     "name": "GALLOWAY, Ann",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 18,
+      "y": 572.1
+     }
+    },
+    {
+     "rank": 5,
+     "name": "HYMAN, Prue",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 19,
+      "y": 585.1
+     }
+    },
+    {
+     "rank": 6,
+     "name": "NEILSON, Kerry",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 20,
+      "y": 598.1
+     }
+    },
+    {
+     "rank": 7,
+     "name": "WARREN, Sally",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 21,
+      "y": 611.1
+     }
+    },
+    {
+     "rank": 8,
+     "name": "HOLLOWAY, Francesca",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 22,
+      "y": 624.1
+     }
+    },
+    {
+     "rank": 9,
+     "name": "HOSKINS, Sue",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 23,
+      "y": 637.1
+     }
+    },
+    {
+     "rank": 10,
+     "name": "JAMIESON, Caroline",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 24,
+      "y": 650.1
+     }
+    },
+    {
+     "rank": 11,
+     "name": "CARNEGIE-HARDING, Susan",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 25,
+      "y": 663.1
+     }
+    },
+    {
+     "rank": 12,
+     "name": "BURNSIDE, Louise",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 26,
+      "y": 676.1
+     }
+    },
+    {
+     "rank": 13,
+     "name": "LAUDERDALE, Kathleen",
+     "locator": {
+      "page": 3,
+      "column": 3,
+      "line": 27,
+      "y": 689.1
+     }
+    }
+   ],
+   "list_size": 13
+  }
+ ]
+}
