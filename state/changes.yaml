@@ -25,9 +25,9 @@ changes:
   - slug: nz-election
     kind: product
     started: 2026-10-16T07:57:39Z
-    outcome: open
+    outcome: building
     attempts: 0
     plan_match: null
     origin: issue
     prs: []
-    notes: Byron's steer in issue #7. Research inventory intent/research/nz-election-data-sources.md committed 2026-10-16T08:17Z (71 electorates, bot walls on EC and Parliament HTML, XML feed and ArcGIS scriptable, licences). Intent written and accepted 2026-10-17 NZ (day 2) with four milestones (M1 skeleton day 4, M2 v1 day 11 before advance voting, M3 night client day 17, M4 harden day 20). Spec by Codex spec-nz-election (read-only, 339 s, 16 requirements, 14 concerns) accepted 2026-10-17 NZ with supervisor resolutions (M1 scope cut, all concerns decided, no-network constraint, data branch bootstrap by workflow, three design changes from the frontend-design skill). Plan job plan-nz-election-m1 dispatched 2026-10-16T12:45Z.
+    notes: Byron's steer in issue #7. Research inventory intent/research/nz-election-data-sources.md committed 2026-10-16T08:17Z (71 electorates, bot walls on EC and Parliament HTML, XML feed and ArcGIS scriptable, licences). Intent written and accepted 2026-10-17 NZ (day 2) with four milestones (M1 skeleton day 4, M2 v1 day 11 before advance voting, M3 night client day 17, M4 harden day 20). Spec by Codex spec-nz-election (read-only, 339 s, 16 requirements, 14 concerns) accepted 2026-10-17 NZ with supervisor resolutions (M1 scope cut, all concerns decided, no-network constraint, data branch bootstrap by workflow, three design changes from the frontend-design skill). Plan job plan-nz-election-m1 (read-only, 283 s, three increments, 54 target tests) accepted 2026-10-17 NZ with 7 supervisor decisions (fixtures captured first, public repo minutes, pages.yml no-data step in increment 2, counts are targets, joins from official files, increment 1 file list, design stands). Supervisor captured 11 fixtures locally (Wikipedia revision 1380524613 pinned; EC origin 403 to curl and headless Chromium so five 2023 CSVs came raw from Wayback id_ snapshots; four exempt XML feed files as cross-check, votes 2851211, seats 122) committed af1b585 on change/nz-election-1. Build nz-election-1 (increment 1: parser, allocator, tests, no UI) dispatched 2026-10-16T12:52Z.
