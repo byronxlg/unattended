@@ -21,6 +21,8 @@ is what the tick hands Claude. `state/` holds the ledgers (committed) and run ma
 Codex tasks with checks. `docs/playbook.md` and `docs/metrics.md` are the rules and the indicator
 definitions. `runbook/` says how to operate the loop.
 
+`lab_metrics/` computes lab indicators and renders the generated metrics document.
+
 ## Conventions
 
 - Codex works in `.worktrees/<change>` on branch `change/<slug>`; product code reaches `main` only by PR.

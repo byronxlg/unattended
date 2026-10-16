@@ -241,13 +241,13 @@ Reject committing metrics JSON or using wall-clock generation time: generated Pa
 
 ## Build order and proving commands
 
-- [ ] Add package, dependency metadata and provenance-labelled fixtures. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py -k real_fixture_shapes`; expect `1 passed`.
-- [ ] Implement readers, normalization and bounded GitHub client. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py`; expect summary containing `passed`, no failures.
-- [ ] Implement every indicator and cost calculation. Prove with `uv run --with pytest pytest -q tests/test_metrics_indicators.py`; expect summary containing `passed`, no failures.
-- [ ] Implement output and CLI. Prove with `uv run --with pytest pytest -q tests/test_metrics_output.py`; expect summary containing `passed`, no failures.
-- [ ] Wire Pages and repair CI test collection. Prove with `uv run --with pytest pytest -q tests/test_metrics_integration.py`; expect summary containing `passed`, including runtime assertion.
-- [ ] Run `bin/metrics` and `bin/blog build`; expect `metrics: N indicators, U unavailable, S skipped` and `built N posts into site/`. Inspect the metrics page and unavailable notes; numeric counts depend on current inputs.
-- [ ] Run `bin/lint`; expect `lint ok (N text files)`. Run the full root `uv run --with pytest pytest -q`; expect summary containing `passed`, no failures. Record actual output, commit only named task files and leave pushing to the supervisor.
+- [x] Add package, dependency metadata and provenance-labelled fixtures. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py -k real_fixture_shapes`; expect `1 passed`.
+- [x] Implement readers, normalization and bounded GitHub client. Prove with `uv run --with pytest pytest -q tests/test_metrics_sources.py`; expect summary containing `passed`, no failures.
+- [x] Implement every indicator and cost calculation. Prove with `uv run --with pytest pytest -q tests/test_metrics_indicators.py`; expect summary containing `passed`, no failures.
+- [x] Implement output and CLI. Prove with `uv run --with pytest pytest -q tests/test_metrics_output.py`; expect summary containing `passed`, no failures.
+- [x] Wire Pages and repair CI test collection. Prove with `uv run --with pytest pytest -q tests/test_metrics_integration.py`; expect summary containing `passed`, including runtime assertion.
+- [x] Run `bin/metrics` and `bin/blog build`; expect `metrics: N indicators, U unavailable, S skipped` and `built N posts into site/`. Inspect the metrics page and unavailable notes; numeric counts depend on current inputs.
+- [x] Run `bin/lint`; expect `lint ok (N text files)`. Run the full root `uv run --with pytest pytest -q`; expect summary containing `passed`, no failures. Record actual output, commit only named task files and leave pushing to the supervisor.
 ## Supervisor decisions (2026-10-16, plan accepted with these amendments)
 
 1. Drop the "optional future evidence contracts" for change `regressions`, `incident_ids` and
@@ -271,3 +271,19 @@ Reject committing metrics JSON or using wall-clock generation time: generated Pa
    timezone conversion must degrade to a diagnostic (skipped, counted, named in `diagnostics`),
    never raise; and every shape `compute` emits must be accepted by `render_document`, proved
    by tests that run the two together on the synthetic fixtures.
+
+## Implementation departures
+- Normalized records use dictionaries within dataclass source/snapshot contracts, avoiding
+  duplicate field storage while retaining the documented field names.
+
+- Review fix: use the supervisor-approved bound of 4 + 3 * linked PRs + failed Pages
+  runs, rather than fetching jobs for every Pages run. Successful runs imply a successful
+  deploy under the existing build -> deploy workflow dependency; their updated_at is the
+  completion proxy, named in all three deployment indicator notes. Failed runs retain
+  job-level evidence; cancelled runs are excluded. Dependencies include only collected
+  job sources. This resolves the brief's stricter wording in favor of its offered route.
+- Review fix: the live-state integration test checks only runtime, row count and schema.
+  Exact totals use frozen changes/mistakes plus seven explicitly synthetic fix jobs, since
+  the frozen ledger contains only smoke jobs. Real fixtures remain byte-for-byte unchanged.
+- Review fix: compare parsed datetimes throughout computation, preserving timestamp output
+  precision. NZ daily deployment stamps now use ZoneInfo rather than a fixed offset.

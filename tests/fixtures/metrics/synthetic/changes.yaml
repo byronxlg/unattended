@@ -1,0 +1,8 @@
+changes:
+  - slug: sample
+    started: 2026-01-01T00:00:00Z
+    outcome: merged
+    attempts: 2
+    plan_match: true
+    origin: finding
+    prs: [1]

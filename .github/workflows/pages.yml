@@ -22,6 +22,10 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - name: Check posts
         run: bin/blog check
+      - name: Generate metrics
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bin/metrics
       - name: Build the site
         run: bin/blog build
       - uses: actions/upload-pages-artifact@v3
