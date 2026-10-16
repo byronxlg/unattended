@@ -181,7 +181,7 @@ def strip(seats, note=''):
         records.append([escape(label(p)), str(base), str(extra), str(n)])
     if seats['overhang']:
         width = Decimal(seats['overhang']) * 100 / total
-        segments.append(f'<div class="segment overhang" style="width:{width}%" aria-label="Overhang"></div>')
+        segments.append(f'<div class="segment overhang" style="width:{width}%"></div>')
     marker = Decimal(seats['assumed_majority']) * 100 / total
     return ('<figure class="seat-figure" aria-describedby="source-seats"><div class="strip" role="img" '
             'aria-describedby="source-seats" aria-label="Theoretical party seats, detailed in the following table">' + ''.join(segments) +

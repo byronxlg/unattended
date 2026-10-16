@@ -91,7 +91,7 @@ function picture(root,result,labels) {
   const lanes=element('div',undefined,'lanes');
   lanes.style.setProperty('--columns',String(Math.ceil(Object.values(result.seats).filter(n=>n).length/2)));
   const table=element('table');
-  table.append(element('caption','Assumed seats by party'));
+  table.append(element('caption',`Assumed seats by party; ${result.overhang} overhang seats`));
   const body=element('tbody'); table.append(body);
   const house=BigInt(result.assumed_house);
   const percent=n=>String(n*10000n/house/100n)+'.'+String(n*10000n/house%100n).padStart(2,'0')+'%';
@@ -139,7 +139,7 @@ function picture(root,result,labels) {
   }
   if (result.overhang) {
     const extra=element('div',undefined,'segment overhang');
-    extra.style.width=percent(BigInt(result.overhang)); extra.setAttribute('aria-label','Overhang'); strip.append(extra);
+    extra.style.width=percent(BigInt(result.overhang)); strip.append(extra);
   }
   const marker=element('span',undefined,'majority'); marker.style.left=percent(BigInt(result.assumed_majority)); strip.append(marker);
   figure.append(strip,lanes,element('p',`${result.assumed_majority} for a majority`,'majority-label'),
