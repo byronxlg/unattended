@@ -67,22 +67,9 @@ export function allocate(data) {
   const count = base - BigInt(nonlist.length);
   const eligible = parties.filter(p => (own(lists,p) && lists[p].length) && (100n*votes[p] >= 5n*total || wins[p]));
   if (count && !eligible.length) fail();
-  const qs = [];
-  for (const p of eligible) for (let d=1n; d<2n*count+2n; d+=2n) qs.push({p,d});
-  const cmp = (a,b) => { const v=votes[a.p]*b.d-votes[b.p]*a.d; return v>0n ? -1 : v<0n ? 1 : 0; };
-  qs.sort(cmp);
-  let selected = qs.slice(0,Number(count)), unresolved = [];
-  if (count && qs.length > Number(count) && cmp(qs[Number(count)-1],qs[Number(count)])===0) {
-    const boundary=qs[Number(count)], above=qs.filter(q=>cmp(q,boundary)<0), tied=qs.filter(q=>cmp(q,boundary)===0);
-    const lot=data.tieOrder ?? {}, order=lot.order ?? [];
-    const tiedParties=new Set(tied.map(q=>q.p));
-    if (!lot.reference || new Set(order).size!==order.length || order.length!==tiedParties.size || order.some(p=>!tiedParties.has(p))) {
-      unresolved=[{rank:above.length+1,places_remaining:Number(count)-above.length,candidates:tied.map(q=>q.p),tie_order_ref:null}];
-    } else { tied.sort((a,b)=>order.indexOf(a.p)-order.indexOf(b.p)); selected=[...above,...tied.slice(0,Number(count)-above.length)]; }
-  }
-  if (unresolved.length) return {entitlements:null,listMembers:null,seats:null,overhang:null,vacancies:null,occupiedHouse:null,quotients:[],unresolvedTies:unresolved};
-  const entitlements=Object.fromEntries(parties.map(p=>[p,0]));
-  const quotients=selected.map((q,i)=>{entitlements[q.p]++;return {rank:i+1,party_id:q.p,numerator:String(votes[q.p]),divisor:String(q.d),selected:true};});
+  const allocation=entitlement(votes,eligible,count,data.tieOrder);
+  if (allocation.unresolvedTies.length) return {...allocation,listMembers:null,seats:null,overhang:null,vacancies:null,occupiedHouse:null};
+  const {entitlements,quotients}=allocation;
   const listMembers=Object.create(null),seats=Object.create(null); let overhang=0,vacancies=0;
   for (const p of parties) {
     const w=Number(wins[p]), needed=Math.max(0,entitlements[p]-w);
@@ -90,4 +77,26 @@ export function allocate(data) {
     seats[p]=w+listMembers[p].length; vacancies+=needed-listMembers[p].length; overhang+=Math.max(0,w-entitlements[p]);
   }
   return {entitlements,listMembers,seats,overhang,vacancies,occupiedHouse:Number(base)+overhang-vacancies,quotients,unresolvedTies:[]};
+}
+
+// Shared primitive also supports theoretical seats without fabricated list candidates.
+export function entitlement(votes, eligible, count=120n, tieOrder=null) {
+  const parties=Object.keys(votes).sort(comparePartyIds);
+  const qs = [];
+  for (const p of eligible) for (let d=1n; d<2n*count+2n; d+=2n) qs.push({p,d});
+  const cmp = (a,b) => { const v=votes[a.p]*b.d-votes[b.p]*a.d; return v>0n ? -1 : v<0n ? 1 : 0; };
+  qs.sort(cmp);
+  let selected = qs.slice(0,Number(count)), unresolved = [];
+  if (count && qs.length > Number(count) && cmp(qs[Number(count)-1],qs[Number(count)])===0) {
+    const boundary=qs[Number(count)], above=qs.filter(q=>cmp(q,boundary)<0), tied=qs.filter(q=>cmp(q,boundary)===0);
+    const lot=tieOrder ?? {}, order=lot.order ?? [];
+    const tiedParties=new Set(tied.map(q=>q.p));
+    if (!lot.reference || new Set(order).size!==order.length || order.length!==tiedParties.size || order.some(p=>!tiedParties.has(p))) {
+      unresolved=[{rank:above.length+1,places_remaining:Number(count)-above.length,candidates:tied.map(q=>q.p),tie_order_ref:null}];
+    } else { tied.sort((a,b)=>order.indexOf(a.p)-order.indexOf(b.p)); selected=[...above,...tied.slice(0,Number(count)-above.length)]; }
+  }
+  if (unresolved.length) return {entitlements:null,quotients:[],unresolvedTies:unresolved};
+  const entitlements=Object.fromEntries(parties.map(p=>[p,0]));
+  const quotients=selected.map((q,i)=>{entitlements[q.p]++;return {rank:i+1,party_id:q.p,numerator:String(votes[q.p]),divisor:String(q.d),selected:true};});
+  return {entitlements,quotients,unresolvedTies:[]};
 }

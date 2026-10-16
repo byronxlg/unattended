@@ -1,0 +1,93 @@
+"""Static output safety, honest failure states and preserved blog neighbours."""
+import json
+import pytest
+from product.nz_election.pipeline.build import build, PREFIX, config
+from product.nz_election.pipeline.refresh import refresh
+from product.nz_election.pipeline import export
+from product.nz_election.pipeline.average import trend
+from product.nz_election.pipeline.seats import project
+
+
+def data(tmp_path):
+    path = tmp_path / 'data'
+    refresh(path, now='2026-10-17T01:00:00Z')
+    return path
+
+
+def rewrite(path, mutate):
+    envs = export.validate_bundle(path)
+    mutate(envs['polls']['data'])
+    export.pair(path, 'polls', envs['polls'])
+    averages = envs['averages']
+    averages['data'] = trend(envs['polls']['data'], [a['date'] for a in averages['data']])
+    averages['input_hashes']['polls.json'] = export.digest((path / 'polls.json').read_bytes())
+    export.pair(path, 'averages', averages)
+    seats = envs['seats']
+    seats['data'] = project(averages['data'][-1])
+    seats['input_hashes']['averages.json'] = export.digest((path / 'averages.json').read_bytes())
+    export.pair(path, 'seats', seats)
+    export.inventory(path, 'offline-verification', seats['code_sha'], '2026-10-17T01:00:00Z')
+
+
+def test_six_routes_and_prefix(tmp_path):
+    out = build(data(tmp_path), tmp_path / 'output')
+    for route in config('routes'):
+        html = (out / route['path'] / 'index.html').read_text()
+        assert PREFIX in html and '<main ' in html and '<script' not in html
+        assert 'Skip to content' in html
+    assert len(list(out.rglob('index.html'))) == 6
+    assert '40px' in (out / 'styles.css').read_text()
+
+
+def test_no_data_first_build(tmp_path):
+    out = build(tmp_path / 'absent', tmp_path / 'output')
+    html = (out / 'index.html').read_text()
+    assert 'No data yet' in html and '19 October 2026' in html
+    assert 'class="strip"' not in html
+    assert '2,851,211' in (out / 'methods/index.html').read_text()
+    assert json.loads((out / 'build-manifest.json').read_text())['data']['data_sha'] is None
+
+
+def test_incomplete_vector_withholds_seats(tmp_path):
+    path = data(tmp_path)
+    def remove(rows):
+        max(rows, key=lambda p: p['fieldwork_end'])['shares']['nat'] = None
+    rewrite(path, remove)
+    out = build(path, tmp_path / 'output')
+    html = (out / 'index.html').read_text()
+    assert 'Incomplete party coverage' in html and 'class="strip"' not in html
+    assert 'Missing observations' in html and 'Poll history' in html
+
+
+def test_source_html_escaped(tmp_path):
+    path = data(tmp_path)
+    def inject(rows):
+        rows[0]['pollster'] = '<script>alert(1)</script>'
+        rows[0]['reference_urls'] = ['javascript:alert(1)', 'https://example.invalid/?q="<bad>']
+    rewrite(path, inject)
+    html = (build(path, tmp_path / 'output') / 'index.html').read_text()
+    assert '<script>' not in html and '&lt;script&gt;' in html
+    assert 'href="javascript:' not in html and '&quot;&lt;bad&gt;' in html
+
+
+def test_build_preserves_blog(tmp_path):
+    site = tmp_path / 'site'
+    site.mkdir()
+    (site / 'index.html').write_text('blog home')
+    (site / 'posts').mkdir()
+    (site / 'posts/post.html').write_text('blog post')
+    build(tmp_path / 'absent', site / 'nz-election')
+    assert (site / 'index.html').read_text() == 'blog home'
+    assert (site / 'posts/post.html').read_text() == 'blog post'
+    build(tmp_path / 'absent', site / 'nz-election')
+    assert (site / 'index.html').read_text() == 'blog home'
+
+
+def test_failed_validation_preserves_deployment(tmp_path):
+    path = data(tmp_path)
+    out = build(path, tmp_path / 'output')
+    before = {str(p.relative_to(out)): p.read_bytes() for p in out.rglob('*') if p.is_file()}
+    (path / 'polls.json').write_text('{}')
+    with pytest.raises(ValueError):
+        build(path, out)
+    assert before == {str(p.relative_to(out)): p.read_bytes() for p in out.rglob('*') if p.is_file()}

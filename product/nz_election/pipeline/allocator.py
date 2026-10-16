@@ -81,31 +81,11 @@ def allocate(data):
                 and (100 * votes[p] >= 5 * sum(votes.values()) or wins[p])]
     if count and not eligible:
         raise ValueError("INVALID_INPUT")
-    qs = [(Fraction(votes[p], d), p, d) for p in eligible for d in range(1, 2 * count + 2, 2)]
-    qs.sort(key=lambda q: q[0], reverse=True)
-    selected = qs[:count]
-    unresolved = []
-    if count and len(qs) > count and qs[count - 1][0] == qs[count][0]:
-        boundary = qs[count][0]
-        above = [q for q in qs if q[0] > boundary]
-        tied = [q for q in qs if q[0] == boundary]
-        lot = data.get("tieOrder") or {}
-        order = lot.get("order", [])
-        if not lot.get("reference") or len(order) != len(set(order)) or set(order) != {q[1] for q in tied}:
-            unresolved = [{"rank": len(above) + 1, "places_remaining": count - len(above),
-                           "candidates": [q[1] for q in tied], "tie_order_ref": None}]
-        else:
-            tied.sort(key=lambda q: order.index(q[1]))
-            selected = above + tied[:count - len(above)]
-    empty = dict(entitlements=None, listMembers=None, seats=None, overhang=None,
-                 vacancies=None, occupiedHouse=None, quotients=[], unresolvedTies=unresolved)
-    if unresolved:
-        return empty
-    ent = dict.fromkeys(parties, 0)
-    quotients = []
-    for rank, (_, p, d) in enumerate(selected, 1):
-        ent[p] += 1
-        quotients.append(dict(rank=rank, party_id=p, numerator=str(votes[p]), divisor=str(d), selected=True))
+    allocation = entitlement(votes, eligible, count, data.get("tieOrder"))
+    if allocation['unresolvedTies']:
+        return dict(**allocation, listMembers=None, seats=None, overhang=None,
+                    vacancies=None, occupiedHouse=None)
+    ent, quotients = allocation['entitlements'], allocation['quotients']
     members, seats = {}, {}
     overhang = vacancies = 0
     for p in parties:
@@ -117,3 +97,32 @@ def allocate(data):
     return dict(entitlements=ent, listMembers=members, seats=seats, overhang=overhang,
                 vacancies=vacancies, occupiedHouse=base + overhang - vacancies,
                 quotients=quotients, unresolvedTies=[])
+
+
+def entitlement(votes, eligible, count=120, tie_order=None):
+    """Shared exact quotient primitive; eligibility is supplied by the caller."""
+    parties = sorted(votes)
+    qs = [(Fraction(votes[p], d), p, d) for p in eligible for d in range(1, 2 * count + 2, 2)]
+    qs.sort(key=lambda q: q[0], reverse=True)
+    selected = qs[:count]
+    unresolved = []
+    if count and len(qs) > count and qs[count - 1][0] == qs[count][0]:
+        boundary = qs[count][0]
+        above = [q for q in qs if q[0] > boundary]
+        tied = [q for q in qs if q[0] == boundary]
+        lot = tie_order or {}
+        order = lot.get("order", [])
+        if not lot.get("reference") or len(order) != len(set(order)) or set(order) != {q[1] for q in tied}:
+            unresolved = [{"rank": len(above) + 1, "places_remaining": count - len(above),
+                           "candidates": [q[1] for q in tied], "tie_order_ref": None}]
+        else:
+            tied.sort(key=lambda q: order.index(q[1]))
+            selected = above + tied[:count - len(above)]
+    if unresolved:
+        return dict(entitlements=None, quotients=[], unresolvedTies=unresolved)
+    ent = dict.fromkeys(parties, 0)
+    quotients = []
+    for rank, (_, p, d) in enumerate(selected, 1):
+        ent[p] += 1
+        quotients.append(dict(rank=rank, party_id=p, numerator=str(votes[p]), divisor=str(d), selected=True))
+    return dict(entitlements=ent, quotients=quotients, unresolvedTies=[])
