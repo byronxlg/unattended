@@ -65,3 +65,58 @@ product code itself from the cut in the same PR shape, a fresh-context Agent rev
 Codex review, `state/codex.ended` marks the cut, the retrospective compares the two regimes);
 README and CLAUDE.md say the plan is not renewed. The fleet records it as D63; its operator checks
 the handover on 2026-11-08.
+
+## 2026-10-16T23:37Z (supervisor run, day 3 NZ)
+
+- Byron's words this run: issue #18 (relayed Telegram, 22:56Z to 22:59Z), quoted in the entry
+  above. Acted on in order: audience research dispatched (item 1); the audience judgement call
+  goes to him when the memo is in (item 2); items 3 and 4 (day-to-day verification as a
+  milestone, re-planned milestones in spec.md) are next after the design PR.
+- Design-system build `nz-election-design` finished 22:39Z: commit 91ebf33, 31 files, 287
+  tests passing in its sandbox, refresh/build/verify PASS all; screenshots not run there
+  (no Chromium). Host run: refresh/build/verify PASS all; the screenshot harness failed on its
+  own axe check before judging a route: `aria-prohibited-attr`, an `aria-label` on the overhang
+  segment div inside the role="img" seats strip, rendered both by build.py and by
+  coalitions.mjs. Sent back on the build thread as `nz-election-design-fix` (23:43Z) with the
+  invariant (segments are presentational, the overhang is described by the strip or the table)
+  and the shape left to Codex. Not a repeated mistake: the sandbox could not run axe.
+- Two observations from the partial screenshots, for the fresh review to judge: every route
+  image carries a 3 px blue outline around main because the harness activates the skip link
+  (main has tabindex -1, focus-visible fires); and at 1280 the source-note paragraph has line
+  boxes inflated by the 44 px inline-link tap target, so "Retrieved" and the date split across
+  a wide gap. Phone routes at 360 and 390 read cleanly: header, one-line brand, menu, H1,
+  copy, source line, rule, footer.
+- Dispatched `research-nz-election-audiences` (read-only, 23:44Z): audiences, the question
+  each arrives with, evidence from Electoral Commission pages, 2023 coverage, Trends, existing
+  dashboards; a page plan with build-by dates (26 Oct, 7 Nov, after); what not to build.
+- Codex window at the start of the run: 50 percent, resets in 5.4 days, even spread about 9
+  points a day. Spent today so far: the design build (47 to 50), this fix, this research.
+- Judgement calls this run: none sent. Resuming Codex for a two-attribute fix rather than
+  editing product code myself follows the rule that the supervisor writes no product code;
+  the alternative (hand edit, note in the PR) was cheaper by one job and rejected for the rule.
+- 23:48Z: fix 980d06e landed (aria-label removed from both renderers, overhang count moved into
+  the seats-table caption). Host rerun: refresh/build/verify PASS all; the harness passed axe
+  and then failed on the invalid-link state: the assertion on the warning text (new on this
+  branch) reads [data-warning] the moment the page check returns, before the explorer writes
+  it. A host probe of the same fixture with a one-second wait shows the exact text and a clean
+  console, so the state renders and the race is in the harness. Second follow-up
+  `nz-election-design-fix-2` (23:54Z): product fix if the branch delayed the hash handling,
+  otherwise an auto-waiting read in the harness with the asserted text unchanged, explicitly
+  authorised by the supervisor as a harness strengthening, not a test weakening. The PR, the
+  fresh review (brief at state/jobs/review-nz-election-design/prompt.md, screenshots via
+  --image) and the screenshot judgement move to the next run.
+- Research memo `research-nz-election-audiences` landed (2,447 words) and is committed verbatim
+  at intent/nz-election/audiences.md. Kept audiences: voting-help seekers (young and first-time
+  voters inside it), policy comparers (link out), local-contest readers, poll followers,
+  overseas voters, night watchers, post-election checkers, data users. Its surprise: the Herald
+  published its 2023 polling model and code, so "nobody publishes methods" is not a
+  differentiator. Three one-word questions for Byron; two of them (daily link review, result
+  updates after 4 Nov) the lab owns through the day-to-day verification milestone.
+- JUDGEMENT CALL sent 23:55Z (board line, tg send): build a /vote/ gateway before 26 Oct,
+  candidates-first electorate pages, a results-first /night/ that becomes "Results so far";
+  rejected separate demographic pages and an in-house policy comparison. Proceed at
+  2026-10-17 12:00Z if he says nothing. Asked one word: success measure usefulness or reach.
+- Mistake (supervisor, not Codex): ran `tg send --help` to learn the usage; it sent the text
+  "--help" to Byron's Telegram. Read the script header next time.
+- Codex window at end of run: 51 percent after the first fix; the research job and fix-2 are
+  not in the ledger yet.
