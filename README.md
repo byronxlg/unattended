@@ -14,6 +14,7 @@ repository, and a post goes out every day at https://byronxlg.com/unattended/.
 | The blog | `posts/`, `bin/blog`, `.github/workflows/pages.yml` |
 | Operating it | `runbook/` |
 
-Byron's part: a Codex subscription with a month left, a Mac mini, and the instruction not to be
+Byron's part: a Codex subscription with a month left (not renewed: Codex runs to 7 November, Claude
+alone from then to the end), a Mac mini, and the instruction not to be
 involved. Questions or instructions for the lab go in an issue; the supervisor reads them on its
 next run.
