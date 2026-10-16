@@ -1,6 +1,6 @@
 """Exact equal-weight calendar windows. Missing observations never become zero."""
 from datetime import date, timedelta
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal
 
 METHOD = 'window-mean-30d-v1'
 ROUNDING = 'display-only-half-up-1dp'
@@ -23,7 +23,32 @@ def deduplicate(polls, identities=None):
 
 def values(poll):
     scale = poll.get('scale', 1)
-    return {p: None if v is None else Decimal(v) / scale for p, v in poll['shares'].items()}
+    if type(scale) is not int or scale < 1 or str(scale).strip('0') != '1':
+        raise ValueError('INVALID_POLL_SCALE')
+    places = len(str(scale)) - 1
+    result = {}
+    for party, value in poll['shares'].items():
+        if value is None:
+            result[party] = None
+        else:
+            sign, digits, exponent = Decimal(value).as_tuple()
+            # Tuple construction adjusts the decimal point without applying a context.
+            result[party] = Decimal((sign, digits, exponent - places))
+    return result
+
+
+def scaled_vector(poll):
+    vector = values(poll)
+    precision = max((max(0, -v.as_tuple().exponent) for v in vector.values() if v is not None), default=0)
+    unit = 10 ** precision
+    result = {}
+    for party, value in vector.items():
+        if value is None:
+            result[party] = None
+        else:
+            numerator, denominator = value.as_integer_ratio()
+            result[party] = numerator * (unit // denominator)
+    return result, unit
 
 
 def check_vector(polls, mapping=None, review=None):
@@ -44,15 +69,14 @@ def check_vector(polls, mapping=None, review=None):
 
 
 def mean_vector(polls):
-    vectors = [values(p) for p in polls]
-    precision = max((max(0, -v.as_tuple().exponent) for row in vectors for v in row.values()
-                     if v is not None), default=0)
-    unit = 10 ** precision
-    parties = sorted({p for row in vectors for p in row})
+    vectors = [scaled_vector(p) for p in polls]
+    unit = max((scale for _, scale in vectors), default=1)
+    parties = sorted({p for row, _ in vectors for p in row})
     descriptive = {}
     for party in parties:
-        covered = [(p, row[party]) for p, row in zip(polls, vectors) if row.get(party) is not None]
-        descriptive[party] = dict(value=sum(int(v * unit) for _, v in covered),
+        covered = [(p, row[party] * (unit // scale)) for p, (row, scale) in zip(polls, vectors)
+                   if row.get(party) is not None]
+        descriptive[party] = dict(value=sum(v for _, v in covered),
                                   scale=len(covered) * unit, poll_ids=[p['id'] for p, _ in covered])
     coherent = bool(polls) and all(d['scale'] == len(polls) * unit for d in descriptive.values())
     shares = {p: d['value'] for p, d in descriptive.items()} if coherent else None
@@ -78,6 +102,10 @@ def trend(polls, dates, mapping=None, review=None):
 
 
 def threshold_watch(polls, average, assumptions):
+    included = set(average['poll_ids'])
+    polls = [p for p in deduplicate(polls) if p['id'] in included]
+    if {p['id'] for p in polls} != included:
+        raise ValueError('MISSING_AVERAGE_INPUT')
     result = []
     for party, d in average['descriptive'].items():
         if party == 'others':
@@ -93,4 +121,5 @@ def threshold_watch(polls, average, assumptions):
 def display(value, scale):
     if not scale or value is None:
         return 'Not reported'
-    return str((Decimal(value) / Decimal(scale)).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)) + '%'
+    tenths = (20 * value + scale) // (2 * scale)
+    return f'{tenths // 10}.{tenths % 10}%'

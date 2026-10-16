@@ -38,6 +38,7 @@ def publish(bundle, repository, *, before_push=None, attempts=3):
         for attempt in range(attempts):
             git(checkout, 'fetch', str(repository), 'refs/heads/data')
             git(checkout, 'checkout', '-B', 'data', 'FETCH_HEAD')
+            fetched_sha = git(checkout, 'rev-parse', 'HEAD').stdout.strip()
             # No file from the fetched tree is executable or accepted as configuration.
             listing = git(checkout, 'ls-tree', '-r', 'HEAD').stdout.splitlines()
             for line in listing:
@@ -48,16 +49,24 @@ def publish(bundle, repository, *, before_push=None, attempts=3):
             target = checkout / DATA
             current = export.validate_bundle(target)
             previous = status_of(current)
-            if previous and ((previous['last_success_at'] or '') > (proposed['last_success_at'] or '')
-                             or previous['last_attempt_at'] > proposed['last_attempt_at']):
+            keep_data = previous and (previous['last_success_at'] or '') > (proposed['last_success_at'] or '')
+            keep_status = previous and previous['last_attempt_at'] > proposed['last_attempt_at']
+            if keep_status and (keep_data or (previous['last_success_at'] or '') == (proposed['last_success_at'] or '')):
                 return dict(outcome='older-run-retained', attempts=attempt + 1, sha=git(checkout, 'rev-parse', 'HEAD').stdout.strip())
-            for name in OWNED | {'LICENCES.md'}:
-                if (bundle / name).exists():
-                    shutil.copyfile(bundle / name, target / name)
-            statuses = [s for s in current['status']['data'] if s['dataset'] != 'polls'] + [proposed]
-            metadata = incoming['status']
+            if not keep_data:
+                for name in OWNED | {'LICENCES.md'}:
+                    if (bundle / name).exists():
+                        shutil.copyfile(bundle / name, target / name)
+            # Attempt chronology and successful acquisition chronology are independent.
+            merged = dict(previous if keep_status else proposed)
+            last_good = previous if keep_data else proposed
+            merged.update(last_success_at=last_good['last_success_at'], last_good_run_url=last_good['last_good_run_url'])
+            if merged['error_code'] is not None:
+                merged['state'] = 'stale' if merged['last_success_at'] else 'unavailable'
+            statuses = [s for s in current['status']['data'] if s['dataset'] != 'polls'] + [merged]
+            metadata = current['status'] if keep_status else incoming['status']
             export.pair(target, 'status', export.envelope(statuses, [], metadata['run_url'], metadata['code_sha']))
-            export.inventory(target, metadata['run_url'], metadata['code_sha'], proposed['last_attempt_at'])
+            export.inventory(target, metadata['run_url'], metadata['code_sha'], merged['last_attempt_at'])
             export.validate_bundle(target)
             git(checkout, 'add', '--', *[str(DATA / n) for n in sorted(export.ALLOWED) if (target / n).exists()])
             if git(checkout, 'diff', '--cached', '--quiet', check=False).returncode == 0:
@@ -65,9 +74,12 @@ def publish(bundle, repository, *, before_push=None, attempts=3):
             git(checkout, 'commit', '-qm', 'Publish validated offline poll bundle')
             if before_push:
                 before_push(attempt)
-            pushed = git(checkout, 'push', str(repository), 'HEAD:refs/heads/data', check=False)
+            pushed = git(checkout, 'push', '--porcelain', f'--force-with-lease=refs/heads/data:{fetched_sha}',
+                         str(repository), 'HEAD:refs/heads/data', check=False)
             if pushed.returncode == 0:
                 return dict(outcome='published', attempts=attempt + 1, sha=git(checkout, 'rev-parse', 'HEAD').stdout.strip())
-            if 'non-fast-forward' not in pushed.stderr and 'fetch first' not in pushed.stderr and 'failed to update ref' not in pushed.stderr:
+            # Compare the leased ref itself, not platform-specific rejection prose.
+            remote_ref = git(checkout, 'ls-remote', str(repository), 'refs/heads/data').stdout.split()
+            if not remote_ref or remote_ref[0] == fetched_sha:
                 raise RuntimeError('PUBLICATION_FAILED: ' + pushed.stderr)
         raise RuntimeError('PUBLICATION_RETRIES_EXHAUSTED')

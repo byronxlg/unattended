@@ -5,7 +5,6 @@
 """Build a labelled offline bundle from checked captures; never fetch."""
 import argparse
 from datetime import date, datetime, timedelta, timezone
-from decimal import Decimal
 import fcntl
 import json
 import os
@@ -51,14 +50,13 @@ def source_entries():
 
 
 def normalize(poll, history=False):
-    from product.nz_election.pipeline.average import values
-    shares = values(poll)
-    unit = 10 ** max((max(0, -v.as_tuple().exponent) for v in shares.values() if v is not None), default=0)
+    from product.nz_election.pipeline.average import scaled_vector
+    shares, unit = scaled_vector(poll)
     ref = poll['source_ref']
     if isinstance(ref, str):
         ref = [dict(source_id='P', revision=poll['revision'], row=ref)]
     result = dict(revision=poll['revision'], source_ref=ref, fieldwork_start=poll['fieldwork_start'],
-                  fieldwork_end=poll['fieldwork_end'], shares={p: None if v is None else int(v * unit) for p, v in shares.items()},
+                  fieldwork_end=poll['fieldwork_end'], shares=shares,
                   scale=unit, reference_urls=poll['reference_urls'])
     if not history:
         result.update(id=poll['id'], observed_at=poll['fieldwork_end'], pollster=poll['pollster'], sample=poll['sample'],
@@ -67,7 +65,8 @@ def normalize(poll, history=False):
 
 
 def previous_parser_rows(rows):
-    return [dict({k: v for k, v in p.items() if k != 'scale'}, shares={k: None if v is None else Decimal(v) / p['scale'] for k, v in p['shares'].items()}) for p in rows]
+    from product.nz_election.pipeline.average import values
+    return [dict({k: v for k, v in p.items() if k != 'scale'}, shares=values(p)) for p in rows]
 
 
 def licences():

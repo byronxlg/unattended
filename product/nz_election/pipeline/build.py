@@ -22,7 +22,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from product.nz_election.pipeline import export
 from product.nz_election.pipeline.allocator import allocate
-from product.nz_election.pipeline.average import display, select_window, threshold_watch
+from product.nz_election.pipeline.average import display, threshold_watch
 from product.nz_election.pipeline.fixtures import golden
 from product.nz_election.pipeline.refresh import PRODUCT, config, source_entries, code_sha, utc_now
 from product.nz_election.pipeline.storage import replace_directory
@@ -78,29 +78,55 @@ def label(p):
     return config('party-colours').get(p, {}).get('label', 'Others' if p == 'others' else p)
 
 
+def label_lanes(anchors, width):
+    occupied = []
+    result = {}
+    for party, anchor in anchors:
+        right = max(Fraction(96), min(Fraction(width), anchor * width / 100))
+        interval = (right - 100, right + 4)
+        lane = next((i for i, spans in enumerate(occupied)
+                     if all(interval[1] <= left or interval[0] >= right for left, right in spans)), len(occupied))
+        if lane == len(occupied):
+            occupied.append([])
+        occupied[lane].append(interval)
+        result[party] = lane
+    return result
+
+
 def strip(seats):
     colours = config('party-colours')
     ordered = sorted(((p, n) for p, n in seats['seats'].items() if n), key=lambda item: (-item[1], item[0]))
     total = seats['assumed_house']
-    segments, lanes, records = [], [], []
-    position = 1
+    segments, lanes, records, anchors = [], [], [], []
+    position = 0
     for p, n in ordered:
         base = min(n, seats['entitlements'][p])
+        anchors.append((p, Fraction(100 * (2 * position + base), 2 * total), base))
+        position += base
+    desktop = label_lanes([(p, anchor) for p, anchor, base in anchors if base < 8], 736)
+    mobile = label_lanes([(p, anchor) for p, anchor, base in anchors if base < 32], 288)
+    for (p, n), (_, anchor, base) in zip(ordered, anchors):
         extra = n - base
         colour = colours.get(p, {}).get('colour', '#595959')
         width = Decimal(base) * 100 / total
-        small = ' small' if base < 8 else ''
-        segments.append(f'<div class="segment{small}" style="width:{width}%;background:{colour}"><span class="seat-label">{escape(label(p))}<strong>{n}</strong></span></div>')
-        lanes.append(f'<div class="lane{small}" style="--party:{colour}"><span>{escape(label(p))}</span><strong>{n}</strong><span class="anchor">Base seats {position}-{position + base - 1}</span></div>')
-        position += base
+        classes = (' small' if p in desktop else '') + (' mobile-small' if p in mobile else '')
+        segments.append(f'<div class="segment{classes}" data-party="{p}" style="width:{width}%;background:{colour}"><span class="seat-label">{escape(label(p))}<strong>{n}</strong></span></div>')
+        if p in mobile or p in desktop:
+            offset = Decimal(anchor.numerator) / anchor.denominator
+            lanes.append(f'<div class="lane{classes}" data-party="{p}" style="--anchor:{offset}%;--desktop-row:{desktop.get(p, 0)};--mobile-row:{mobile.get(p, 0)}">'
+                         '<span class="leader" aria-hidden="true"></span><span class="elbow" aria-hidden="true"></span>'
+                         f'<span class="lane-label">{escape(label(p))}<strong>{n}</strong></span></div>')
         records.append([escape(label(p)), str(base), str(extra), str(n)])
     if seats['overhang']:
         width = Decimal(seats['overhang']) * 100 / total
-        segments.append(f'<div class="segment overhang small" style="width:{width}%"><span class="seat-label">Extra<strong>{seats["overhang"]}</strong></span></div>')
+        segments.append(f'<div class="segment overhang" style="width:{width}%" aria-label="Overhang"></div>')
     marker = Decimal(seats['assumed_majority']) * 100 / total
+    desktop_height = (max(desktop.values()) + 1) * 96 + 24 if desktop else 0
+    mobile_height = (max(mobile.values()) + 1) * 96 + 24 if mobile else 0
     return ('<figure class="seat-figure" aria-describedby="source-seats"><div class="strip" role="img" '
             'aria-label="Theoretical party seats, detailed in the following table">' + ''.join(segments) +
-            f'<span class="majority" style="left:{marker}%"></span></div><div class="lanes">' + ''.join(lanes) +
+            f'<span class="majority" style="left:{marker}%"></span></div>'
+            f'<div class="lanes" style="--desktop-height:{desktop_height}px;--mobile-height:{mobile_height}px">' + ''.join(lanes) +
             '</div><figcaption class="strip-note">120-seat base; appended extra seats are overhang. '
             f'{seats["overhang"]} overhang seats. Counts assume sufficient list candidates.</figcaption></figure>' +
             f'<p>Seats needed for a majority: <strong>{seats["assumed_majority"]}</strong>, assuming sufficient list candidates '
@@ -140,7 +166,7 @@ def polls_page(envs, built):
         details += '<ul>' + ''.join(f'<li>{escape(e["poll_id"])}: {escape(e["reason"])}</li>' for e in average['exclusions']) + '</ul>'
     details += source_note(envs['averages'], 'source-average', 'averages.json')
     details += '</section><section><h2>Threshold watch</h2><p class="threshold-rule">5% of the party vote qualifies a party with a list. An electorate win can also qualify it below 5%.</p>'
-    watch = threshold_watch(select_window(polls, average['date']), average, seats['assumptions'])
+    watch = threshold_watch(polls, average, seats['assumptions'])
     details += table('Parties near the threshold', ['Party', 'Share', 'Below 5%'],
                      [[escape(label(row['party_id'])), display(row['value'], row['scale']),
                        'Electorate assumed' if row['electorate_qualifies'] else 'Needs 5%'] for row in watch], source='source-thresholds')
@@ -203,24 +229,46 @@ def downloads(envs, data_sha):
         records = []
         for entry in envs['manifest']['data']:
             name = entry['path']
-            immutable = ''
+            immutable = 'Not available'
             if data_sha:
                 immutable = link(f'https://raw.githubusercontent.com/byronxlg/unattended/{data_sha}/product/nz_election/data/{name}', 'Pinned copy')
-            records.append([f'<a href="{PREFIX}data/{escape(name)}">{escape(name)}</a>',
-                            escape(', '.join(entry['licences'])), str(entry['row_count']),
-                            escape(entry['fetched_at'] or 'Not acquired'), immutable])
-        catalogue = table('Published data inventory', ['File', 'Licence', 'Rows', 'Acquired (UTC)', 'Immutable download'], records, 'downloads')
+            run = entry['producing_run_url']
+            producing = link(run, run) if run and safe_url(run) else 'Not available (offline verification)'
+            fields = [
+                ('Size', str(entry['bytes']) + ' bytes' if entry['bytes'] is not None else 'Not available'),
+                ('SHA-256', escape(entry['sha256'] or 'Not available')),
+                ('Licence', escape(', '.join(entry['licences']) or 'Not available')),
+                ('Rows', str(entry['row_count'])),
+                ('Observation start', escape(entry['observation_start'] or 'Not available')),
+                ('Observation end', escape(entry['observation_end'] or 'Not available')),
+                ('Retrieved (UTC)', escape(entry['fetched_at'] or 'Not available')),
+                ('Producing run', producing), ('Immutable download', immutable)]
+            metadata = '<dl class="download-fields">' + ''.join(
+                f'<dt>{key}</dt><dd>{value}</dd>' for key, value in fields) + '</dl>'
+            metadata += '<details><summary>Full manifest record</summary><pre>' + escape(export.canonical(entry)) + '</pre></details>'
+            records.append(f'<tr data-file="{escape(name)}"><th scope="row"><a href="{PREFIX}data/{escape(name)}">{escape(name)}</a></th><td>{metadata}</td></tr>')
+        catalogue = '<table class="download-catalogue"><caption>Published data inventory</caption><tbody>' + ''.join(records) + '</tbody></table>'
         catalogue += f'<p><a href="{PREFIX}data/LICENCES.md">Licences and CSV format</a></p>'
     catalogue += f'<p><a href="{PREFIX}validation-2023.json">Official 2023 normalized validation (JSON)</a> <a href="{PREFIX}validation-2023.csv">Validation (CSV)</a></p>'
     return render('downloads', catalogue=catalogue, prefix=PREFIX,
                   source=source_note(envs.get('polls'), inputs='polls.json' if 'polls' in envs else 'validation-2023.json'))
 
 
-def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
-    data, out = Path(data), Path(out).absolute()
-    if out.name == 'site' or out.is_symlink() or PRODUCT.is_relative_to(out.resolve()) or out.resolve().is_relative_to(PRODUCT):
+def output_path(out):
+    out = Path(out).absolute()
+    resolved = out.resolve()
+    if out.is_symlink() or PRODUCT.is_relative_to(resolved) or resolved.is_relative_to(PRODUCT):
         raise ValueError('UNSAFE_OUTPUT_PATH')
-    out = out.parent.resolve() / out.name
+    # A site tree belongs to the blog except for this one replaceable route root.
+    for candidate in (out, resolved):
+        for parent in (candidate, *candidate.parents):
+            if parent.name == 'site' and candidate != parent / 'nz-election':
+                raise ValueError('UNSAFE_OUTPUT_PATH')
+    return resolved
+
+
+def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
+    data, out = Path(data), output_path(out)
     if data_sha and not re.fullmatch('[0-9a-f]{40}', data_sha):
         raise ValueError('INVALID_DATA_SHA')
     envs = export.validate_bundle(data) if data.exists() else {}

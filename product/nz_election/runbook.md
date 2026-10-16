@@ -55,3 +55,11 @@ Both manifest files have null size/hash because self-reference is excluded. Othe
 Build records and normalized official validation data are separate from the immutable poll inventory.
 Use `--data-sha <40-character commit>` for immutable source-download links; no commit is invented
 for fixture runs. EC source-family restrictions remain separate from CC BY-SA poll adaptations.
+
+Output ownership is an allowlist inside any directory named `site`: only its immediate
+`nz-election` child may be replaced. The site root, blog siblings and nested destinations
+are rejected before reading data or staging output. Resolved paths enforce the same rule
+through parent symlinks. Standalone verification outputs outside a site tree remain allowed.
+Publication uses a lease on the fetched data SHA and compares the remote ref after rejection;
+only a moved ref is retried. Latest attempt status merges separately from last-good data.
+The leased push commits directly on the fetched parent; it cannot rewrite newer history.
