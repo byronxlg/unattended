@@ -560,6 +560,19 @@
    "notes": "2023 general election candidate votes by voting place, one file per electorate number. Origin returns 403; raw bytes from the Wayback id_ URL at the cdx-discovered timestamp (plan-m2 'Before increment 6'). Snapshot consistency across the 72 files and the Port Waikato by-election are checked in the build, not here."
   },
   {
+   "path": "ec-2023/candidate-votes-by-voting-place-21.csv",
+   "url": "https://electionresults.govt.nz/electionresults_2023/statistics/csv/candidate-votes-by-voting-place-21.csv",
+   "archive_url": "https://web.archive.org/web/20250217022623id_/https://electionresults.govt.nz/electionresults_2023/statistics/csv/candidate-votes-by-voting-place-21.csv",
+   "captured_at": "2026-10-16T21:35:59Z",
+   "sha256": "61aafc0b88eb8a6b1af728d3f5520e35bd0c3a192392ce4ba250a8282f97ba2c",
+   "bytes": 7075,
+   "http_status": 200,
+   "reviewer": "supervisor (Claude), unattended lab",
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "revision": "wayback 20250217022623",
+   "notes": "2023 general election candidate votes by voting place, one file per electorate number. Origin returns 403; raw bytes from the Wayback id_ URL at the cdx-discovered timestamp (plan-m2 'Before increment 6'). Snapshot consistency across the 72 files and the Port Waikato by-election are checked in the build, not here. Captured 2026-10-16T21:35:59Z on the supervisor's retry after the archive CDX returned 503 and then no response on the first two attempts; the only CDX 200 snapshot."
+  },
+  {
    "path": "ec-2023/candidate-votes-by-voting-place-22.csv",
    "url": "https://electionresults.govt.nz/electionresults_2023/statistics/csv/candidate-votes-by-voting-place-22.csv",
    "archive_url": "https://web.archive.org/web/20250217170020id_/https://electionresults.govt.nz/electionresults_2023/statistics/csv/candidate-votes-by-voting-place-22.csv",
