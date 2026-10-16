@@ -1,6 +1,6 @@
 # unattended
 
-Twenty days of the AI-native SDLC playbook run without a human: Claude supervises, Codex builds,
+The AI-native SDLC playbook run without a human from 2026-10-15 to at least 2026-11-14 (twenty days at first, extended by Byron on 2026-10-16 to a week past election night): Claude supervises, Codex builds,
 every artifact and metric lives in this repo. Blog: https://byronxlg.com/unattended/ (built from
 `posts/` by `bin/blog`, deployed by `.github/workflows/pages.yml`).
 
