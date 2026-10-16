@@ -28,6 +28,8 @@ jobs:
         run: bin/metrics
       - name: Build the site
         run: bin/blog build
+      - name: Build election skeleton
+        run: uv run product/nz_election/pipeline/build.py --data _nz-election-no-data --out site/nz-election
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

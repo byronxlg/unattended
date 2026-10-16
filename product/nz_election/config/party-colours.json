@@ -1,0 +1,9 @@
+{
+  "nat":{"colour":"#00529F","evidence":null,"label":"National"},
+  "lab":{"colour":"#D82C20","evidence":null,"label":"Labour"},
+  "grn":{"colour":"#098137","evidence":null,"label":"Green"},
+  "act":{"colour":"#FDE401","evidence":null,"label":"ACT"},
+  "nzf":{"colour":"#000000","evidence":null,"label":"NZ First"},
+  "tpm":{"colour":"#B2001A","evidence":null,"label":"Te Pāti Māori"},
+  "opp":{"colour":"#6B3FA0","evidence":null,"label":"Opportunity"}
+}
