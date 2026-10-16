@@ -38,7 +38,8 @@ def verify_polls(envs, root):
     require(not incomplete['coherent'] and not project(incomplete)['available'], 'withhold incomplete seats')
     page = build(root / 'data', root / 'rendered') / 'index.html'
     html = page.read_text()
-    require('Poll history' in html and '<script' not in html, 'static poll history')
+    from product.nz_election.pipeline.scripts import validate_scripts
+    require('Poll history' in html and validate_scripts(html), 'static poll history')
     coherent = next(a for a in reversed(envs['averages']['data']) if a['coherent'])
     from product.nz_election.pipeline.build import strip
     seats = project(coherent)
@@ -114,13 +115,43 @@ def verify_pipeline(envs, root):
     require(publish(newest, remote)['outcome'] == 'unchanged', 'identical publication skipped')
 
 
+def verify_coalitions(envs, root):
+    from product.nz_election.pipeline import coalitions
+    from product.nz_election.pipeline.allocator import allocate
+    from product.nz_election.pipeline.fixtures import golden
+    from product.nz_election.pipeline.build import strip
+    average = next(a for a in reversed(envs['averages']['data']) if a['coherent'])
+    seats = project(average)
+    data = coalitions.inputs(average, seats, 'a' * 64)
+    state = data['initial']
+    require(state['selected'] == [], 'empty default coalition')
+    result = coalitions.scenario(data, state)
+    require(result['majority'] is None and result['occupied_house'] is None and result['vacancies'] is None,
+            'unknown capacity stays conditional')
+    require(result['assumed_majority'] == result['assumed_house'] // 2 + 1, 'conditional majority')
+    require(coalitions.decode(coalitions.encode(state), data['parties']) == state, 'share round trip')
+    edited = dict(state, counts={p: '71' if p == 'tpm' else '0' for p in data['parties']})
+    require(coalitions.scenario(data, edited)['overhang'] > 0, 'overhang scenario')
+    official = golden()['input']
+    official['lists'] = {p: [] for p in official['lists']}
+    # Real captured winners supply candidate identities, never invented capacity.
+    official['lists'] = {p: list(v) for p, v in official['electorateWinners'].items() if v}
+    vacancy = allocate(official)
+    require(vacancy['vacancies'] > 0 and vacancy['occupiedHouse'] == 120 + vacancy['overhang'] - vacancy['vacancies'], 'list vacancies')
+    page = build(root / 'data', root / 'coalition-site') / 'index.html'
+    html = page.read_text()
+    require('<fieldset hidden disabled>' in html and 'data-note' in html and 'source-seats' in html,
+            'static fallback and provenance')
+    require('Seats needed for a majority' in strip(seats), 'static majority retained')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline'])
+    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     args = parser.parse_args()
-    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline}
+    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')

@@ -33,7 +33,8 @@ def test_six_routes_and_prefix(tmp_path):
     out = build(data(tmp_path), tmp_path / 'output')
     for route in config('routes'):
         html = (out / route['path'] / 'index.html').read_text()
-        assert PREFIX in html and '<main ' in html and '<script' not in html
+        from product.nz_election.pipeline.scripts import validate_scripts
+        assert PREFIX in html and '<main ' in html and validate_scripts(html)
         assert 'Skip to content' in html
     assert len(list(out.rglob('index.html'))) == 6
     assert '40px' in (out / 'styles.css').read_text()

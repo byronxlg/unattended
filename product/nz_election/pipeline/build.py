@@ -20,7 +20,8 @@ from zoneinfo import ZoneInfo
 
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from product.nz_election.pipeline import export
+from product.nz_election.pipeline import export, coalitions
+from product.nz_election.pipeline.scripts import validate_scripts
 from product.nz_election.pipeline.allocator import allocate
 from product.nz_election.pipeline.average import display, threshold_watch
 from product.nz_election.pipeline.fixtures import golden
@@ -140,12 +141,42 @@ def strip(seats):
             table('Theoretical seats and overhang', ['Party', 'Base seats', 'Overhang', 'Seats'], records, source='source-seats'))
 
 
+def explorer(envs):
+    note = 'The explorer requires JavaScript and complete matching poll inputs. Published seats remain above.'
+    attrs, controls = '', ''
+    try:
+        average_hash = envs['seats']['input_hashes']['averages.json']
+        seats_hash = next(e['sha256'] for e in envs['manifest']['data'] if e['path'] == 'seats.json')
+        fingerprint = export.digest((average_hash + seats_hash).encode())
+        data = coalitions.inputs(envs['averages']['data'][-1], envs['seats']['data'], fingerprint)
+        attrs = f' data-averages="{average_hash}" data-seats="{seats_hash}" data-fingerprint="{fingerprint}"'
+        for p in data['parties']:
+            colour = config('party-colours').get(p, {}).get('colour', '#595959')
+            controls += (f'<div class="coalition-row" data-party-row="{p}" data-name="{escape(label(p))}" data-colour="{colour}">'
+                         f'<label><input type="checkbox" data-select="{p}"> {escape(label(p))}</label>'
+                         f'<label class="electorate-count">Electorate seats assumed for {escape(label(p))}'
+                         f'<input type="text" inputmode="numeric" maxlength="2" data-count="{p}" value="{data["initial"]["counts"][p]}"></label></div>')
+    except (KeyError, ValueError):
+        note = 'The explorer is unavailable because the poll inputs are incomplete. Published information remains above.'
+    return (f'<section id="coalition-explorer" aria-labelledby="coalition-title"{attrs}>'
+            '<h2 id="coalition-title">Choose parties</h2>'
+            f'<p data-note>{note}</p><fieldset hidden disabled><legend>Choose parties and electorate seats assumed</legend>'
+            + controls + '<div class="coalition-actions"><button type="button" data-reset>Reset</button>'
+            '<button type="button" data-share>Share this scenario</button></div></fieldset>'
+            '<p data-warning role="status"></p><div data-results hidden><p data-live aria-live="polite" aria-atomic="true"></p>'
+            '<p data-unassigned></p><p>List capacity not checked. Vacancies and the occupied House are unknown; '
+            'the majority requirement is assumed.</p><div data-picture></div>'
+            f'<p><a href="{PREFIX}data/averages.json">Poll inputs</a> <a href="{PREFIX}data/seats.json">Seat assumptions</a> '
+            f'<a href="#source-seats">Sources and method</a></p></div></section>'
+            f'<script type="module" src="{PREFIX}coalitions.mjs"></script>')
+
+
 def polls_page(envs, built):
     if 'polls' not in envs:
         return render('polls', state='<div class="state"><p><strong>No data yet.</strong> This page will show the national poll average, '
                       'the seats it would give each party, and parties near the 5% threshold. The first validated data run is expected '
                       'by 19 October 2026, after the hourly refresh is connected. Until then, read the method and official 2023 example.</p></div>',
-                      picture='', source='', details=f'<p><a href="{PREFIX}methods/">Read the method and 2023 example</a></p>')
+                      picture='', source='', explorer='', details=f'<p><a href="{PREFIX}methods/">Read the method and 2023 example</a></p>')
     polls, average, seats = envs['polls']['data'], envs['averages']['data'][-1], envs['seats']['data']
     status = next(s for s in envs['status']['data'] if s['dataset'] == 'polls')
     acquisition = datetime.fromisoformat(envs['polls']['fetched_at'].replace('Z', '+00:00'))
@@ -194,7 +225,7 @@ def polls_page(envs, built):
     details += source_note(envs['polls'], 'source-history', 'polls.json')
     details += f'<p><a href="{PREFIX}data/averages.json">Daily average series and exact inputs</a></p>'
     return render('polls', state=state, picture=picture,
-                  source=source_note(envs['seats'], 'source-seats', 'seats.json'), details=details)
+                  source=source_note(envs['seats'], 'source-seats', 'seats.json'), explorer=explorer(envs), details=details)
 
 
 def methods_page(stage, built, sha, run_url):
@@ -321,6 +352,9 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             target.mkdir(exist_ok=True)
             (target / 'index.html').write_text(render('base', title=route['label'], prefix=PREFIX, nav=nav, body=body,
                                                     built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.'))
+        for page in stage.rglob('*.html'):
+            validate_scripts(page.read_text())
+        shutil.copyfile(PRODUCT / 'web/coalitions.mjs', stage / 'coalitions.mjs')
         shutil.copyfile(PRODUCT / 'web/styles.css', stage / 'styles.css')
         shutil.copyfile(PRODUCT / 'web/allocator.mjs', stage / 'allocator.mjs')
         replace_directory(stage, out)
