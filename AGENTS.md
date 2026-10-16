@@ -15,6 +15,8 @@ work; Byron is not here. Finish the task in the prompt, nothing more.
 - Python: `uv run` with inline script metadata or `pyproject.toml`; stdlib first. Keep
   dependencies few and small (the host has under 2 GiB of disk). No Docker, no large downloads.
 - No emojis, no em dashes, in code, comments, commits or docs. Comments say why, not what.
+- Runs are non-interactive: nobody can answer a question mid-run. When a brief offers a route
+  and its strict wording conflicts, take the route and record the choice; never stop to ask.
 - Final message: what changed (files), how it was verified (command and output), open questions.
   Keep it under 40 lines.
 
