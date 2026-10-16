@@ -30,8 +30,8 @@ def status_of(envs, family='polls'):
 
 
 def success_order(envs, family='polls'):
-    if family == 'geography':
-        env = envs.get('electorates', {})
+    if family != 'polls':
+        env = envs.get('electorates' if family == 'geography' else family, {})
         return (env.get('fetched_at', ''), env.get('generated_at', ''))
     if 'polls' not in envs:
         return ('', '')
@@ -41,8 +41,7 @@ def success_order(envs, family='polls'):
 def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'):
     if family not in {'hourly', 'daily'}:
         raise ValueError('INVALID_FAMILY')
-    dataset = 'polls' if family == 'hourly' else 'geography'
-    owned = {s + ext for s in export.FAMILIES[dataset] for ext in ('.json', '.csv')}
+    datasets = ['polls'] if family == 'hourly' else [f for f in export.FAMILIES if f != 'polls']
     bundle = Path(bundle).absolute()
     incoming = export.validate_bundle(bundle)
     remote = str(repository)
@@ -53,8 +52,8 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
         remote = str(repository)
     if type(attempts) is not int or not 1 <= attempts <= 3:
         raise ValueError('INVALID_RETRY_LIMIT')
-    proposed = status_of(incoming, dataset)
-    if proposed is None:
+    datasets = [f for f in datasets if status_of(incoming, f) is not None]
+    if not datasets:
         raise ValueError('MISSING_FAMILY_STATUS')
     with tempfile.TemporaryDirectory(prefix='nz-publish-') as tmp:
         checkout = Path(tmp)
@@ -80,36 +79,43 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
             target = checkout / DATA
             current = export.validate_bundle(target) if fetched_sha else {'status': {'data': []}}
             target.mkdir(parents=True, exist_ok=True)
-            previous = status_of(current, dataset)
-            # Validation guarantees canonical UTC strings, so lexical order is instant order.
-            # Acquisition wins first; unchanged captures use successful average-generation
-            # time. Exact ties retain repository bytes, independently of attempt chronology.
-            keep_data = previous and success_order(current, dataset) >= success_order(incoming, dataset)
-            if dataset == 'geography' and 'electorates' in current and 'electorates' in incoming:
-                old_vector = {s['id']: s['fetched_at'] for s in current['electorates']['source']}
-                new_vector = {s['id']: s['fetched_at'] for s in incoming['electorates']['source']}
-                if old_vector.keys() != new_vector.keys() or any(new_vector[k] < old_vector[k] for k in old_vector):
-                    keep_data = True
-                elif any(new_vector[k] > old_vector[k] for k in old_vector):
-                    keep_data = False
-            keep_status = previous and previous['last_attempt_at'] > proposed['last_attempt_at']
-            if keep_status and keep_data:
+            statuses = current['status']['data'][:]
+            all_older = True
+            for dataset in datasets:
+                proposed = status_of(incoming, dataset)
+                stem = 'electorates' if dataset == 'geography' else dataset
+                owned = {s + ext for s in export.FAMILIES[dataset] for ext in ('.json', '.csv')}
+                previous = status_of(current, dataset)
+                # Validation guarantees canonical UTC strings, so lexical order is instant order.
+                # Acquisition wins first; unchanged captures use successful average-generation
+                # time. Exact ties retain repository bytes, independently of attempt chronology.
+                keep_data = previous and success_order(current, dataset) >= success_order(incoming, dataset)
+                if dataset != 'polls' and stem in current and stem in incoming:
+                    old_vector = {s['id']: s['fetched_at'] for s in current[stem]['source']}
+                    new_vector = {s['id']: s['fetched_at'] for s in incoming[stem]['source']}
+                    if not old_vector.keys() <= new_vector.keys() or any(new_vector[k] < old_vector[k] for k in old_vector):
+                        keep_data = True
+                    elif new_vector.keys() > old_vector.keys() or any(new_vector[k] > old_vector[k] for k in old_vector):
+                        keep_data = False
+                keep_status = previous and previous['last_attempt_at'] > proposed['last_attempt_at']
+                all_older = all_older and bool(keep_status and keep_data)
+                if not keep_data:
+                    for name in owned:
+                        if (bundle / name).exists():
+                            shutil.copyfile(bundle / name, target / name)
+                # Attempt chronology and successful acquisition chronology are independent.
+                merged = dict(previous if keep_status else proposed)
+                last_good = previous if keep_data else proposed
+                merged.update(last_success_at=last_good['last_success_at'], last_good_run_url=last_good['last_good_run_url'])
+                if merged['error_code'] is not None:
+                    merged['state'] = 'stale' if merged['last_success_at'] else 'unavailable'
+                statuses = [s for s in statuses if s['dataset'] != dataset] + [merged]
+                metadata = current['status'] if keep_status else incoming['status']
+            if all_older:
                 return dict(outcome='older-run-retained', attempts=attempt + 1, sha=git(checkout, 'rev-parse', 'HEAD').stdout.strip())
-            if not keep_data:
-                for name in owned:
-                    if (bundle / name).exists():
-                        shutil.copyfile(bundle / name, target / name)
-            # Attempt chronology and successful acquisition chronology are independent.
-            merged = dict(previous if keep_status else proposed)
-            last_good = previous if keep_data else proposed
-            merged.update(last_success_at=last_good['last_success_at'], last_good_run_url=last_good['last_good_run_url'])
-            if merged['error_code'] is not None:
-                merged['state'] = 'stale' if merged['last_success_at'] else 'unavailable'
-            statuses = [s for s in current['status']['data'] if s['dataset'] != dataset] + [merged]
-            metadata = current['status'] if keep_status else incoming['status']
             export.pair(target, 'status', export.envelope(statuses, [], metadata['run_url'], metadata['code_sha']))
             export.merged_licences(target)
-            export.inventory(target, metadata['run_url'], metadata['code_sha'], merged['last_attempt_at'])
+            export.inventory(target, metadata['run_url'], metadata['code_sha'], max(r['last_attempt_at'] for r in statuses))
             export.validate_bundle(target)
             git(checkout, 'add', '--', *[str(DATA / n) for n in sorted(export.ALLOWED) if (target / n).exists()])
             if git(checkout, 'diff', '--cached', '--quiet', check=False).returncode == 0:
@@ -145,7 +151,8 @@ def main():
         with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
             summary.write('## Data publication\n\n```json\n' + json.dumps(report, indent=2) + '\n```\n')
     print(json.dumps(result))
-    if status_of(incoming, 'polls' if args.family == 'hourly' else 'geography')['error_code'] is not None:
+    if any(r['error_code'] is not None for r in incoming['status']['data']
+           if (r['dataset'] == 'polls') == (args.family == 'hourly')):
         raise SystemExit('FAIL refresh: handled failure status published')
 
 

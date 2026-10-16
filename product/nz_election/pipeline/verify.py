@@ -164,22 +164,61 @@ def verify_geography(envs, root):
     require('fill-rule="evenodd"' in html and 'map-general' in html and 'map-maori' in html, 'map layers and holes')
 
 
+def verify_candidates(envs, root):
+    from product.nz_election.pipeline import candidates
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    daily_refresh(root / 'data')
+    current = export.validate_bundle(root / 'data')
+    rows = current['candidates']['data']
+    require({r['electorate_id'] for r in rows if r['electorate_id']} == {r['id'] for r in config('electorates')}, 'candidate electorate coverage')
+    require(all(r['complete'] is False for r in current['party-lists']['data']), 'unchecked list identities')
+    from product.nz_election.pipeline.fixtures import captures
+    official = candidates.spreadsheet(captures(paths={candidates.SHEET})[candidates.SHEET])
+    require([(r['name'], r['party_id']) for r in rows if r['id'].startswith('ec-row-')] ==
+            [(r['Name'], r['Party']) for r in official], 'official spine')
+
+
+def verify_electorates(envs, root):
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.pipeline.electorate_pages import detail
+    daily_refresh(root / 'data')
+    site = build(root / 'data', root / 'details-site')
+    require(len(list((site / 'electorates').glob('*/index.html'))) == 71, '71 detail pages')
+    require('Wellington Central (2023)' in (site / 'electorates/wellington-north/index.html').read_text(), 'original name comparison')
+    from copy import deepcopy
+    current = export.validate_bundle(root / 'data')
+    central = next(r for r in config('electorates') if r['slug'] == 'auckland-central')
+    require('No candidate baseline' not in detail(central, current), 'present candidate baseline')
+    missing = deepcopy(current)
+    old = next(r for r in missing['baseline-2023']['data'] if r['old_electorate_id'] == 1)
+    old['candidate_votes'] = None
+    old['field_sources']['candidate_status'] = 'Missing candidate capture.'
+    require('No candidate baseline. Missing candidate capture.' in detail(central, missing), 'controlled missing baseline')
+    row = next(r for r in config('electorates') if r['slug'] == 'te-tai-tonga')
+    require('Official candidates not available' in detail(row, {}), 'controlled missing data')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography'])
+    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     args = parser.parse_args()
-    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography}
+    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
         envs = export.validate_bundle(root / 'data')
         if args.data:
-            export.validate_bundle(args.data)
+            supplied = export.validate_bundle(args.data)
+            if args.check in {'candidates', 'electorates', 'all'}:
+                require(set(export.NEW_FIELDS) <= supplied.keys(), 'supplied daily families')
+                require({r['electorate_id'] for r in supplied['candidates']['data'] if r['electorate_id']} ==
+                        {r['id'] for r in config('electorates')}, 'supplied candidate coverage')
+                require(len(supplied['baseline-2023']['data']) == 72, 'supplied original baselines')
         if args.site:
             product = args.site / 'nz-election' if (args.site / 'nz-election').is_dir() else args.site
-            for route in config('routes'):
+            for route in config('routes') + [dict(path='electorates/' + r['slug'] + '/') for r in config('electorates')]:
                 require((product / route['path'] / 'index.html').is_file(), 'site route ' + route['path'])
             export.validate_envelope(json.loads((product / 'build-manifest.json').read_text()), 'build-manifest')
             if (product / 'data').exists():
@@ -187,7 +226,7 @@ def main():
         for name, check in checks.items():
             if args.check in ('all', name):
                 check(envs, root)
-                print('PASS ' + name + (': 64 general, 7 Māori' if name == 'geography' else ''))
+                print('PASS ' + name + {'geography': ': 64 general, 7 Māori', 'candidates': ': 71 electorates', 'electorates': ': 71 pages'}.get(name, ''))
         if args.check == 'all':
             print('PASS all')
 

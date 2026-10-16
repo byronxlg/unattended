@@ -48,7 +48,7 @@ def test_svg_links_titles_and_holes():
     ns = {'s': 'http://www.w3.org/2000/svg'}
     links = root.findall('.//s:a', ns)
     assert len(links) == 71
-    assert {a.attrib['href'] for a in links} == {'#electorate-' + r['slug'] for r in rows}
+    assert {a.attrib['href'] for a in links} == {'/unattended/nz-election/electorates/' + r['slug'] + '/' for r in rows}
     assert all(a.find('s:path/s:title', ns).text for a in links)
     assert all(a.find('s:path', ns).attrib['fill-rule'] == 'evenodd' for a in links)
     expected = sum(len(poly) for c in g.load().values() for f in c['features'] for poly in g.polygons(f['geometry']))
@@ -151,7 +151,7 @@ def test_svg_budget_current_page_unchanged(tmp_path):
     daily_refresh(data, now='2026-10-18T01:00:00Z')
     build(data, site / 'nz-election')
     html = (site / 'nz-election/electorates/index.html').read_text()
-    assert svg_page_bytes(html, site) == len(g.svg(g.load(), config('electorates')).encode('utf-8')) == 284316
+    assert svg_page_bytes(html, site) == len(g.svg(g.load(), config('electorates')).encode('utf-8')) == 286091
 
 
 def test_svg_budget_css_strings_escapes_and_comments(tmp_path):

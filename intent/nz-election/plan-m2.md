@@ -302,3 +302,34 @@ Plan job `plan-nz-election-m2` (read-only, 380 s). Accepted as written except wh
 8. **Test counts are targets, PASS lines are contracts.** As in the M1 plan. The five new verifier lines, `PASS build: 77 routes` and `PASS screenshots: 77 routes, 154 baseline images` are the acceptance strings.
 9. **Markets stay out of allocation**, prices are decimal strings, display is price times 100 with display-only rounding. Turnout captured, excluded from display with the recorded reason.
 10. **Design stands** (ballot-paper direction, tokens, counts inside figures, voter copy, no meaning by colour alone). The coalition explorer starts with no parties selected. Each UI increment's definition of done includes phone and desktop screenshots that the supervisor inspects and the fresh review judges.
+
+## Increment 6 implementation notes
+
+- The 469 EC electorate rows and 443 transcribed list records retain separate source identities;
+  `person_id` is null pending identity review. No list record is inferred to be an electorate
+  candidate. All 71 EC electorate strings have exact NFC registry matches.
+- Exact NFC triple proposals currently number zero. Wikipedia displays names in a different
+  form; the Wikidata statement capture has no name labels. No name reordering or party alias
+  inference is used to manufacture proposals. The generated proposal is outside config and is
+  never a build input.
+- The enrolment captures are national age tables, dated 30 September 2024 (general) and
+  31 August 2024 (Māori). Electorate totals and eligible counts stay null. Pages disclose the
+  national roll basis and actual date; no national figure is assigned to an electorate.
+- Local polling has 27 measure rows. The Kāpiti and Mount Albert source headings have no exact
+  registry name match (Kapiti and Mt Albert). Their rows remain in downloads with unresolved
+  mappings. The month-only Kāpiti observation retains its original label and null day bounds;
+  its acquisition instant is explicitly separate from fieldwork. Approximate shares retain
+  an approximation flag. These are conservative departures from complete mapped local tables.
+- Māngere's missing candidate-vote capture leaves that baseline null and the required-capture
+  test failing. Port Waikato's cancelled general-election contest also has a null candidate
+  baseline, with a distinct reason. No later by-election is substituted.
+- Host screenshot inspection remains required: local Chromium launch fails at the sandbox's
+  Mach port permission boundary. The script covers 77 routes, safe nested filenames, changed
+  boundaries and controlled missing data, with 20 additional state images.
+- Offline build measurement: 14,736,580 total site bytes including shared downloads; largest
+  HTML pages are the directory (307,072 bytes), downloads (178,510 bytes), and West Coast-Tasman
+  (53,793 bytes). Index SVG is 286,091 bytes; largest single outline is 15,364 bytes. A static
+  crawl checked 1,310 local links. These measurements are not browser layout acceptance.
+- Final deterministic suite: 336 passed, one failed (required Māngere capture). The anticipated
+  geography reference absence did not occur: both reference companions are present and its
+  gate passes. All eight implemented verifier checks pass, ending `PASS all`.

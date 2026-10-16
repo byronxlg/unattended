@@ -12,12 +12,12 @@ import sys
 import tempfile
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from product.nz_election.pipeline import export, geography
+from product.nz_election.pipeline import export, geography, candidates, baseline, enrolment, electorate_polls
 from product.nz_election.pipeline.refresh import config, code_sha, utc_now
 from product.nz_election.pipeline.storage import replace_directory
 
 
-def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', load=geography.load):
+def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', load=geography.load, loaders=None):
     out = Path(out).absolute()
     if out.is_symlink():
         raise ValueError('UNSAFE_OUTPUT_PATH')
@@ -75,7 +75,38 @@ def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', lo
                           state=('stale' if success else 'unavailable') if error else 'fresh',
                           last_attempt_at=now, last_success_at=success, last_good_run_url=good_run,
                           error_code=error, message='Retained last-good geography.' if error else 'Offline verification from captured sources. Not live data.')
-            export.pair(stage, 'status', export.envelope([r for r in statuses if r['dataset'] != 'geography'] + [status], [], run_url, sha))
+            statuses = [r for r in statuses if r['dataset'] != 'geography'] + [status]
+            producers = loaders if loaders is not None else {'candidates': candidates.load, 'baseline-2023': baseline.load,
+                                                            'enrolment': enrolment.load, 'electorate-polls': electorate_polls.load}
+            for family, producer in producers.items():
+                previous = next((r for r in statuses if r['dataset'] == family), {})
+                failure = None
+                try:
+                    payloads, sources, hashes = producer()
+                    if set(payloads) != export.FAMILIES[family]:
+                        raise ValueError('PARTIAL_DAILY_FAMILY')
+                    if (stage / 'electorates.json').exists():
+                        registry = json.loads((stage / 'electorates.json').read_text())['data']
+                        if hashes['electorates.data'] != export.digest(export.canonical(registry).encode()):
+                            raise ValueError('DAILY_REGISTRY_MISMATCH')
+                    with tempfile.TemporaryDirectory(prefix='.family-', dir=out.parent) as family_tmp:
+                        prepared = Path(family_tmp)
+                        for stem, data in payloads.items():
+                            export.pair(prepared, stem, export.envelope(data, sources, run_url, sha, inputs=hashes,
+                                                                       method=family + '-v1', generated=now))
+                        for path in prepared.iterdir():
+                            shutil.copyfile(path, stage / path.name)
+                    success, good_run = now, run_url
+                except ValueError as exc:
+                    failure = str(exc)
+                    success, good_run = previous.get('last_success_at'), previous.get('last_good_run_url')
+                family_status = dict(id='status-' + family, source_ref=[], observed_at=now, dataset=family,
+                                     state=('stale' if success else 'unavailable') if failure else 'fresh',
+                                     last_attempt_at=now, last_success_at=success, last_good_run_url=good_run,
+                                     error_code=failure, message='Retained last-good family.' if failure else
+                                     'Offline verification from captured sources. Not live data.')
+                statuses = [r for r in statuses if r['dataset'] != family] + [family_status]
+            export.pair(stage, 'status', export.envelope(statuses, [], run_url, sha))
             export.merged_licences(stage)
             export.inventory(stage, run_url, sha, now)
             export.validate_bundle(stage)
@@ -88,8 +119,9 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
     status = daily_refresh(args.out)
-    if status['error_code']:
-        raise SystemExit('FAIL refresh: ' + status['error_code'])
+    failures = [r['error_code'] for r in export.validate_bundle(args.out)['status']['data'] if r['dataset'] != 'polls' and r['error_code']]
+    if failures:
+        raise SystemExit('FAIL refresh: ' + '; '.join(failures))
     print('PASS refresh: daily bundles')
 
 
