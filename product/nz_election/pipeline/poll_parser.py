@@ -11,6 +11,69 @@ from .models import ParseDrift, ParseResult, DriftReport
 LIMIT = 2 * 1024 * 1024
 
 
+def attributes(text):
+    """Consume every attribute so quoting cannot hide a merge or sort value."""
+    values = {}
+    token = re.compile(r"([A-Za-z][A-Za-z0-9_-]*)\s*=\s*(?:\"([^\"]*)\"|'([^']*)'|([^\s\"'=<>`]+))")
+    position = 0
+    while position < len(text):
+        if text[position].isspace():
+            position += 1
+            continue
+        match = token.match(text, position)
+        if match is None:
+            raise ParseDrift('invalid_attributes', text)
+        key = match[1].lower()
+        if key in values:
+            raise ParseDrift('duplicate_attribute', key)
+        values[key] = next(value for value in match.groups()[1:] if value is not None)
+        position = match.end()
+        if position < len(text) and not text[position].isspace():
+            raise ParseDrift('invalid_attributes', text)
+    for key in ('rowspan', 'colspan'):
+        if key in values and not re.fullmatch(r'[1-9][0-9]*', values[key]):
+            raise ParseDrift('unexplained_merge', text)
+    return values
+
+
+def reference_at(text, start):
+    opening = re.match(r"<ref\b((?:\"[^\"]*\"|'[^']*'|[^'\">])*)>", text[start:], re.I)
+    if opening is None:
+        raise ParseDrift('invalid_ref')
+    raw = opening[1].rstrip()
+    use = raw.endswith('/')
+    attrs = attributes(raw[:-1] if use else raw)
+    end = start + opening.end()
+    if use:
+        if not attrs.get('name'):
+            raise ParseDrift('unknown_named_ref')
+        return end, attrs, None
+    closing = re.search(r'</ref\s*>', text[end:], re.I)
+    if closing is None:
+        raise ParseDrift('unclosed_ref')
+    content = text[end:end + closing.start()]
+    if re.search(r'<ref\b', content, re.I):
+        raise ParseDrift('nested_ref')
+    return end + closing.end(), attrs, content
+
+
+def references(text):
+    position = 0
+    while match := re.search(r'<!--|<ref\b|</ref\b', text[position:], re.I):
+        start = position + match.start()
+        if match[0] == '<!--':
+            end = text.find('-->', start + 4)
+            if end < 0:
+                raise ParseDrift('unclosed_comment')
+            position = end + 3
+            continue
+        if match[0].lower().startswith('</'):
+            raise ParseDrift('unexpected_ref_close')
+        end, attrs, content = reference_at(text, start)
+        yield start, end, attrs, content
+        position = end
+
+
 def split_markup(text, separator):
     """Separators inside templates, links and citations are not table syntax."""
     result, start, i, stack = [], 0, 0, []
@@ -23,15 +86,8 @@ def split_markup(text, separator):
                 raise ParseDrift("unclosed_comment")
             i = end + 3
             continue
-        ref = re.match(r'<ref\b[^>]*>', text[i:], re.I)
-        if ref:
-            if not ref.group().endswith('/>'):
-                end = re.search(r'</ref\s*>', text[i + ref.end():], re.I)
-                if end is None:
-                    raise ParseDrift("unclosed_ref")
-                i += ref.end() + end.end()
-            else:
-                i += ref.end()
+        if re.match(r'<ref\b', text[i:], re.I):
+            i, _, _ = reference_at(text, i)
             continue
         pair = text[i:i + 2]
         if pair in ('{{', '[['):
@@ -54,7 +110,8 @@ def split_markup(text, separator):
 
 
 def clean(text):
-    text = re.sub(r'<ref\b[^>]*(?:/>|>.*?</ref\s*>)', '', text, flags=re.I | re.S)
+    for start, end, _, _ in reversed(list(references(text))):
+        text = text[:start] + text[end:]
     out, i = '', 0
     while i < len(text):
         if text.startswith('{{', i):
@@ -86,6 +143,7 @@ def clean(text):
 def cell(raw):
     parts = split_markup(raw, '|')
     if len(parts) > 1 and re.search(r'(?:style|rowspan|colspan|data-sort-value|data-sort-type|align|class)\s*=', parts[0]):
+        attributes(parts[0])
         return parts[0], '|'.join(parts[1:])
     return '', raw
 
@@ -137,9 +195,9 @@ def dates(value, attrs):
         start = date(end.year, MONTHS[(m[2] or m[4])[:3]], int(m[1] or m[3]))
     except (ValueError, KeyError):
         raise ParseDrift("invalid_dates", value) from None
-    sort = re.search(r'data-sort-value="([^"]+)"', attrs)
-    if start > end or (sort and sort[1] != end.isoformat()):
-        raise ParseDrift("invalid_dates", value + ' / ' + (sort[1] if sort else ''))
+    sort = attributes(attrs).get('data-sort-value')
+    if start > end or (sort and sort != end.isoformat()):
+        raise ParseDrift("invalid_dates", value + ' / ' + (sort if sort else ''))
     return start.isoformat(), end.isoformat()
 
 
@@ -148,13 +206,12 @@ def parse_polls(wikitext, revision, mapping, identities):
         raise ParseDrift("size_limit")
     result, selected, seen = ParseResult(), 0, set()
     refs = {}
-    for ref in re.finditer(r'<ref\b([^>]*?)>(.*?)</ref\s*>', wikitext, re.I | re.S):
-        name = re.search(r'name\s*=\s*(?:"([^"]+)"|\x27([^\x27]+)\x27|([^\s/>]+))', ref[1])
-        if name:
-            key = next(x for x in name.groups() if x is not None)
-            if key in refs and refs[key] != ref[2]:
+    for _, _, attrs, content in references(wikitext):
+        key = attrs.get('name')
+        if key is not None and content is not None:
+            if key in refs and refs[key] != content:
                 raise ParseDrift("conflicting_named_ref", key)
-            refs[key] = ref[2]
+            refs[key] = content
     signature = ['Date', 'Polling organisation', 'Sample size', 'NAT', 'LAB', 'GRN', 'ACT', 'NZF', 'TPM', 'OPP', 'Others', 'Lead']
     for section, line, body in tables(wikitext):
         if section != ['Party vote', 'Table of polls']:
@@ -173,10 +230,12 @@ def parse_polls(wikitext, revision, mapping, identities):
                 labels = []
                 for attrs, value in cells:
                     label = clean(value)
-                    span = re.search(r'colspan\s*=\s*"?(\d+)', attrs)
+                    span = attributes(attrs).get('colspan')
+                    if 'rowspan' in attributes(attrs):
+                        raise ParseDrift('unexplained_merge', locator)
                     if span:
                         expansion = mapping.get('header_expansions', {}).get(label, [])
-                        if len(expansion) != int(span[1]):
+                        if len(expansion) != int(span):
                             raise ParseDrift('unexplained_merge', locator)
                         labels.extend(expansion)
                     else:
@@ -187,10 +246,10 @@ def parse_polls(wikitext, revision, mapping, identities):
                 continue
             if not header_found:
                 raise ParseDrift("unknown_headers", locator)
-            if len(cells) == 1 and re.search(r'colspan\s*=\s*"?12', cells[0][0]) and not clean(cells[0][1]):
+            if len(cells) == 1 and attributes(cells[0][0]).get('colspan') == '12' and not clean(cells[0][1]):
                 result.excluded_rows.append(dict(reason='separator', locator=locator))
                 continue
-            if len(cells) == 2 and re.search(r'colspan\s*=\s*"?11', cells[1][0]):
+            if len(cells) == 2 and attributes(cells[1][0]).get('colspan') == '11':
                 result.excluded_rows.append(dict(reason='event', locator=locator, text=cells[1][1]))
                 continue
             expanded = []
@@ -208,11 +267,14 @@ def parse_polls(wikitext, revision, mapping, identities):
                 if entry is None:
                     raise ParseDrift("unexplained_width", locator)
                 attrs, value = entry
-                merge = re.search(r'(rowspan|colspan)\s*=\s*"?(\d+)', attrs)
-                if merge:
-                    if merge[1] != 'rowspan' or column > 2 or int(merge[2]) < 2 or int(merge[2]) > 100:
+                parsed = attributes(attrs)
+                if 'colspan' in parsed:
+                    raise ParseDrift('unexplained_merge', locator)
+                if 'rowspan' in parsed:
+                    span = int(parsed['rowspan'])
+                    if column > 2 or span < 2 or span > 100:
                         raise ParseDrift("unexplained_merge", locator)
-                    carry[column] = (attrs, value, int(merge[2]) - 1)
+                    carry[column] = (attrs, value, span - 1)
                 expanded.append(entry)
             if next(source, None) is not None:
                 raise ParseDrift("unexplained_width", locator)
@@ -223,10 +285,10 @@ def parse_polls(wikitext, revision, mapping, identities):
                 result.excluded_rows.append(dict(reason='outside_2026', locator=locator))
                 continue
             date_attrs = cells[0][0]
-            sort = re.search(r'data-sort-value="([^"]+)"', date_attrs)
+            sort = attributes(date_attrs).get('data-sort-value')
             for exception in mapping.get('date_exceptions', []):
                 if (exception['revision'] == revision and exception['visible'] == visible
-                        and sort and exception['sort'] == sort[1]
+                        and sort and exception['sort'] == sort
                         and exception['pollster'] == clean(cells[1][1])):
                     date_attrs = ''
                     result.diagnostics.setdefault('date_exceptions', []).append(dict(locator=locator, **exception))
@@ -261,11 +323,12 @@ def parse_polls(wikitext, revision, mapping, identities):
                     raise ParseDrift("invalid_shares", locator) from None
                 shares[party] = number
             citation_text = row
-            for use in re.finditer(r'<ref\b[^>]*name\s*=\s*(?:"([^"]+)"|\x27([^\x27]+)\x27|([^\s/>]+))[^>]*/>', row, re.I):
-                name = next(x for x in use.groups() if x is not None)
-                if name not in refs:
-                    raise ParseDrift("unknown_named_ref", name)
-                citation_text += '\n' + refs[name]
+            for _, _, attrs, content in references(row):
+                if content is None:
+                    name = attrs['name']
+                    if name not in refs:
+                        raise ParseDrift("unknown_named_ref", name)
+                    citation_text += '\n' + refs[name]
             urls = sorted(set(re.findall(r'https?://[^\s|<>\]{}"\x27]+', citation_text)))
             key = '|'.join((pollster, start, end))
             identity = identities.get(key, {})

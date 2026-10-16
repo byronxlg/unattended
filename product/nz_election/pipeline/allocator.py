@@ -6,12 +6,41 @@ import re
 def integer(value):
     if isinstance(value, str) and re.fullmatch(r"0|[1-9][0-9]*", value):
         return int(value)
-    if type(value) is int and value >= 0:
+    # Larger JSON numbers lose precision in JS; use decimal strings in both runtimes.
+    if type(value) is int and 0 <= value <= 9007199254740991:
         return value
-    raise ValueError("INVALID_INPUT: non-negative integer required")
+    raise ValueError("INVALID_INPUT")
+
+
+def validate_shape(data):
+    required = {"partyVotes", "electorateWins", "lists", "electorateWinners", "nonListWinners"}
+    if type(data) is not dict or not required <= data.keys():
+        raise ValueError("INVALID_INPUT")
+    if data.keys() - required - {"baseSeats", "tieOrder"}:
+        raise ValueError("INVALID_INPUT")
+    for key in ("partyVotes", "electorateWins", "lists", "electorateWinners"):
+        if type(data[key]) is not dict or any(type(p) is not str for p in data[key]):
+            raise ValueError("INVALID_INPUT")
+    for key in ("lists", "electorateWinners"):
+        for candidates in data[key].values():
+            if type(candidates) is not list or any(type(c) is not str or not c for c in candidates):
+                raise ValueError("INVALID_INPUT")
+    if type(data["nonListWinners"]) is not list or any(
+            type(c) is not str or not c for c in data["nonListWinners"]):
+        raise ValueError("INVALID_INPUT")
+    if "tieOrder" in data:
+        lot = data["tieOrder"]
+        if type(lot) is not dict or lot.keys() - {"order", "reference"}:
+            raise ValueError("INVALID_INPUT")
+        if "order" in lot and (type(lot["order"]) is not list or any(
+                type(p) is not str for p in lot["order"])):
+            raise ValueError("INVALID_INPUT")
+        if "reference" in lot and type(lot["reference"]) is not str:
+            raise ValueError("INVALID_INPUT")
 
 
 def allocate(data):
+    validate_shape(data)
     votes = {p: integer(v) for p, v in data["partyVotes"].items()}
     wins = {p: integer(v) for p, v in data["electorateWins"].items()}
     lists = data["lists"]
@@ -20,35 +49,35 @@ def allocate(data):
     base = integer(data.get("baseSeats", 120))
     parties = sorted(votes)
     if not base or not sum(votes.values()) or set(wins) != set(parties):
-        raise ValueError("INVALID_INPUT: base, votes or party counts")
+        raise ValueError("INVALID_INPUT")
     if set(lists) - set(parties) or set(winners) != set(parties):
-        raise ValueError("INVALID_INPUT: unknown or missing party")
+        raise ValueError("INVALID_INPUT")
     seen = {}
     elected = []
     for p in parties:
         ls, ws = lists.get(p, []), winners[p]
         if not isinstance(ls, list) or not isinstance(ws, list):
-            raise ValueError("INVALID_INPUT: candidate arrays required")
+            raise ValueError("INVALID_INPUT")
         if len(set(ls)) != len(ls) or len(set(ws)) != len(ws) or len(ws) != wins[p]:
-            raise ValueError("INVALID_INPUT: candidate counts")
+            raise ValueError("INVALID_INPUT")
         if wins[p] and p not in lists:
-            raise ValueError("INVALID_INPUT: unlisted winners belong in nonListWinners")
+            raise ValueError("INVALID_INPUT")
         for c in ls + ws:
             if not isinstance(c, str) or not c or (c in seen and seen[c] != p):
-                raise ValueError("INVALID_INPUT: candidate identity")
+                raise ValueError("INVALID_INPUT")
             seen[c] = p
         elected.extend(ws)
     if not isinstance(nonlist, list) or any(not isinstance(c, str) or not c for c in nonlist):
-        raise ValueError("INVALID_INPUT: non-list candidate identity")
+        raise ValueError("INVALID_INPUT")
     if len(set(nonlist)) != len(nonlist) or set(nonlist) & set(seen):
-        raise ValueError("INVALID_INPUT: duplicate candidate")
+        raise ValueError("INVALID_INPUT")
     if len(elected) + len(nonlist) > base:
-        raise ValueError("INVALID_INPUT: electorate capacity")
+        raise ValueError("INVALID_INPUT")
     count = base - len(nonlist)
     eligible = [p for p in parties if p in lists and lists[p]
                 and (100 * votes[p] >= 5 * sum(votes.values()) or wins[p])]
     if count and not eligible:
-        raise ValueError("INVALID_INPUT: no eligible parties")
+        raise ValueError("INVALID_INPUT")
     qs = [(Fraction(votes[p], d), p, d) for p in eligible for d in range(1, 2 * count + 2, 2)]
     qs.sort(key=lambda q: q[0], reverse=True)
     selected = qs[:count]
