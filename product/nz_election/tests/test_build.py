@@ -37,13 +37,13 @@ def test_77_routes_and_prefix(tmp_path):
         assert PREFIX in html and '<main ' in html and validate_scripts(html)
         assert 'Skip to content' in html
     assert len(list(out.rglob('index.html'))) == 77
-    assert '40px' in (out / 'styles.css').read_text()
+    assert '26px' in (out / 'styles.css').read_text()
 
 
 def test_no_data_first_build(tmp_path):
     out = build(tmp_path / 'absent', tmp_path / 'output')
     html = (out / 'index.html').read_text()
-    assert 'No data yet' in html and '19 October 2026' in html
+    assert 'No data yet' in html and 'Polls are checked hourly.' in html
     assert 'class="strip"' not in html
     assert '2,851,211' in (out / 'methods/index.html').read_text()
     assert json.loads((out / 'build-manifest.json').read_text())['data']['data_sha'] is None

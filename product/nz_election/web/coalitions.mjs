@@ -89,29 +89,52 @@ function picture(root,result,labels) {
   strip.setAttribute('role','img');
   strip.setAttribute('aria-label','Assumed party seats, detailed in the following table');
   const lanes=element('div',undefined,'lanes');
+  lanes.style.setProperty('--columns',String(Math.ceil(Object.values(result.seats).filter(n=>n).length/2)));
   const table=element('table');
   table.append(element('caption','Assumed seats by party'));
   const body=element('tbody'); table.append(body);
   const house=BigInt(result.assumed_house);
   const percent=n=>String(n*10000n/house/100n)+'.'+String(n*10000n/house%100n).padStart(2,'0')+'%';
-  let position=0n, mobile=0, desktop=0;
-  for (const [p,n] of Object.entries(result.seats).filter(([,n])=>n).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))) {
-    const base=BigInt(result.entitlements[p]), classes=(base<8n?' small':'')+(base<32n?' mobile-small':'');
-    const segment=element('div',undefined,'segment'+classes);
+  figure.setAttribute('aria-describedby','source-seats');
+  strip.setAttribute('aria-describedby','source-seats');
+  table.setAttribute('aria-describedby','source-seats');
+  const ordered=Object.entries(result.seats).filter(([,n])=>n).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+  let offset=0;
+  const anchors=ordered.map(([p])=>{const anchor=offset*100/result.assumed_house; offset+=result.entitlements[p]; return [p,anchor];});
+  const positions=width=>{
+    let cursor=0;
+    const columns=width>=600?anchors.length:Math.ceil(anchors.length/2);
+    return Object.fromEntries(anchors.map(([p,anchor],index)=>{
+      const row=Math.floor(index/columns);
+      if(index%columns===0) cursor=0;
+      const remaining=Math.min(columns-index%columns,anchors.length-index);
+      const left=Math.min(Math.max(cursor,row===0?anchor*width/100:0),width-remaining*68+8);
+      cursor=left+68; return [p,{row,left:left*100/width,anchor}];
+    }));
+  };
+  const mobile=positions(328),desktop=positions(1072);
+  for (const [p,n] of ordered) {
+    const base=BigInt(result.entitlements[p]);
+    const segment=element('div',undefined,'segment');
+    segment.dataset.party=p;
     segment.style.width=percent(base); segment.style.background=labels[p].colour;
-    const label=element('span',labels[p].name,'seat-label'); label.append(element('strong',String(n)));
-    segment.append(label); strip.append(segment);
-    if (base<32n) {
-      const lane=element('div',undefined,'lane'+classes);
-      lane.style.setProperty('--anchor',percent(position+base/2n));
-      lane.style.setProperty('--mobile-row',String(mobile++));
-      lane.style.setProperty('--desktop-row',String(base<8n?desktop++:0));
-      const leader=element('span',undefined,'leader'), elbow=element('span',undefined,'elbow');
-      leader.setAttribute('aria-hidden','true'); elbow.setAttribute('aria-hidden','true');
-      const name=element('span',labels[p].name,'lane-label'); name.append(element('strong',String(n)));
-      lane.append(leader,elbow,name); lanes.append(lane);
+    strip.append(segment);
+    const lane=element('div',undefined,'lane'); lane.dataset.party=p;
+    lane.style.setProperty('--left',mobile[p].left+'%');
+    lane.style.setProperty('--large-left',desktop[p].left+'%');
+    lane.style.setProperty('--row',String(mobile[p].row));
+    lane.setAttribute('role','group');
+    lane.setAttribute('aria-label',`${labels[p].name}: ${n} calculated seats`);
+    lane.append(element('span',p.toUpperCase()+' '),element('strong',String(n)));
+    for (const [mode,pos] of [['phone',mobile[p]],['wide',desktop[p]]]) {
+      if(Math.abs(pos.left-pos.anchor)>.01 || pos.row) {
+        const line=element('span',undefined,'label-connector '+mode);line.setAttribute('aria-hidden','true');
+        line.style.left=Math.min(pos.left,pos.anchor)+'%';line.style.width=Math.abs(pos.left-pos.anchor)+'%';
+        line.style.height=(6+pos.row*21)+'px';line.style[pos.anchor>pos.left?'borderRight':'borderLeft']='1px solid var(--ink)';
+        lanes.append(line);
+      }
     }
-    position+=base;
+    lanes.append(lane);
     const row=element('tr'); row.append(element('th',labels[p].name),element('td',String(n))); body.append(row);
   }
   if (result.overhang) {
@@ -119,9 +142,8 @@ function picture(root,result,labels) {
     extra.style.width=percent(BigInt(result.overhang)); extra.setAttribute('aria-label','Overhang'); strip.append(extra);
   }
   const marker=element('span',undefined,'majority'); marker.style.left=percent(BigInt(result.assumed_majority)); strip.append(marker);
-  lanes.style.setProperty('--desktop-height',String(desktop?desktop*96+24:0)+'px');
-  lanes.style.setProperty('--mobile-height',String(mobile?mobile*96+24:0)+'px');
-  figure.append(strip,lanes,element('figcaption',`${result.overhang} overhang seats. Counts assume sufficient list candidates.`,'strip-note'));
+  figure.append(strip,lanes,element('p',`${result.assumed_majority} for a majority`,'majority-label'),
+    element('figcaption',`${result.overhang} overhang seats. Counts assume sufficient list candidates.`,'strip-note'));
   root.append(figure,table);
 }
 async function start(root) {

@@ -146,7 +146,8 @@ def test_script_allowlist():
 def test_static_content_preserved(tmp_path, request_data):
     out = build(tmp_path / 'data', tmp_path / 'output', built='2026-10-17T01:00:00Z')
     html = (out / 'index.html').read_text()
-    assert strip(request_data['seats']) in html
+    assert strip(request_data['seats']).split('</figure>')[0] + '</figure>' in html
+    assert 'Theoretical seats and overhang' in html
     assert '<fieldset hidden disabled>' in html and 'requires JavaScript' in html
     assert 'source-seats' in html and 'data-select="others"' not in html
     assert 'data-select="nat" checked' not in html

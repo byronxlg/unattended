@@ -181,25 +181,24 @@ def test_downloads_render_each_manifest_record_and_run(tmp_path):
     assert 'href="https://github.com/example/repo/actions/runs/123"' in downloads(envs, None)
 
 
-def test_strip_labels_have_spatial_anchors_and_staggered_lanes():
+def test_strip_labels_are_below_fills_in_reading_order():
     seats = {'seats': {'nat': 47, 'lab': 35, 'grn': 15, 'act': 10, 'nzf': 9, 'tpm': 6},
              'entitlements': {'nat': 47, 'lab': 35, 'grn': 15, 'act': 10, 'nzf': 9, 'tpm': 4},
              'assumed_house': 122, 'assumed_majority': 62, 'overhang': 2}
     html = strip(seats)
-    lane_parts = re.findall(r'<div class="lane[^"]*" data-party="([^"]+)" style="([^"]+)">(.*?)</div>', html)
-    assert {p for p, _, _ in lane_parts} == {'grn', 'act', 'nzf', 'tpm'}
-    left = 47 + 35
-    for party, style, content in lane_parts:
-        anchor = Fraction(Decimal(re.search(r'--anchor:([\d.]+)%', style)[1]))
-        exact = Fraction(100 * (2 * left + seats['entitlements'][party]), 244)
-        assert abs(anchor - exact) < Fraction(1, 10**20)
-        assert 'class="leader"' in content and 'class="elbow"' in content
+    lanes = re.findall(r'<div class="lane" role="group" data-party="([^"]+)"[^>]*>(.*?)</div>', html)
+    assert [p for p, _ in lanes] == ['nat', 'lab', 'grn', 'act', 'nzf', 'tpm']
+    for party, content in lanes:
         assert f'<strong>{seats["seats"][party]}</strong>' in content
-        left += seats['entitlements'][party]
-    assert len({re.search(r'--mobile-row:(\d+)', style)[1] for _, style, _ in lane_parts}) > 1
+        assert f'<span>{party.upper()}</span>' in content
+    segments = re.findall(r'<div class="segment"[^>]*>(.*?)</div>', html)
+    assert len(segments) == 6 and all(content == '' for content in segments)
+    assert html.index('class="lanes"') > html.index('class="majority"')
+    assert '62 for a majority' in html and 'segment overhang' in html
     css = (Path(__file__).resolve().parents[1] / 'web/styles.css').read_text()
-    assert 'font-size:40px' in css and 'left:var(--anchor)' in css
-    assert '.lane.small{display:block;border:' not in css
-    assert 'grid-template-columns:repeat(3' not in css
-    lanes = label_lanes([('a', Fraction(90)), ('b', Fraction(91)), ('c', Fraction(92))], 288)
-    assert len(set(lanes.values())) == 3
+    assert 'font-size:26px' in css and 'font-size:32px' in css
+    assert 'height:72px' in css and 'height:120px' in css
+    assert 'border:1px solid var(--ink)' in css
+    rows = label_lanes([(p, Fraction(90)) for p in seats['seats']], 288)
+    assert set(rows.values()) == {0, 1}
+    assert set(label_lanes([(p, Fraction(90)) for p in seats['seats']], 736).values()) == {0}

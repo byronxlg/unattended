@@ -18,3 +18,16 @@ if (search) {
     document.querySelector('#search-result').textContent = `${rows.filter(row => !row.hidden).length} electorates found`;
   });
 }
+
+if (typeof document !== 'undefined') {
+  const select = slug => {
+    for (const path of document.querySelectorAll('[data-electorate]'))
+      path.classList.toggle('selected', path.dataset.electorate === slug);
+  };
+  document.querySelector('.electorate-directory')?.addEventListener('focusin', event => {
+    const row = event.target.closest('[data-search-key]');
+    if (row) select(row.id.replace('electorate-', ''));
+  });
+  addEventListener('hashchange', () => select(location.hash.replace('#electorate-', '')));
+  select(location.hash.replace('#electorate-', ''));
+}

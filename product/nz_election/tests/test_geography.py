@@ -151,7 +151,9 @@ def test_svg_budget_current_page_unchanged(tmp_path):
     daily_refresh(data, now='2026-10-18T01:00:00Z')
     build(data, site / 'nz-election')
     html = (site / 'nz-election/electorates/index.html').read_text()
-    assert svg_page_bytes(html, site) == len(g.svg(g.load(), config('electorates')).encode('utf-8')) == 286091
+    map_svg = g.svg(g.load(), config('electorates')).replace('<svg ', '<svg aria-describedby="source-geography" ')
+    assert len(map_svg.encode('utf-8')) == 286132
+    assert svg_page_bytes(html, site) == len(map_svg.encode('utf-8')) + (site / 'nz-election/favicon.svg').stat().st_size == 286336
 
 
 def test_svg_budget_css_strings_escapes_and_comments(tmp_path):
