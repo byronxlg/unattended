@@ -16,7 +16,7 @@ def bundle(tmp_path):
 
 
 def test_capture_manifest():
-    assert len(captures()) == 110
+    assert len(captures()) == 111
 
 
 def test_envelopes_and_provenance(bundle):
@@ -287,6 +287,10 @@ def test_baseline_source_set_advancement(tmp_path, change):
     source = deepcopy(next(s for s in env['source'] if s['id'].endswith('place-1.csv')))
     source['id'] = 'ec-2023/candidate-votes-by-voting-place-21.csv'
     source['url'] = source['url'].replace('place-1.csv', 'place-21.csv')
+    if change == 'add':
+        source['id'] = 'ec-2023/candidate-votes-by-voting-place-99.csv'
+        source['url'] = source['url'].replace('place-21.csv', 'place-99.csv')
+        assert source['id'] not in {s['id'] for s in env['source']}
     if change == 'drop':
         env['source'] = [s for s in env['source'] if s['id'] != 'ec-2023-xml/electorates.xml']
     else:
