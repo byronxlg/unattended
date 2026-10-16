@@ -276,6 +276,28 @@
       "revision": null,
       "licence": "All rights reserved (the party); captured as colour evidence only, never served or redistributed",
       "notes": "Compiled theme stylesheet linked from party-identity/nzf.html. Captured because the HTML carries no literal party colour (plan-m2 decision 3). HTTP 200, no redirect. Navy #001f50 and gold #f4c430 are the recurring brand values."
+    },
+    {
+      "path": "stats-nz/general-2025.reference.json",
+      "url": "https://services2.arcgis.com/vKb0s8tBIA3bdocZ/ArcGIS/rest/services/General_Electorates_2025/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "archive_url": null,
+      "captured_at": "2026-10-16T16:14:56Z",
+      "sha256": "32306391f048d8bd181cd161090ac46b678459843cc4d37f29a24bba3a4be581",
+      "reviewer": "supervisor (Claude), unattended lab",
+      "revision": "GED2025_V1_00",
+      "licence": "CC BY 4.0 (Stats NZ)",
+      "notes": "Compact reference generated on the host by pipeline/geo_reference.py from the full-detail FeatureCollection held outside the repository; committed by the supervisor in 64a5db0. Input sha256: a5b839781a96e3bfe21d350e77861079f1a9d20efea304389e37c69244a4434c. Projection and derivation are recorded in the companion and tool. Acquisition time inherited from the source capture batch, not the generation time. Companion bytes unchanged."
+    },
+    {
+      "path": "stats-nz/maori-2025.reference.json",
+      "url": "https://services2.arcgis.com/vKb0s8tBIA3bdocZ/ArcGIS/rest/services/M%C4%81ori_Electorates_2025/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
+      "archive_url": null,
+      "captured_at": "2026-10-16T16:14:56Z",
+      "sha256": "e85ce24b732844723513e5b09d96b2951edd50a9032f9bd4767fd00251334a06",
+      "reviewer": "supervisor (Claude), unattended lab",
+      "revision": "MED2025_V1_00",
+      "licence": "CC BY 4.0 (Stats NZ)",
+      "notes": "Compact reference generated on the host by pipeline/geo_reference.py from the full-detail FeatureCollection held outside the repository; committed by the supervisor in 64a5db0. Input sha256: a983af39699338002b0613bb7d2f3f1338c566477f7a2fb111aedab92fbe14dc. Projection and derivation are recorded in the companion and tool. Acquisition time inherited from the source capture batch, not the generation time. Companion bytes unchanged."
     }
   ]
 }

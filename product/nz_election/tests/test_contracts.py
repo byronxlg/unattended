@@ -16,7 +16,7 @@ def bundle(tmp_path):
 
 
 def test_capture_manifest():
-    assert len(captures()) == 25
+    assert len(captures()) == 27
 
 
 def test_envelopes_and_provenance(bundle):
@@ -167,3 +167,69 @@ def test_daily_mixed_source_regression_rejected(tmp_path):
     export.inventory(incoming, 'offline-verification', 'test', '2026-10-20T01:00:00Z')
     with pytest.raises(ValueError, match='MIXED_GEOGRAPHY_GENERATION'):
         export.validate_bundle(incoming)
+
+
+def test_last_good_geography_survives_config_correction(tmp_path, monkeypatch):
+    from shutil import copytree
+    from product.nz_election.pipeline import geography, refresh as hourly
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.pipeline.publish import publish, git, DATA
+    bundle, remote = tmp_path / 'data', tmp_path / 'remote.git'
+    refresh(bundle, now='2026-10-18T01:00:00Z')
+    daily_refresh(bundle, now='2026-10-18T01:00:00Z')
+    before = {p.name: p.read_bytes() for p in bundle.iterdir() if p.stem in export.FAMILIES['geography']}
+    remote.mkdir()
+    git(remote, 'init', '--bare', '-q')
+    publish(bundle, remote)
+    publish(bundle, remote, family='daily')
+    current = tmp_path / 'current-product'
+    copytree(geography.PRODUCT / 'config', current / 'config')
+    registry_path = current / 'config/electorates.json'
+    correspondence_path = current / 'config/electorate-correspondence.json'
+    registry = json.loads(registry_path.read_text())
+    correspondence = json.loads(correspondence_path.read_text())
+    registry[0]['boundary_note'] = 'Reviewed correction to the boundary note.'
+    next(r for r in correspondence['entries'] if r['new_id'] == registry[0]['stats_id'])['note'] = registry[0]['boundary_note']
+    registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2) + '\n')
+    correspondence_path.write_text(json.dumps(correspondence, ensure_ascii=False, indent=2) + '\n')
+    monkeypatch.setattr(hourly, 'PRODUCT', current)
+    monkeypatch.setattr(geography, 'PRODUCT', current)
+    assert export.validate_bundle(bundle)['electorates']['data'][0]['boundary_note'] != registry[0]['boundary_note']
+    refresh(bundle, now='2026-10-19T01:00:00Z')
+    assert all((bundle / name).read_bytes() == raw for name, raw in before.items())
+    assert publish(bundle, remote)['outcome'] == 'published'
+    for name, raw in before.items():
+        assert git(remote, 'show', 'data:' + str(DATA / name)).stdout.encode() == raw
+    assert daily_refresh(bundle, now='2026-10-19T02:00:00Z')['state'] == 'fresh'
+    envs = export.validate_bundle(bundle)
+    assert envs['electorates']['data'] == registry
+    for stem in export.FAMILIES['geography']:
+        for path in (registry_path, correspondence_path):
+            assert envs[stem]['input_hashes']['config/' + path.name] == export.digest(path.read_bytes())
+
+
+def test_geography_snapshot_hash_mismatch_rejected(tmp_path):
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    daily_refresh(tmp_path / 'data', now='2026-10-18T01:00:00Z')
+    root = tmp_path / 'data'
+    registry = json.loads((root / 'electorates.json').read_text())
+    registry['data'][0]['boundary_note'] = 'Unrecorded byte change'
+    export.pair(root, 'electorates', registry)
+    with pytest.raises(ValueError, match='DATA_HASH_MISMATCH'):
+        export.validate_bundle(root)
+
+
+def test_geography_producer_checks_current_registry(tmp_path, monkeypatch):
+    from copy import deepcopy
+    from product.nz_election.pipeline import daily_refresh as daily
+    from product.nz_election.pipeline.refresh import config
+    def corrected(name):
+        result = deepcopy(config(name))
+        if name == 'electorates':
+            result[0]['boundary_note'] = 'Unreviewed change without matching correspondence'
+        return result
+    monkeypatch.setattr(daily, 'config', corrected)
+    status = daily.daily_refresh(tmp_path / 'data', now='2026-10-18T01:00:00Z')
+    assert status['state'] == 'unavailable'
+    assert status['error_code'] == 'REGISTRY_MISMATCH'
+    assert not (tmp_path / 'data/electorates.json').exists()

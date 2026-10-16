@@ -55,12 +55,20 @@ def test_svg_links_titles_and_holes():
     assert sum(a.find('s:path', ns).attrib['d'].count('M') for a in links) == expected
 
 
-def test_svg_page_budget():
+def test_svg_page_budget(tmp_path):
     collections, rows = g.load(), config('electorates')
     svg = g.svg(collections, rows)
     assert len(svg.encode()) <= config('geography')['index_svg_max_bytes']
     assert 'src=' not in svg and '.svg' not in svg
     assert max(len(g.svg(collections, rows, r['id']).encode()) for r in rows) <= config('geography')['outline_svg_max_bytes']
+    from product.nz_election.pipeline.build import build
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.tests.svg_budget import svg_page_bytes
+    data, site = tmp_path / 'data', tmp_path / 'site'
+    daily_refresh(data, now='2026-10-18T01:00:00Z')
+    build(data, site / 'nz-election')
+    html = (site / 'nz-election/electorates/index.html').read_text()
+    assert svg_page_bytes(html, site) <= config('geography')['index_svg_max_bytes']
 
 
 def test_missing_geometry_is_unavailable(monkeypatch):
@@ -82,3 +90,29 @@ def test_party_colour_evidence():
         assert path in entries
         assert captures(paths={path})[path]
         assert evidence['locator'] and value['reviewer'] and value['review_date']
+
+
+def test_svg_budget_counts_duplicate_and_linked_maps(tmp_path):
+    from product.nz_election.tests.svg_budget import svg_page_bytes
+    svg = g.svg(g.load(), config('electorates'))
+    assert svg_page_bytes(svg + svg, tmp_path) == 2 * len(svg.encode())
+    assert svg_page_bytes(svg + svg, tmp_path) > config('geography')['index_svg_max_bytes']
+    path = tmp_path / 'nz-election/maps/general.svg'
+    path.parent.mkdir(parents=True)
+    path.write_text(svg)
+    html = svg + '<img src="../maps/general.svg"><object data="../maps/general.svg#map-title"></object>'
+    assert svg_page_bytes(html, tmp_path) == 2 * len(svg.encode())
+    assert svg_page_bytes(html, tmp_path) > config('geography')['index_svg_max_bytes']
+
+
+def test_search_key_python_js_parity():
+    import subprocess
+    probes = [r['name'] for r in config('electorates')]
+    probes += ['  TĀMAKI  Makaurau ', 'ſ', 'ß', 'ẞ', 'Straße', 'STRASSE', 'ΟΣ', 'οσ', 'ος',
+               'a\u034fb', 'a\u0903b', 'A\u001c  B\u0085 C', '\ufeffA\ufeff', 'Ꭰꭰ', 'ﬃ']
+    script = "import {searchKey} from './product/nz_election/web/electorates.mjs'; let s=''; for await (const c of process.stdin) s+=c; console.log(JSON.stringify(JSON.parse(s).map(searchKey)));"
+    result = subprocess.run(['node', '--input-type=module', '-e', script], input=json.dumps(probes),
+                            text=True, capture_output=True, check=True, cwd=g.PRODUCT.parents[1])
+    assert json.loads(result.stdout) == [g.search_key(p) for p in probes]
+    for a, b in [('ſ', 's'), ('ß', 'SS'), ('Straße', 'STRASSE'), ('ΟΣ', 'ος')]:
+        assert g.search_key(a) == g.search_key(b)

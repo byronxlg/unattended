@@ -279,19 +279,14 @@ def validate_bundle(root):
         raise ValueError('PARTIAL_GEOGRAPHY_BUNDLE')
     if geo:
         from .geography import validate
-        from .refresh import config
+        # A retained snapshot is validated against its own inventory and registry.
+        # Current configuration is checked only by the geography producer.
         registry = envs['electorates']['data']
         common = {canonical({k: envs[stem].get(k) for k in ('source', 'input_hashes', 'generated_at', 'run_url', 'code_sha')}) for stem in geo}
         if len(common) != 1:
             raise ValueError('MIXED_GEOGRAPHY_GENERATION')
-        if registry != config('electorates'):
-            raise ValueError('REGISTRY_MISMATCH')
         for kind in ('general', 'maori'):
             validate(envs[kind + '-2025'], kind, registry)
-        expected = {name: digest((Path(__file__).resolve().parents[1] / name).read_bytes())
-                    for name in ('config/electorates.json', 'config/electorate-correspondence.json')}
-        if any(any(envs[stem]['input_hashes'].get(k) != v for k, v in expected.items()) for stem in geo):
-            raise ValueError('GEOGRAPHY_INPUT_HASH_MISMATCH')
     present = {'polls', 'averages', 'seats'} & envs.keys()
     if present and present != {'polls', 'averages', 'seats'}:
         raise ValueError('PARTIAL_POLL_BUNDLE')

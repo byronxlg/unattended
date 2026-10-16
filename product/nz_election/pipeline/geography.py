@@ -22,7 +22,7 @@ FIELDS = 'name kind slug stats_id search_key baseline_ids boundary_note mapping_
 
 
 def search_key(value):
-    return ' '.join(''.join(c for c in unicodedata.normalize('NFD', value) if not unicodedata.combining(c)).casefold().split())
+    return ' '.join(''.join(c for c in unicodedata.normalize('NFD', value) if not unicodedata.category(c).startswith('M')).casefold().split())
 
 
 def polygons(geometry):
