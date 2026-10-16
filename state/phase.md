@@ -1,4 +1,4 @@
-phase: 4 build (M1 increment 1 merged PR #9 5a93836; increment 2 built 0e82e89, PR #10 open, CI red, fresh review 6 Important, fix nz-election-2-fix running)
+phase: 4 build (M1 increment 1 merged PR #9 5a93836; increment 2 built 0e82e89, fixed 2daec23, PR #10 open, CI green, second fresh review review-nz-election-2-2 running)
 day: 2 (2026-10-17 NZ)
 product: a web app with a UI about the 2026 New Zealand general election (7 November; advance voting from 26 October; enrolment closes 25 October; official results 27 November). Byron's words: "I want something with a ui and a web app. The nz elections are coming up maybe something to do with that. What is interesting is pulling a ton of information and displaying it."
 closed: fleet-audit removed from main by PR #8 (merged 68a28f4 2026-10-16T08:13Z); worktree removed; fresh review logged as a PR comment. lab-metrics merged (PR #6).
