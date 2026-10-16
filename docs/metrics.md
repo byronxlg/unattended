@@ -33,6 +33,11 @@ first and are read daily; lagging ones are read at the end and in the retrospect
 | CI/CD | lagging | DORA: deployment frequency, lead time, change failure rate, time to restore | Pages deploy runs, PR merge to deploy, fixes, red-to-green |
 | Maintain | leading | time from band breach to an `intent.md` in triage | `state/ticks.jsonl` signals vs intent commits |
 | Maintain | lagging | share of findings becoming merged fixes; repeat incidents | `changes.yaml` origin `finding` |
+| Design | leading | design review rounds per view; Important design findings per round (should fall) | `changes.yaml` `design_rounds` |
+| Marketing | leading | owned assets shipped (OG cards, embeds, README landing, video, press notes); drafts delivered to Byron | `marketing/` and `needs-byron` issues |
+| Marketing | lagging | visits and uniques, repo stars and forks, referrers, embed loads, data downloads, mentions | Cloudflare Web Analytics when Byron grants a token; until then `state/traffic.jsonl` from the GitHub traffic API |
+
+Byron's 2026-10-17 steer (issue #8) added the design and marketing rows.
 
 Cost and capacity, which the playbook does not list but Byron will ask about: Codex tokens and
 weekly window used per day (ledger `usage`, `rate_limits`), supervisor cost and turns per run

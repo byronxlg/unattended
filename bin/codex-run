@@ -4,7 +4,7 @@
 # Usage: bin/codex-run --id <job-id> --prompt <file> [--cwd <dir>] [--sandbox read-only|workspace-write]
 #                      [--timeout <s>] [--background] [--resume <thread-id>] [--model <m>] [--effort <e>]
 #                      [--kind research|build|review|fix|docs|plan] [--change <slug>] [--review-base <branch>]
-#                      [--web live|cached|disabled] [--hooks]
+#                      [--web live|cached|disabled] [--hooks] [--image <png>]...   (screenshots for design reviews)
 #
 # What it records (state/ledger.jsonl, one JSON line per job, the metrics source):
 #   id, kind, change, started, ended, duration_s, rc, killed, sandbox, cwd, model, thread_id,
@@ -17,14 +17,14 @@
 set -u
 PATH="/Users/byron/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-ID=""; PROMPT=""; CWD="$ROOT"; SANDBOX="workspace-write"; TIMEOUT=3600; BG=0; RESUME=""; MODEL=""; EFFORT=""; KIND="build"; CHANGE=""; REVIEW_BASE=""; WEB="live"; HOOKS=0
+ID=""; PROMPT=""; CWD="$ROOT"; SANDBOX="workspace-write"; TIMEOUT=3600; BG=0; RESUME=""; MODEL=""; EFFORT=""; KIND="build"; CHANGE=""; REVIEW_BASE=""; WEB="live"; HOOKS=0; IMAGES=()
 while [ $# -gt 0 ]; do
   case "$1" in
     --id) ID="$2"; shift 2;; --prompt) PROMPT="$2"; shift 2;; --cwd) CWD="$2"; shift 2;;
     --sandbox) SANDBOX="$2"; shift 2;; --timeout) TIMEOUT="$2"; shift 2;; --background) BG=1; shift;;
     --resume) RESUME="$2"; shift 2;; --model) MODEL="$2"; shift 2;; --effort) EFFORT="$2"; shift 2;;
     --kind) KIND="$2"; shift 2;; --change) CHANGE="$2"; shift 2;; --review-base) REVIEW_BASE="$2"; shift 2;;
-    --web) WEB="$2"; shift 2;; --hooks) HOOKS=1; shift;;
+    --web) WEB="$2"; shift 2;; --hooks) HOOKS=1; shift;; --image) IMAGES+=("$2"); shift 2;;
     *) echo "unknown arg $1" >&2; exit 2;;
   esac
 done
@@ -37,7 +37,7 @@ ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 if [ $BG -eq 1 ]; then
   nohup "$0" --id "$ID" --prompt "$PROMPT" --cwd "$CWD" --sandbox "$SANDBOX" --timeout "$TIMEOUT" \
     ${RESUME:+--resume "$RESUME"} ${MODEL:+--model "$MODEL"} ${EFFORT:+--effort "$EFFORT"} --kind "$KIND" ${CHANGE:+--change "$CHANGE"} \
-    ${REVIEW_BASE:+--review-base "$REVIEW_BASE"} --web "$WEB" $([ $HOOKS -eq 1 ] && echo --hooks) \
+    ${REVIEW_BASE:+--review-base "$REVIEW_BASE"} --web "$WEB" $([ $HOOKS -eq 1 ] && echo --hooks) $(for i in "${IMAGES[@]+"${IMAGES[@]}"}"; do printf -- "--image %q " "$i"; done) \
     > "$JOB/wrapper.log" 2>&1 &
   echo "started job $ID in background (pid $!), state/jobs/$ID/"; exit 0
 fi
@@ -57,6 +57,7 @@ COMMON=(--json -C "$CWD" -o "$JOB/last.md" -c "sandbox_mode=\"$SANDBOX\"" -c 'sa
 [ -n "$MODEL" ] && COMMON+=(-m "$MODEL")
 [ -n "$EFFORT" ] && COMMON+=(-c "model_reasoning_effort=\"$EFFORT\"")
 [ $HOOKS -eq 1 ] && COMMON+=(--dangerously-bypass-hook-trust)
+for img in "${IMAGES[@]+"${IMAGES[@]}"}"; do [ -f "$img" ] && COMMON+=(-i "$img"); done
 if [ -n "$REVIEW_BASE" ]; then
   # a fresh-context review of the branch against its base; the prompt file carries extra focus
   ARGS=(exec "${COMMON[@]}" review --base "$REVIEW_BASE")

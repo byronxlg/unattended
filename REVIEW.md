@@ -11,6 +11,13 @@ Codex review (second opinion, cannot approve). Three passes, in this order:
    else; did `plan.md` get updated in the same change when the implementation departed from it;
    tests present and meaningful; `AGENTS.md`/`CLAUDE.md` conventions; no emojis or em dashes.
 
+4. Design (any change touching `product/*/web`): judged on the phone and desktop screenshots
+   attached to the review against `intent/<slug>/design.md`: hierarchy (the five-second test on
+   the home page), legibility at 360 px, contrast and colour never the only encoding, macrons
+   rendering, touch targets, loading, empty, stale and error states present, provenance chip on
+   every number, no generic-template look. Two review-iterate rounds minimum per view before a
+   milestone closes; rounds and Important findings go in `state/changes.yaml` `design_rounds`.
+
 Severity: Important is anything that would be wrong in production or violates the spec; Nit is
 style. At most five nits per review; CI already enforces lint, so do not report what `bin/lint`
 reports. Generated paths (`site/`, `state/jobs/*/events.jsonl`) are out of scope.

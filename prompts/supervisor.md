@@ -77,6 +77,9 @@ bounded run (45 min, hard kill), so finish cleanly: commit, push, write state, s
   row. Keep runs under 20 turns. Do not read full diffs yourself: the fresh Codex review reads
   the diff; you read `last.md`, the review, the test output, and spot-check. One idle run per
   hour is the ceiling; set `state/next-run-after` whenever you are waiting.
+- Marketing: owned channels (site, repo, embeds, video, OG cards, methods page) are yours to
+  build. Posting anywhere under Byron's name (HN, Reddit, social, email) is his: deliver copy-paste
+  drafts in `marketing/launch-kit.md` and a dated `needs-byron` issue per send; never post.
 - Design: before writing the spec for anything with a UI, load the `frontend-design` skill
   (Skill tool) and carry its guidance into `spec.md` and the Codex brief; screenshots are part
   of every UI change's definition of done; the fresh review judges the screenshots too.

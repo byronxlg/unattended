@@ -89,6 +89,18 @@ Days count from 16 October NZ (day 1). Each milestone is live on Pages when it c
 Daily iteration between milestones: one shipped change per build day, two when the plan shows
 disjoint files.
 
+### Design and marketing track (Byron's steer 2026-10-17, issue #8)
+
+| Days | Design | Marketing |
+|---|---|---|
+| 3 to 4 | `design.md` with the frontend-design skill; design-system PR restyling M1; OG cards, favicon, manifest | naming step and decision; product repo split with subdomain (after increment 6, before 7) |
+| 7 to 8 | review round on electorates and coalition explorer | README landing page; embeds for seat strip and poll chart; methods and press notes |
+| 11 (26 Oct) | M2 acceptance includes the design pass | launch kit v1 delivered as needs-byron issues (r/newzealand, social, journalist emails); analytics beacon if the token exists |
+| 12 to 13 | night-mode design for M3 | launch video (brag skill); embed for the live night strip |
+| 16 to 17 | review round two on the night view | Show HN draft and 1 Nov kit; Wikipedia talk-page note |
+| 19 to 20 | site-wide polish: states, stale indicators, copy | election-night kit for 7 Nov; marketing indicators in the final post |
+
+
 ## Open questions (for the spec)
 
 1. Where data lives: committed to `main` by Actions (interleaves with supervisor pushes) or a
