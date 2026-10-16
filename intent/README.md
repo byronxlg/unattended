@@ -5,7 +5,13 @@ One directory per change, named by slug: `intent.md` (Plan stage, written by the
 (Build stage, from plan mode, checklist of steps kept in sync with the implementation). The git
 history of these files is the Plan and Design indicators in `docs/metrics.md`.
 
-## Phase 1 research briefs (days 1 to 3)
+## Phase 1 research briefs (restarted 2026-10-16 after Byron's steer, issue #7)
+
+Scope is fixed by Byron: a web app with a UI about the 2026 New Zealand general election that
+pulls a ton of information together and displays it. The research is about sources, existing
+dashboards, and the shape of the app, not about which product to build.
+
+### Original briefs (day 1, superseded)
 
 The product is chosen here, not before. Two kinds of Codex research jobs, read-only, plus the
 supervisor's own judgement:
@@ -19,7 +25,7 @@ supervisor's own judgement:
 Selection criteria (from the brief and the host's limits): buildable by Codex in about twelve
 build days in increments that each ship; verifiable by commands; small on disk (under 2 GiB
 free on the host, so Python with uv or a small compiled program, no Docker, no datasets);
-free to run; useful to Byron or to people like him (he runs a fleet of small live projects from
+free to run; a real UI (this is a web app, design matters and gets review rounds); useful to New Zealand voters and to Byron (he runs a fleet of small live projects from
 one Mac, trades on prediction markets, writes skills for agents, cares about operations and
 measurement); interesting enough that twenty days of posts about it are worth reading. The
 decision and its reasons are recorded in `intent/<slug>/intent.md` and in the day's post.

@@ -4,7 +4,7 @@
 #   job_done   a Codex job finished and has not been reviewed (no state/jobs/<id>/reviewed)
 #   post_due   no posts/<today NZ>.md yet and it is 19:00 NZ or later
 #   issue      a new comment or issue on github.com/byronxlg/unattended (Byron's channel)
-#   idle       nothing running, backoff elapsed (state/next-run-after), >= 30 min since the last run
+#   idle       nothing running, backoff elapsed (state/next-run-after), >= 60 min since the last run
 #   heartbeat  the supervisor has not run for 3 h whatever the other reasons say
 # It skips when a supervisor is already running (pid file) or when a Claude usage limit was hit
 # in the last 60 min (state/model.limited). Codex jobs run detached (bin/codex-run --background),
@@ -21,7 +21,7 @@ fi
 ROOT="/Users/byron/repos/unattended"; cd "$ROOT" || exit 1
 STATE="$ROOT/state"; mkdir -p "$STATE/jobs"
 PIDF="$STATE/supervisor.pid"; TICKS="$STATE/ticks.jsonl"
-SUP_TIMEOUT="${SUP_TIMEOUT:-2700}"; SUP_BUDGET_USD="${SUP_BUDGET_USD:-8}"
+SUP_TIMEOUT="${SUP_TIMEOUT:-2700}"; SUP_BUDGET_USD="${SUP_BUDGET_USD:-5}"
 FORCE=0; DRY=0; for a in "$@"; do case "$a" in --force) FORCE=1;; --dry) DRY=1;; esac; done
 ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 log() { echo "$(ts) $*"; }
@@ -52,7 +52,7 @@ LATEST=$(gh api "repos/byronxlg/unattended/issues?state=all&sort=updated&directi
 [ -n "$LATEST" ] && [[ "$LATEST" > "$SEEN" ]] && REASONS+=("issue:$LATEST")
 LAST_RUN=$(stat -f %m "$STATE/supervisor.last" 2>/dev/null || echo 0); NOW=$(date +%s)
 NEXT_AFTER=$(cat "$STATE/next-run-after" 2>/dev/null || echo 0)
-if [ "$RUNNING_JOBS" = "0" ] && [ $((NOW-LAST_RUN)) -ge 1800 ] && [ "$NOW" -ge "${NEXT_AFTER:-0}" ]; then REASONS+=("idle"); fi
+if [ "$RUNNING_JOBS" = "0" ] && [ $((NOW-LAST_RUN)) -ge 3600 ] && [ "$NOW" -ge "${NEXT_AFTER:-0}" ]; then REASONS+=("idle"); fi
 [ $((NOW-LAST_RUN)) -ge 10800 ] && REASONS+=("heartbeat")
 [ $FORCE -eq 1 ] && REASONS+=("force")
 
@@ -88,7 +88,7 @@ $(git log --oneline -8)"
          "Bash(ls:*)" "Bash(cat:*)" "Bash(head:*)" "Bash(tail:*)" "Bash(wc:*)" "Bash(jq:*)" "Bash(df:*)" "Bash(date:*)" \
          "Bash(mkdir:*)" "Bash(cp:*)" "Bash(mv:*)" "Bash(touch:*)" "Bash(diff:*)" "Bash(sed -n:*)" "Bash(sort:*)" "Bash(uniq:*)" \
          "Bash(curl -s:*)" "Bash(codex login status)" "Bash(/Users/byron/repos/management/bin/tg:*)" \
-         "Read" "Write" "Edit" "Glob" "Grep" "Agent" "WebFetch" "WebSearch")
+         "Read" "Write" "Edit" "Glob" "Grep" "Agent" "WebFetch" "WebSearch" "Skill")
   ( exec claude -p "$CONTEXT" --output-format stream-json --verbose --max-budget-usd "$SUP_BUDGET_USD" \
       --allowedTools "${TOOLS[@]}" > "$OUT" 2> "$ERR" ) &
   CPID=$!; echo "$CPID $(ts)" > "$PIDF"

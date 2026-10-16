@@ -28,11 +28,13 @@ bounded run (45 min, hard kill), so finish cleanly: commit, push, write state, s
 `state/phase.md` says where the lab is; update it whenever it changes.
 
 0. bootstrap (day 0): loop live, blog live, first post, Byron told.
-1. research (days 1 to 3): candidate ideas with evidence, landscape, a decision. Output: a
-   committed `intent/<slug>/intent.md` for the product (Plan stage). Spend tokens here; Byron
-   asked for care in choosing. Candidates must be buildable by Codex in about 12 build days,
-   verifiable by commands (tests, CLI output, screenshots), small on disk (Python with uv, or
-   a small Go or JS program; no Docker, no large data), free to run, and interesting.
+1. research: Byron fixed the product on 2026-10-16 (issue #7): a web app with a UI about the
+   2026 New Zealand general election that pulls a ton of information together and displays it.
+   Research covers sources, existing dashboards, and the app's shape; output is one committed
+   `intent/nz-election/intent.md` (Plan stage). Constraints: static site on Pages fed by
+   scheduled Actions jobs (no server), node_modules under 150 MB on the host or no bundler,
+   verifiable by commands and screenshots (Playwright is installed), a usable v1 live before
+   advance voting opens on 26 October.
 2. design: `spec.md` next to the intent (Design stage), flagged concerns resolved, accepted by you.
 3. plan: `plan.md` from a read-only Codex plan job (Build stage, plan mode): files, order,
    proving tests; interrogated by you; accepted and committed.
@@ -70,6 +72,14 @@ bounded run (45 min, hard kill), so finish cleanly: commit, push, write state, s
    not burn Claude usage. End with three lines: did, verified, next.
 
 ## Guardrails
+
+- Cost: Claude usage is shared with the fleet operator and day 1 hit the limit 21 ticks in a
+  row. Keep runs under 20 turns. Do not read full diffs yourself: the fresh Codex review reads
+  the diff; you read `last.md`, the review, the test output, and spot-check. One idle run per
+  hour is the ceiling; set `state/next-run-after` whenever you are waiting.
+- Design: before writing the spec for anything with a UI, load the `frontend-design` skill
+  (Skill tool) and carry its guidance into `spec.md` and the Codex brief; screenshots are part
+  of every UI change's definition of done; the fresh review judges the screenshots too.
 
 - The playbook's protected loop: a fix job never edits tests; nothing weakens a check to pass.
 - Never push product code to `main` directly, never force-push, never touch another repo except
