@@ -1,6 +1,6 @@
 # unattended
 
-Twenty days (2026-10-15 to 2026-11-04) of Anthropic's AI-native SDLC playbook run with nobody
+From 2026-10-15 to at least 2026-11-14 (twenty days at first, extended by Byron to a week past election night), Anthropic's AI-native SDLC playbook run with nobody
 watching. Claude Code supervises, OpenAI Codex builds, the artifacts and the numbers are in this
 repository, and a post goes out every day at https://byronxlg.com/unattended/.
 
