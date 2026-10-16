@@ -223,9 +223,9 @@ Write 12 route/viewport-labelled PNGs and a manifest containing route, viewport,
 
 ### Increment 1: fixtures, parser and allocator, no UI
 
-- [ ] Commit supervisor captures, manifests, reviewed mappings, parser, Python/JS allocator and shared golden inputs. Prove with `uv run --with pytest pytest -q product/nz_election/tests/test_allocator.py product/nz_election/tests/test_poll_parser.py`; expected summary contains `24 passed`.
-- [ ] Add explicit pytest collection roots and product instructions. Prove with `uv run --with pytest pytest --collect-only -q`; expected output includes both `tests/` and `product/nz_election/tests/` node IDs.
-- [ ] Finish the PR with `bin/lint` and `uv run --with pytest pytest -q`; expect `lint ok (<N> text files)` and a passing summary for existing tests plus 24 product tests. Commit, obtain fresh review and let the supervisor merge.
+- [x] Commit supervisor captures, manifests, reviewed mappings, parser, Python/JS allocator and shared golden inputs. Prove with `uv run --with pytest pytest -q product/nz_election/tests/test_allocator.py product/nz_election/tests/test_poll_parser.py`; expected summary contains `24 passed`.
+- [x] Add explicit pytest collection roots and product instructions. Prove with `uv run --with pytest pytest --collect-only -q`; expected output includes both `tests/` and `product/nz_election/tests/` node IDs.
+- [x] Finish the PR with `bin/lint` and `uv run --with pytest pytest -q`; expect `lint ok (<N> text files)` and a passing summary for existing tests plus 24 product tests. Commit, obtain fresh review and let the supervisor merge.
 
 ### Increment 2: outputs and six-page build
 
@@ -307,3 +307,6 @@ engineer's branch base (e64f262) predates this file on `main`, so Codex read the
    and sort dates. Accepted: visible dates are the source of truth; the exception is narrow.
 3. `tests/test_ci.py` named in the brief did not exist; the collection assertion is replaced by the
    two `--collect-only` counts in the definition of done (84 root, 24 product).
+4. Deferred from the third fresh review of PR #9: a decimal vote string over Python's 4,300-digit
+   conversion limit raises a non-INVALID_INPUT error while JS accepts it. Not a reachable pipeline
+   input; both allocators get one shared length limit in M4 hardening.

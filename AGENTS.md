@@ -12,6 +12,9 @@ work; Byron is not here. Finish the task in the prompt, nothing more.
   your final message. If you cannot make it pass, say exactly what fails and why.
 - Fix tasks never edit tests. Never weaken a check, skip a test, or widen a type to make
   something pass. If a test is wrong, say so and stop.
+- When a brief names an error code, every malformed input reaches exactly that code, in every
+  implementation of the contract. Before done, probe empty, null, wrong type, float, huge and
+  unusual-string values and compare implementations; three PRs needed fix rounds for this.
 - Python: `uv run` with inline script metadata or `pyproject.toml`; stdlib first. Keep
   dependencies few and small (the host has under 2 GiB of disk). No Docker, no large downloads.
 - No emojis, no em dashes, in code, comments, commits or docs. Comments say why, not what.
