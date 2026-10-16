@@ -16,7 +16,7 @@ def bundle(tmp_path):
 
 
 def test_capture_manifest():
-    assert len(captures()) == 11
+    assert len(captures()) == 25
 
 
 def test_envelopes_and_provenance(bundle):
@@ -61,3 +61,109 @@ def test_official_candidate_identity_joins():
     assert sum(official['input']['partyVotes'].values()) == 2851211
     assert sum(official['expectedSeats'].values()) == 122
     assert len(official['quotients']) == 120
+
+
+def test_geography_family_and_coordinate_exception(bundle):
+    from copy import deepcopy
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    before = {p.name: p.read_bytes() for p in bundle.iterdir() if p.stem in export.FAMILIES['polls']}
+    daily_refresh(bundle, now='2026-10-18T01:00:00Z')
+    envs = export.validate_bundle(bundle)
+    assert all((bundle / name).read_bytes() == raw for name, raw in before.items())
+    for stem in export.FAMILIES['geography']:
+        assert envs[stem]['input_hashes'] and envs[stem]['generated_at']
+        assert envs[stem]['data']
+    boundary = deepcopy(envs['general-2025'])
+    boundary['features'][0]['properties']['bad'] = 1.5
+    with pytest.raises(ValueError, match='INEXACT_NUMBER'):
+        export.validate_envelope(boundary, 'general-2025')
+    boundary = deepcopy(envs['general-2025'])
+    boundary['features'][0]['geometry']['coordinates'][0][0][1][0] = 181
+    with pytest.raises(ValueError, match='COORDINATE'):
+        export.validate_envelope(boundary, 'general-2025')
+    for stem in export.GEO:
+        records = list(csv.DictReader(io.StringIO((bundle / (stem + '.csv')).read_text())))
+        assert [json.loads(r['geometry_json']) for r in records] == [next(f['geometry'] for f in envs[stem]['features'] if f['id'] == r['id']) for r in records]
+    assert 'Stats NZ' in (bundle / 'LICENCES.md').read_text()
+
+
+def test_daily_failure_retains_family_and_hourly_independent(bundle):
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    daily_refresh(bundle, now='2026-10-18T01:00:00Z')
+    before = {p.name: p.read_bytes() for p in bundle.iterdir() if p.stem in export.FAMILIES['geography']}
+    def fail():
+        raise ValueError('MISSING_CAPTURE')
+    status = daily_refresh(bundle, now='2026-10-18T02:00:00Z', load=fail)
+    assert status['state'] == 'stale'
+    refresh(bundle, now='2026-10-18T03:00:00Z')
+    assert all((bundle / name).read_bytes() == raw for name, raw in before.items())
+    assert 'Stats NZ' in (bundle / 'LICENCES.md').read_text()
+    first = daily_refresh(bundle.parent / 'first-daily', now='2026-10-18T01:00:00Z', load=fail)
+    assert first['state'] == 'unavailable' and first['last_success_at'] is None
+
+
+def test_hourly_daily_race_preserves_union(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+    import threading
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.pipeline.publish import publish, git, DATA
+    hourly, daily, remote = [tmp_path / s for s in ('hourly', 'daily', 'remote.git')]
+    refresh(hourly, now='2026-10-18T01:00:00Z')
+    daily_refresh(daily, now='2026-10-18T01:00:00Z')
+    remote.mkdir()
+    git(remote, 'init', '--bare', '-q')
+    barrier = threading.Barrier(2)
+    def run(family):
+        return publish(hourly if family == 'hourly' else daily, remote, family=family,
+                       before_push=lambda n: barrier.wait(timeout=20) if n == 0 else None)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(run, ['hourly', 'daily']))
+    assert sorted(r['attempts'] for r in results) == [1, 2]
+    checkout = tmp_path / 'checkout'
+    git(tmp_path, 'clone', '-q', '--branch', 'data', str(remote), str(checkout))
+    envs = export.validate_bundle(checkout / DATA)
+    assert export.FAMILIES['polls'] | export.FAMILIES['geography'] <= envs.keys()
+    assert {r['dataset'] for r in envs['status']['data']} == {'polls', 'geography'}
+    assert 'Stats NZ' in (checkout / DATA / 'LICENCES.md').read_text()
+    for source in (hourly, daily):
+        for p in source.iterdir():
+            if p.stem in export.FAMILIES['polls'] | export.FAMILIES['geography']:
+                assert p.read_bytes() == (checkout / DATA / p.name).read_bytes()
+
+
+def test_family_scoped_capture_failure(tmp_path):
+    from shutil import copytree
+    from product.nz_election.pipeline.fixtures import ROOT
+    copytree(ROOT, tmp_path / 'fixtures')
+    (tmp_path / 'fixtures/stats-nz/general-2025.geojson').unlink()
+    assert captures(tmp_path / 'fixtures', paths={'wikipedia/polls-2026.wikitext'})
+    with pytest.raises(ValueError, match='MISSING_CAPTURE'):
+        captures(tmp_path / 'fixtures', paths={'stats-nz/general-2025.geojson'})
+
+
+def test_daily_mixed_source_regression_rejected(tmp_path):
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.pipeline.publish import publish, git, DATA
+    original, incoming, remote = [tmp_path / s for s in ('original', 'incoming', 'remote.git')]
+    daily_refresh(original, now='2026-10-18T01:00:00Z')
+    daily_refresh(incoming, now='2026-10-19T01:00:00Z')
+    remote.mkdir()
+    git(remote, 'init', '--bare', '-q')
+    publish(original, remote, family='daily')
+    for stem in export.FAMILIES['geography']:
+        env = json.loads((incoming / (stem + '.json')).read_text())
+        env['source'][0]['fetched_at'] = '2026-10-15T01:00:00Z'
+        env['source'][1]['fetched_at'] = '2026-10-19T01:00:00Z'
+        env['fetched_at'] = '2026-10-19T01:00:00Z'
+        export.pair(incoming, stem, env)
+    export.inventory(incoming, 'offline-verification', 'test', '2026-10-19T01:00:00Z')
+    publish(incoming, remote, family='daily')
+    for stem in export.FAMILIES['geography']:
+        actual = git(remote, 'show', 'data:' + str(DATA / (stem + '.json'))).stdout
+        assert actual == (original / (stem + '.json')).read_text()
+    env = json.loads((incoming / 'electorates.json').read_text())
+    env['generated_at'] = '2026-10-20T01:00:00Z'
+    export.pair(incoming, 'electorates', env)
+    export.inventory(incoming, 'offline-verification', 'test', '2026-10-20T01:00:00Z')
+    with pytest.raises(ValueError, match='MIXED_GEOGRAPHY_GENERATION'):
+        export.validate_bundle(incoming)

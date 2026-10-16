@@ -1,0 +1,4715 @@
+[
+  {
+    "id": "stats-nz-2025-001",
+    "name": "Auckland Central",
+    "kind": "general",
+    "slug": "auckland-central",
+    "stats_id": "001",
+    "search_key": "auckland central",
+    "baseline_ids": [
+      1
+    ],
+    "boundary_note": "The boundaries of Auckland Central, Mt Albert and Epsom move in a roughly anticlockwise direction, while Tāmaki and Maungakiekie move eastwards and Mt Roskill moves westwards.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=001"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=001"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=001"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=001"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=001"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=001"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=001"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=001"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=001"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=001"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-002",
+    "name": "Banks Peninsula",
+    "kind": "general",
+    "slug": "banks-peninsula",
+    "stats_id": "002",
+    "search_key": "banks peninsula",
+    "baseline_ids": [
+      2
+    ],
+    "boundary_note": "All these electorates remain unchanged from their 2020 boundaries and names.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=002"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=002"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=002"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=002"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=002"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=002"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=002"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=002"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=002"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=002"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-003",
+    "name": "Botany",
+    "kind": "general",
+    "slug": "botany",
+    "stats_id": "003",
+    "search_key": "botany",
+    "baseline_ids": [
+      4,
+      48,
+      38
+    ],
+    "boundary_note": "Papakura moves southwards and shifts rural population to Botany, which in turn shifts some urban population to Pakuranga.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=003"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=003"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=003"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=003"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=003"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=003"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=003"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=003"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=003"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=003"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-004",
+    "name": "Christchurch Central",
+    "kind": "general",
+    "slug": "christchurch-central",
+    "stats_id": "004",
+    "search_key": "christchurch central",
+    "baseline_ids": [
+      5
+    ],
+    "boundary_note": "Through the hearings process, we adopted an alternate proposal that kept Redwood within Christchurch Central and instead moved a section in Linwood/Phillipstown between Fitzgerald Avenue, Avonside Drive, and Tuam Street into Christchurch East.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=004"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=004"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=004"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=004"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=004"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=004"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=004"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=004"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=004"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=004"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-005",
+    "name": "Christchurch East",
+    "kind": "general",
+    "slug": "christchurch-east",
+    "stats_id": "005",
+    "search_key": "christchurch east",
+    "baseline_ids": [
+      6,
+      5
+    ],
+    "boundary_note": "Through the hearings process, we adopted an alternate proposal that kept Redwood within Christchurch Central and instead moved a section in Linwood/Phillipstown between Fitzgerald Avenue, Avonside Drive, and Tuam Street into Christchurch East.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=005"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=005"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=005"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=005"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=005"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=005"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=005"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=005"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=005"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=005"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-006",
+    "name": "Coromandel",
+    "kind": "general",
+    "slug": "coromandel",
+    "stats_id": "006",
+    "search_key": "coromandel",
+    "baseline_ids": [
+      7
+    ],
+    "boundary_note": "Nineteen electorates are unchanged.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=006"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=006"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=006"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=006"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=006"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=006"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=006"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=006"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=006"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=006"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-007",
+    "name": "Dunedin",
+    "kind": "general",
+    "slug": "dunedin",
+    "stats_id": "007",
+    "search_key": "dunedin",
+    "baseline_ids": [
+      8
+    ],
+    "boundary_note": "All these electorates remain unchanged from their 2020 boundaries and names.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=007"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=007"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=007"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=007"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=007"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=007"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=007"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=007"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=007"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=007"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-008",
+    "name": "East Cape",
+    "kind": "general",
+    "slug": "east-cape",
+    "stats_id": "008",
+    "search_key": "east cape",
+    "baseline_ids": [
+      9
+    ],
+    "boundary_note": "East Coast becomes East Cape.",
+    "mapping_status": "renamed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=008"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=008"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=008"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=008"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=008"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=008"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=008"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=008"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=008"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=008"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-009",
+    "name": "East Coast Bays",
+    "kind": "general",
+    "slug": "east-coast-bays",
+    "stats_id": "009",
+    "search_key": "east coast bays",
+    "baseline_ids": [
+      10,
+      63,
+      55
+    ],
+    "boundary_note": "Upper Harbour, which must lose population, experiences significant changes in addition to those mentioned above, shifting two areas to Henderson and East Coast Bays.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=009"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=009"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=009"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=009"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=009"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=009"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=009"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=009"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=009"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=009"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-010",
+    "name": "Epsom",
+    "kind": "general",
+    "slug": "epsom",
+    "stats_id": "010",
+    "search_key": "epsom",
+    "baseline_ids": [
+      11
+    ],
+    "boundary_note": "The boundaries of Auckland Central, Mt Albert and Epsom move in a roughly anticlockwise direction, while Tāmaki and Maungakiekie move eastwards and Mt Roskill moves westwards.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=010"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=010"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=010"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=010"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=010"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=010"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=010"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=010"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=010"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=010"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-011",
+    "name": "Glendene",
+    "kind": "general",
+    "slug": "glendene",
+    "stats_id": "011",
+    "search_key": "glendene",
+    "baseline_ids": [
+      19,
+      53
+    ],
+    "boundary_note": "Parts of Kelston and Te Atatū become Glendene.",
+    "mapping_status": "created",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=011"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=011"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=011"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=011"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=011"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=011"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=011"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=011"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=011"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=011"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-012",
+    "name": "Hamilton East",
+    "kind": "general",
+    "slug": "hamilton-east",
+    "stats_id": "012",
+    "search_key": "hamilton east",
+    "baseline_ids": [
+      12
+    ],
+    "boundary_note": "Nineteen electorates are unchanged.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=012"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=012"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=012"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=012"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=012"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=012"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=012"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=012"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=012"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=012"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-013",
+    "name": "Hamilton West",
+    "kind": "general",
+    "slug": "hamilton-west",
+    "stats_id": "013",
+    "search_key": "hamilton west",
+    "baseline_ids": [
+      13
+    ],
+    "boundary_note": "Nineteen electorates are unchanged.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=013"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=013"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=013"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=013"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=013"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=013"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=013"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=013"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=013"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=013"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-014",
+    "name": "Henderson",
+    "kind": "general",
+    "slug": "henderson",
+    "stats_id": "014",
+    "search_key": "henderson",
+    "baseline_ids": [
+      53,
+      55,
+      18
+    ],
+    "boundary_note": "Parts of Te Atatū, Upper Harbour and Kaipara ki Mahurangi become Henderson.",
+    "mapping_status": "created",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=014"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=014"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=014"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=014"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=014"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=014"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=014"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=014"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=014"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=014"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-015",
+    "name": "Hutt South",
+    "kind": "general",
+    "slug": "hutt-south",
+    "stats_id": "015",
+    "search_key": "hutt south",
+    "baseline_ids": [
+      14
+    ],
+    "boundary_note": "Hutt South and Remutaka both shift south-westwards, with the former taking in eastern Newlands.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=015"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=015"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=015"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=015"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=015"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=015"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=015"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=015"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=015"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=015"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-016",
+    "name": "Ilam",
+    "kind": "general",
+    "slug": "ilam",
+    "stats_id": "016",
+    "search_key": "ilam",
+    "baseline_ids": [
+      15
+    ],
+    "boundary_note": "This in turn necessitated flow-on changes to Christchurch Central, Christchurch East and Ilam, to ensure they remained within quota.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=016"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=016"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=016"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=016"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=016"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=016"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=016"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=016"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=016"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=016"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-017",
+    "name": "Invercargill",
+    "kind": "general",
+    "slug": "invercargill",
+    "stats_id": "017",
+    "search_key": "invercargill",
+    "baseline_ids": [
+      16,
+      46
+    ],
+    "boundary_note": "Our proposed changes involved a population of around 900 in the vicinity of Nightcaps and Otautau moving from Southland to Invercargill.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=017"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=017"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=017"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=017"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=017"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=017"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=017"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=017"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=017"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=017"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-018",
+    "name": "Kaikōura",
+    "kind": "general",
+    "slug": "kaikoura",
+    "stats_id": "018",
+    "search_key": "kaikoura",
+    "baseline_ids": [
+      17
+    ],
+    "boundary_note": "The Commission did receive a small number of submissions from West Coast-Tasman and Kaikōura, however we have been unable to accommodate these suggestions due to population quota requirements, and they remain unchanged from 2020 boundaries and names.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=018"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=018"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=018"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=018"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=018"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=018"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=018"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=018"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=018"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=018"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-019",
+    "name": "Kaipara ki Mahurangi",
+    "kind": "general",
+    "slug": "kaipara-ki-mahurangi",
+    "stats_id": "019",
+    "search_key": "kaipara ki mahurangi",
+    "baseline_ids": [
+      18,
+      63
+    ],
+    "boundary_note": "Kaipara ki Mahurangi shifts population to Upper Harbour and Henderson, while gaining an area from Whangaparāoa, which in turn shifts population to East Coast Bays.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=019"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=019"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=019"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=019"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=019"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=019"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=019"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=019"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=019"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=019"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-020",
+    "name": "Kapiti",
+    "kind": "general",
+    "slug": "kapiti",
+    "stats_id": "020",
+    "search_key": "kapiti",
+    "baseline_ids": [
+      34,
+      20
+    ],
+    "boundary_note": "Parts of Ōtaki and Mana become Kapiti.",
+    "mapping_status": "created",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=020"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=020"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=020"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=020"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=020"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=020"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=020"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=020"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=020"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=020"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-021",
+    "name": "Kenepuru",
+    "kind": "general",
+    "slug": "kenepuru",
+    "stats_id": "021",
+    "search_key": "kenepuru",
+    "baseline_ids": [
+      20,
+      33
+    ],
+    "boundary_note": "Parts of Mana and Ōhāriu become Kenepuru.",
+    "mapping_status": "created",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=021"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=021"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=021"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=021"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=021"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=021"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=021"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=021"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=021"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=021"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-022",
+    "name": "Māngere",
+    "kind": "general",
+    "slug": "mangere",
+    "stats_id": "022",
+    "search_key": "mangere",
+    "baseline_ids": [
+      21
+    ],
+    "boundary_note": "There are also changes on the eastern boundaries of both Māngere and Manurewa.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=022"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=022"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=022"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=022"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=022"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=022"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=022"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=022"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=022"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=022"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-023",
+    "name": "Manurewa",
+    "kind": "general",
+    "slug": "manurewa",
+    "stats_id": "023",
+    "search_key": "manurewa",
+    "baseline_ids": [
+      22
+    ],
+    "boundary_note": "There are also changes on the eastern boundaries of both Māngere and Manurewa.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=023"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=023"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=023"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=023"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=023"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=023"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=023"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=023"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=023"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=023"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-024",
+    "name": "Maungakiekie",
+    "kind": "general",
+    "slug": "maungakiekie",
+    "stats_id": "024",
+    "search_key": "maungakiekie",
+    "baseline_ids": [
+      23
+    ],
+    "boundary_note": "The boundaries of Auckland Central, Mt Albert and Epsom move in a roughly anticlockwise direction, while Tāmaki and Maungakiekie move eastwards and Mt Roskill moves westwards.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=024"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=024"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=024"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=024"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=024"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=024"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=024"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=024"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=024"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=024"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-025",
+    "name": "Mt Albert",
+    "kind": "general",
+    "slug": "mt-albert",
+    "stats_id": "025",
+    "search_key": "mt albert",
+    "baseline_ids": [
+      24,
+      1
+    ],
+    "boundary_note": "To ensure Mt Albert remains within quota, an area around Arch Hill is shifted from Auckland Central to Mt Albert.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=025"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=025"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=025"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=025"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=025"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=025"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=025"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=025"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=025"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=025"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-026",
+    "name": "Mt Maunganui",
+    "kind": "general",
+    "slug": "mt-maunganui",
+    "stats_id": "026",
+    "search_key": "mt maunganui",
+    "baseline_ids": [
+      3,
+      52
+    ],
+    "boundary_note": "Parts of Bay of Plenty and Tauranga become Mt Maunganui.",
+    "mapping_status": "renamed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=026"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=026"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=026"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=026"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=026"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=026"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=026"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=026"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=026"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=026"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-027",
+    "name": "Mt Roskill",
+    "kind": "general",
+    "slug": "mt-roskill",
+    "stats_id": "027",
+    "search_key": "mt roskill",
+    "baseline_ids": [
+      25
+    ],
+    "boundary_note": "The boundaries of Auckland Central, Mt Albert and Epsom move in a roughly anticlockwise direction, while Tāmaki and Maungakiekie move eastwards and Mt Roskill moves westwards.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=027"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=027"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=027"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=027"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=027"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=027"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=027"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=027"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=027"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=027"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-028",
+    "name": "Napier",
+    "kind": "general",
+    "slug": "napier",
+    "stats_id": "028",
+    "search_key": "napier",
+    "baseline_ids": [
+      26,
+      54
+    ],
+    "boundary_note": "Instead, Napier gains a rural area from Tukituki north of the Ngaruroro River.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=028"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=028"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=028"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=028"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=028"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=028"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=028"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=028"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=028"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=028"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-029",
+    "name": "Nelson",
+    "kind": "general",
+    "slug": "nelson",
+    "stats_id": "029",
+    "search_key": "nelson",
+    "baseline_ids": [
+      27
+    ],
+    "boundary_note": "All these electorates remain unchanged from their 2020 boundaries and names.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=029"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=029"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=029"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=029"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=029"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=029"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=029"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=029"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=029"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=029"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-030",
+    "name": "New Plymouth",
+    "kind": "general",
+    "slug": "new-plymouth",
+    "stats_id": "030",
+    "search_key": "new plymouth",
+    "baseline_ids": [
+      29,
+      50
+    ],
+    "boundary_note": "New Plymouth gains a small area east of the Waitara River from Taranaki-King Country, so Waitara township is now wholly within New Plymouth instead of being split between the two electorates.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=030"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=030"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=030"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=030"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=030"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=030"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=030"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=030"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=030"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=030"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-031",
+    "name": "North Shore",
+    "kind": "general",
+    "slug": "north-shore",
+    "stats_id": "031",
+    "search_key": "north shore",
+    "baseline_ids": [
+      30,
+      10
+    ],
+    "boundary_note": "East Coast Bays also shifts small areas to both Upper Harbour and North Shore.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=031"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=031"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=031"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=031"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=031"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=031"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=031"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=031"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=031"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=031"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-032",
+    "name": "Northcote",
+    "kind": "general",
+    "slug": "northcote",
+    "stats_id": "032",
+    "search_key": "northcote",
+    "baseline_ids": [
+      31
+    ],
+    "boundary_note": "Northcote and North Shore both expand northward in small areas, while Kaipara ki Mahurangi expands into a small area south of Coatesville, which is moved from Whangaparāoa.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=032"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=032"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=032"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=032"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=032"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=032"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=032"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=032"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=032"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=032"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-033",
+    "name": "Northland",
+    "kind": "general",
+    "slug": "northland",
+    "stats_id": "033",
+    "search_key": "northland",
+    "baseline_ids": [
+      32
+    ],
+    "boundary_note": "Due to Northland being over quota we proposed moving a rural area between Whangaruru Harbour and Whananaki from Northland to Whangārei.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=033"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=033"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=033"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=033"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=033"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=033"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=033"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=033"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=033"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=033"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-034",
+    "name": "Ōtāhuhu",
+    "kind": "general",
+    "slug": "otahuhu",
+    "stats_id": "034",
+    "search_key": "otahuhu",
+    "baseline_ids": [
+      37,
+      4,
+      48
+    ],
+    "boundary_note": "There are relatively significant changes to Ōtāhuhu, which shifts south-eastwards and is renamed from Panmure-Ōtāhuhu.",
+    "mapping_status": "renamed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=034"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=034"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=034"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=034"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=034"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=034"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=034"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=034"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=034"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=034"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-035",
+    "name": "Pakuranga",
+    "kind": "general",
+    "slug": "pakuranga",
+    "stats_id": "035",
+    "search_key": "pakuranga",
+    "baseline_ids": [
+      35,
+      4
+    ],
+    "boundary_note": "Papakura moves southwards and shifts rural population to Botany, which in turn shifts some urban population to Pakuranga.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=035"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=035"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=035"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=035"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=035"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=035"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=035"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=035"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=035"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=035"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-036",
+    "name": "Palmerston North",
+    "kind": "general",
+    "slug": "palmerston-north",
+    "stats_id": "036",
+    "search_key": "palmerston north",
+    "baseline_ids": [
+      36
+    ],
+    "boundary_note": "Palmerston North expands around the city including the township of Bunnythorpe.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=036"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=036"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=036"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=036"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=036"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=036"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=036"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=036"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=036"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=036"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-037",
+    "name": "Papakura",
+    "kind": "general",
+    "slug": "papakura",
+    "stats_id": "037",
+    "search_key": "papakura",
+    "baseline_ids": [
+      38,
+      48
+    ],
+    "boundary_note": "Papakura moves southwards and shifts rural population to Botany, which in turn shifts some urban population to Pakuranga.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=037"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=037"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=037"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=037"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=037"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=037"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=037"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=037"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=037"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=037"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-038",
+    "name": "Port Waikato",
+    "kind": "general",
+    "slug": "port-waikato",
+    "stats_id": "038",
+    "search_key": "port waikato",
+    "baseline_ids": [
+      39
+    ],
+    "boundary_note": "Nineteen electorates are unchanged.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=038"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=038"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=038"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=038"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=038"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=038"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=038"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=038"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=038"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=038"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-039",
+    "name": "Rangitata",
+    "kind": "general",
+    "slug": "rangitata",
+    "stats_id": "039",
+    "search_key": "rangitata",
+    "baseline_ids": [
+      40
+    ],
+    "boundary_note": "All these electorates remain unchanged from their 2020 boundaries and names.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=039"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=039"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=039"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=039"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=039"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=039"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=039"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=039"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=039"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=039"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-040",
+    "name": "Rangitīkei",
+    "kind": "general",
+    "slug": "rangitikei",
+    "stats_id": "040",
+    "search_key": "rangitikei",
+    "baseline_ids": [
+      41
+    ],
+    "boundary_note": "Rangitīkei extends southwards to include Foxton, Levin and Manakau.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=040"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=040"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=040"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=040"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=040"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=040"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=040"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=040"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=040"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=040"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-041",
+    "name": "Remutaka",
+    "kind": "general",
+    "slug": "remutaka",
+    "stats_id": "041",
+    "search_key": "remutaka",
+    "baseline_ids": [
+      42
+    ],
+    "boundary_note": "Hutt South and Remutaka both shift south-westwards, with the former taking in eastern Newlands.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=041"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=041"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=041"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=041"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=041"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=041"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=041"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=041"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=041"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=041"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-042",
+    "name": "Rotorua",
+    "kind": "general",
+    "slug": "rotorua",
+    "stats_id": "042",
+    "search_key": "rotorua",
+    "baseline_ids": [
+      44
+    ],
+    "boundary_note": "Tauranga expands westward to the boundary with Coromandel; Bay of Plenty, which is renamed Mt Maunganui, gains the town centre and natural feature of the same name; and Rotorua expands northwards as far as the southern outskirts of Tauranga city.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=042"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=042"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=042"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=042"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=042"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=042"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=042"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=042"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=042"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=042"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-043",
+    "name": "Selwyn",
+    "kind": "general",
+    "slug": "selwyn",
+    "stats_id": "043",
+    "search_key": "selwyn",
+    "baseline_ids": [
+      45
+    ],
+    "boundary_note": "Due to rapid growth in Selwyn, which was originally 14% over quota, we proposed moving the communities of Prebbleton and Templeton and their surrounding areas from Selwyn into Wigram.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=043"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=043"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=043"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=043"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=043"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=043"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=043"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=043"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=043"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=043"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-044",
+    "name": "Southland",
+    "kind": "general",
+    "slug": "southland",
+    "stats_id": "044",
+    "search_key": "southland",
+    "baseline_ids": [
+      46
+    ],
+    "boundary_note": "Our proposed changes involved a population of around 900 in the vicinity of Nightcaps and Otautau moving from Southland to Invercargill.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=044"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=044"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=044"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=044"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=044"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=044"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=044"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=044"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=044"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=044"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-045",
+    "name": "Taieri",
+    "kind": "general",
+    "slug": "taieri",
+    "stats_id": "045",
+    "search_key": "taieri",
+    "baseline_ids": [
+      47
+    ],
+    "boundary_note": "All these electorates remain unchanged from their 2020 boundaries and names.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=045"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=045"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=045"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=045"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=045"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=045"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=045"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=045"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=045"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=045"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-046",
+    "name": "Takanini",
+    "kind": "general",
+    "slug": "takanini",
+    "stats_id": "046",
+    "search_key": "takanini",
+    "baseline_ids": [
+      48
+    ],
+    "boundary_note": "Substantial population is shifted from this electorate to Botany, Papakura and Ōtāhuhu.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=046"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=046"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=046"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=046"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=046"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=046"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=046"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=046"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=046"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=046"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-047",
+    "name": "Tāmaki",
+    "kind": "general",
+    "slug": "tamaki",
+    "stats_id": "047",
+    "search_key": "tamaki",
+    "baseline_ids": [
+      49
+    ],
+    "boundary_note": "The boundaries of Auckland Central, Mt Albert and Epsom move in a roughly anticlockwise direction, while Tāmaki and Maungakiekie move eastwards and Mt Roskill moves westwards.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=047"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=047"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=047"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=047"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=047"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=047"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=047"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=047"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=047"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=047"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-048",
+    "name": "Taranaki-King Country",
+    "kind": "general",
+    "slug": "taranaki-king-country",
+    "stats_id": "048",
+    "search_key": "taranaki-king country",
+    "baseline_ids": [
+      50
+    ],
+    "boundary_note": "Taranaki-King Country gains Taumarunui.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=048"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=048"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=048"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=048"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=048"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=048"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=048"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=048"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=048"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=048"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-049",
+    "name": "Taupō",
+    "kind": "general",
+    "slug": "taupo",
+    "stats_id": "049",
+    "search_key": "taupo",
+    "baseline_ids": [
+      51
+    ],
+    "boundary_note": "The boundaries of 49 general and three Māori electorates have been adjusted.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=049"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=049"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=049"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=049"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=049"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=049"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=049"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=049"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=049"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=049"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-050",
+    "name": "Tauranga",
+    "kind": "general",
+    "slug": "tauranga",
+    "stats_id": "050",
+    "search_key": "tauranga",
+    "baseline_ids": [
+      52
+    ],
+    "boundary_note": "Tauranga expands westward to the boundary with Coromandel; Bay of Plenty, which is renamed Mt Maunganui, gains the town centre and natural feature of the same name; and Rotorua expands northwards as far as the southern outskirts of Tauranga city.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=050"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=050"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=050"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=050"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=050"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=050"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=050"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=050"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=050"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=050"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-051",
+    "name": "Tukituki",
+    "kind": "general",
+    "slug": "tukituki",
+    "stats_id": "051",
+    "search_key": "tukituki",
+    "baseline_ids": [
+      54
+    ],
+    "boundary_note": "Instead, Napier gains a rural area from Tukituki north of the Ngaruroro River.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=051"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=051"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=051"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=051"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=051"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=051"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=051"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=051"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=051"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=051"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-052",
+    "name": "Upper Harbour",
+    "kind": "general",
+    "slug": "upper-harbour",
+    "stats_id": "052",
+    "search_key": "upper harbour",
+    "baseline_ids": [
+      55,
+      18,
+      10
+    ],
+    "boundary_note": "East Coast Bays also shifts small areas to both Upper Harbour and North Shore.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=052"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=052"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=052"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=052"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=052"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=052"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=052"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=052"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=052"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=052"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-053",
+    "name": "Waikato",
+    "kind": "general",
+    "slug": "waikato",
+    "stats_id": "053",
+    "search_key": "waikato",
+    "baseline_ids": [
+      56
+    ],
+    "boundary_note": "Nineteen electorates are unchanged.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=053"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=053"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=053"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=053"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=053"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=053"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=053"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=053"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=053"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=053"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-054",
+    "name": "Waimakariri",
+    "kind": "general",
+    "slug": "waimakariri",
+    "stats_id": "054",
+    "search_key": "waimakariri",
+    "baseline_ids": [
+      57
+    ],
+    "boundary_note": "All these electorates remain unchanged from their 2020 boundaries and names.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=054"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=054"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=054"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=054"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=054"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=054"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=054"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=054"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=054"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=054"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-055",
+    "name": "Wairarapa",
+    "kind": "general",
+    "slug": "wairarapa",
+    "stats_id": "055",
+    "search_key": "wairarapa",
+    "baseline_ids": [
+      58
+    ],
+    "boundary_note": "Wairarapa incorporates Ashhurst.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=055"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=055"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=055"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=055"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=055"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=055"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=055"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=055"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=055"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=055"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-056",
+    "name": "Waitākere",
+    "kind": "general",
+    "slug": "waitakere",
+    "stats_id": "056",
+    "search_key": "waitakere",
+    "baseline_ids": [
+      28,
+      19
+    ],
+    "boundary_note": "New Lynn and parts of Kelston become Waitākere.",
+    "mapping_status": "created",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=056"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=056"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=056"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=056"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=056"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=056"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=056"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=056"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=056"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=056"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-057",
+    "name": "Waitaki",
+    "kind": "general",
+    "slug": "waitaki",
+    "stats_id": "057",
+    "search_key": "waitaki",
+    "baseline_ids": [
+      59
+    ],
+    "boundary_note": "All these electorates remain unchanged from their 2020 boundaries and names.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=057"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=057"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=057"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=057"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=057"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=057"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=057"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=057"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=057"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=057"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-058",
+    "name": "Wellington Bays",
+    "kind": "general",
+    "slug": "wellington-bays",
+    "stats_id": "058",
+    "search_key": "wellington bays",
+    "baseline_ids": [
+      43
+    ],
+    "boundary_note": "Rongotai becomes Wellington Bays.",
+    "mapping_status": "renamed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=058"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=058"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=058"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=058"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=058"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=058"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=058"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=058"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=058"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=058"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-059",
+    "name": "Wellington North",
+    "kind": "general",
+    "slug": "wellington-north",
+    "stats_id": "059",
+    "search_key": "wellington north",
+    "baseline_ids": [
+      60
+    ],
+    "boundary_note": "Wellington Central becomes Wellington North.",
+    "mapping_status": "renamed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=059"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=059"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=059"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=059"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=059"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=059"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=059"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=059"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=059"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=059"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-060",
+    "name": "West Coast-Tasman",
+    "kind": "general",
+    "slug": "west-coast-tasman",
+    "stats_id": "060",
+    "search_key": "west coast-tasman",
+    "baseline_ids": [
+      61
+    ],
+    "boundary_note": "The Commission did receive a small number of submissions from West Coast-Tasman and Kaikōura, however we have been unable to accommodate these suggestions due to population quota requirements, and they remain unchanged from 2020 boundaries and names.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=060"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=060"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=060"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=060"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=060"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=060"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=060"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=060"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=060"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=060"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-061",
+    "name": "Whanganui",
+    "kind": "general",
+    "slug": "whanganui",
+    "stats_id": "061",
+    "search_key": "whanganui",
+    "baseline_ids": [
+      62
+    ],
+    "boundary_note": "Whanganui extends north and north-eastwards incorporating Ōwhango and Waiouru.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=061"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=061"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=061"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=061"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=061"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=061"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=061"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=061"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=061"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=061"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-062",
+    "name": "Whangaparāoa",
+    "kind": "general",
+    "slug": "whangaparaoa",
+    "stats_id": "062",
+    "search_key": "whangaparaoa",
+    "baseline_ids": [
+      63
+    ],
+    "boundary_note": "Kaipara ki Mahurangi shifts population to Upper Harbour and Henderson, while gaining an area from Whangaparāoa, which in turn shifts population to East Coast Bays.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=062"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=062"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=062"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=062"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=062"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=062"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=062"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=062"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=062"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=062"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-063",
+    "name": "Whangārei",
+    "kind": "general",
+    "slug": "whangarei",
+    "stats_id": "063",
+    "search_key": "whangarei",
+    "baseline_ids": [
+      64,
+      32
+    ],
+    "boundary_note": "Due to Northland being over quota we proposed moving a rural area between Whangaruru Harbour and Whananaki from Northland to Whangārei.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=063"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=063"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=063"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=063"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=063"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=063"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=063"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=063"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=063"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=063"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-064",
+    "name": "Wigram",
+    "kind": "general",
+    "slug": "wigram",
+    "stats_id": "064",
+    "search_key": "wigram",
+    "baseline_ids": [
+      65,
+      45
+    ],
+    "boundary_note": "Due to rapid growth in Selwyn, which was originally 14% over quota, we proposed moving the communities of Prebbleton and Templeton and their surrounding areas from Selwyn into Wigram.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=064"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=064"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=064"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=064"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=064"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=064"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/general-2025.geojson",
+        "locator": "GED2025_V1_00=064"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=064"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=064"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=064"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-1",
+    "name": "Hauraki-Waikato",
+    "kind": "maori",
+    "slug": "hauraki-waikato",
+    "stats_id": "1",
+    "search_key": "hauraki-waikato",
+    "baseline_ids": [
+      66
+    ],
+    "boundary_note": "Nineteen electorates are unchanged.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=1"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=1"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=1"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=1"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=1"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=1"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=1"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=1"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=1"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=1"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-2",
+    "name": "Ikaroa-Rāwhiti",
+    "kind": "maori",
+    "slug": "ikaroa-rawhiti",
+    "stats_id": "2",
+    "search_key": "ikaroa-rawhiti",
+    "baseline_ids": [
+      67,
+      71
+    ],
+    "boundary_note": "Ikaroa-Rāwhiti gains an area in Lower Hutt and its eastern bays area from Te Tai Tonga.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=2"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=2"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=2"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=2"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=2"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=2"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=2"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=2"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=2"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=2"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-3",
+    "name": "Tāmaki Makaurau",
+    "kind": "maori",
+    "slug": "tamaki-makaurau",
+    "stats_id": "3",
+    "search_key": "tamaki makaurau",
+    "baseline_ids": [
+      68
+    ],
+    "boundary_note": "Accordingly, no changes have been made to this electorate as it remains within the required population quota.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=3"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=3"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=3"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=3"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=3"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=3"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=3"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=3"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=3"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=3"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-4",
+    "name": "Te Tai Hauāuru",
+    "kind": "maori",
+    "slug": "te-tai-hauauru",
+    "stats_id": "4",
+    "search_key": "te tai hauauru",
+    "baseline_ids": [
+      69
+    ],
+    "boundary_note": "The boundary between Te Tai Tonga and Te Tai Hauāuru has a minor adjustment in Horokiwi, affecting no population.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=4"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=4"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=4"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=4"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=4"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=4"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=4"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=4"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=4"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=4"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-5",
+    "name": "Te Tai Tokerau",
+    "kind": "maori",
+    "slug": "te-tai-tokerau",
+    "stats_id": "5",
+    "search_key": "te tai tokerau",
+    "baseline_ids": [
+      70
+    ],
+    "boundary_note": "Nineteen electorates are unchanged.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=5"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=5"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=5"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=5"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=5"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=5"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=5"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=5"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=5"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=5"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-6",
+    "name": "Te Tai Tonga",
+    "kind": "maori",
+    "slug": "te-tai-tonga",
+    "stats_id": "6",
+    "search_key": "te tai tonga",
+    "baseline_ids": [
+      71
+    ],
+    "boundary_note": "Ikaroa-Rāwhiti gains an area in Lower Hutt and its eastern bays area from Te Tai Tonga.",
+    "mapping_status": "boundary_changed",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=6"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=6"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=6"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=6"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=6"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=6"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=6"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=6"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=6"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=6"
+      }
+    ]
+  },
+  {
+    "id": "stats-nz-2025-7",
+    "name": "Waiariki",
+    "kind": "maori",
+    "slug": "waiariki",
+    "stats_id": "7",
+    "search_key": "waiariki",
+    "baseline_ids": [
+      72
+    ],
+    "boundary_note": "Nineteen electorates are unchanged.",
+    "mapping_status": "unchanged",
+    "observed_at": "2026-10-16T16:14:56Z",
+    "source_ref": [
+      {
+        "field": "id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=7"
+      },
+      {
+        "field": "observed_at",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=7"
+      },
+      {
+        "field": "name",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=7"
+      },
+      {
+        "field": "kind",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=7"
+      },
+      {
+        "field": "slug",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=7"
+      },
+      {
+        "field": "stats_id",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=7"
+      },
+      {
+        "field": "search_key",
+        "source_id": "G:stats-nz/maori-2025.geojson",
+        "locator": "MED2025_V1_00=7"
+      },
+      {
+        "field": "baseline_ids",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=7"
+      },
+      {
+        "field": "boundary_note",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=7"
+      },
+      {
+        "field": "mapping_status",
+        "source_id": "config/electorate-correspondence.json",
+        "locator": "new_id=7"
+      }
+    ]
+  }
+]

@@ -293,6 +293,34 @@ def downloads(envs, data_sha):
                   source=source_note(envs.get('polls'), inputs='polls.json' if 'polls' in envs else 'validation-2023.json'))
 
 
+def electorates_page(envs, built=None):
+    from product.nz_election.pipeline.geography import svg
+    rows = envs.get('electorates', {}).get('data', config('electorates'))
+    collections = {k: envs[k + '-2025'] for k in ('general', 'maori') if k + '-2025' in envs}
+    mappings = {e['new_id']: e for e in config('electorate-correspondence')['entries'] if e['new_id'] is not None}
+    directory = ''
+    for kind, heading in [('general', 'General electorates'), ('maori', 'Māori electorates')]:
+        directory += '<h2>' + heading + '</h2><ul>'
+        for row in rows:
+            if row['kind'] == kind:
+                directory += (f'<li id="electorate-{escape(row["slug"])}" data-search-key="{escape(row["search_key"], quote=True)}">'
+                              f'<a href="#electorate-{escape(row["slug"])}">{escape(row["name"])}</a>'
+                              f'<p>{escape(row['boundary_note'] if row['stats_id'] in mappings else 'Comparison unresolved')}</p></li>')
+        directory += '</ul>'
+    sources = envs.get('electorates', {}).get('source', [])
+    source = '<p class="source-note" id="source-geography">Source: Stats NZ, 2025 boundaries. '
+    source += ' '.join(link(s['url'], s['id'].removeprefix('G:')) + ' ' + escape(s['licence']) for s in sources)
+    if sources:
+        source += f' <a href="{PREFIX}downloads/">Boundary downloads and provenance</a>. Offline verification from captured sources.'
+    if 'electorates' in envs:
+        source += ' Retrieved ' + escape(local_time(envs['electorates']['fetched_at'])) + '.'
+        status = next((r for r in envs.get('status', {}).get('data', []) if r['dataset'] == 'geography'), None)
+        if status and (status['state'] != 'fresh' or (built and datetime.fromisoformat(built.replace('Z', '+00:00')) - datetime.fromisoformat(status['last_success_at'].replace('Z', '+00:00')) > timedelta(hours=36))):
+            source += ' Update overdue. Showing retained boundaries.'
+    source += '</p>'
+    return render('electorates', map=svg(collections, rows), directory=directory, source=source)
+
+
 def output_path(out):
     out = Path(out).absolute()
     resolved = out.resolve()
@@ -342,6 +370,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
                           f'>{escape(r["label"])}</a>' for r in routes)
             if slug == '':
                 body = polls_page(envs, built)
+            elif slug == 'electorates/':
+                body = electorates_page(envs, built)
             elif slug == 'methods/':
                 body = methods
             elif slug == 'downloads/':
@@ -356,7 +386,14 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             validate_scripts(page.read_text())
         shutil.copyfile(PRODUCT / 'web/coalitions.mjs', stage / 'coalitions.mjs')
         shutil.copyfile(PRODUCT / 'web/styles.css', stage / 'styles.css')
+        with (stage / 'styles.css').open('a') as stylesheet:
+            for row in config('electorates'):
+                slug = row['slug']
+                stylesheet.write(f'.electorates:has(#electorate-{slug}:target) [data-electorate="{slug}"]' +
+                                 '{fill:url(#selected-hatch);stroke:#181818;stroke-width:3}\n')
+
         shutil.copyfile(PRODUCT / 'web/allocator.mjs', stage / 'allocator.mjs')
+        shutil.copyfile(PRODUCT / 'web/electorates.mjs', stage / 'electorates.mjs')
         replace_directory(stage, out)
     return out
 

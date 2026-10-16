@@ -45,7 +45,7 @@ def source_entries():
     p = dict(id='P', url=source['url'], revision=source['revision'], licence=source['licence'],
              fetched_at=wiki['captured_at'], history_url=source['history_url'])
     e = [dict(id='E:' + row['path'], url=row['url'], revision=row['revision'], licence=row['licence'],
-              fetched_at=row['captured_at'], history_url=None) for row in entries if row['path'].startswith('ec-')]
+              fetched_at=row['captured_at'], history_url=None) for row in entries if row['path'].startswith(('ec-2023/', 'ec-2023-xml/'))]
     return [p], e
 
 
@@ -114,7 +114,7 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
             prior = next((s for s in good if s['dataset'] == 'polls'), {})
             error = None
             try:
-                raw = captures()
+                raw = captures(paths={e['path'] for e in json.loads((ROOT / 'manifest.json').read_text())['entries'] if e['path'].startswith(('ec-2023/', 'ec-2023-xml/', 'wikipedia/polls-2026.'))})
                 sources, ec = source_entries()
                 wikitext = raw['wikipedia/polls-2026.wikitext'].decode()
                 if acquire is not None:
@@ -165,6 +165,8 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
                 (stage / 'LICENCES.md').write_text(licences(sources[0]))
             elif not (stage / 'LICENCES.md').exists():
                 (stage / 'LICENCES.md').write_text(licences())
+            if (stage / 'electorates.json').exists():
+                export.merged_licences(stage)
             export.inventory(stage, run_url, sha, now)
             export.validate_bundle(stage)
             replace_directory(stage, out)
