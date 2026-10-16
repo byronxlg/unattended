@@ -1,0 +1,13 @@
+<p>Find your electorate on the 2025 boundaries.</p>
+<div class="electorates">
+<input type="radio" name="map-kind" id="map-general" checked><label for="map-general">General electorates</label>
+<input type="radio" name="map-kind" id="map-maori"><label for="map-maori">Māori electorates</label>
+<div class="geography-layout">
+<figure>{{map}}<figcaption>2025 boundaries. Select an area or use the name directory.</figcaption></figure>
+<section class="electorate-directory" aria-label="Electorate directory">
+<div class="electorate-search" hidden><label for="electorate-search">Search electorates</label><input id="electorate-search" type="search" autocomplete="off"><p id="search-result" role="status"></p></div>
+{{directory}}
+</section></div>
+</div>
+{{source}}
+<script type="module" src="/unattended/nz-election/electorates.mjs"></script>

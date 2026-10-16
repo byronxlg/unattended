@@ -19,7 +19,12 @@ FIELDS = {
     'manifest': ROW | set('path format sha256 bytes row_count licences observation_start observation_end fetched_at producing_run_url input_hashes'.split()),
     'build-manifest': ROW | set('code_sha data_sha build_run_url built_at data_available'.split()),
 }
-STEMS = {'polls', 'averages', 'seats', 'status', 'manifest'}
+GEO = {'general-2025', 'maori-2025'}
+FAMILIES = {'polls': {'polls', 'averages', 'seats'}, 'geography': GEO | {'electorates'}}
+FIELDS['electorates'] = ROW | set('name kind slug stats_id search_key baseline_ids boundary_note mapping_status'.split())
+for stem in GEO:
+    FIELDS[stem] = ROW | {'name', 'kind'}
+STEMS = GEO | {'electorates', 'polls', 'averages', 'seats', 'status', 'manifest'}
 ALLOWED = {s + ext for s in STEMS for ext in ('.json', '.csv')} | {'LICENCES.md'}
 META = ['schema_version', 'source_json', 'fetched_at', 'run_url', 'code_sha',
         'input_hashes_json', 'method_version', 'generated_at']
@@ -93,7 +98,8 @@ def rows(env):
 
 
 def validate_envelope(env, stem):
-    if set(env) not in (BASE, BASE | DERIVED) or type(env['schema_version']) is not int or env['schema_version'] != 1:
+    extra = {'type', 'features'} if stem in GEO else set()
+    if set(env) not in (BASE | extra, BASE | DERIVED | extra) or type(env['schema_version']) is not int or env['schema_version'] != 1:
         raise ValueError('INVALID_ENVELOPE')
     validate_times(env)
     for source in env['source']:
@@ -113,7 +119,21 @@ def validate_envelope(env, stem):
         if isinstance(value, list):
             for v in value:
                 exact(v)
-    exact(env)
+    exact({k: v for k, v in env.items() if k != 'features'} if stem in GEO else env)
+    if stem in GEO:
+        from .geography import validate
+        validate(env, stem.split('-')[0])
+        prop = 'GED2025_V1_00' if stem.startswith('general') else 'MED2025_V1_00'
+        if {r['id'] for r in env['data']} != {f.get('id') for f in env['features']}:
+            raise ValueError('BOUNDARY_ID_MISMATCH')
+        for feature in env['features']:
+            exact({k: v for k, v in feature.items() if k != 'geometry'})
+            exact({k: v for k, v in feature['geometry'].items() if k != 'coordinates'})
+            row = next(r for r in env['data'] if r['id'] == feature['id'])
+            if row['name'] != feature['properties'][prop + '_NAME'] or row['kind'] != stem.split('-')[0]:
+                raise ValueError('BOUNDARY_METADATA_MISMATCH')
+            if feature['id'] != 'stats-nz-2025-' + feature['properties'][prop]:
+                raise ValueError('BOUNDARY_ID_MISMATCH')
     seen = set()
     for row in rows(env):
         if set(row) != FIELDS[stem] or row['id'] in seen or not isinstance(row['source_ref'], list):
@@ -153,6 +173,9 @@ def validate_envelope(env, stem):
 def csv_bytes(env):
     validate_times(env)
     payload = rows(env)
+    if env.get('type') == 'FeatureCollection':
+        geometries = {f['id']: f['geometry'] for f in env['features']}
+        payload = [dict(r, geometry=geometries[r['id']]) for r in payload]
     keys = sorted({key for row in payload for key in row})
     nested = {key for key in keys if any(isinstance(r.get(key), (list, dict)) for r in payload)}
     columns = [key + '_json' if key in nested else key for key in keys]
@@ -251,6 +274,22 @@ def validate_bundle(root):
                         or entry['observation_start'] != min(observations, default=None)
                         or entry['observation_end'] != max(observations, default=None)):
                     raise ValueError('INVENTORY_METADATA_MISMATCH')
+    geo = FAMILIES['geography'] & envs.keys()
+    if geo and geo != FAMILIES['geography']:
+        raise ValueError('PARTIAL_GEOGRAPHY_BUNDLE')
+    if geo:
+        from .geography import validate
+        # A retained snapshot is validated against its own inventory and registry.
+        # Current configuration is checked only by the geography producer.
+        registry = envs['electorates']['data']
+        common = {canonical({k: envs[stem].get(k) for k in ('source', 'input_hashes', 'generated_at', 'run_url', 'code_sha')}) for stem in geo}
+        if len(common) != 1:
+            raise ValueError('MIXED_GEOGRAPHY_GENERATION')
+        registry_hash = digest(canonical(registry).encode('utf-8'))
+        if any(envs[stem]['input_hashes'].get('electorates.data') != registry_hash for stem in geo):
+            raise ValueError('GEOGRAPHY_REGISTRY_HASH_MISMATCH')
+        for kind in ('general', 'maori'):
+            validate(envs[kind + '-2025'], kind, registry)
     present = {'polls', 'averages', 'seats'} & envs.keys()
     if present and present != {'polls', 'averages', 'seats'}:
         raise ValueError('PARTIAL_POLL_BUNDLE')
@@ -275,3 +314,14 @@ def validate_bundle(root):
             if any(hashes.get(dep) != digest((root / dep).read_bytes()) for dep in deps):
                 raise ValueError('INPUT_HASH_MISMATCH')
     return envs
+
+
+def merged_licences(root):
+    from .refresh import licences
+    root = Path(root)
+    text = licences(json.loads((root / 'polls.json').read_text())['source'][0]) if (root / 'polls.json').exists() else licences()
+    if (root / 'electorates.json').exists():
+        sources = json.loads((root / 'electorates.json').read_text())['source']
+        text += '\nGeography: Stats NZ 2025 electorate boundaries and derived registry.\n'
+        text += ''.join(s['url'] + '\n' + s['licence'] + '\n' for s in sources)
+    (root / 'LICENCES.md').write_text(text)

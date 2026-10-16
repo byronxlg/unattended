@@ -9,18 +9,24 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1] / "fixtures"
 
 
-def captures(root=ROOT):
+def captures(root=ROOT, paths=None):
     manifest = json.loads((root / "manifest.json").read_text())
     result = {}
     for entry in manifest["entries"]:
         path = entry["path"]
+        if paths is not None and path not in paths:
+            continue
         target = root / path
+        if target.is_symlink() or not target.resolve().is_relative_to(root.resolve()):
+            raise ValueError("UNSAFE_CAPTURE_PATH")
         if not target.is_file():
             raise ValueError(f"MISSING_CAPTURE: {path}")
         raw = target.read_bytes()
         if hashlib.sha256(raw).hexdigest() != entry["sha256"]:
             raise ValueError(f"CAPTURE_HASH_MISMATCH: {path}")
         result[path] = raw
+    if paths is not None and set(result) != set(paths):
+        raise ValueError("MISSING_CAPTURE: " + ", ".join(sorted(set(paths) - set(result))))
     return result
 
 
@@ -30,7 +36,7 @@ def require_equal(left, right, context):
 
 
 def golden(root=ROOT):
-    raw = captures(root)
+    raw = captures(root, paths={e["path"] for e in json.loads((root / "manifest.json").read_text())["entries"] if e["path"].startswith(("ec-2023/", "ec-2023-xml/"))})
     def xml(name):
         return ET.fromstring(raw[f"ec-2023-xml/{name}.xml"])
     def rows(name):

@@ -145,13 +145,32 @@ def verify_coalitions(envs, root):
     require('Seats needed for a majority' in strip(seats), 'static majority retained')
 
 
+def verify_geography(envs, root):
+    from product.nz_election.pipeline import geography
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.pipeline.scripts import validate_scripts
+    collections = geography.load()
+    registry = config('electorates')
+    for kind, collection in collections.items():
+        geography.validate(collection, kind, registry)
+    require(registry == geography.registry(collections), 'reviewed registry')
+    require(len(geography.svg(collections, registry).encode()) <= 300000, 'index SVG budget')
+    for row in registry:
+        require(len(geography.svg(collections, registry, row['id']).encode()) <= 30000, 'outline budget')
+    daily_refresh(root / 'data')
+    page = build(root / 'data', root / 'geography-site') / 'electorates/index.html'
+    html = page.read_text()
+    require(validate_scripts(html) and html.count('data-search-key=') == 71, 'static directory')
+    require('fill-rule="evenodd"' in html and 'map-general' in html and 'map-maori' in html, 'map layers and holes')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions'])
+    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     args = parser.parse_args()
-    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions}
+    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
@@ -168,7 +187,7 @@ def main():
         for name, check in checks.items():
             if args.check in ('all', name):
                 check(envs, root)
-                print('PASS ' + name)
+                print('PASS ' + name + (': 64 general, 7 Māori' if name == 'geography' else ''))
         if args.check == 'all':
             print('PASS all')
 

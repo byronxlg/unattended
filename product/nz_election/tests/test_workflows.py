@@ -64,7 +64,7 @@ def test_orphan_bootstrap(tmp_path):
     assert result['outcome'] == 'published' and result['attempts'] == 1
     assert git(remote, 'rev-list', '--parents', '-n', '1', 'data').stdout.split() == [result['sha']]
     names = git(remote, 'ls-tree', '-r', '--name-only', 'data').stdout.splitlines()
-    assert set(names) == {str(DATA / n) for n in export.ALLOWED}
+    assert set(names) == {str(DATA / n) for n in {'polls.json', 'polls.csv', 'averages.json', 'averages.csv', 'seats.json', 'seats.csv', 'status.json', 'status.csv', 'manifest.json', 'manifest.csv', 'LICENCES.md'}}
     assert publish(bundle, remote)['outcome'] == 'unchanged'
     # Bootstrap conflicts must rebase the owned bundle onto the winning orphan commit.
     racing = tmp_path / 'racing.git'

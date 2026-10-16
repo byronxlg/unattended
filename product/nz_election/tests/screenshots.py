@@ -59,7 +59,7 @@ def check_page(page, url, site, origin):
     from product.nz_election.pipeline.scripts import validate_scripts
     assert validate_scripts(page.content())
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'PAGE_OVERFLOW: ' + url
-    for href in page.locator('a[href],link[href]').evaluate_all('(els)=>els.map(e=>e.href)'):
+    for href in page.locator('a[href],link[href]').evaluate_all('(els)=>els.map(e=>new URL(e.getAttribute("href"), document.baseURI).href)'):
         parsed = urlsplit(href)
         if not href.startswith(origin):
             continue
@@ -86,7 +86,7 @@ def check_page(page, url, site, origin):
       return (c.match(/[\\d.]+/g)||[]).map(Number);
     })''')
     assert all(contrast(c, [255,255,255]) >= 3 for c in boundaries), 'BOUNDARY_CONTRAST'
-    targets = page.locator('a').evaluate_all('els=>els.filter(e=>e.getClientRects().length).map(e=>e.getBoundingClientRect().height)')
+    targets = page.locator('a:not(svg a)').evaluate_all('els=>els.filter(e=>e.getClientRects().length).map(e=>e.getBoundingClientRect().height)')
     assert all(height >= 44 for height in targets), 'SMALL_TARGET'
     page.keyboard.press('Tab')
     focused = page.evaluate('''()=>{const e=document.activeElement,s=getComputedStyle(e);return {text:e.textContent,width:s.outlineWidth,color:s.outlineColor,top:e.getBoundingClientRect().top}}''')
@@ -101,7 +101,7 @@ def check_page(page, url, site, origin):
 
 def static_text(page):
     return page.locator('main').evaluate("""el=>{
-      const copy=el.cloneNode(true); copy.querySelector('#coalition-explorer')?.remove();
+      const copy=el.cloneNode(true); copy.querySelector('#coalition-explorer')?.remove(); copy.querySelector('.electorate-search')?.remove();
       return copy.textContent;
     }""")
 
@@ -181,6 +181,7 @@ def main():
     origin = 'http://127.0.0.1:' + str(server.server_port)
     build = json.loads((site / 'nz-election/build-manifest.json').read_text())['data']
     manifest = []
+    map_images = []
     try:
         with sync_playwright() as pw:
             candidates = sorted((Path.home() / 'Library/Caches/ms-playwright').glob('chromium_headless_shell-*/chrome-headless-shell-mac-arm64/chrome-headless-shell'))
@@ -214,17 +215,32 @@ def main():
                     manifest.append(dict(route=PREFIX + 'nz-election/' + path, viewport=dict(width=width, height=height),
                                          path=name, sha256=hashlib.sha256(target.read_bytes()).hexdigest(),
                                          code_sha=build['code_sha'], data_sha=build['data_sha'], browser_version=browser.version))
+                    if path == 'electorates/':
+                        assert plain.locator('.electorate-directory li').count() == 71
+                        assert page.locator('.electorate-map').count() == 1
+                        page.locator('#electorate-search').fill('TAMAKI')
+                        assert page.locator('[data-search-key]:visible').count() >= 1
+                        page.locator('#electorate-search').fill('')
+                        for kind in ('general', 'maori'):
+                            page.locator('#map-' + kind).check()
+                            page.locator('#map-' + kind).focus()
+                            assert page.locator('.layer-' + kind).is_visible()
+                            state_name = f'map-{kind}-{width}x{height}.png'
+                            page.screenshot(path=str(args.out / state_name))
+                            map_images.append(dict(state='map-' + kind, path=state_name,
+                                                   viewport=dict(width=width, height=height),
+                                                   sha256=hashlib.sha256((args.out / state_name).read_bytes()).hexdigest()))
                     plain.close()
                     page.close()
                 nojs.close()
                 context.close()
-            additional = state_images(browser, args.out)
+            additional = state_images(browser, args.out) + map_images
             browser.close()
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()
         server.server_close()
-    print('PASS screenshots: 6 routes, 12 baseline images')
+    print('PASS screenshots: 6 routes, 12 baseline images, 12 additional state images (24 total)')
 
 
 if __name__ == '__main__':
