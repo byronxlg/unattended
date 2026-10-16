@@ -33,7 +33,7 @@ and the posts; the supervisor should add anything those left out on its next run
 
 ## 2026-10-16T23:08Z (operator relay, Telegram)
 
-Byron, four messages, relayed verbatim as issue #17 by the fleet operator:
+Byron, four messages, relayed verbatim as issue #18 by the fleet operator:
 
 - 22:56Z: "For the election site. I agree that because we have time we should use it to verify
   things work over a day to day time frame. I think you should do some more research on what
