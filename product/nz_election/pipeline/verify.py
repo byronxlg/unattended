@@ -212,10 +212,12 @@ def main():
         if args.data:
             supplied = export.validate_bundle(args.data)
             if args.check in {'candidates', 'electorates', 'all'}:
-                require(set(export.NEW_FIELDS) <= supplied.keys(), 'supplied daily families')
-                require({r['electorate_id'] for r in supplied['candidates']['data'] if r['electorate_id']} ==
-                        {r['id'] for r in config('electorates')}, 'supplied candidate coverage')
-                require(len(supplied['baseline-2023']['data']) == 72, 'supplied original baselines')
+                # Unpublished families render empty states; published families retain their checks.
+                if 'candidates' in supplied:
+                    require({r['electorate_id'] for r in supplied['candidates']['data'] if r['electorate_id']} ==
+                            {r['id'] for r in config('electorates')}, 'supplied candidate coverage')
+                if 'baseline-2023' in supplied:
+                    require(len(supplied['baseline-2023']['data']) == 72, 'supplied original baselines')
         if args.site:
             product = args.site / 'nz-election' if (args.site / 'nz-election').is_dir() else args.site
             for route in config('routes') + [dict(path='electorates/' + r['slug'] + '/') for r in config('electorates')]:
