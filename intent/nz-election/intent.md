@@ -89,7 +89,7 @@ Days count from 16 October NZ (day 1). Each milestone is live on Pages when it c
 Daily iteration between milestones: one shipped change per build day, two when the plan shows
 disjoint files.
 
-### Design and marketing track (Byron's steer 2026-10-17, issue #8)
+### Design and marketing track (Byron's steer 2026-10-17, issue #15)
 
 | Days | Design | Marketing |
 |---|---|---|
