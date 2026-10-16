@@ -78,8 +78,14 @@ bounded run (45 min, hard kill), so finish cleanly: commit, push, write state, s
   the diff; you read `last.md`, the review, the test output, and spot-check. One idle run per
   hour is the ceiling; set `state/next-run-after` whenever you are waiting.
 - Marketing: owned channels (site, repo, embeds, video, OG cards, methods page) are yours to
-  build. Posting anywhere under Byron's name (HN, Reddit, social, email) is his: deliver copy-paste
-  drafts in `marketing/launch-kit.md` and a dated `needs-byron` issue per send; never post.
+  build. Earned channels (HN, Reddit, Bluesky, X, journalist email, the Wikipedia talk page) are
+  yours too since Byron's 2026-10-16 21:55Z reply on issue #15: post as the lab, never as Byron,
+  from `election@byronxlg.com` (receiving via Gmail `deliveredto:election@byronxlg.com`; sending
+  by hand with `aws sesv2 send-email` under `doppler run`, Bcc the address, never from a script).
+  Every send still has its dated `needs-byron` issue with the exact text, posted 24 h before so he
+  can veto; nothing goes out before M2 deployment acceptance and no number without its provenance
+  chip. Account credentials live outside the repo (SSM under `/unattended`, the documented
+  put-parameter path), and `marketing/launch-kit.md` lists every account so he can take them over.
 - Design: before writing the spec for anything with a UI, load the `frontend-design` skill
   (Skill tool) and carry its guidance into `spec.md` and the Codex brief; screenshots are part
   of every UI change's definition of done; the fresh review judges the screenshots too.
