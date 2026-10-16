@@ -1,0 +1,4 @@
+{
+  "schema_note": "Reviewed joins only: candidate_id, electorate_id, party_id, reviewer, evidence, claims (field to value/source_id/locator records). No automatic identity joins.",
+  "mappings": []
+}

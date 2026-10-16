@@ -16,7 +16,7 @@ def bundle(tmp_path):
 
 
 def test_capture_manifest():
-    assert len(captures()) == 27
+    assert len(captures()) == 110
 
 
 def test_envelopes_and_provenance(bundle):
@@ -122,12 +122,12 @@ def test_hourly_daily_race_preserves_union(tmp_path):
     checkout = tmp_path / 'checkout'
     git(tmp_path, 'clone', '-q', '--branch', 'data', str(remote), str(checkout))
     envs = export.validate_bundle(checkout / DATA)
-    assert export.FAMILIES['polls'] | export.FAMILIES['geography'] <= envs.keys()
-    assert {r['dataset'] for r in envs['status']['data']} == {'polls', 'geography'}
+    assert set.union(*export.FAMILIES.values()) <= envs.keys()
+    assert {r['dataset'] for r in envs['status']['data']} == set(export.FAMILIES)
     assert 'Stats NZ' in (checkout / DATA / 'LICENCES.md').read_text()
     for source in (hourly, daily):
         for p in source.iterdir():
-            if p.stem in export.FAMILIES['polls'] | export.FAMILIES['geography']:
+            if p.stem in set.union(*export.FAMILIES.values()):
                 assert p.read_bytes() == (checkout / DATA / p.name).read_bytes()
 
 

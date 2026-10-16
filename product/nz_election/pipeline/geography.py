@@ -179,7 +179,7 @@ def svg(collections, rows, only=None):
                 for ring in poly:
                     points = [f'{(x-xmin)*scale+10:.1f},{(ymax-y)*scale+10:.1f}' for x, y in ring[:-1]]
                     commands.append('M' + ' '.join(points) + 'Z')
-            result.append(f'<a href="#electorate-{row["slug"]}" tabindex="-1"><path data-electorate="{row["slug"]}" fill-rule="evenodd" d="{"".join(commands)}"><title>{escape(row["name"])}</title></path></a>')
+            result.append(f'<a href="/unattended/nz-election/electorates/{row["slug"]}/" tabindex="-1"><path data-electorate="{row["slug"]}" fill-rule="evenodd" d="{"".join(commands)}"><title>{escape(row["name"])}</title></path></a>')
         result.append('</g>')
     result.append('</svg>')
     return ''.join(result)

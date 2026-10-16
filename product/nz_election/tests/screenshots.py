@@ -173,7 +173,9 @@ def main():
         raise SystemExit('PLAYWRIGHT_REQUIRED: ' + str(exc))
     site = args.site.resolve()
     routes = json.loads((PRODUCT / 'config/routes.json').read_text())
-    assert len(routes) == 6 and len({r['path'] for r in routes}) == 6
+    registry = json.loads((PRODUCT / 'config/electorates.json').read_text())
+    routes += [dict(path='electorates/' + r['slug'] + '/') for r in registry]
+    assert len(routes) == 77 and len({r['path'] for r in routes}) == 77
     args.out.mkdir(parents=True, exist_ok=True)
     server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(site)))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -206,7 +208,7 @@ def main():
                     text = check_page(page, url, site, origin)
                     assert page.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")
                     assert page.evaluate("[...document.querySelectorAll('*')].every(e=>getComputedStyle(e).animationName==='none')")
-                    name = (path.strip('/') or 'polls') + f'-{width}x{height}.png'
+                    name = (path.strip('/').replace('/', '--') or 'polls') + f'-{width}x{height}.png'
                     target = args.out / name
                     page.screenshot(path=str(target))
                     plain = nojs.new_page()
@@ -230,6 +232,27 @@ def main():
                             map_images.append(dict(state='map-' + kind, path=state_name,
                                                    viewport=dict(width=width, height=height),
                                                    sha256=hashlib.sha256((args.out / state_name).read_bytes()).hexdigest()))
+                    if path == 'electorates/':
+                        page.locator('#map-general').check()
+                        page.locator('a[href$="/electorates/wellington-north/"]').last.focus()
+                        state_name = f'map-selected-focus-{width}x{height}.png'
+                        page.screenshot(path=str(args.out / state_name))
+                        map_images.append(dict(state='map-selected-focus', path=state_name,
+                                               viewport=dict(width=width, height=height),
+                                               sha256=hashlib.sha256((args.out / state_name).read_bytes()).hexdigest()))
+                    if path == 'electorates/wellington-north/':
+                        assert 'Wellington Central (2023)' in text
+                    if path == 'electorates/te-tai-tonga/':
+                        from product.nz_election.pipeline.electorate_pages import detail
+                        row = next(r for r in registry if r['slug'] == 'te-tai-tonga')
+                        page.locator('main').evaluate('(el,html)=>el.innerHTML=html', '<h1>Te Tai Tonga</h1><p>Controlled missing-data verification.</p>' + detail(row, {}))
+                        assert 'Official candidates not available' in page.locator('main').inner_text()
+                        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                        state_name = f'electorate-missing-data-{width}x{height}.png'
+                        page.screenshot(path=str(args.out / state_name), full_page=True)
+                        map_images.append(dict(state='electorate-missing-data', path=state_name,
+                                               viewport=dict(width=width, height=height),
+                                               sha256=hashlib.sha256((args.out / state_name).read_bytes()).hexdigest()))
                     plain.close()
                     page.close()
                 nojs.close()
@@ -240,7 +263,8 @@ def main():
     finally:
         server.shutdown()
         server.server_close()
-    print('PASS screenshots: 6 routes, 12 baseline images, 12 additional state images (24 total)')
+    print('PASS screenshots: 77 routes, 154 baseline images')
+    print('Additional state images: ' + str(len(additional)))
 
 
 if __name__ == '__main__':

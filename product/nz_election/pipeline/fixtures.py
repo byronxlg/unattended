@@ -35,8 +35,11 @@ def require_equal(left, right, context):
         raise ValueError(f"FIXTURE_2023_MISMATCH: {context}: {left} != {right}")
 
 
+GOLDEN_PATHS = {'ec-2023/' + name + '.csv' for name in ('party-quotients', 'party-votes', 'lists-successful', 'lists-unsuccessful', 'winners')} | {'ec-2023-xml/' + name + '.xml' for name in ('election', 'parties', 'candidates', 'electorates')}
+
+
 def golden(root=ROOT):
-    raw = captures(root, paths={e["path"] for e in json.loads((root / "manifest.json").read_text())["entries"] if e["path"].startswith(("ec-2023/", "ec-2023-xml/"))})
+    raw = captures(root, paths=GOLDEN_PATHS)
     def xml(name):
         return ET.fromstring(raw[f"ec-2023-xml/{name}.xml"])
     def rows(name):

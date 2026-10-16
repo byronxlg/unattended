@@ -39,13 +39,14 @@ def utc_now():
 
 
 def source_entries():
+    from product.nz_election.pipeline.fixtures import GOLDEN_PATHS
     entries = json.loads((ROOT / 'manifest.json').read_text())['entries']
-    wiki = next(e for e in entries if e['path'].endswith('.wikitext'))
+    wiki = next(e for e in entries if e['path'] == 'wikipedia/polls-2026.wikitext')
     source = config('sources')['wikipedia']
     p = dict(id='P', url=source['url'], revision=source['revision'], licence=source['licence'],
              fetched_at=wiki['captured_at'], history_url=source['history_url'])
     e = [dict(id='E:' + row['path'], url=row['url'], revision=row['revision'], licence=row['licence'],
-              fetched_at=row['captured_at'], history_url=None) for row in entries if row['path'].startswith(('ec-2023/', 'ec-2023-xml/'))]
+              fetched_at=row['captured_at'], history_url=None) for row in entries if row['path'] in GOLDEN_PATHS]
     return [p], e
 
 
@@ -114,7 +115,8 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
             prior = next((s for s in good if s['dataset'] == 'polls'), {})
             error = None
             try:
-                raw = captures(paths={e['path'] for e in json.loads((ROOT / 'manifest.json').read_text())['entries'] if e['path'].startswith(('ec-2023/', 'ec-2023-xml/', 'wikipedia/polls-2026.'))})
+                from product.nz_election.pipeline.fixtures import GOLDEN_PATHS
+                raw = captures(paths=GOLDEN_PATHS | {'wikipedia/polls-2026.api.json', 'wikipedia/polls-2026.wikitext'})
                 sources, ec = source_entries()
                 wikitext = raw['wikipedia/polls-2026.wikitext'].decode()
                 if acquire is not None:

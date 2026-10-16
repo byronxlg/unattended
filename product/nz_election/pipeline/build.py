@@ -2,7 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = []
 # ///
-"""Render six offline pages, validating everything before replacing product output."""
+"""Render 77 offline pages, validating everything before replacing product output."""
 import argparse
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -24,7 +24,7 @@ from product.nz_election.pipeline import export, coalitions
 from product.nz_election.pipeline.scripts import validate_scripts
 from product.nz_election.pipeline.allocator import allocate
 from product.nz_election.pipeline.average import display, threshold_watch
-from product.nz_election.pipeline.fixtures import golden
+from product.nz_election.pipeline.fixtures import golden, GOLDEN_PATHS
 from product.nz_election.pipeline.refresh import PRODUCT, config, source_entries, code_sha, utc_now
 from product.nz_election.pipeline.storage import replace_directory
 
@@ -251,7 +251,7 @@ def methods_page(stage, built, sha, run_url):
             records.append([escape(official['partyNames'][p]), f'{votes:,}', str(result['entitlements'][p]),
                             str(official['input']['electorateWins'][p]), str(result['seats'][p])])
     env = export.envelope(normalized, source_entries()[1], run_url, sha,
-                          inputs={e['path']: e['sha256'] for e in json.loads((PRODUCT / 'fixtures/manifest.json').read_text())['entries'] if e['path'].startswith('ec-')},
+                          inputs={e['path']: e['sha256'] for e in json.loads((PRODUCT / 'fixtures/manifest.json').read_text())['entries'] if e['path'] in GOLDEN_PATHS},
                           method='official-2023-validation-v1', generated=built)
     (stage / 'validation-2023.json').write_text(export.canonical(env) + '\n')
     (stage / 'validation-2023.csv').write_bytes(export.csv_bytes(env))
@@ -304,7 +304,7 @@ def electorates_page(envs, built=None):
         for row in rows:
             if row['kind'] == kind:
                 directory += (f'<li id="electorate-{escape(row["slug"])}" data-search-key="{escape(row["search_key"], quote=True)}">'
-                              f'<a href="#electorate-{escape(row["slug"])}">{escape(row["name"])}</a>'
+                              f'<a href="{PREFIX}electorates/{escape(row["slug"])}/">{escape(row["name"])}</a>'
                               f'<p>{escape(row['boundary_note'] if row['stats_id'] in mappings else 'Comparison unresolved')}</p></li>')
         directory += '</ul>'
     sources = envs.get('electorates', {}).get('source', [])
@@ -364,14 +364,20 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
         routes = config('routes')
         if len(routes) != 6 or {r['path'] for r in routes} != {'', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/'}:
             raise ValueError('INVALID_ROUTES')
+        primary_routes = routes
+        routes = routes + [dict(path='electorates/' + r['slug'] + '/', label=r['name']) for r in config('electorates')]
         for route in routes:
             slug = route['path']
             nav = ''.join(f'<a href="{PREFIX + r["path"]}"' + (' aria-current="page"' if r == route else '') +
-                          f'>{escape(r["label"])}</a>' for r in routes)
+                          f'>{escape(r["label"])}</a>' for r in primary_routes)
             if slug == '':
                 body = polls_page(envs, built)
             elif slug == 'electorates/':
                 body = electorates_page(envs, built)
+            elif slug.startswith('electorates/'):
+                from product.nz_election.pipeline.electorate_pages import detail
+                row = next(r for r in envs.get('electorates', {}).get('data', config('electorates')) if slug == 'electorates/' + r['slug'] + '/')
+                body = detail(row, envs, built)
             elif slug == 'methods/':
                 body = methods
             elif slug == 'downloads/':
@@ -379,7 +385,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             else:
                 body = render('placeholder', description=descriptions[slug])
             target = stage / slug
-            target.mkdir(exist_ok=True)
+            target.mkdir(parents=True, exist_ok=True)
             (target / 'index.html').write_text(render('base', title=route['label'], prefix=PREFIX, nav=nav, body=body,
                                                     built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.'))
         for page in stage.rglob('*.html'):
@@ -389,7 +395,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
         with (stage / 'styles.css').open('a') as stylesheet:
             for row in config('electorates'):
                 slug = row['slug']
-                stylesheet.write(f'.electorates:has(#electorate-{slug}:target) [data-electorate="{slug}"]' +
+                stylesheet.write(f'.electorates:has(#electorate-{slug}:target) [data-electorate="{slug}"],\n' +
+                                 f'.electorates:has(#electorate-{slug}:focus-within) [data-electorate="{slug}"]' +
                                  '{fill:url(#selected-hatch);stroke:#181818;stroke-width:3}\n')
 
         shutil.copyfile(PRODUCT / 'web/allocator.mjs', stage / 'allocator.mjs')
@@ -406,7 +413,7 @@ def main():
     args = parser.parse_args()
     build(args.data, args.out, data_sha=args.data_sha or os.environ.get('NZ_DATA_SHA') or None,
           sha=os.environ.get('NZ_CODE_SHA'))
-    print('PASS build: 6 routes')
+    print('PASS build: 77 routes')
 
 
 if __name__ == '__main__':
