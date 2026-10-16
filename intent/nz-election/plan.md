@@ -290,3 +290,20 @@ the plan, the decision wins. Interrogated for: fixture list complete, each incre
    export, no templates, no workflows.
 7. Design decisions in the spec resolutions stand (counts inside the strip, white inset labels,
    anchored lanes at 390 px); screenshots prove them in increment 2.
+
+## Increment 1 departures
+
+Recorded by the supervisor at review of PR #9 (build `nz-election-1`, 580 s, HEAD 281e6d8); the
+engineer's branch base (e64f262) predates this file on `main`, so Codex read the plan from commit
+62d3ff6 and could not edit it.
+
+1. No `allocator-golden.json` or `parser-cases.json` under `fixtures/` (decision 6 named them).
+   The brief forbade every write under `fixtures/`, including new files, so the golden is built
+   in memory from the checked captures and the synthetic parser cases live in the tests. Accepted:
+   the captures stay the only bytes under `fixtures/`, and the golden derives from them.
+2. Date exception: Wikipedia revision 1380524613 sorts the Verian 8 to 11 August poll under
+   12 August. The parser uses the visible fieldwork dates and records the disagreement in
+   `diagnostics.date_exceptions`, keyed in `config/party-map.json` by revision, pollster, visible
+   and sort dates. Accepted: visible dates are the source of truth; the exception is narrow.
+3. `tests/test_ci.py` named in the brief did not exist; the collection assertion is replaced by the
+   two `--collect-only` counts in the definition of done (84 root, 24 product).
