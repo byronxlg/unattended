@@ -18,7 +18,7 @@ Reset removes the hash and restores the published electorate counts with no sele
 | Brief | Enforcement |
 | --- | --- |
 | 1. Static first | `build.polls_page` retains `strip`; hidden disabled fieldset; `verify_coalitions`, `test_static_content_preserved`, JS-disabled `coalitions_browser.py` |
-| 2. Script allowlist | `scripts.validate_scripts` called before publishing, by `verify_polls`, `test_build` and the screenshot harness; `test_script_allowlist` |
+| 2. Script allowlist | `scripts.validate_scripts` permits only `coalitions.mjs` and `allocator.mjs` at same-origin `PREFIX` paths, with exactly `type="module"` and `src`, no inline content or other scripts. This is a filename allowlist, not a module hash check. `build.py` copies these `product/nz_election/web/*.mjs` bytes from the PR-reviewed code checkout. Enforced before publishing, by `verify_polls`, `test_build`, the screenshot harness and `test_script_allowlist`. |
 | 3. Exact arithmetic | `coalitions.scenario` and `coalitions.mjs` call `entitlement`; `test_scenario_python_js_parity` compares canonical output bytes |
 | 4. Conditional majority | Both scenario functions keep occupied House, vacancies and definitive majority null; `test_unknown_capacity_stays_conditional`; real-candidate vacancy allocation in `test_real_candidate_vacancies` and `verify_coalitions` |
 | 5. Empty selection, electorate limits | `inputs`, `validate`, Reset handler; `test_no_preselected_coalition`, browser checks |

@@ -128,6 +128,52 @@ def checks(browser, site):
         server.shutdown(); server.server_close()
 
 
+def check_unassigned_after_unavailable_allocation(browser, site):
+    from coalition_unassigned_cases import unassigned_inputs
+    from product.nz_election.pipeline.build import explorer
+    from product.nz_election.pipeline import export
+
+    server, origin = serve(site)
+    url = origin + PREFIX + 'nz-election/'
+    try:
+        for no_eligible in (False, True):
+            average, seats = unassigned_inputs(no_eligible)
+            averages_raw = export.canonical(dict(data=[average]))
+            average_hash = export.digest(averages_raw.encode())
+            seats_env = dict(data=seats, input_hashes={'averages.json': average_hash})
+            seats_raw = export.canonical(seats_env)
+            envs = dict(averages=dict(data=[average]), seats=seats_env,
+                        manifest=dict(data=[dict(path='seats.json', sha256=export.digest(seats_raw.encode()))]))
+            html = ('<!doctype html><html><head><link rel="stylesheet" href="' + url + 'styles.css">'
+                    '</head><body><main><h1>Synthetic allocation regression</h1>' + explorer(envs) +
+                    '</main></body></html>')
+            ctx = context(browser, origin)
+            try:
+                ctx.route(url, lambda route: route.fulfill(content_type='text/html', body=html))
+                ctx.route(url + 'data/averages.json', lambda route: route.fulfill(content_type='application/json', body=averages_raw))
+                ctx.route(url + 'data/seats.json', lambda route: route.fulfill(content_type='application/json', body=seats_raw))
+                page = ctx.new_page()
+                page.goto(url, wait_until='networkidle')
+                root = page.locator('#coalition-explorer')
+                root.locator('fieldset').wait_for(state='visible')
+                unassigned = root.locator('[data-unassigned]')
+                assert unassigned.is_visible()
+                assert unassigned.inner_text().startswith('71 electorate seats unassigned.')
+                assert root.locator('[data-picture] .strip').count() == (0 if no_eligible else 1)
+                count = root.locator('[data-count="b"]')
+                count.fill('1'); count.press('Tab')
+                assert 'Seats are unavailable' in root.locator('[data-live]').inner_text()
+                assert root.locator('[data-picture]').inner_text() == ''
+                assert unassigned.inner_text().startswith('70 electorate seats unassigned.')
+                count.fill('0'); count.press('Tab')
+                assert unassigned.inner_text().startswith('71 electorate seats unassigned.')
+                assert root.locator('[data-picture] .strip').count() == (0 if no_eligible else 1)
+            finally:
+                ctx.close()
+    finally:
+        server.shutdown(); server.server_close()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--site', type=Path, required=True)
@@ -151,6 +197,7 @@ def main():
             refresh(root / 'data', now='2026-10-17T01:00:00Z', end_date='2026-07-18')
             build(root / 'data', root / 'site/nz-election', built='2026-10-17T01:00:00Z')
             checks(browser, root / 'site')
+            check_unassigned_after_unavailable_allocation(browser, root / 'site')
         server, origin = serve(args.site.resolve())
         try:
             ctx = context(browser, origin)

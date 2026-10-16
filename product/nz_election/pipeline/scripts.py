@@ -1,4 +1,9 @@
-"""The only executable page assets are reviewed local ES modules."""
+"""Filename allowlist: only coalitions.mjs and allocator.mjs under PREFIX.
+
+Script tags must have exactly type="module" and a same-origin PREFIX src, with
+no inline content or other scripts. Module bytes are not hashed here: build.py
+copies these product/nz_election/web/*.mjs files from the PR-reviewed code checkout.
+"""
 from html.parser import HTMLParser
 
 PREFIX = '/unattended/nz-election/'
