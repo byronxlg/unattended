@@ -4,6 +4,7 @@
 # ///
 """Local git test transport for owned poll publication. No branch bootstrap or network."""
 from pathlib import Path
+from datetime import datetime, timezone
 import shutil
 import subprocess
 import tempfile
@@ -20,6 +21,13 @@ def git(root, *args, check=True):
 
 def status_of(envs):
     return next((s for s in envs['status']['data'] if s['dataset'] == 'polls'), None)
+
+
+def success_order(envs):
+    if 'polls' not in envs:
+        return (datetime.min.replace(tzinfo=timezone.utc),) * 2
+    return tuple(datetime.fromisoformat(value.replace('Z', '+00:00')) for value in
+                 (envs['polls']['fetched_at'], envs['averages']['generated_at']))
 
 
 def publish(bundle, repository, *, before_push=None, attempts=3):
@@ -49,9 +57,11 @@ def publish(bundle, repository, *, before_push=None, attempts=3):
             target = checkout / DATA
             current = export.validate_bundle(target)
             previous = status_of(current)
-            keep_data = previous and (previous['last_success_at'] or '') > (proposed['last_success_at'] or '')
+            # Acquisition wins first; unchanged captures use successful average-generation
+            # time. Exact ties retain repository bytes, independently of attempt chronology.
+            keep_data = previous and success_order(current) >= success_order(incoming)
             keep_status = previous and previous['last_attempt_at'] > proposed['last_attempt_at']
-            if keep_status and (keep_data or (previous['last_success_at'] or '') == (proposed['last_success_at'] or '')):
+            if keep_status and keep_data:
                 return dict(outcome='older-run-retained', attempts=attempt + 1, sha=git(checkout, 'rev-parse', 'HEAD').stdout.strip())
             if not keep_data:
                 for name in OWNED | {'LICENCES.md'}:

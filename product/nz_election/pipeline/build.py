@@ -57,6 +57,11 @@ def local_time(value):
     return f"{dt.hour % 12 or 12}:{dt.minute:02d} {'am' if dt.hour < 12 else 'pm'}, {dt:%A} {dt.day} {dt:%B %Y %Z}"
 
 
+def observation_label(value):
+    # Poll observation dates have no time zone; operational observations have timestamps.
+    return local_time(value) if value and 'T' in value else value or 'Not available'
+
+
 def table(caption, headings, records, css='', source=None):
     description = f' aria-describedby="{source}"' if source else ''
     return (f'<div class="scroll {css}" tabindex="0" role="region" aria-label="{escape(caption)}">'
@@ -239,13 +244,15 @@ def downloads(envs, data_sha):
                 ('SHA-256', escape(entry['sha256'] or 'Not available')),
                 ('Licence', escape(', '.join(entry['licences']) or 'Not available')),
                 ('Rows', str(entry['row_count'])),
-                ('Observation start', escape(entry['observation_start'] or 'Not available')),
-                ('Observation end', escape(entry['observation_end'] or 'Not available')),
-                ('Retrieved (UTC)', escape(entry['fetched_at'] or 'Not available')),
+                ('Observation start', escape(observation_label(entry['observation_start']))),
+                ('Observation end', escape(observation_label(entry['observation_end']))),
+                ('Retrieved (Pacific/Auckland)', escape(local_time(entry['fetched_at']) if entry['fetched_at'] else 'Not available')),
                 ('Producing run', producing), ('Immutable download', immutable)]
             metadata = '<dl class="download-fields">' + ''.join(
                 f'<dt>{key}</dt><dd>{value}</dd>' for key, value in fields) + '</dl>'
-            metadata += '<details><summary>Full manifest record</summary><pre>' + escape(export.canonical(entry)) + '</pre></details>'
+            metadata += ('<details><summary>Full manifest record (stored UTC)</summary>'
+                         '<dl><dt>Retrieved (UTC)</dt><dd>' + escape(entry['fetched_at'] or 'Not available') +
+                         '</dd></dl><pre>' + escape(export.canonical(entry)) + '</pre></details>')
             records.append(f'<tr data-file="{escape(name)}"><th scope="row"><a href="{PREFIX}data/{escape(name)}">{escape(name)}</a></th><td>{metadata}</td></tr>')
         catalogue = '<table class="download-catalogue"><caption>Published data inventory</caption><tbody>' + ''.join(records) + '</tbody></table>'
         catalogue += f'<p><a href="{PREFIX}data/LICENCES.md">Licences and CSV format</a></p>'

@@ -63,3 +63,13 @@ through parent symlinks. Standalone verification outputs outside a site tree rem
 Publication uses a lease on the fetched data SHA and compares the remote ref after rejection;
 only a moved ref is retried. Latest attempt status merges separately from last-good data.
 The leased push commits directly on the fetched parent; it cannot rewrite newer history.
+
+Successful poll bundles are ordered lexicographically by `polls.fetched_at`, then
+`averages.generated_at`. Acquisition time remains primary: a newer generation cannot
+reintroduce an older acquisition. For unchanged captures, a later successful generation
+advances the daily series. Exact ties retain the repository's bytes and last-good run.
+The generation time comes from the retained derived envelope, never the latest attempt or
+page build time. Attempt status merges independently, so a later failure still reports its
+error while preserving the newest successful bundle and its last-good reference.
+Download summaries render retrieval times in Pacific/Auckland with NZST/NZDT; the labelled
+raw-record disclosure and downloadable manifests preserve stored UTC timestamps.
