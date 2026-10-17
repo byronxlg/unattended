@@ -19,6 +19,7 @@ if __package__ in (None, ''):
 from product.nz_election.pipeline import export
 from product.nz_election.pipeline.average import METHOD, trend
 from product.nz_election.pipeline.fixtures import ROOT, captures
+from product.nz_election.pipeline.models import ParseDrift
 from product.nz_election.pipeline.poll_parser import parse_polls, compare_revisions
 from product.nz_election.pipeline.seats import project
 from product.nz_election.pipeline.storage import replace_directory
@@ -158,6 +159,8 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
                 state = 'stale' if 'polls' in old else 'unavailable'
                 success, good_run = prior.get('last_success_at'), prior.get('last_good_run_url')
                 message = 'Refresh failed; retained last-good data.' if success else 'No data yet. A validated refresh is needed.'
+                if isinstance(exc, ParseDrift):
+                    message += ' ' + json.dumps(dict(reason=exc.reason, locator=exc.locator), ensure_ascii=True)
             status = dict(id='status-polls', source_ref=[], observed_at=now, dataset='polls', state=state,
                           last_attempt_at=now, last_success_at=success, last_good_run_url=good_run,
                           error_code=error, message=message)
@@ -199,7 +202,8 @@ def main():
         with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
             summary.write('## Poll refresh\n\n```json\n' + json.dumps(dict(status, attempted_revision=attempted_revision), indent=2) + '\n```\n')
     if status['state'] != 'fresh':
-        raise SystemExit('FAIL refresh: ' + status['error_code'])
+        detail = ' ' + status['message'] if status['error_code'] == 'parse_drift' else ''
+        raise SystemExit('FAIL refresh: ' + status['error_code'] + detail)
     if args.fixtures:
         print('Offline verification: immutable captures, not live data')
     print('PASS refresh: polls bundle')

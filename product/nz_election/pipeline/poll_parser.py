@@ -184,7 +184,9 @@ MONTHS = {m: i for i, m in enumerate(('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'), 1)}
 
 
-def dates(value, attrs):
+def dates(value, attrs, *, allow_sort_mismatch=False):
+    if not isinstance(value, str) or not isinstance(attrs, str):
+        raise ParseDrift("invalid_dates")
     value = clean(value)
     normalized = value.replace('\u2013', '-').replace('\u2014', '-')
     m = re.fullmatch(r'(?:(\d{1,2})(?:\s+([A-Za-z]+))?\s*-\s*)?(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})', normalized)
@@ -196,7 +198,13 @@ def dates(value, attrs):
     except (ValueError, KeyError):
         raise ParseDrift("invalid_dates", value) from None
     sort = attributes(attrs).get('data-sort-value')
-    if start > end or (sort and sort != end.isoformat()):
+    if sort is not None:
+        try:
+            if date.fromisoformat(sort).isoformat() != sort:
+                raise ValueError
+        except ValueError:
+            raise ParseDrift('invalid_dates', value + ' / ' + sort) from None
+    if start > end or (sort is not None and sort != end.isoformat() and not allow_sort_mismatch):
         raise ParseDrift("invalid_dates", value + ' / ' + (sort if sort else ''))
     return start.isoformat(), end.isoformat()
 
@@ -286,13 +294,15 @@ def parse_polls(wikitext, revision, mapping, identities):
                 continue
             date_attrs = cells[0][0]
             sort = attributes(date_attrs).get('data-sort-value')
+            allow_sort_mismatch = False
             for exception in mapping.get('date_exceptions', []):
-                if (exception['revision'] == revision and exception['visible'] == visible
+                if (exception['visible'] == visible
                         and sort and exception['sort'] == sort
-                        and exception['pollster'] == clean(cells[1][1])):
-                    date_attrs = ''
+                        and exception['pollster'] == clean(cells[1][1])
+                        and exception.get('source') and exception.get('reason')):
+                    allow_sort_mismatch = True
                     result.diagnostics.setdefault('date_exceptions', []).append(dict(locator=locator, **exception))
-            start, end = dates(cells[0][1], date_attrs)
+            start, end = dates(cells[0][1], date_attrs, allow_sort_mismatch=allow_sort_mismatch)
             if end[:4] != '2026':
                 raise ParseDrift("invalid_dates", locator)
             label = clean(cells[1][1])
