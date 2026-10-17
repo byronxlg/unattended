@@ -1048,3 +1048,7 @@ the handover on 2026-11-08.
   lands burns a day of X credits. Nothing else is dispatched today; home-a goes out on 18 Oct UTC.
 - Next: on job_done host-verify fix-1 (eval, pytest, lint, fixture), push, second fresh review,
   merge before the 13:40Z 18 Oct social daily, confirm Pages; home-a first run of 18 Oct UTC.
+- Correction: bin/codex-run copies the --prompt file to state/jobs/<id>/prompt.md, so the fix
+  dispatch overwrote the build brief with followup-1.md (same for every earlier follow-up on a
+  build id). Restored the build brief at that path from e1db21e; follow-ups live in their own
+  files. The second fresh review brief should cite the build brief by ref if this repeats.
