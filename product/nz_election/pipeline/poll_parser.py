@@ -210,6 +210,16 @@ def dates(value, attrs, *, allow_sort_mismatch=False):
 
 
 def parse_polls(wikitext, revision, mapping, identities):
+    position = {'locator': ''}
+    try:
+        return _parse_polls(wikitext, revision, mapping, identities, position)
+    except ParseDrift as exc:
+        # Only scanner-generated positions are safe for public diagnostics.
+        exc.public_locator = position['locator']
+        raise
+
+
+def _parse_polls(wikitext, revision, mapping, identities, position):
     if len(wikitext.encode()) > LIMIT:
         raise ParseDrift("size_limit")
     result, selected, seen = ParseResult(), 0, set()
@@ -225,12 +235,14 @@ def parse_polls(wikitext, revision, mapping, identities):
         if section != ['Party vote', 'Table of polls']:
             result.excluded_rows.append(dict(reason='non_national_table', locator=f'line:{line}', section=section))
             continue
+        position['locator'] = f'line:{line}'
         selected += 1
         rows = split_markup(body, '\n|-')
         header_found = False
         carry = {}
         for index, row in enumerate(rows):
             locator = f'table:{line}/row:{index}'
+            position['locator'] = locator
             cells = row_cells(row)
             if not cells:
                 continue
@@ -359,6 +371,7 @@ def parse_polls(wikitext, revision, mapping, identities):
                                      source_ref=locator, revision=revision, history=[]))
         if carry:
             raise ParseDrift("unexplained_merge", 'unterminated rowspan')
+        position['locator'] = ''
     if selected != 1 or not result.polls:
         raise ParseDrift("national_table_count", str(selected))
     result.diagnostics.update(poll_count=len(result.polls), excluded_count=len(result.excluded_rows))

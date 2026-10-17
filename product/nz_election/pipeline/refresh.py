@@ -160,7 +160,7 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
                 success, good_run = prior.get('last_success_at'), prior.get('last_good_run_url')
                 message = 'Refresh failed; retained last-good data.' if success else 'No data yet. A validated refresh is needed.'
                 if isinstance(exc, ParseDrift):
-                    message += ' ' + json.dumps(dict(reason=exc.reason, locator=exc.locator), ensure_ascii=True)
+                    message += ' ' + json.dumps(dict(reason=exc.reason, locator=exc.public_locator), ensure_ascii=True)
             status = dict(id='status-polls', source_ref=[], observed_at=now, dataset='polls', state=state,
                           last_attempt_at=now, last_success_at=success, last_good_run_url=good_run,
                           error_code=error, message=message)
