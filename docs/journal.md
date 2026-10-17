@@ -486,3 +486,56 @@ the handover on 2026-11-08.
   includes the social fixture step before the harness.
 - Next run: fix-1 last.md, host harness with the social fixture to the end, look at the
   populated screenshots at 390 and 1280, push, second fresh review, CI, merge.
+
+## 2026-10-17 02:41Z run (day 3, job_done:nz-election-social-poc-fix-1, job_done:review-nz-election-social-poc)
+
+- Codex window 61 percent at 02:38Z, resets in 5.2 days, even spread about 7 points per day;
+  six jobs today (POC, r1, r2, review, fix-1, now review-2). Disk 18.2 GiB. No new issues.
+- fix-1 landed 0642382 (517 s): closed model registry (jev-1.13.0 plus the two repo-owned
+  synthetic versions, anything else rejected and recorded as a sanitized error); build.py
+  refuses publication inside the s197 window via deployment_guard.require_publication_allowed,
+  with --now for deterministic tests; pages.yml gained an inline clock guard 2026-11-06T10:30Z
+  to 2026-11-07T06:00Z (23:30 NZDT 6 Nov to 19:00 NZDT 7 Nov, a 30 min buffer on the 10 min
+  deploy timeout); reservation claimed durably through publish.py before any paid request,
+  publication additive, a merge that would hide a spend refused; NZ budget date checked before
+  and after pacing with a 31 s margin before midnight; fixed-point Decimal bounded at 1,000
+  places; both populated figures carry aria-describedby. Eight new tests in
+  test_social_fix_round1.py, each failing on 1271c0e per the job report; existing tests unchanged.
+- Host verification on 0642382: 339 passed in 159.69s; fixture pipeline with the social fixture
+  PASS social, PASS build: 78 routes, PASS all; screenshot harness PASS 78 routes 206 images;
+  lint ok (348 text files). Looked at social/poc/ populated at 390 and 1280: title says Proof
+  of concept, lede gives 240 posts over 1 day, 16 October, one page per hour; withheld rows
+  for parties under 30; both figures with source notes. Nits for the refinement round, not
+  this PR: "over 1 days" grammar; primary-party bars scale to a small fraction of the row
+  width; attitude bars on the fixture show only two grey segments. Pushed; supervisor review
+  logged on PR #24.
+- Judgement noted on the PR: the freeze guard pauses the whole build and the whole Pages
+  deployment inside the window, not just the social route. Accepted as conservative under
+  s197: the election-night route updates only from 19:00 NZDT, so the night is not blocked.
+  The brief offered rendering the social route from the last pre-freeze state as the
+  alternative; the engineer chose the whole-site pause. Reversible, one change, no line to Byron.
+- Dispatched review-nz-election-social-poc-2 at 02:52Z (read-only, fresh context, both
+  populated screenshots attached) with the six items, the freeze arithmetic, the retry replay
+  walk-through and the leak paths as the checklist.
+- The 00:40Z judgement call (feed-home direction) still open to 12:30Z.
+- review-nz-election-social-poc-2 (118 s) found three Important and one nit: (1) publish.py
+  rejects an identical publication retry (the stored row holds the conservative 7,560 for a
+  7,200 report) and a zero-request handled stop; (2) the midnight check precedes checkpoint(),
+  so a slow checkpoint can cross NZ midnight before send(); (3) the pages.yml guard is
+  check-before-action, a delayed deploy step could land inside the window; nit "over 1 days".
+  Replay walk-through now gives ledger 7,560 and actual spend 7,200 instead of 14,400; the
+  freeze arithmetic confirmed; no remaining upstream-string path found; existing tests
+  unchanged. Could not run the tests in its sandbox; the host run stands. Logged on PR #24.
+- Judgement: items 1 and 2 confirmed and cheap, fix-2 dispatched 02:58Z on the build thread
+  (followup-4.md: idempotent identical publication, zero-request handled stop publishes,
+  lowering or hiding a spend still refused; recheck the budget date immediately before
+  transport; singular day; existing tests untouched, failing-then-passing test per item,
+  pages.yml untouched). Item 3 accepted as is with the reasoning on the PR: guard and deploy
+  run sequentially on one runner, the deploy step has a 10 min timeout, so a guard passing at
+  10:29Z is done by 10:40Z, 20 min before the 11:00Z freeze start; the 30 min buffer is the
+  bound. Not a weakening: nothing changed to pass.
+- CI on 0642382 (PR #24) still pending at run end.
+- Next run: fix-2 last.md, host run (tests, fixture pipeline with the social fixture, lint),
+  push, supervisor review on the PR; a third fresh review only if the diff reaches beyond
+  publish.py, social.py and social_page.py; CI green then squash merge, remove the worktree,
+  dispatch the daily workflow by hand (workflow_dispatch, day input) for the first real day.
