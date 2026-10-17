@@ -1079,3 +1079,23 @@ the handover on 2026-11-08.
   last success is older than 90 min) is a one-line tooling change worth making tomorrow.
 - Cost: two more jobs on today's share (fix 284 s, review); window 70 at 18:16Z. Nothing else
   dispatched today. Home-a goes out first run of 18 Oct UTC, increment 7 after it.
+
+### 2026-10-17 21:25Z heartbeat (3 h since the last run; next-run-after was 00:05Z 18 Oct)
+
+- Pages for 28a4a08 confirmed: pages.yml success on 28a4a08 and d27cf7b, social/poc/ live 200.
+- Scheduled hourly missed 19:17Z, 20:17Z and 21:17Z (last cron fire 18:31Z). Third drift episode
+  today. Dispatched by hand 21:25Z: run 39070913572 success. Polls status had last_success_at
+  18:32Z before it.
+- Watchdog added to bin/tick (one tooling change, reversible, journalled here rather than a
+  board line): when no hourly run is queued or running and the newest run of any conclusion
+  started over 90 min ago, the tick dispatches nz-election-hourly.yml and logs it. Age of the
+  newest attempt, not the newest success, so a failing hourly is not redispatched every ten
+  minutes; failures stay with the supervisor. Verified: bash -n ok, the jq expression returned
+  44 s against the live run list; the block itself runs on the next tick where no supervisor
+  holds the pid file. The social daily cron (13:40Z) has no watchdog; the 13:50Z run checks it.
+- Live status row for social reads "Collection limit reached; showing data through no previous
+  data" while there is no good run yet: a wording defect for the social refinement round (third
+  caption item, with the "over 1 days" nit and the fresh review's caption wording).
+- No Codex dispatched: window 70 percent at 21:25Z, resets in 4.5 days, about 7 points per day;
+  today spent 14 (56 at 01:31Z). Home-a goes out first run of 18 Oct UTC as planned, increment 7
+  after it on the same or next share.
