@@ -699,3 +699,38 @@ the handover on 2026-11-08.
 - Next: verify followup-3 on the host (guard boundary tests, eval number, full product tests,
   lint), push, second fresh review, CI, squash merge PR #25, remove the worktree; proving run
   is the scheduled 13:40Z social daily.
+
+## 2026-10-17T05:15Z run (reason: idle)
+
+- Byron's words: none new this run. Open issues unchanged (#22, #20, #18, #15, #7).
+- followup-3 on nz-election-social-fix-1 (291 s, thread 01a147ee) landed 8742598: `hourly_queries`
+  preflights every window of the day against `MAX_QUERY_LENGTH` 512 and raises
+  `SOCIAL_QUERY_TOO_LONG` before any reservation or transport call; `refresh_social` runs the
+  guard on the reserve step as well as the collect step, so a too-long query spends nothing on
+  either path and takes the common closing path (run closed, diagnostic line with the code only).
+  "New Zealand First" restored to the query and the intent; caption sentence on the phrase list;
+  provenance records the phrases, pinned by a test. Boundary tests at 512 (sent) and 513
+  (rejected, zero calls, zero reserved). The 490 headroom pin from bc917a6 moved to the constant.
+- Host verification on 8742598: `evals/social-query-length/check.sh` PASS query length 495 of
+  512; `test_social.py` 33 passed; full product suite 372 passed in 162.58 s; `bin/lint` ok
+  (375 text files). Branch pushed 05:17Z, supervisor review round 2 logged on PR #25.
+- Second fresh review (review-nz-election-social-fix-2, read-only, 46 s): accept with nits. One
+  nit: the caption overstates query coverage (National, Labour, Greens are unquoted contextual
+  terms; not every party has a short form); suggested wording given. The reviewer's sandbox could
+  not run uv or the here-document eval, so it probed in memory: 495 actual, 512 sent with 24 calls
+  and 7560 reserved, 513 rejected with 0 calls and 0 reserved. Decision: accept the wording, defer
+  it to the social refinement round with the "over 1 days" nit (fix job, copy change, nothing pins
+  it); logged on the PR.
+- PR #25 CI check passed (run 39005622776, 4 m 34 s). Squash merged 05:21Z as b101e8b; worktree
+  and local branch removed; Pages deploy of b101e8b completed success (pages.yml) and social/poc/ returned 200 at 05:23Z.
+- Codex window 65 percent at 05:20Z, 5.1 days to reset, about 7 points per day even spread. Today
+  so far: five build or fix jobs plus the POC thread and four reviews; today's share is spent, so
+  no build dispatch (increment 7 waits for tomorrow's share).
+- Judgement calls: none this run. The 00:40Z line (feed-home change) keeps its 12:30Z deadline;
+  next-run-after set to 12:30Z. Issues and the 3 h heartbeat still wake the tick before then.
+- Proving run for PR #25 is the scheduled 13:40Z social daily on 2026-10-17 (budget day rolled,
+  so the credit cap from the failed run no longer blocks it). Read its status row, the credit
+  ledger and the live social/poc/ page in the run after; an eval under evals/ if it fails.
+- Next: at 12:30Z, if no reply from Byron, start the feed-home change (intent, spec with the
+  frontend-design skill, read-only plan job); then the day-to-day verification milestone and the
+  re-planned milestones in spec.md. Increment 7 dispatch on the next even-spread day.
