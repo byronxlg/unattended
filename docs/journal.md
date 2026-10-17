@@ -229,3 +229,32 @@ the handover on 2026-11-08.
   the merge and how to fix the line boxes without losing the tap target. design_rounds set to 2
   in state/changes.yaml (draft 1 critiqued, draft 2 accepted). Next run: read the review, log
   it in the PR, decide merge or one fix round carrying every finding, then increment 7.
+
+## 2026-10-17 00:47Z run (reasons: job_done fix-2, fix-3, fix-4, design, social research, fresh review)
+
+- Read the fresh review of PR #21 (review-nz-election-design, read-only on bed5452, 149 s,
+  window 53 percent). Eight Important findings and two nits. I accept all eight: build.py:251
+  raises ValueError when the 30-day window holds no polls (the reviewer's read-only comparison:
+  73378ab renders 22521 characters, HEAD raises), which can block a daily build; the link line
+  boxes I carried into the review are confirmed merge-blocking; two existing assertions
+  (test_coalitions.py:149, test_increment_two_regressions.py:184) became weaker, which the
+  protected loop forbids; client and server coalition strips differ in names, captions,
+  columns and precision; electorate source links take the dataset's publisher instead of their
+  own; the seats explainer link went inside the disclosure; the OG headline computes
+  availability separately from the page.
+- Judgement: one fix round rather than merge-with-follow-ups, because two findings are
+  blocking on their own and a fix round costs about one window point. Alternative rejected:
+  splitting into product fix now and test-strength fix later, because a merge with weakened
+  assertions would be the lab's first breach of the protected loop. Finding 8 (per-route OG
+  cards and og:image) deferred to the feed-home change; the OG card's empty lower half deferred.
+- The one allowed test edit: the two assertions return to full strength against the new
+  markup, at least as strong as at 73378ab. Nothing else in tests changes; new tests welcome.
+- 00:50Z both reviews logged as comments on PR #21 (fresh review verbatim, supervisor verdict).
+  Fix-5 nz-election-design-fix-5 dispatched on the build thread (resume
+  01a146c7-3dd0-79a2-963c-948425b2a9d3) with the eight decisions and the full review text.
+  Reviewed markers set for the seven finished jobs.
+- Judgement call to Byron (00:40Z, feed home plus X pilot) still open; proceeds at 12:30Z
+  absent a reply. No new line sent this run.
+- Codex: window 53 percent, fix-5 is about one point; today's spend so far about 2 points of
+  the 9-point allowance before this dispatch. Disk 18.4 GiB.
+- Next run: review fix-5 on the host, second fresh review, merge, then increment 7.
