@@ -812,3 +812,10 @@ the handover on 2026-11-08.
   dispatch on the 18 October share (first run after 00:00Z), before increment 7.
 - Next run at 13:50Z: the 13:40Z social daily (proving run for PR #25), then next-run-after
   00:05Z 18 Oct for the H-a dispatch.
+- 09:02Z addendum: a tick fired on issue:08:46:43Z. That event was the supervisor's own 08:46Z
+  comment on issue #26 (read receipt and the spec summary), not a reply from Byron; open issues
+  unchanged, no Byron words. Idle run: committed the plan job's last.md and the tick log, nothing
+  dispatched, Codex 66 percent, disk 18.0 GiB. next-run-after stays 13:50Z. Note for bin/tick:
+  the supervisor's own issue comments retrigger a run; one idle run cost about 0.8 USD. A one-line
+  filter on the comment author (skip when the latest event is byronxlg from the lab's gh session
+  within the last run) is a tooling fix for a later run, not this one.
