@@ -376,3 +376,28 @@ the handover on 2026-11-08.
 - Next run: read the POC job; host harness; supervisor review; push, PR, fresh review. Confirm
   the live design at byronxlg.com/unattended/nz-election/. Capture the five Gamma events for
   increment 7 (read-only curl, committed in its worktree).
+
+## 2026-10-17 01:49Z run (reasons: job_done:nz-election-social-poc)
+
+- Codex window 57 percent at 01:46Z (resets in 5.3 days, allowance about 8 points per day);
+  disk 18.4 GiB. The POC build nz-election-social-poc ran 462 s, 1.5M input tokens, rc 0.
+- The job stopped itself, correctly, under the AGENTS.md rule "if a test is wrong, say so and
+  stop": one local commit 5705910 (social.py, social_page.py, daily workflow, export and publish
+  changes, runbook section, 33 tests of its own) and 5 failures out of 298 in the suite. Three
+  existing tests plus the screenshot harness pin the route count at 77 and the new route makes
+  78; test_contracts.py::test_hourly_daily_race_preserves_union assumes the hourly and daily
+  workflows together produce every registered family, which the separately scheduled social
+  family breaks; its own build test used an output path build.py rejects. No live Jev or X
+  request was made. The five questions sent to the classifier are recorded verbatim in last.md.
+- Supervisor mistake: my brief said "do not edit existing tests" for a change that adds a route
+  and a family, so the route-count and family-set contracts could not move. Decision: those
+  contracts move with the registered set in the same build commit and nothing gets weaker (77 to
+  78 keeps uniqueness; the family union is asserted over the set each workflow owns, with status
+  listing every family). Logged in CLAUDE.md Known agent mistakes.
+- Dispatched nz-election-social-poc-r1 at 01:52Z on the build thread (resume, workspace-write)
+  with state/jobs/nz-election-social-poc/followup-1.md: the invariant for each contract, the
+  engineer picks the shape, re-run the definition of done, stop again if anything else blocks.
+- Live site: byronxlg.com/unattended/nz-election/ answers 200; pages.yml for 5c1fd99 and eb731d0
+  both completed success at 01:39Z and 01:40Z. The design merge is live.
+- Next run: read r1 last.md and test output, host screenshot harness (78 routes), supervisor
+  review, push, PR, fresh review. Gamma captures for increment 7 still pending.

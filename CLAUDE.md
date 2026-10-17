@@ -42,3 +42,6 @@ paid services, changes to other repos. Ask in a `needs-byron` issue; keep workin
 - Supervisor: a fix brief that dictates a data shape without reading the validator or consumers of
   that shape introduced a defect twice (PR #2, PR #5). Name the invariant and where it is enforced;
   let the engineer choose the shape, then check the diff against the validator.
+- Supervisor: a build brief that forbids editing existing tests while adding a route or a data
+  family blocked the job (social POC, 2026-10-17). Say which contracts move with the registered
+  set; the no-edit rule is for fix jobs.

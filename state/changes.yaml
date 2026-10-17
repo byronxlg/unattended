@@ -26,7 +26,7 @@ changes:
     kind: product
     started: 2026-10-16T07:57:39Z
     outcome: accepted
-    attempts: 16
+    attempts: 17
     plan_match: true
     origin: issue
     prs: [9, 10, 11, 12, 13, 14, 16, 21]
