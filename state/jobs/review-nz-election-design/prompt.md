@@ -30,3 +30,12 @@ REVIEW.md, in particular anything that would change the live site's data, routes
 
 Report: findings labelled Important or Nit with file:line, then one paragraph on the
 screenshots, then a last line "Important findings: N". No emojis, no em dashes.
+
+Addendum 2026-10-17 (supervisor, after the host harness passed on bed5452, four fix rounds in):
+the home screenshots attached are the polls-only fixture (no seat estimate), so judge the
+unavailable form of the home sentence. Two observations to weigh, not conclusions: (1) the
+source note's inline links carry the 44 px tap-target line boxes, so the note is triple-spaced
+at 360, 390 and 1280 and on the OG card, where "Retrieved" is split from its date and
+"Downloads." sits alone on a line; on a static card that padding looks like a defect to me.
+(2) the OG card is blank below the note. Say whether each should block the merge or go to a
+follow-up, and what you would do about the line boxes without losing the tap target.

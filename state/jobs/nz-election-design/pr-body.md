@@ -17,3 +17,7 @@ uv run product/nz_election/tests/screenshots.py --site /tmp/ds-site --out /tmp/d
 ```
 
 The first host screenshot run failed on the harness's own axe check (aria-label on a presentational segment inside the role="img" seats strip); fixed on this branch by the follow-up job nz-election-design-fix. Reviews: supervisor review and a fresh-context Codex review (review-nz-election-design) are logged below with the screenshots judged.
+
+Host run 2026-10-17 on bed5452 (four fix rounds: 980d06e axe aria-label on strip segments, 33eb475 and 9b593cd harness-only, bed5452 unique local-poll region names): `PASS all`, `PASS screenshots: 77 routes, 202 images`, OG `2 images`, `288 passed`, `lint ok`.
+
+Known concern for the review: the source note's inline links carry 44 px tap-target line boxes, so the note is triple-spaced at every width and on the OG card ("Retrieved" split from its date, "Downloads." alone on a line). The OG card is also empty below the note.

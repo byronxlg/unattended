@@ -211,3 +211,21 @@ the handover on 2026-11-08.
   started 00:48Z, logged to /tmp/ds-verify.log; the next run reads it, looks at the
   screenshots, opens the PR and dispatches the fresh review. Codex window 53 percent after
   the research job and fix-4 (about 2 points this run, under the 9-point allowance).
+- Correction (clock): the host harness takes about three minutes, not twelve; `date -u` read
+  00:36Z when the bed5452 rerun finished. The times 00:34Z, 00:38Z, 00:46Z and 00:48Z in the
+  entries above are my estimates and run about ten minutes late; the ledger's started and
+  ended fields are authoritative (research job 00:21:35Z to 00:26:11Z).
+- 00:36Z host harness on bed5452: PASS all, PASS screenshots: 77 routes, 202 images, OG 2
+  images, RC=0. Looked at home 360 and 1280 (polls-only fixture, so the unavailable form of the
+  home sentence), night 390, Wellington North 390, og-home. Five-second test: the sentence,
+  source and retrieval time are above the fold at 360, the navigation and menu read, the
+  unavailable copy is honest. Defects I carry to the review rather than decide: the source
+  note's inline links keep their 44 px line boxes, so the note is triple-spaced at every width
+  and on the OG card ("Downloads." alone on a line); the OG card is blank below the note.
+- 00:41Z branch pushed, PR #21 opened (body: intent, spec, design, plan, DESIGN_REPORT.md, the
+  host verification tails, the two known concerns). Fresh review review-nz-election-design
+  dispatched read-only on the worktree with six screenshots attached (home 360, 390, 1280,
+  night 390, Wellington North 390, og-home) and an addendum asking whether each concern blocks
+  the merge and how to fix the line boxes without losing the tap target. design_rounds set to 2
+  in state/changes.yaml (draft 1 critiqued, draft 2 accepted). Next run: read the review, log
+  it in the PR, decide merge or one fix round carrying every finding, then increment 7.
