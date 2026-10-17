@@ -198,13 +198,54 @@ def verify_electorates(envs, root):
     require('Official candidates not available' in detail(row, {}), 'controlled missing data')
 
 
+
+def verify_social(envs, root):
+    from copy import deepcopy
+    from product.nz_election.pipeline.social import refresh_social, fixture_send, frozen
+    from product.nz_election.pipeline.social_page import page
+    now = '2026-10-17T03:00:00Z'
+    data = root / 'social-verification'
+    require(refresh_social(data, '2026-10-16', now=now, fixture=True,
+                           send=fixture_send(), sleep=lambda _: None) == 'ok', 'social fixture collection')
+    current = export.validate_bundle(data)
+    row = current['social/daily']['data'][0]
+    require(row['sample']['returned'] == row['sample']['eligible'] == 240, 'social sample counts')
+    require(sum(row['party_counts'].values()) == 240, 'social primary-party total')
+    require(any(v['withheld'] for v in row['attitude'].values()), 'social attitude withholding')
+    ledger = current['social/credits']['data']
+    require(sum(r['reserved'] for r in ledger) == 7560 and sum(r['spent'] for r in ledger) == 3600,
+            'social credit accounting')
+    original = (data / 'social/daily.json').read_bytes()
+    require(refresh_social(data, '2026-10-16', now=now, fixture=True,
+                           send=fixture_send(), sleep=lambda _: None) == 'SOCIAL_CREDIT_CAP', 'social rerun cap')
+    require((data / 'social/daily.json').read_bytes() == original, 'social last-good retention')
+    for field in ('post_id', 'handle'):
+        malformed = deepcopy(current['social/daily'])
+        malformed['data'][0]['sample'][field] = 'fictional-private-value'
+        try:
+            export.validate_envelope(malformed, 'social/daily')
+        except ValueError:
+            pass
+        else:
+            raise ValueError('VERIFY_FAILED: social identifier accepted')
+    require(frozen('2026-11-06T11:00:00Z') and not frozen('2026-11-07T06:00:00Z'), 'social freeze boundary')
+    site = build(data, root / 'social-site', built=now)
+    html = (site / 'social/poc/index.html').read_text()
+    require('Proof of concept' in html and '@' not in html and '<svg' in html, 'social page present')
+    require('under 5' in html and 'Withheld:' in html, 'social small-cell labels')
+    require('<svg' not in page(current, '2026-10-19T03:00:00Z'), 'social stale page withheld')
+    absent = build(root / 'social-absent', root / 'social-empty-site', built=now)
+    html = (absent / 'social/poc/index.html').read_text()
+    require('unavailable' in html and '<svg' not in html, 'social absent page')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates'])
+    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     args = parser.parse_args()
-    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates}
+    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')

@@ -272,8 +272,9 @@ def main():
     site = args.site.resolve()
     routes = json.loads((PRODUCT / 'config/routes.json').read_text())
     registry = json.loads((PRODUCT / 'config/electorates.json').read_text())
+    expected_count = len(routes) + len(registry)
     routes += [dict(path='electorates/' + r['slug'] + '/') for r in registry]
-    assert len(routes) == 77 and len({r['path'] for r in routes}) == 77
+    assert len(routes) == expected_count and len({r['path'] for r in routes}) == expected_count
     args.out.mkdir(parents=True, exist_ok=True)
     server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(site)))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -375,11 +376,16 @@ def main():
                 context.close()
             additional = ([] if args.og_only else state_images(browser, args.out) + map_images) + extra_images(browser, site, origin, args.out, args.og_only)
             browser.close()
+        if not args.og_only:
+            for width in (390, 1280):
+                captured = [r['route'] for r in manifest if r['viewport']['width'] == width]
+                assert len(captured) == len(set(captured)) == expected_count
+                assert set(captured) == {PREFIX + 'nz-election/' + r['path'] for r in routes}
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()
         server.server_close()
-    print(f'PASS screenshots: {0 if args.og_only else 77} routes, {len(manifest) + len(additional)} images')
+    print(f'PASS screenshots: {0 if args.og_only else expected_count} routes, {len(manifest) + len(additional)} images')
     print('Source-note bottom edges: ' + json.dumps([r for r in manifest + additional if r.get('source_note_bottom') is not None]))
 
 

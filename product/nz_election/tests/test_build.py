@@ -29,14 +29,16 @@ def rewrite(path, mutate):
     export.inventory(path, 'offline-verification', seats['code_sha'], '2026-10-17T01:00:00Z')
 
 
-def test_77_routes_and_prefix(tmp_path):
+def test_registered_routes_and_prefix(tmp_path):
     out = build(data(tmp_path), tmp_path / 'output')
     for route in config('routes'):
         html = (out / route['path'] / 'index.html').read_text()
         from product.nz_election.pipeline.scripts import validate_scripts
         assert PREFIX in html and '<main ' in html and validate_scripts(html)
         assert 'Skip to content' in html
-    assert len(list(out.rglob('index.html'))) == 77
+    expected = [r['path'] for r in config('routes')] + ['electorates/' + r['slug'] + '/' for r in config('electorates')]
+    assert len(expected) == len(set(expected))
+    assert {p.relative_to(out).as_posix() for p in out.rglob('index.html')} == {p + 'index.html' for p in expected}
     assert '26px' in (out / 'styles.css').read_text()
 
 

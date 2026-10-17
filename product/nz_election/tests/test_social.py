@@ -173,7 +173,7 @@ def test_size_and_sanitized_errors():
 def test_build_present_absent_stale_no_identifiers(tmp_path):
     out = tmp_path / 'data'
     fixture(out)
-    site = build(out, tmp_path / 'site', built=NOW)
+    site = build(out, tmp_path / 'site' / 'nz-election', built=NOW)
     html = (site / 'social/poc/index.html').read_text()
     assert 'Proof of concept: what X says about the parties' in html
     assert '240 posts sampled from X over 1 days' in html
