@@ -38,7 +38,9 @@ def success_order(envs, family='polls'):
     return (envs['polls']['fetched_at'], envs['averages']['generated_at'])
 
 
-def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'):
+def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly', claim=None):
+    if claim is not None and family != 'social':
+        raise ValueError('INVALID_FAMILY')
     if family not in {'hourly', 'daily', 'social'}:
         raise ValueError('INVALID_FAMILY')
     datasets = ['polls'] if family == 'hourly' else ['social'] if family == 'social' else [f for f in export.FAMILIES if f not in {'polls', 'social'}]
@@ -89,11 +91,33 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                 if dataset == 'social':
                     # Ledger accounting must survive stale aggregates and lease retries.
                     old_rows = {r['id']: r for r in current.get('social/credits', {}).get('data', [])}
-                    for row in incoming.get('social/credits', {}).get('data', []):
+                    incoming_rows = incoming.get('social/credits', {}).get('data', [])
+                    if claim and claim not in old_rows:
+                        raise ValueError('SOCIAL_RESERVATION_CONSUMED')
+                    for row in incoming_rows:
                         old = old_rows.get(row['id'])
-                        if old and any(old[k] != row[k] for k in ('day', 'cap', 'allocation')):
+                        if claim == row['id']:
+                            if not old or old['closed'] or old['requests'] or old['spent'] or old != row:
+                                raise ValueError('SOCIAL_RESERVATION_CONSUMED')
+                            # Charge the entire allowance before exposing collection authority.
+                            # Lost runners remain fully accounted for, even without a report.
+                            old_rows[row['id']] = dict(old, closed=True, spent=old['reserved'])
+                            continue
+                        if old and any(old[k] != row[k] for k in ('day', 'cap', 'allocation', 'reserved')):
                             raise ValueError('SOCIAL_LEDGER_CONFLICT')
-                        old_rows[row['id']] = dict(row, **{k: max(old[k], row[k]) for k in ('reserved', 'spent', 'requests', 'closed')}) if old else row
+                        if old == row:
+                            continue
+                        if old and old['closed']:
+                            consumed = old['requests'] == 0 and old['spent'] == old['reserved'] and old['allocation'] > 0
+                            if not consumed or not row['closed'] or not row['requests']:
+                                raise ValueError('SOCIAL_LEDGER_CONFLICT')
+                            # The final report can add request counts but cannot refund unknown spend.
+                            old_rows[row['id']] = dict(row, spent=old['spent'])
+                        elif old and (old['spent'] or old['requests']):
+                            raise ValueError('SOCIAL_LEDGER_CONFLICT')
+                        else:
+                            # Distinct run IDs append distinct spending records; never merge via max.
+                            old_rows[row['id']] = row
                     metadata = incoming['social/credits']
                     merged_ledger = dict(metadata, data=list(old_rows.values()))
                     from product.nz_election.pipeline.social import validate_ledger
@@ -157,6 +181,7 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--bundle', type=Path, required=True)
+    parser.add_argument('--claim')
     parser.add_argument('--family', choices=['hourly', 'daily', 'social'], default='hourly')
     args = parser.parse_args()
     # Validate the artifact before any git operation or credential use.
@@ -171,7 +196,10 @@ def main():
     authorization = base64.b64encode(('x-access-token:' + token).encode()).decode()
     os.environ.update(GIT_CONFIG_COUNT='1', GIT_CONFIG_KEY_0='http.https://github.com/.extraheader',
                       GIT_CONFIG_VALUE_0='AUTHORIZATION: basic ' + authorization)
-    result = publish(args.bundle, 'https://github.com/' + os.environ['GITHUB_REPOSITORY'] + '.git', family=args.family)
+    result = publish(args.bundle, 'https://github.com/' + os.environ['GITHUB_REPOSITORY'] + '.git', family=args.family, claim=args.claim)
+    if args.claim and result['outcome'] == 'published' and os.environ.get('GITHUB_OUTPUT'):
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+            output.write('claimed=true\n')
     report = dict(result, status=status_of(incoming, 'polls' if args.family == 'hourly' else 'social' if args.family == 'social' else 'geography'))
     if os.environ.get('GITHUB_STEP_SUMMARY'):
         with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:

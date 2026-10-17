@@ -140,5 +140,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/configure-pages@v5
+      - name: Enforce election freeze at deployment time
+        run: |
+          python3 - <<'PYTHON'
+          from datetime import datetime, timezone
+          now = datetime.now(timezone.utc)
+          if datetime.fromisoformat('2026-11-06T10:30:00+00:00') <= now < datetime.fromisoformat('2026-11-07T06:00:00+00:00'):
+              raise SystemExit('PUBLICATION_FROZEN')
+          PYTHON
       - id: deployment
         uses: actions/deploy-pages@v4
+        timeout-minutes: 10

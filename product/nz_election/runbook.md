@@ -155,7 +155,13 @@ plus the 15 minimum); successful calls spend max(15, 15 times returned posts).
 Failed/unknown calls conservatively spend 315. Duplicates still cost credits.
 Reservations are never refunded. The workflow preallocates the remaining whole
 315-credit units and publishes that ledger under the existing data lease before
-any request. Each call consumes one unit. Cancellation therefore cannot erase
+any request. The collection job then claims that reservation with `publish.py
+--claim` before receiving permission to collect. The lease atomically marks it
+closed and charges the full reserved allowance as conservative spend. A retried
+job must claim again and is rejected before any paid request. Result publication
+can add request counts but never refund that conservative spend. Distinct runs
+are additive ledger records; conflicting completed reports are rejected rather
+than merged with max. Each call consumes one unit. Cancellation therefore cannot erase
 spending authority or enable a fresh allowance on rerun. An abandoned reservation
 may block the rest of that day's collection; wait for the next NZ day. Never
 hand-edit the ledger. The entire workflow is serialised, and reservation and
@@ -164,7 +170,9 @@ result publication also share the existing publication concurrency group.
 One page per hourly window, no pagination; at most three attempts per window,
 within the reserved total. Requests are separated by 330 seconds, including
 retries: fewer than 240 possible returned posts in any rolling hour. A retry
-can exhaust the budget before all windows complete. Cap/failure retains the
+can exhaust the budget before all windows complete. Collection checks its NZ
+budget date before and after pacing; crossing midnight stops before another
+request. Cap/failure retains the
 last-good daily aggregates and publishes status; no prior success is unavailable.
 A sample older than 36 hours after its last NZ day closed is hidden on the page.
 The existing hourly Pages rebuild consumes the updated data branch; this workflow
@@ -175,12 +183,18 @@ does not directly deploy Pages.
 including delayed jobs; the collector also checks before each request and after
 classification. `publish.py --family social` checks again immediately before a
 push. No paid call is made when a run starts during the freeze. An existing page
-can remain frozen. The site-wide deployment freeze remains an operational release
-requirement from the memo; this workflow does not authorise unrelated deployments.
+remains unchanged because election builds and Pages deployment both fail closed
+from 23:30 NZDT on 6 November to 19:00 NZDT on 7 November. The extra half-hour
+allows a margin before the statutory freeze for the ten-minute deploy timeout.
+The deploy guard runs immediately before the Pages action, independent of the
+artifact's build time or rollback code. `deployment_guard.py --now <UTC instant>`
+and `build.py --now <UTC instant>` support deterministic freeze checks. No build
+is produced during the freeze, so post-midnight observations cannot be served
+by another rebuild or a delayed deployment during that window.
 
 `data/social/daily.json` contains only daily aggregate counts, ordered attitude
 counts (null below 30 evaluable posts), summed probabilities as exact decimal
-strings, model versions, sample concentration in parts per million, question
+strings (fixed-point, never exponent notation), model versions, sample concentration in parts per million, question
 version, query, epoch windows and retrieval times. IDs, text and author identities
 exist only in process memory. Only English is classified in this pilot; replies
 and quotes are not separately analysed, official accounts are not separated, and
@@ -191,6 +205,21 @@ never distribute one post's attitude among all parties it mentions.
 
 Run offline with `social.py --fixtures --out <bundle> --day 2026-10-16` after
 `refresh.py --fixtures`. Use `--now` for deterministic time and freeze tests.
+The model registry currently accepts `jev-1.13.0`, plus the repo-owned synthetic
+versions `jev-fixture-1` and `jev-test-1`. Unknown returned models fail closed with
+a sanitized error; adding a version requires review. No upstream model string
+outside this closed registry can be stored or rendered.
+
+Capture the populated social page, not only its unavailable state, using a fresh
+fixture output directory (move aside previous fixture output before repeating):
+
+```sh
+uv run product/nz_election/pipeline/refresh.py --fixtures --out /tmp/sp-data
+uv run product/nz_election/pipeline/social.py --fixtures --out /tmp/sp-data --day 2026-10-16
+uv run product/nz_election/pipeline/build.py --data /tmp/sp-data --out /tmp/sp-site/nz-election
+uv run product/nz_election/tests/screenshots.py --site /tmp/sp-site --out /tmp/sp-shots
+```
+
 No live response is a permissible fixture. The research memo's data-rights and
 release review remain necessary before live publication; this proof of concept
 does not establish permission to redistribute X content or validated NZ accuracy.

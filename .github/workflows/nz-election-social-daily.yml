@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     permissions:
-      contents: read
+      contents: write
     outputs:
       validated: ${{ steps.collect.outputs.validated }}
     steps:
@@ -91,9 +91,16 @@ jobs:
       - name: Check s197 freeze before collecting
         id: freeze
         run: uv run product/nz_election/pipeline/social.py --check-freeze
+      - name: Consume reservation durably before paid requests
+        id: claim
+        if: steps.freeze.outputs.allowed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RESERVATION: ${{ needs.reserve.outputs.reservation }}
+        run: uv run product/nz_election/pipeline/publish.py --family social --bundle _nz-social-bundle --claim "$RESERVATION"
       - name: Sample X and classify in memory
         id: collect
-        if: steps.freeze.outputs.allowed == 'true'
+        if: steps.claim.outputs.claimed == 'true'
         continue-on-error: true
         env:
           X_UPSTREAM_KEY: ${{ secrets.X_UPSTREAM_KEY }}

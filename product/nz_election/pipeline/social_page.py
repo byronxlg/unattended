@@ -47,7 +47,7 @@ def page(envs, built):
         y = i * 25 + 2
         bars.append(f'<text x="0" y="{y+16}">{escape(p)}</text><rect x="125" y="{y}" width="{width}" height="18" fill="{colours.get(p, "var(--surface)" )}"/><text x="295" y="{y+16}">{count(value)}</text>')
         rows.append((escape(p), count(value), share))
-    primary = ('<section><h2>Primary-party share of sampled posts</h2><figure>'
+    primary = ('<section><h2>Primary-party share of sampled posts</h2><figure aria-describedby="source-social">'
                '<svg class="social-chart" role="img" aria-label="Primary party counts" aria-describedby="source-social" viewBox="0 0 355 255">' + ''.join(bars) +
                '</svg><figcaption>Primary subjects in sampled X posts, not party support or all NZ posts. Search coverage and prolific authors affect the result.</figcaption></figure>' + source +
                '<details><summary>Party counts and shares</summary>' + table('Primary subjects', ('Party', 'Posts', 'Share'), rows, source='source-social') + '</details></section>')
@@ -72,7 +72,7 @@ def page(envs, built):
                 bars.append(f'<rect x="{x}" y="{i*31+4}" width="{width}" height="20" fill="{fills[j]}"/>')
                 x += width
         rows.append((escape(p), *(count(v) for v in totals)))
-    attitude = ('<section><h2>Attitude toward each party</h2><figure><svg class="social-chart" role="img" aria-label="Attitude distributions" aria-describedby="source-social-attitude" viewBox="0 0 355 220">' + ''.join(bars) +
+    attitude = ('<section><h2>Attitude toward each party</h2><figure aria-describedby="source-social-attitude"><svg class="social-chart" role="img" aria-label="Attitude distributions" aria-describedby="source-social-attitude" viewBox="0 0 355 220">' + ''.join(bars) +
                 '</svg><figcaption>Left to right: strongly negative, negative, neutral, positive, strongly positive. Estimated tone among sampled X authors, not voters. Sarcasm, quotations and missing context can change classification.</figcaption></figure>' + source.replace('id="source-social"', 'id="source-social-attitude"') +
                 '<details><summary>Attitude counts</summary>' + table('Ordered attitude classes', ('Party', *ATTITUDES), rows, source='source-social-attitude') + '</details></section>')
     topics = table('Topics in this sample', ('Topic', 'Posts'), [(escape(t), count(sum(r['topic_counts'][t] for r in records))) for t in TOPICS], source='source-social')

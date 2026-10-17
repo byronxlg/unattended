@@ -41,6 +41,8 @@ QUERY = '''(#nzpol OR #nzvotes OR #nzelection OR
 PARTIES = ('National', 'Labour', 'Green', 'ACT', 'NZ First', 'Te Pāti Māori', 'Opportunity', 'other', 'multiple', 'none/unclear')
 TOPICS = ('economy/tax', 'housing', 'health', 'education', 'crime', 'Treaty/Māori affairs', 'climate', 'immigration', 'campaign/personality', 'other/unclear')
 ATTITUDES = ('strongly negative', 'negative', 'neutral', 'positive', 'strongly positive')
+# Reviewed adapter example in the research brief; aliases are not persisted versions.
+MODEL_VERSIONS = frozenset({'jev-1.13.0', 'jev-fixture-1', 'jev-test-1'})
 QUESTION_VERSION = 'nz-politics-poc-1'
 QUESTIONS = {
     'relevant': dict(type='noul', instructions='Is this about current NZ national politics?'),
@@ -113,13 +115,21 @@ def collect(day, ledger, run, *, key, send, sleep, now=utc_now, checkpoint=lambd
             used = run['requests'] * RESERVATION
             if (allocated and used + RESERVATION > allocated) or (not allocated and sum(r['reserved'] for r in ledger if r['day'] == run['day']) + RESERVATION > CAP):
                 return posts, provenance, True
-            if frozen(now()):
+            instant = now()
+            # Leave room for the bounded HTTP timeout before the budget day closes.
+            if (datetime.fromisoformat(instant.replace('Z', '+00:00')) + timedelta(seconds=31)).astimezone(NZ).date().isoformat() != run['day']:
+                raise ValueError('SOCIAL_BUDGET_DAY_CHANGED')
+            if frozen(instant):
                 raise ValueError('SOCIAL_FROZEN')
             if run['requests']:
                 # 20 returns every 310 seconds: at most 12 pages in any rolling hour.
                 # Use 330 seconds so strictly fewer than 240 can fall in a rolling hour.
                 sleep(330)
-            if frozen(now()):
+            instant = now()
+            # Leave room for the bounded HTTP timeout before the budget day closes.
+            if (datetime.fromisoformat(instant.replace('Z', '+00:00')) + timedelta(seconds=31)).astimezone(NZ).date().isoformat() != run['day']:
+                raise ValueError('SOCIAL_BUDGET_DAY_CHANGED')
+            if frozen(instant):
                 raise ValueError('SOCIAL_FROZEN')
             if not allocated:
                 run['reserved'] += RESERVATION
@@ -150,6 +160,8 @@ def collect(day, ledger, run, *, key, send, sleep, now=utc_now, checkpoint=lambd
 def probability(value):
     if isinstance(value, bool) or not isinstance(value, (int, Decimal)) or not Decimal(value).is_finite() or not 0 <= value <= 1:
         raise ValueError('SOCIAL_INVALID_CLASSIFICATION')
+    if Decimal(value).as_tuple().exponent < -1000:
+        raise ValueError('SOCIAL_INVALID_CLASSIFICATION')
     return Decimal(value)
 
 
@@ -179,7 +191,7 @@ def classify(posts, *, key, send):
                 raise ValueError()
             body = decode(raw)
             model, answers = body['model'], body['answers']
-            if not isinstance(model, str) or not re.fullmatch(r'jev-[a-zA-Z0-9.\-]{1,50}', model) or set(answers) != set(QUESTIONS):
+            if not isinstance(model, str) or model not in MODEL_VERSIONS or set(answers) != set(QUESTIONS):
                 raise ValueError()
             clean = {}
             for name, question in QUESTIONS.items():
@@ -231,7 +243,7 @@ def aggregate(day, posts, classified, excluded, provenance, now):
                 party_counts=parties, topic_counts=topics,
                 attitude={p: dict(eligible=sum(v), counts=v if sum(v) >= 30 else None, withheld=sum(v) < 30) for p, v in attitudes.items()},
                 model_versions=sorted({r['model'] for r in classified}), question_version=QUESTION_VERSION,
-                probability_sums={q: {k: str(v) for k, v in values.items()} for q, values in sums.items()},
+                probability_sums={q: {k: format(v, 'f') for k, v in values.items()} for q, values in sums.items()},
                 provenance=dict(query=QUERY, windows=provenance, fixture=False))
 
 
@@ -290,14 +302,14 @@ def validate_row(row, stem):
                 natural(v, 480)
             if sum(value['counts']) != value['eligible']:
                 raise ValueError('INVALID_SOCIAL_TOTAL')
-    if not isinstance(row['model_versions'], list) or any(not isinstance(m, str) or not re.fullmatch(r'jev-[a-zA-Z0-9.\-]{1,50}', m) for m in row['model_versions']):
+    if not isinstance(row['model_versions'], list) or any(not isinstance(m, str) or m not in MODEL_VERSIONS for m in row['model_versions']):
         raise ValueError('INVALID_SOCIAL_MODEL')
     keys(row['probability_sums'], QUESTIONS)
     for q, values in row['probability_sums'].items():
         options = ('yes',) if q in ('relevant', 'evaluable') else [str(i) for i in range(5)] if q == 'attitude' else QUESTIONS[q]['criteria']
         keys(values, options)
         for v in values.values():
-            if not isinstance(v, str) or not re.fullmatch(r'[0-9]{1,3}(\.[0-9]{1,30})?', v) or not 0 <= Decimal(v) <= sample['eligible']:
+            if not isinstance(v, str) or not re.fullmatch(r'[0-9]{1,3}(\.[0-9]{1,1000})?', v) or not 0 <= Decimal(v) <= sample['eligible']:
                 raise ValueError('INVALID_SOCIAL_PROBABILITY')
     prov = row['provenance']
     keys(prov, ('query', 'windows', 'fixture'))

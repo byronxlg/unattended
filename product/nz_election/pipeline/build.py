@@ -430,6 +430,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
         raise ValueError('INVALID_DATA_SHA')
     envs = export.validate_bundle(data) if data.exists() else {}
     built = export.timestamp(utc_now() if built is None else built, 'build.built_at')
+    from product.nz_election.pipeline.deployment_guard import require_publication_allowed
+    require_publication_allowed(built)
     sha = sha or code_sha()
     if run_url is None:
         repository, run_id = os.environ.get('GITHUB_REPOSITORY'), os.environ.get('GITHUB_RUN_ID')
@@ -500,8 +502,9 @@ def main():
     parser.add_argument('--data', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--data-sha')
+    parser.add_argument('--now')
     args = parser.parse_args()
-    build(args.data, args.out, data_sha=args.data_sha or os.environ.get('NZ_DATA_SHA') or None,
+    build(args.data, args.out, built=args.now, data_sha=args.data_sha or os.environ.get('NZ_DATA_SHA') or None,
           sha=os.environ.get('NZ_CODE_SHA'))
     print('PASS build: 78 routes')
 
