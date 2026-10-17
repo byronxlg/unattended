@@ -258,3 +258,17 @@ the handover on 2026-11-08.
 - Codex: window 53 percent, fix-5 is about one point; today's spend so far about 2 points of
   the 9-point allowance before this dispatch. Disk 18.4 GiB.
 - Next run: review fix-5 on the host, second fresh review, merge, then increment 7.
+
+## 2026-10-17 00:52Z operator entry (fleet operator, not a supervisor run)
+
+- Byron, Telegram 2026-10-17 00:34Z, verbatim: "Why did the sentiment dash get rejected? I feel
+  like we should poc every him thing early and refine". It answers the 00:27Z judgement call
+  (feed home plus unpublished X pilot, sentiment dashboard not now) by reply: the 12:30Z proceed
+  time is void. Relayed as issue #22 with the memo's reasons and the operator's reading (every
+  new thing gets a proof of concept early, refined from what it shows; the found constraints
+  bind the POC rather than defer it).
+- New "Proof of concept first" section in prompts/supervisor.md, this PR, in the shape of the
+  "Byron in the loop" section. No product code.
+- The operator answered his question on Telegram: the research memo's four reasons and that the
+  rule is now in the prompt.
+
