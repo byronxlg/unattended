@@ -111,7 +111,7 @@ def decode(raw):
 # Only locally defined codes may reach logs; exception messages can contain secrets.
 DIAGNOSTIC_CODES = frozenset({
     'SOCIAL_COLLECTION_FAILED', 'SOCIAL_TRANSPORT_FAILED', 'SOCIAL_INVALID_PAGE',
-    'SOCIAL_QUERY_TOO_LONG',
+    'SOCIAL_QUERY_TOO_LONG', 'SOCIAL_UPSTREAM_FAILED',
     'SOCIAL_RESPONSE_LIMIT', 'SOCIAL_INVALID_RESPONSE', 'SOCIAL_CLASSIFICATION_FAILED',
     'SOCIAL_INVALID_CLASSIFICATION', 'SOCIAL_BUDGET_DAY_CHANGED', 'SOCIAL_FROZEN',
 })
@@ -120,6 +120,61 @@ DIAGNOSTIC_CODES = frozenset({
 def diagnostic_code(exc, fallback):
     code = exc.args[0] if len(exc.args) == 1 else None
     return code if isinstance(code, str) and code in DIAGNOSTIC_CODES else fallback
+
+
+CLASSIFICATION_CHECKS = frozenset({'model', 'answers', 'type', 'probabilities', 'sum', 'choice', 'value', 'decode', 'http', 'transport'})
+EXCLUSIONS = ('duplicate', 'unsupported', 'irrelevant', 'classification')
+
+
+def print_diagnostic(diagnostic):
+    code = diagnostic_code(ValueError(diagnostic.get('code')), 'SOCIAL_CLASSIFICATION_FAILED')
+    check = diagnostic.get('check')
+    suffix = f' check={check}' if isinstance(check, str) and check in CLASSIFICATION_CHECKS else ''
+    print(f"social diagnostic: {code} http_status={diagnostic.get('http_status')} window_index={diagnostic.get('window')} attempt={diagnostic.get('attempt')}{suffix}", file=sys.stderr)
+
+
+def classification_response(raw, diagnostic):
+    # Check labels are local constants, never derived from upstream fields.
+    check = 'decode'
+    try:
+        body = decode(raw)
+        check = 'model'
+        model = body.get('model')
+        if not isinstance(model, str) or model not in MODEL_VERSIONS:
+            raise ValueError()
+        check = 'answers'
+        answers = body.get('answers')
+        if not isinstance(answers, dict) or set(answers) != set(QUESTIONS):
+            raise ValueError()
+        clean = {}
+        for name, question in QUESTIONS.items():
+            check = 'type'
+            answer = answers[name]
+            if not isinstance(answer, dict) or answer.get('type') != question['type']:
+                raise ValueError()
+            if question['type'] == 'noul':
+                check = 'value'
+                clean[name] = probability(answer.get('noul'))
+            else:
+                check = 'probabilities'
+                keys = set(question['criteria']) if question['type'] == 'choice' else {str(i) for i in range(5)}
+                probs = answer.get('probabilities')
+                if not isinstance(probs, dict) or set(probs) != keys:
+                    raise ValueError()
+                check = 'value'
+                clean[name] = {k: probability(v) for k, v in probs.items()}
+                check = 'sum'
+                if abs(sum(clean[name].values()) - 1) > Decimal('.001'):
+                    raise ValueError()
+                check = 'choice'
+                if question['type'] == 'choice':
+                    choice = answer.get('choice')
+                    if not isinstance(choice, str) or choice not in probs or clean[name][choice] != max(clean[name].values()):
+                        raise ValueError()
+        return model, clean
+    except Exception:
+        diagnostic.update(code='SOCIAL_CLASSIFICATION_FAILED', check=check)
+        raise ValueError('SOCIAL_CLASSIFICATION_FAILED') from None
 
 
 def hourly_queries(day, diagnostic=None):
@@ -208,10 +263,11 @@ def probability(value):
 def classify(posts, *, key, send, diagnostic=None):
     diagnostic = {} if diagnostic is None else diagnostic
     result, ids, texts = [], set(), set()
-    excluded = Counter(duplicate=0, unsupported=0, irrelevant=0)
+    excluded = Counter(dict.fromkeys(EXCLUSIONS, 0))
+    last_exclusion = None
     for index, post in enumerate(posts):
         origins = diagnostic.get('post_windows', [])
-        diagnostic.update(window=origins[index] if index < len(origins) else None, attempt=1, http_status=None, code=None)
+        diagnostic.update(window=origins[index] if index < len(origins) else None, attempt=1, http_status=None, code=None, check=None)
         if not isinstance(post, dict):
             raise ValueError('SOCIAL_INVALID_PAGE')
         identity, text = post.get('id'), post.get('text')
@@ -229,38 +285,29 @@ def classify(posts, *, key, send, diagnostic=None):
             continue
         payload = dict(model='jev-latest', state=text, questions=QUESTIONS)
         try:
+            diagnostic['check'] = 'transport'
             status, raw = send('POST', 'https://api.typesafe.ai/v1/systemone', {'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'}, export.canonical(payload).encode())
+            diagnostic['check'] = 'http'
             diagnostic['http_status'] = status if type(status) is int and 100 <= status <= 599 else None
             if status != 200:
                 raise ValueError()
-            body = decode(raw)
-            model, answers = body['model'], body['answers']
-            if not isinstance(model, str) or model not in MODEL_VERSIONS or set(answers) != set(QUESTIONS):
-                raise ValueError()
-            clean = {}
-            for name, question in QUESTIONS.items():
-                answer = answers[name]
-                if answer['type'] != question['type']:
-                    raise ValueError()
-                if question['type'] == 'noul':
-                    clean[name] = probability(answer['noul'])
-                else:
-                    keys = set(question['criteria']) if question['type'] == 'choice' else {str(i) for i in range(5)}
-                    probs = answer['probabilities']
-                    if set(probs) != keys:
-                        raise ValueError()
-                    clean[name] = {k: probability(v) for k, v in probs.items()}
-                    if abs(sum(clean[name].values()) - 1) > Decimal('.001'):
-                        raise ValueError()
-                    if question['type'] == 'choice' and answer['choice'] != max(probs, key=probs.get):
-                        raise ValueError()
-            if clean['relevant'] < Decimal('.8'):
-                excluded['irrelevant'] += 1
-                continue
-            result.append(dict(author=author, probabilities=clean, model=model))
         except Exception as exc:
             diagnostic['code'] = diagnostic_code(exc, 'SOCIAL_CLASSIFICATION_FAILED')
             raise ValueError('SOCIAL_CLASSIFICATION_FAILED') from None
+        try:
+            model, clean = classification_response(raw, diagnostic)
+        except ValueError:
+            excluded['classification'] += 1
+            last_exclusion = {k: diagnostic[k] for k in ('window', 'attempt', 'http_status', 'code', 'check')}
+            print_diagnostic(diagnostic)
+            continue
+        diagnostic['check'] = None
+        if clean['relevant'] < Decimal('.8'):
+            excluded['irrelevant'] += 1
+            continue
+        result.append(dict(author=author, probabilities=clean, model=model))
+    if last_exclusion is not None:
+        diagnostic.update(last_exclusion)
     return result, dict(excluded)
 
 
@@ -320,7 +367,7 @@ def validate_row(row, stem):
         natural(sample[k], 480)
     natural(sample['top_author_share_ppm'], 1000000)
     natural(sample['capped_windows'], 24)
-    keys(sample['exclusions'], ('duplicate', 'unsupported', 'irrelevant'))
+    keys(sample['exclusions'], EXCLUSIONS)
     for v in sample['exclusions'].values():
         natural(v, 480)
     if sample['eligible'] + sum(sample['exclusions'].values()) != sample['returned'] or sample['unique_authors'] > sample['eligible']:
@@ -445,11 +492,16 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                     error = 'SOCIAL_CREDIT_CAP'
                 else:
                     classified, exclusions = classify(posts, key=jev_key, send=send, diagnostic=diagnostic)
+                    # Judge the complete sample, not a prefix containing one odd post.
+                    sent = len(posts) - exclusions['duplicate'] - exclusions['unsupported']
+                    if exclusions['classification'] * 10 > sent:
+                        raise ValueError('SOCIAL_CLASSIFICATION_FAILED')
                     record = aggregate(day, posts, classified, exclusions, provenance, now)
                     record['provenance']['fixture'] = fixture
         except Exception as exc:
             code = diagnostic['code'] or diagnostic_code(exc, 'SOCIAL_UPSTREAM_FAILED')
-            print(f"social diagnostic: {code} http_status={diagnostic['http_status']} window_index={diagnostic['window']} attempt={diagnostic['attempt']}", file=sys.stderr)
+            diagnostic['code'] = code
+            print_diagnostic(diagnostic)
             error = 'SOCIAL_UPSTREAM_FAILED'
         else:
             if reserve:

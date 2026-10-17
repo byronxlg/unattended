@@ -2,7 +2,7 @@
 from datetime import datetime, time, timedelta
 from decimal import Decimal
 from html import escape
-from .social import NZ, PARTIES, TOPICS, ATTITUDES
+from .social import NZ, PARTIES, TOPICS, ATTITUDES, EXCLUSIONS
 
 TITLE = 'Proof of concept: what X says about the parties'
 
@@ -78,7 +78,7 @@ def page(envs, built):
     topics = table('Topics in this sample', ('Topic', 'Posts'), [(escape(t), count(sum(r['topic_counts'][t] for r in records))) for t in TOPICS], source='source-social')
     concentration = max(r['sample']['top_author_share_ppm'] for r in records)
     models = ', '.join(sorted({m for r in records for m in r['model_versions']})) or 'No eligible classifications'
-    exclusions = {k: sum(r['sample']['exclusions'][k] for r in records) for k in ('duplicate', 'unsupported', 'irrelevant')}
+    exclusions = {k: sum(r['sample']['exclusions'][k] for r in records) for k in EXCLUSIONS}
     caption = (f'<section id="social-method"><h2>How this sample was made</h2><p>One latest page from each hourly window of the NZ day: a time-stratified, recency-biased convenience sample. '
                "The search matches each party's name and common short form as quoted phrases; the exact phrase list is recorded in each day's provenance. "
                f'{count(sum(r["sample"]["returned"] for r in records))} posts returned; {count(n)} eligible after deduplication and the relevance gate. '
@@ -87,7 +87,7 @@ def page(envs, built):
                f'{count(sum(r["sample"]["capped_windows"] for r in records))} hourly windows hit the page limit.</p>'
                '<p>IDs and normalized repeated text are deduplicated in memory. Original posts, replies and quote commentary may enter the sample. '
                'Only English text of at most 8,000 characters is classified in this pilot; language coverage is incomplete. '
-               f'Excluded: duplicates {count(exclusions["duplicate"])}, unsupported language or length {count(exclusions["unsupported"])}, relevance below 0.8 {count(exclusions["irrelevant"])}. '
+               f'Excluded: duplicates {count(exclusions["duplicate"])}, unsupported language or length {count(exclusions["unsupported"])}, relevance below 0.8 {count(exclusions["irrelevant"])}, invalid classification {count(exclusions["classification"])}. '
                'Attitudes require evaluability of at least 0.8 and one named primary party; other, multiple and unclear subjects have no attitude row. '
                'Each post counts once; author influence is not equalised. Official accounts are not separated in this pilot. No voter affiliation is inferred.</p>'
                f'<p>Jev System One: {escape(models)}. Question text version nz-politics-poc-1. Classification is unvalidated on NZ text. '

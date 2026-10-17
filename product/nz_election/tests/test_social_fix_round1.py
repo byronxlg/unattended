@@ -22,11 +22,13 @@ def test_validator_rejects_identifiers_in_permitted_model_field():
         export.validate_envelope(export.envelope([row], [], 'offline-verification', 'fixture'), 'social/daily')
 
 
-def test_unknown_upstream_model_is_sanitized(tmp_path):
+def test_unknown_upstream_model_is_sanitized(tmp_path, capsys):
     body = response()
     body['model'] = 'jev-fictional-post-id-123456789'
-    with pytest.raises(ValueError, match='^SOCIAL_CLASSIFICATION_FAILED$'):
-        social.classify([post()], key='fiction', send=classifier(body))
+    rows, excluded = social.classify([post()], key='fiction', send=classifier(body))
+    assert rows == []
+    assert excluded == dict(duplicate=0, unsupported=0, irrelevant=0, classification=1)
+    assert capsys.readouterr().err == 'social diagnostic: SOCIAL_CLASSIFICATION_FAILED http_status=200 window_index=None attempt=1 check=model\n'
     upstream = social.fixture_send()
     def send(method, *args):
         return classifier(body)(method, *args) if method == 'POST' else upstream(method, *args)

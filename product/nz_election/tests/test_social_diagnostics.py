@@ -80,7 +80,7 @@ def test_classification_failure_reports_source_window(tmp_path, capsys):
             return 200, b'{"tweets":[],"has_next_page":false}'
         return upstream(method, *args)
     refresh(tmp_path, send)
-    assert capsys.readouterr().err == 'social diagnostic: SOCIAL_CLASSIFICATION_FAILED http_status=401 window_index=1 attempt=1\n'
+    assert capsys.readouterr().err == 'social diagnostic: SOCIAL_CLASSIFICATION_FAILED http_status=401 window_index=1 attempt=1 check=http\n'
 
 
 def test_transport_discards_http_error_body(monkeypatch):
