@@ -4,7 +4,7 @@
 # ///
 """Render 77 offline pages, validating everything before replacing product output."""
 import argparse
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 from html import escape
 from fractions import Fraction
@@ -27,6 +27,7 @@ from product.nz_election.pipeline.average import display, threshold_watch
 from product.nz_election.pipeline.fixtures import golden, GOLDEN_PATHS
 from product.nz_election.pipeline.refresh import PRODUCT, config, source_entries, code_sha, utc_now
 from product.nz_election.pipeline.storage import replace_directory
+from product.nz_election.pipeline.presentation import overdue
 
 PREFIX = '/unattended/nz-election/'
 TEMPLATES = PRODUCT / 'web/templates'
@@ -59,9 +60,15 @@ def local_time(value):
     return f"{dt.hour % 12 or 12}:{dt.minute:02d} {'am' if dt.hour < 12 else 'pm'}, {dt:%A} {dt.day} {dt:%B %Y %Z}"
 
 
+def compact_time(value):
+    export.timestamp(value, 'source.retrieved')
+    dt = datetime.fromisoformat(value.replace('Z', '+00:00')).astimezone(ZoneInfo('Pacific/Auckland'))
+    return f'{dt.day} {dt:%b}, {dt:%H:%M %Z}'
+
+
 def observation_label(value):
     # Poll observation dates have no time zone; operational observations have timestamps.
-    return local_time(value) if value and 'T' in value else value or 'Not available'
+    return local_time(value) if value and 'T' in value else (datetime.fromisoformat(value).strftime('%d %b %Y').lstrip('0') if value else 'Not available')
 
 
 def table(caption, headings, records, css='', source=None):
@@ -72,79 +79,146 @@ def table(caption, headings, records, css='', source=None):
             ''.join('<tr>' + ''.join(f'<td>{v}</td>' for v in row) + '</tr>' for row in records) + '</tbody></table></div>')
 
 
-def source_note(env=None, identity='source-polls', inputs='polls.json'):
+def source_note(env=None, identity='source-polls', inputs='polls.json', *,
+                calculation='Polls parsed by this site.', contributing_polls=None):
+    if inputs == 'validation-2023.json':
+        captured = max(s['fetched_at'] for s in (env['source'] if env else source_entries()[1]))
+        return (f'<div role="note" class="source-note" id="{identity}"><p>From '
+                'Electoral Commission. '
+                f'Final results <time datetime="2023-11-03">3 Nov 2023</time>. Retrieved <time datetime="{captured}">{compact_time(captured)}</time>. Copyright Electoral Commission; no open licence stated. '
+                f'</p><p class="source-actions"><a href="https://electionresults.govt.nz/electionresults_2023/">Electoral Commission</a><a href="{PREFIX}downloads/">Downloads</a></p><details><summary>Calculation and producing run</summary>'
+                '<p>Calculation verified against captured final results.</p>'
+                f'<p class="source-actions"><a href="{PREFIX}validation-2023.json">Official validation inputs</a>'
+                f'<a href="{PREFIX}build-manifest.json">Build and run record</a></p></details></div>')
     sources = env['source'] if env else source_entries()[0]
     p = next(s for s in sources if s['id'] == 'P')
     run = env['run_url'] if env else None
-    producing = link(run, 'Producing run') if run and safe_url(run) else 'Offline verification; no producing Action run.' if run else 'No poll data run yet.'
+    producing = link(run, 'Data run') if run and safe_url(run) else f'<a href="{PREFIX}downloads/">Data run</a>' if run else 'No poll data run yet.'
+    dates = ''
+    if env:
+        rows = contributing_polls if contributing_polls is not None else env['data'] if isinstance(env['data'], list) else []
+        ends = [r['fieldwork_end'] for r in rows if r.get('fieldwork_end')]
+        if ends:
+            end = max(ends)
+            dates += f' Fieldwork ended <time datetime="{end}">{observation_label(end)}</time>.'
+        fetched = env['fetched_at']
+        dates += f' Retrieved <time datetime="{fetched}">{compact_time(fetched)}</time>.'
     return render('source-note', id=identity, revision=safe_url(p['url']) or '#', history=safe_url(p['history_url']) or '#',
-                  inputs=PREFIX + (inputs if inputs == 'validation-2023.json' else 'data/' + inputs), prefix=PREFIX, run=producing)
+                  inputs=PREFIX + (inputs if inputs == 'validation-2023.json' else 'data/' + inputs), prefix=PREFIX,
+                  dates=dates, run=producing, calculation=escape(calculation))
+
 
 
 def label(p):
     return config('party-colours').get(p, {}).get('label', 'Others' if p == 'others' else p)
 
 
-def label_lanes(anchors, width):
-    occupied = []
-    result = {}
-    for party, anchor in anchors:
-        right = max(Fraction(96), min(Fraction(width), anchor * width / 100))
-        interval = (right - 100, right + 4)
-        lane = next((i for i, spans in enumerate(occupied)
-                     if all(interval[1] <= left or interval[0] >= right for left, right in spans)), len(occupied))
-        if lane == len(occupied):
-            occupied.append([])
-        occupied[lane].append(interval)
-        result[party] = lane
+def label_positions(anchors, width):
+    # Reserve 60 px for an abbreviation and a three-digit count at 14 px.
+    result, cursor = {}, 0
+    columns = len(anchors) if width >= 600 else max(1, (len(anchors) + 1) // 2)
+    for index, (party, anchor) in enumerate(anchors):
+        row = index // columns
+        if index % columns == 0:
+            cursor = 0
+        start = float(anchor) * width / 100
+        remaining = min(columns - index % columns, len(anchors) - index)
+        left = min(max(cursor, start if row == 0 else 0), width - remaining * 68 + 8)
+        result[party] = (row, left * 100 / width, start * 100 / width)
+        cursor = left + 68
     return result
 
 
-def strip(seats):
+def label_lanes(anchors, width):
+    return {party: position[0] for party, position in label_positions(anchors, width).items()}
+
+
+def default_scenario(envs):
+    try:
+        data = coalitions.inputs(envs['averages']['data'][-1], envs['seats']['data'], '0' * 64)
+        return coalitions.scenario(data, data['initial'])
+    except (KeyError, ValueError, IndexError):
+        return None
+
+
+def home_presentation(envs, built):
+    """One availability decision and the exact poll provenance for page and card."""
+    polls = envs.get('polls')
+    average = envs.get('averages', {}).get('data', [])
+    selected = [p for p in polls['data'] if average and p['id'] in average[-1]['poll_ids']] if polls else []
+    status = next((s for s in envs.get('status', {}).get('data', []) if s['dataset'] == 'polls'), None)
+    stale = not status or status['state'] != 'fresh' or overdue(status['last_attempt_at'], built, 'hourly')
+    result = default_scenario(envs) if selected and not stale and envs.get('seats', {}).get('data', {}).get('available') else None
+    if result and not result.get('seats'):
+        result = None
+    provenance = dict(polls, data=selected) if result else polls
+    return dict(result=result, selected=selected, stale=stale,
+                title=home_sentence(result), source=source_note(provenance, 'source-seats',
+                    'seats.json' if result else 'polls.json' if polls else 'validation-2023.json',
+                    calculation='Seats calculated by this site.' if result else 'Seats withheld; see the headline.'))
+
+
+def home_sentence(result):
+    if not result or not result.get('seats'):
+        return 'No seat estimate available yet.'
+    ordered = sorted(result['seats'].items(), key=lambda item: (-item[1], item[0]))
+    maximum = ordered[0][1]
+    leaders = [label(p) for p, n in ordered if n == maximum]
+    majority = result['assumed_majority']
+    if len(leaders) > 1:
+        names = ' and '.join(leaders) if len(leaders) == 2 else ', '.join(leaders[:-1]) + ' and ' + leaders[-1]
+        return f'{names} are level on {maximum} calculated seats; no party reaches the assumed majority of {majority}.'
+    if maximum >= majority:
+        return f'{leaders[0]}: {maximum} calculated seats, reaching the assumed majority of {majority}.'
+    return f'{leaders[0]} leads with {maximum} calculated seats; no party reaches the assumed majority of {majority}.'
+
+
+def strip(seats, note=''):
     colours = config('party-colours')
     ordered = sorted(((p, n) for p, n in seats['seats'].items() if n), key=lambda item: (-item[1], item[0]))
     total = seats['assumed_house']
-    segments, lanes, records, anchors = [], [], [], []
-    position = 0
+    segments, labels, records = [], [], []
+    anchors, offset = [], 0
+    for p, n in ordered:
+        anchors.append((p, Fraction(offset * 100, total)))
+        offset += min(n, seats['entitlements'][p])
+    mobile, desktop = label_positions(anchors, 328), label_positions(anchors, 1072)
     for p, n in ordered:
         base = min(n, seats['entitlements'][p])
-        anchors.append((p, Fraction(100 * (2 * position + base), 2 * total), base))
-        position += base
-    desktop = label_lanes([(p, anchor) for p, anchor, base in anchors if base < 8], 736)
-    mobile = label_lanes([(p, anchor) for p, anchor, base in anchors if base < 32], 288)
-    for (p, n), (_, anchor, base) in zip(ordered, anchors):
         extra = n - base
         colour = colours.get(p, {}).get('colour', '#595959')
         width = Decimal(base) * 100 / total
-        classes = (' small' if p in desktop else '') + (' mobile-small' if p in mobile else '')
-        segments.append(f'<div class="segment{classes}" data-party="{p}" style="width:{width}%;background:{colour}"><span class="seat-label">{escape(label(p))}<strong>{n}</strong></span></div>')
-        if p in mobile or p in desktop:
-            offset = Decimal(anchor.numerator) / anchor.denominator
-            lanes.append(f'<div class="lane{classes}" data-party="{p}" style="--anchor:{offset}%;--desktop-row:{desktop.get(p, 0)};--mobile-row:{mobile.get(p, 0)}">'
-                         '<span class="leader" aria-hidden="true"></span><span class="elbow" aria-hidden="true"></span>'
-                         f'<span class="lane-label">{escape(label(p))}<strong>{n}</strong></span></div>')
+        segments.append(f'<div class="segment" data-party="{p}" style="width:{width:.6f}%;background:{colour}"></div>')
+        row, left, anchor = mobile[p]
+        _, large_left, _ = desktop[p]
+        for mode, (line_row, line_left, line_anchor) in [('phone', mobile[p]), ('wide', desktop[p])]:
+            if abs(line_left - line_anchor) > .01 or line_row:
+                side = 'right' if line_anchor > line_left else 'left'
+                labels.append(f'<span class="label-connector {mode}" aria-hidden="true" style="left:{min(line_left, line_anchor):.6f}%;width:{abs(line_left-line_anchor):.6f}%;height:{6+line_row*21}px;border-{side}:1px solid var(--ink)"></span>')
+        labels.append(f'<div class="lane" role="group" data-party="{p}" style="--row:{row};--left:{left:.6f}%;--large-left:{large_left:.6f}%" aria-label="{escape(label(p))}: {n} calculated seats"><span>{p.upper()}</span> <strong>{n}</strong></div>')
         records.append([escape(label(p)), str(base), str(extra), str(n)])
     if seats['overhang']:
         width = Decimal(seats['overhang']) * 100 / total
-        segments.append(f'<div class="segment overhang" style="width:{width}%" aria-label="Overhang"></div>')
+        segments.append(f'<div class="segment overhang" style="width:{width:.6f}%"></div>')
     marker = Decimal(seats['assumed_majority']) * 100 / total
-    desktop_height = (max(desktop.values()) + 1) * 96 + 24 if desktop else 0
-    mobile_height = (max(mobile.values()) + 1) * 96 + 24 if mobile else 0
     return ('<figure class="seat-figure" aria-describedby="source-seats"><div class="strip" role="img" '
-            'aria-label="Theoretical party seats, detailed in the following table">' + ''.join(segments) +
-            f'<span class="majority" style="left:{marker}%"></span></div>'
-            f'<div class="lanes" style="--desktop-height:{desktop_height}px;--mobile-height:{mobile_height}px">' + ''.join(lanes) +
-            '</div><figcaption class="strip-note">120-seat base; appended extra seats are overhang. '
-            f'{seats["overhang"]} overhang seats. Counts assume sufficient list candidates.</figcaption></figure>' +
-            f'<p>Seats needed for a majority: <strong>{seats["assumed_majority"]}</strong>, assuming sufficient list candidates '
-            f'in a House of {total}.</p>' +
-            table('Theoretical seats and overhang', ['Party', 'Base seats', 'Overhang', 'Seats'], records, source='source-seats'))
+            'aria-describedby="source-seats" aria-label="Theoretical party seats, detailed in the following table">' + ''.join(segments) +
+            f'<span class="majority" style="left:{marker:.6f}%"></span></div>'
+            '<div class="lanes">' + ''.join(labels) + '</div>'
+            f'<p class="majority-label">{seats["assumed_majority"]} for a majority</p>'
+            '<figcaption class="strip-note">Calculated seats; list capacity not checked.</figcaption></figure>' + note +
+            '<details class="seat-data"><summary>Seat table and assumptions</summary>'
+            f'<p aria-describedby="source-seats">Seats needed for a majority: <strong>{seats["assumed_majority"]}</strong>, '
+            f'assuming sufficient list candidates in a House of {total}.</p>' +
+            table('Theoretical seats and overhang', ['Party', 'Base seats', 'Overhang', 'Seats'], records, source='source-seats') + '</details>')
 
 
-def explorer(envs):
+def explorer(envs, available=True):
     note = 'The explorer requires JavaScript and complete matching poll inputs. Published seats remain above.'
     attrs, controls = '', ''
     try:
+        if not available:
+            raise ValueError('UPDATE_OVERDUE')
         average_hash = envs['seats']['input_hashes']['averages.json']
         seats_hash = next(e['sha256'] for e in envs['manifest']['data'] if e['path'] == 'seats.json')
         fingerprint = export.digest((average_hash + seats_hash).encode())
@@ -157,43 +231,57 @@ def explorer(envs):
                          f'<label class="electorate-count">Electorate seats assumed for {escape(label(p))}'
                          f'<input type="text" inputmode="numeric" maxlength="2" data-count="{p}" value="{data["initial"]["counts"][p]}"></label></div>')
     except (KeyError, ValueError):
-        note = 'The explorer is unavailable because the poll inputs are incomplete. Published information remains above.'
+        note = ('The explorer is unavailable because the poll inputs are incomplete. Published information remains above.' if available else
+                'The explorer is unavailable while the poll update is overdue. Previous poll observations remain above.')
     return (f'<section id="coalition-explorer" aria-labelledby="coalition-title"{attrs}>'
             '<h2 id="coalition-title">Choose parties</h2>'
             f'<p data-note>{note}</p><fieldset hidden disabled><legend>Choose parties and electorate seats assumed</legend>'
             + controls + '<div class="coalition-actions"><button type="button" data-reset>Reset</button>'
             '<button type="button" data-share>Share this scenario</button></div></fieldset>'
-            '<p data-warning role="status"></p><div data-results hidden><p data-live aria-live="polite" aria-atomic="true"></p>'
-            '<p data-unassigned></p><p>List capacity not checked. Vacancies and the occupied House are unknown; '
+            '<p data-warning role="status"></p><div data-results hidden><p data-live aria-describedby="source-seats" aria-live="polite" aria-atomic="true"></p>'
+            '<p data-unassigned aria-describedby="source-seats"></p><p>List capacity not checked. Vacancies and the occupied House are unknown; '
             'the majority requirement is assumed.</p><div data-picture></div>'
             f'<p><a href="{PREFIX}data/averages.json">Poll inputs</a> <a href="{PREFIX}data/seats.json">Seat assumptions</a> '
             f'<a href="#source-seats">Sources and method</a></p></div></section>'
             f'<script type="module" src="{PREFIX}coalitions.mjs"></script>')
 
 
-def polls_page(envs, built):
+def polls_page(envs, built, presentation=None):
+    presentation = presentation if presentation is not None else home_presentation(envs, built)
     if 'polls' not in envs:
-        return render('polls', state='<div class="state"><p><strong>No data yet.</strong> This page will show the national poll average, '
-                      'the seats it would give each party, and parties near the 5% threshold. The first validated data run is expected '
-                      'by 19 October 2026, after the hourly refresh is connected. Until then, read the method and official 2023 example.</p></div>',
-                      picture='', source='', explorer='', details=f'<p><a href="{PREFIX}methods/">Read the method and 2023 example</a></p>')
+        status = next((r for r in envs.get('status', {}).get('data', []) if r['dataset'] == 'polls'), None)
+        failed = f' The {compact_time(status["last_attempt_at"])} update failed.' if status and status.get('error_code') else ''
+        return render('polls', state='<div class="state"><p>No data yet. Polls are checked hourly.' + failed +
+                      ' <a href="https://github.com/byronxlg/unattended/actions">Update details</a>.</p></div>',
+                      picture=f'<p><a href="{PREFIX}methods/">Read how seats are calculated.</a></p>',
+                      source=presentation['source'], explorer='', details='')
     polls, average, seats = envs['polls']['data'], envs['averages']['data'][-1], envs['seats']['data']
     status = next(s for s in envs['status']['data'] if s['dataset'] == 'polls')
-    acquisition = datetime.fromisoformat(envs['polls']['fetched_at'].replace('Z', '+00:00'))
-    stale = status['state'] != 'fresh' or datetime.fromisoformat(built.replace('Z', '+00:00')) - acquisition > timedelta(hours=3)
-    offline = envs['polls']['run_url'] == 'offline-verification'
-    state = '<div class="state"><p>Offline verification from captured sources. Not live data.</p>' if offline else '<div class="state">'
-    if stale:
-        state += '<p>Update overdue. These are retained observations, not a current seat picture. Check the source revision and return after the next validated refresh.</p>'
-    last = datetime.fromisoformat(max(p['fieldwork_end'] for p in polls))
-    state += f'<p>Last poll ended {last.day} {last:%B}. Updated {escape(local_time(envs["polls"]["fetched_at"]))}.</p></div>'
-    if seats['available'] and (offline or not stale):
-        picture = strip(seats)
+    checked = status['last_attempt_at'] if status['state'] == 'fresh' else status['last_success_at']
+    stale = presentation['stale']
+    state = ''
+    update = link(envs['status']['run_url'], 'Update details') if safe_url(envs['status']['run_url']) else f'<a href="{PREFIX}downloads/">Update details</a>'
+    last = max(p['fieldwork_end'] for p in polls)
+    if status.get('error_code'):
+        state = f'<div class="state"><p>The {compact_time(status["last_attempt_at"])} update failed; showing previous data from {compact_time(status["last_success_at"])}. {update}</p></div>'
+    elif stale:
+        state = f'<div class="state"><p>Update overdue. Last checked {compact_time(checked)}. Showing polls to {observation_label(last)}. {update}</p></div>'
+    if presentation['result']:
+        dates = [(p['fieldwork_start'], p['fieldwork_end']) for p in presentation['selected']]
+        first, end = min(a for a, b in dates), max(b for a, b in dates)
+        date_line = (f'<p class="poll-dates" aria-describedby="source-seats">Polls <time datetime="{first}">{observation_label(first)}</time> '
+                     f'to <time datetime="{end}">{observation_label(end)}</time>. <a href="{PREFIX}methods/">How seats are calculated</a>.</p>')
+        picture = date_line + strip(presentation['result'], presentation['source'])
     else:
-        reason = seats['reason'] or 'Current seats withheld until a fresh acquisition.'
-        picture = f'<p>{escape(reason)} <a href="{PREFIX}methods/">How missing coverage affects seats</a></p>'
+        picture = (f'<p aria-describedby="source-seats">Seat estimate unavailable. Polls to {observation_label(last)} are below.</p>'
+                   f'<p><a href="{PREFIX}methods/">Read how seats are calculated.</a></p>'
+                   f'<details><summary>Why seats are unavailable</summary><p>{escape(seats["reason"] or "Update overdue.")}</p></details>')
+    for tie in seats.get('unresolved_ties', []):
+        names = [label(p) for p in tie.get('candidates', [])]
+        if names:
+            picture += '<p class="missing" aria-describedby="source-seats">Tie for the last seat between ' + escape(' and '.join(names)) + '; shown unassigned.</p>'
     details = '<div class="grid"><section><h2>Average party vote</h2>'
-    details += f'<p>Window: {average["window_start"]} to {average["window_end"]}. Equal weight for {len(average["poll_ids"])} polls.</p>'
+    details += f'<p aria-describedby="source-average">Window: {average["window_start"]} to {average["window_end"]}. Equal weight for {len(average["poll_ids"])} polls.</p>'
     details += table('Descriptive shares and coverage', ['Party', 'Share', 'Polls'],
                      [[escape(label(p)), display(d['value'], d['scale']), str(len(d['poll_ids']))]
                       for p, d in average['descriptive'].items()], source='source-average')
@@ -201,31 +289,37 @@ def polls_page(envs, built):
         details += '<p>Missing observations:</p><ul>' + ''.join(f'<li>{escape(m["poll_id"])}: {escape(label(m["party_id"]))}</li>' for m in average['missing']) + '</ul>'
     if average['exclusions']:
         details += '<ul>' + ''.join(f'<li>{escape(e["poll_id"])}: {escape(e["reason"])}</li>' for e in average['exclusions']) + '</ul>'
-    details += source_note(envs['averages'], 'source-average', 'averages.json')
-    details += '</section><section><h2>Threshold watch</h2><p class="threshold-rule">5% of the party vote qualifies a party with a list. An electorate win can also qualify it below 5%.</p>'
+    details += source_note(envs['averages'], 'source-average', 'averages.json',
+                           calculation='Available poll shares averaged with equal weight by this site.',
+                           contributing_polls=presentation['selected'])
+    details += '</section><section><h2>Threshold watch</h2><p class="threshold-rule" aria-describedby="source-thresholds">5% of the party vote qualifies a party with a list. An electorate win can also qualify it below 5%.</p>'
     watch = threshold_watch(polls, average, seats['assumptions'])
     details += table('Parties near the threshold', ['Party', 'Share', 'Below 5%'],
                      [[escape(label(row['party_id'])), display(row['value'], row['scale']),
                        'Electorate assumed' if row['electorate_qualifies'] else 'Needs 5%'] for row in watch], source='source-thresholds')
     for row in watch:
         if row['missing_poll_ids']:
-            details += f'<p>{escape(label(row["party_id"]))}: missing in {len(row["missing_poll_ids"])} window polls.</p>'
-    details += '<p>2023 electorate seats assumed; 2026 has different boundaries. List capacity not checked.</p>'
-    details += source_note(envs['seats'], 'source-thresholds', 'seats.json') + '</section></div>'
+            details += f'<p aria-describedby="source-thresholds">{escape(label(row["party_id"]))}: missing in {len(row["missing_poll_ids"])} window polls.</p>'
+    details += '<p aria-describedby="source-thresholds">2023 electorate seats assumed; 2026 has different boundaries. List capacity not checked.</p>'
+    details += source_note(envs['seats'], 'source-thresholds', 'seats.json',
+                           calculation='Threshold shares averaged with equal weight by this site.',
+                           contributing_polls=presentation['selected']) + '</section></div>'
     parties = list(config('party-map')['headers'].values())
-    history = []
+    history, row_notes = [], []
     for poll in sorted(polls, key=lambda p: (p['fieldwork_end'], p['id']), reverse=True):
-        refs = ' '.join(link(url, 'Original report') for url in poll['reference_urls'])
-        history.append([f'<span id="{escape(poll["id"])}">{escape(poll["pollster"])}</span>',
+        identity = 'source-' + poll['id']
+        refs = f'<a href="#{identity}">Source and dates</a>'
+        row_notes.append(f'<div class="source-note" id="{identity}"><p>{escape(poll["pollster"])}. Fieldwork ended <time datetime="{poll["fieldwork_end"]}">{observation_label(poll["fieldwork_end"])}</time>.</p><p class="source-actions">' + ' '.join(link(url, 'Original report') for url in poll['reference_urls']) + f' <a href="#source-history">Revision, retrieval, licence and data run</a></p></div>')
+        history.append([f'<span id="{escape(poll["id"])}" aria-describedby="{identity}">{escape(poll["pollster"])}</span>',
                         escape(poll['fieldwork_start'] + ' to ' + poll['fieldwork_end']),
                         'Not reported' if poll['sample'] is None else str(poll['sample']),
                         *[display(poll['shares'].get(p), poll['scale']) for p in parties], refs])
     details += '<h2>Poll history</h2>' + table('All national 2026 observations in the source revision; scroll for all parties',
                                             ['Pollster', 'Fieldwork', 'Sample'] + [label(p) for p in parties] + ['Reports'], history, source='source-history')
-    details += source_note(envs['polls'], 'source-history', 'polls.json')
+    details += source_note(envs['polls'], 'source-history', 'polls.json') + '<details><summary>Individual poll sources and fieldwork dates</summary>' + ''.join(row_notes) + '</details>'
     details += f'<p><a href="{PREFIX}data/averages.json">Daily average series and exact inputs</a></p>'
     return render('polls', state=state, picture=picture,
-                  source=source_note(envs['seats'], 'source-seats', 'seats.json'), explorer=explorer(envs), details=details)
+                  source='' if presentation['result'] else presentation['source'], explorer=explorer(envs, not stale), details=details)
 
 
 def methods_page(stage, built, sha, run_url):
@@ -257,7 +351,7 @@ def methods_page(stage, built, sha, run_url):
     (stage / 'validation-2023.csv').write_bytes(export.csv_bytes(env))
     return render('methods', votes=f'{sum(official["input"]["partyVotes"].values()):,}',
                   table=table('Official 2023 entitlement and occupied seats', ['Party', 'Votes', 'Entitlement', 'Electorates', 'Seats'], records, source='source-polls'),
-                  prefix=PREFIX, source=source_note(inputs='validation-2023.json'))
+                  prefix=PREFIX, source=source_note(env, inputs='validation-2023.json'))
 
 
 def downloads(envs, data_sha):
@@ -270,14 +364,14 @@ def downloads(envs, data_sha):
             if data_sha:
                 immutable = link(f'https://raw.githubusercontent.com/byronxlg/unattended/{data_sha}/product/nz_election/data/{name}', 'Pinned copy')
             run = entry['producing_run_url']
-            producing = link(run, run) if run and safe_url(run) else 'Not available (offline verification)'
+            producing = link(run, run) if run and safe_url(run) else 'fixture run (offline verification)'
             fields = [
                 ('Size', str(entry['bytes']) + ' bytes' if entry['bytes'] is not None else 'Not available'),
                 ('SHA-256', escape(entry['sha256'] or 'Not available')),
                 ('Licence', escape(', '.join(entry['licences']) or 'Not available')),
                 ('Rows', str(entry['row_count'])),
-                ('Observation start', escape(observation_label(entry['observation_start']))),
-                ('Observation end', escape(observation_label(entry['observation_end']))),
+                ('Observation start', f'<time datetime="{entry["observation_start"]}">{escape(observation_label(entry["observation_start"]))}</time>' if entry['observation_start'] else 'Not available'),
+                ('Observation end', f'<time datetime="{entry["observation_end"]}">{escape(observation_label(entry["observation_end"]))}</time>' if entry['observation_end'] else 'Not available'),
                 ('Retrieved (Pacific/Auckland)', escape(local_time(entry['fetched_at']) if entry['fetched_at'] else 'Not available')),
                 ('Producing run', producing), ('Immutable download', immutable)]
             metadata = '<dl class="download-fields">' + ''.join(
@@ -286,7 +380,7 @@ def downloads(envs, data_sha):
                          '<dl><dt>Retrieved (UTC)</dt><dd>' + escape(entry['fetched_at'] or 'Not available') +
                          '</dd></dl><pre>' + escape(export.canonical(entry)) + '</pre></details>')
             records.append(f'<tr data-file="{escape(name)}"><th scope="row"><a href="{PREFIX}data/{escape(name)}">{escape(name)}</a></th><td>{metadata}</td></tr>')
-        catalogue = '<table class="download-catalogue"><caption>Published data inventory</caption><tbody>' + ''.join(records) + '</tbody></table>'
+        catalogue = '<table class="download-catalogue" aria-describedby="source-polls"><caption>Published data inventory</caption><tbody>' + ''.join(records) + '</tbody></table>'
         catalogue += f'<p><a href="{PREFIX}data/LICENCES.md">Licences and CSV format</a></p>'
     catalogue += f'<p><a href="{PREFIX}validation-2023.json">Official 2023 normalized validation (JSON)</a> <a href="{PREFIX}validation-2023.csv">Validation (CSV)</a></p>'
     return render('downloads', catalogue=catalogue, prefix=PREFIX,
@@ -307,18 +401,14 @@ def electorates_page(envs, built=None):
                               f'<a href="{PREFIX}electorates/{escape(row["slug"])}/">{escape(row["name"])}</a>'
                               f'<p>{escape(row['boundary_note'] if row['stats_id'] in mappings else 'Comparison unresolved')}</p></li>')
         directory += '</ul>'
-    sources = envs.get('electorates', {}).get('source', [])
-    source = '<p class="source-note" id="source-geography">Source: Stats NZ, 2025 boundaries. '
-    source += ' '.join(link(s['url'], s['id'].removeprefix('G:')) + ' ' + escape(s['licence']) for s in sources)
-    if sources:
-        source += f' <a href="{PREFIX}downloads/">Boundary downloads and provenance</a>. Offline verification from captured sources.'
-    if 'electorates' in envs:
-        source += ' Retrieved ' + escape(local_time(envs['electorates']['fetched_at'])) + '.'
-        status = next((r for r in envs.get('status', {}).get('data', []) if r['dataset'] == 'geography'), None)
-        if status and (status['state'] != 'fresh' or (built and datetime.fromisoformat(built.replace('Z', '+00:00')) - datetime.fromisoformat(status['last_success_at'].replace('Z', '+00:00')) > timedelta(hours=36))):
-            source += ' Update overdue. Showing retained boundaries.'
-    source += '</p>'
-    return render('electorates', map=svg(collections, rows), directory=directory, source=source)
+    from product.nz_election.pipeline.electorate_pages import source as family_source
+    source = family_source(envs, 'electorates', built).replace('id="source-electorates"', 'id="source-geography"')
+    unmatched = [r for r in envs.get('electorate-polls', {}).get('data', []) if r['electorate_id'] is None]
+    if unmatched:
+        directory += '<h2>Local polls not matched</h2><ul aria-describedby="source-electorate-polls">' + ''.join(
+            '<li>Not matched: ' + escape(r['boundary_basis']['source_name']) + ' (local poll)</li>' for r in unmatched) + '</ul>'
+        directory += family_source(envs, 'electorate-polls', built)
+    return render('electorates', map=svg(collections, rows).replace('<svg ', '<svg aria-describedby="source-geography" '), directory=directory, source=source)
 
 
 def output_path(out):
@@ -352,6 +442,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
         if envs:
             shutil.copytree(data, stage / 'data')
             export.validate_bundle(stage / 'data')
+        home = home_presentation(envs, built)
+        (stage / 'home-presentation.json').write_text(export.canonical(home) + '\n')
         methods = methods_page(stage, built, sha, run_url)
         manifest = export.envelope(dict(id='build', source_ref=[], observed_at=built, code_sha=sha,
                          data_sha=data_sha if envs else None, build_run_url=run_url, built_at=built,
@@ -371,7 +463,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             nav = ''.join(f'<a href="{PREFIX + r["path"]}"' + (' aria-current="page"' if r == route else '') +
                           f'>{escape(r["label"])}</a>' for r in primary_routes)
             if slug == '':
-                body = polls_page(envs, built)
+                body = polls_page(envs, built, home)
             elif slug == 'electorates/':
                 body = electorates_page(envs, built)
             elif slug.startswith('electorates/'):
@@ -386,19 +478,14 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
                 body = render('placeholder', description=descriptions[slug])
             target = stage / slug
             target.mkdir(parents=True, exist_ok=True)
-            (target / 'index.html').write_text(render('base', title=route['label'], prefix=PREFIX, nav=nav, body=body,
+            (target / 'index.html').write_text(render('base', title=escape(home['title']) if slug == '' else route['label'], heading_class='home-sentence' if slug == '' else '', heading_source=' aria-describedby="source-seats"' if slug == '' else '', prefix=PREFIX, nav=nav, body=body,
                                                     built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.'))
+        for asset in ('favicon.svg', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'):
+            shutil.copyfile(PRODUCT / 'web' / asset, stage / asset)
         for page in stage.rglob('*.html'):
             validate_scripts(page.read_text())
         shutil.copyfile(PRODUCT / 'web/coalitions.mjs', stage / 'coalitions.mjs')
         shutil.copyfile(PRODUCT / 'web/styles.css', stage / 'styles.css')
-        with (stage / 'styles.css').open('a') as stylesheet:
-            for row in config('electorates'):
-                slug = row['slug']
-                stylesheet.write(f'.electorates:has(#electorate-{slug}:target) [data-electorate="{slug}"],\n' +
-                                 f'.electorates:has(#electorate-{slug}:focus-within) [data-electorate="{slug}"]' +
-                                 '{fill:url(#selected-hatch);stroke:#181818;stroke-width:3}\n')
-
         shutil.copyfile(PRODUCT / 'web/allocator.mjs', stage / 'allocator.mjs')
         shutil.copyfile(PRODUCT / 'web/electorates.mjs', stage / 'electorates.mjs')
         replace_directory(stage, out)

@@ -1,3 +1,7 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["playwright>=1.51,<2"]
+# ///
 """Real Chromium checks over loopback only; no external resources are fetched."""
 import argparse
 from decimal import Decimal
@@ -85,16 +89,31 @@ def check_page(page, url, site, origin):
       const s=getComputedStyle(el); const c=s.borderLeftWidth!=='0px'?s.borderLeftColor:s.borderBottomColor;
       return (c.match(/[\\d.]+/g)||[]).map(Number);
     })''')
-    assert all(contrast(c, [255,255,255]) >= 3 for c in boundaries), 'BOUNDARY_CONTRAST'
-    targets = page.locator('a:not(svg a)').evaluate_all('els=>els.filter(e=>e.getClientRects().length).map(e=>e.getBoundingClientRect().height)')
+    paper = page.locator('body').evaluate("e=>getComputedStyle(e).backgroundColor.match(/[\\d.]+/g).map(Number)")
+    assert all(contrast(c, paper) >= 3 for c in boundaries), 'BOUNDARY_CONTRAST'
+    targets = page.locator('a:not(svg a),summary,button,input').evaluate_all('els=>els.filter(e=>e.getClientRects().length).map(e=>e.getBoundingClientRect().height)')
     assert all(height >= 44 for height in targets), 'SMALL_TARGET'
     page.keyboard.press('Tab')
     focused = page.evaluate('''()=>{const e=document.activeElement,s=getComputedStyle(e);return {text:e.textContent,width:s.outlineWidth,color:s.outlineColor,top:e.getBoundingClientRect().top}}''')
     assert focused['text'] == 'Skip to content' and focused['width'] == '3px' and focused['top'] >= 0, 'FOCUS_NOT_VISIBLE'
     page.keyboard.press('Enter')
     assert page.evaluate('document.activeElement.id') == 'main', 'SKIP_LINK_FAILED'
-    page.locator('h1').click()
+    page.evaluate('document.activeElement.blur()')
     page.evaluate('scrollTo(0,0)')
+    from product.nz_election.tests.design_checks import provenance
+    provenance(page.content())
+    levels = page.locator('main h1,main h2,main h3,main h4').evaluate_all('els=>els.map(e=>Number(e.tagName[1]))')
+    assert all(b <= a + 1 for a, b in zip(levels, levels[1:])), 'HEADING_OUTLINE'
+    for strip in page.locator('.strip').all():
+        assert strip.evaluate('e=>e.getBoundingClientRect().height') == (72 if page.viewport_size['width'] < 800 else 120), 'STRIP_HEIGHT'
+        assert strip.locator('.segment').evaluate_all('els=>els.every(e=>!e.textContent.trim() && getComputedStyle(e).borderTopWidth==="1px")'), 'FILL_LABEL_OR_OUTLINE'
+    for lanes in page.locator('.lanes').all():
+        assert lanes.evaluate('e=>e.getBoundingClientRect().height') <= (42 if page.viewport_size['width'] < 800 else 21), 'LABEL_HEIGHT'
+        tops = lanes.locator('.lane').evaluate_all('els=>els.map(e=>e.getBoundingClientRect().top)')
+        assert len(set(tops)) <= (2 if page.viewport_size['width'] < 800 else 1), 'LABEL_ROWS'
+    page.add_script_tag(path=str(PRODUCT / 'tests/axe.min.js'))
+    violations = page.evaluate('async () => (await axe.run(document)).violations')
+    assert not violations, 'AXE_VIOLATIONS: ' + json.dumps(violations)
     assert not errors, 'CONSOLE_ERRORS: ' + str(errors)
     return static_text(page)
 
@@ -107,48 +126,60 @@ def static_text(page):
 
 
 def state_images(browser, out):
+    from playwright.sync_api import expect
+
     sys.path.insert(0, str(PRODUCT.parents[1]))
-    from product.nz_election.pipeline.refresh import refresh
-    from product.nz_election.pipeline.build import build
-    from product.nz_election.pipeline.models import ParseDrift
     results = []
     with tempfile.TemporaryDirectory(prefix='nz-screenshot-states-') as tmp:
         root = Path(tmp)
-        for state in ('unavailable', 'stale', 'incomplete', 'earlier-coherent-window', 'coalition-edit', 'coalition-vacancy'):
-            data = root / (state + '-data')
-            site = root / state
-            site.mkdir()
-            def fail(*args):
-                raise ParseDrift('Screenshot unavailable-state verification')
-            refresh(data, now='2026-10-17T01:00:00Z',
-                    end_date='2026-07-18' if state in {'earlier-coherent-window', 'coalition-edit', 'coalition-vacancy'} else None,
-                    **({'parse': fail} if state == 'unavailable' else {}),
-                    run_url='local-stale-verification' if state == 'stale' else 'offline-verification')
-            build(data, site / 'nz-election', built='2026-10-17T12:00:00Z')
-            target = site / 'nz-election/index.html'
-            content = target.read_text()
-            content = content.replace('<h1>Polls and seats</h1>', '<h1>Polls and seats</h1><p>Layout verification: ' +
-                                      state.replace('-', ' ') + '. Not a current projection.</p>')
-            target.write_text(content)
+        from product.nz_election.tests.design_states import STATES, COHERENT, fixture
+        for state in STATES:
+            site, route_path = fixture(root, state)
             server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(site)))
             threading.Thread(target=server.serve_forever, daemon=True).start()
             origin = 'http://127.0.0.1:' + str(server.server_port)
             try:
-                for width, height in [(390, 844), (1280, 800)]:
-                    context = browser.new_context(viewport=dict(width=width, height=height), reduced_motion='reduce')
+                for width, height in ([(360, 780)] if state == 'earlier-coherent-window' else []) + [(390, 844), (1280, 800)]:
+                    context = browser.new_context(viewport=dict(width=width, height=height), color_scheme='light', reduced_motion='reduce')
                     context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
                     page = context.new_page()
-                    check_page(page, origin + PREFIX + 'nz-election/', site, origin)
+                    check_page(page, origin + PREFIX + 'nz-election/' + route_path, site, origin)
+                    if state in ('invalid-link', 'changed-inputs'):
+                        # The skip-link check replaces the scenario hash with #main.
+                        page.goto(origin + PREFIX + 'nz-election/' + route_path, wait_until='networkidle')
+                    if state == 'invalid-count':
+                        root_control = page.locator('[data-count="nat"]')
+                        root_control.fill('72')
+                        root_control.press('Tab')
+                        expect(page.locator('[data-warning]')).to_contain_text('last valid result is shown')
+                    if state == 'invalid-link':
+                        expect(page.locator('[data-warning]')).to_contain_text('This coalition link is invalid.')
+                    if state == 'changed-inputs':
+                        expect(page.locator('[data-warning]')).to_contain_text('This link uses different poll inputs.')
+                    if state == 'missing-baseline':
+                        assert 'No 2023 candidate results for this electorate' in page.locator('main').inner_text()
+                    if state == 'unresolved':
+                        assert 'Not matched: Kāpiti (local poll)' in page.locator('main').inner_text()
+                    if state == 'allocation-tie':
+                        assert 'Tie for the last seat between National and Labour; shown unassigned.' in page.locator('main').inner_text()
+                    if state == 'source-conflict':
+                        assert 'Comparison unresolved' in page.locator('main').inner_text()
+                    if state == 'offline':
+                        assert 'fixture run' in page.locator('main').inner_text()
+                    if state == 'validation-error':
+                        assert 'update failed; showing previous data' in page.locator('main').inner_text()
                     if state.startswith('coalition-'):
                         from coalitions_browser import edit_state
                         edit_state(page, state)
-                    if state in {'earlier-coherent-window', 'coalition-edit', 'coalition-vacancy'}:
+                    if state in COHERENT:
                         assert page.locator('main > .seat-figure .strip').count() == 1, 'COHERENT_STRIP_REQUIRED'
-                        for box in page.locator('.seat-label,.lane').all():
+                        for box in page.locator('.lane').all():
                             if box.is_visible():
                                 assert box.evaluate('(e)=>e.scrollWidth<=e.clientWidth'), 'STRIP_LABEL_OVERFLOW'
                     else:
                         assert page.locator('main > .seat-figure .strip').count() == 0, 'INVALID_CURRENT_STRIP'
+                    if state == 'earlier-coherent-window' and width in (360, 390):
+                        fold_check(page)
                     name = f'{state}-{width}x{height}.png'
                     page.screenshot(path=str(out / name), full_page=True)
                     results.append(dict(state=state, viewport=dict(width=width, height=height), path=name,
@@ -162,10 +193,77 @@ def state_images(browser, out):
     return results
 
 
+def fold_check(page):
+    bottom = page.locator('#source-seats').evaluate('e=>e.getBoundingClientRect().bottom + scrollY')
+    height = min(780, page.viewport_size['height'])
+    assert bottom <= height, f'SOURCE_NOTE_BELOW_FOLD: {page.viewport_size["width"]}px bottom={bottom:.2f}px viewport={height}px'
+    return bottom
+
+
+def extra_images(browser, site, origin, out, og_only=False):
+    from html import escape
+    from product.nz_election.pipeline import export, geography
+    from product.nz_election.pipeline.build import render, strip, config
+    results = []
+    for width, height, mode in ([] if og_only else [(390, 844, 'dark')]):
+        context = browser.new_context(viewport=dict(width=width, height=height), color_scheme=mode, reduced_motion='reduce')
+        context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
+        page = context.new_page()
+        check_page(page, origin + PREFIX + 'nz-election/', site, origin)
+        bottom = fold_check(page)
+        name = f'home-{width}-{mode}.png'
+        page.screenshot(path=str(out / name))
+        results.append(dict(state='home-' + mode, path=name, source_note_bottom=bottom))
+        context.close()
+    if not og_only:
+        focus_context = browser.new_context(viewport=dict(width=390, height=844))
+        focus_context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
+        focus_page = focus_context.new_page()
+        focus_page.goto(origin + PREFIX + 'nz-election/', wait_until='networkidle')
+        focus_page.keyboard.press('Tab')
+        focus_page.screenshot(path=str(out / 'home-keyboard-focus.png'))
+        results.append(dict(state='keyboard-focus', path='home-keyboard-focus.png'))
+        focus_page.keyboard.press('Enter')
+        focus_page.screenshot(path=str(out / 'home-main-focus.png'))
+        results.append(dict(state='main-focus', path='home-main-focus.png'))
+        focus_context.close()
+    envs = export.validate_bundle(site / 'nz-election/data') if (site / 'nz-election/data').exists() else {}
+    context = browser.new_context(viewport=dict(width=1200, height=630), color_scheme='light', reduced_motion='reduce')
+    context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
+    for slug in ('home', 'wellington-north'):
+        page = context.new_page()
+        page.goto(origin + PREFIX + 'nz-election/', wait_until='networkidle')
+        if slug == 'home':
+            home = json.loads((site / 'nz-election/home-presentation.json').read_text())
+            result = home['result']
+            title = home['title']
+            picture = strip(result).split('<details class="seat-data">')[0] if result else ''
+            source = home['source']
+        else:
+            row = next(r for r in config('electorates') if r['slug'] == slug)
+            title = row['name'] + ': your electorate on the 2025 boundaries'
+            collections = {k: envs[k + '-2025'] for k in geography.KINDS if k + '-2025' in envs} or geography.load()
+            picture = geography.svg(collections, [row], row['id']).replace('<svg ', '<svg aria-describedby="source-og-geography" ')
+            from product.nz_election.pipeline.build import link, compact_time
+            entry = next(e for e in json.loads((geography.ROOT / 'manifest.json').read_text())['entries'] if e['path'] == 'stats-nz/general-2025.geojson')
+            source = '<p class="source-note" id="source-og-geography">From ' + link(entry['url'], 'Stats NZ, 2025 boundaries') + f'. Retrieved <time datetime="{entry["captured_at"]}">{compact_time(entry["captured_at"])}</time>. ' + escape(entry['licence']) + '.</p>'
+        page.set_content(render('og', title=escape(title), prefix=origin + PREFIX + 'nz-election/', picture=picture, source=source), wait_until='networkidle')
+        page.add_script_tag(path=str(PRODUCT / 'tests/axe.min.js'))
+        violations = page.evaluate('async () => (await axe.run(document)).violations')
+        assert not violations, 'AXE_VIOLATIONS: ' + json.dumps(violations)
+        name = 'og-' + slug + '.png'
+        page.screenshot(path=str(out / name))
+        results.append(dict(state='og-' + slug, path=name, viewport=dict(width=1200, height=630)))
+        page.close()
+    context.close()
+    return results
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--site', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--og-only', action='store_true', help='Render the two 1200 by 630 identity cards only')
     args = parser.parse_args()
     try:
         from playwright.sync_api import sync_playwright
@@ -184,6 +282,8 @@ def main():
     build = json.loads((site / 'nz-election/build-manifest.json').read_text())['data']
     manifest = []
     map_images = []
+    has_geography = (site / 'nz-election/data/general-2025.json').is_file()
+    has_baseline = (site / 'nz-election/data/baseline-2023.json').is_file()
     try:
         with sync_playwright() as pw:
             candidates = sorted((Path.home() / 'Library/Caches/ms-playwright').glob('chromium_headless_shell-*/chrome-headless-shell-mac-arm64/chrome-headless-shell'))
@@ -196,34 +296,47 @@ def main():
                 browser = pw.chromium.launch(executable_path=str(executable), headless=True, timeout=15000)
             except Exception as exc:
                 raise SystemExit('CHROMIUM_REQUIRED: ' + str(exc))
-            for width, height in [(390, 844), (1280, 800)]:
-                context = browser.new_context(viewport={'width': width, 'height': height}, reduced_motion='reduce')
+            for width, height in ([] if args.og_only else [(360, 780), (390, 844), (1280, 800)]):
+                context = browser.new_context(viewport={'width': width, 'height': height}, color_scheme='light', reduced_motion='reduce')
                 context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
                 nojs = browser.new_context(viewport={'width': width, 'height': height}, java_script_enabled=False)
                 nojs.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
                 for route in routes:
                     path = route['path']
+                    if width == 360 and path not in {'', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/', 'electorates/wellington-north/', 'electorates/te-tai-tonga/'}:
+                        continue
                     page = context.new_page()
                     url = origin + PREFIX + 'nz-election/' + path
                     text = check_page(page, url, site, origin)
                     assert page.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")
                     assert page.evaluate("[...document.querySelectorAll('*')].every(e=>getComputedStyle(e).animationName==='none')")
+                    bottom = fold_check(page) if path == '' and width in (360, 390) else None
                     name = (path.strip('/').replace('/', '--') or 'polls') + f'-{width}x{height}.png'
                     target = args.out / name
                     page.screenshot(path=str(target))
                     plain = nojs.new_page()
                     plain.goto(url, wait_until='networkidle')
                     assert static_text(plain) == text, 'NO_JS_CONTENT_MISMATCH'
+                    if width <= 390:
+                        plain.locator('.phone-menu summary').click()
+                        assert plain.locator('.phone-menu nav').is_visible(), 'NO_JS_MENU_FAILED'
+                        plain.locator('.phone-menu summary').click()
                     manifest.append(dict(route=PREFIX + 'nz-election/' + path, viewport=dict(width=width, height=height),
                                          path=name, sha256=hashlib.sha256(target.read_bytes()).hexdigest(),
-                                         code_sha=build['code_sha'], data_sha=build['data_sha'], browser_version=browser.version))
+                                         code_sha=build['code_sha'], data_sha=build['data_sha'], browser_version=browser.version, source_note_bottom=bottom))
+                    if path == 'electorates/' and width == 390:
+                        name_all = 'all-electorate-names-390.png'
+                        page.locator('.electorate-directory').screenshot(path=str(args.out / name_all))
+                        map_images.append(dict(state='all-electorate-names', path=name_all))
                     if path == 'electorates/':
                         assert plain.locator('.electorate-directory li').count() == 71
-                        assert page.locator('.electorate-map').count() == 1
+                        assert page.locator('.electorate-map').count() == int(has_geography), 'MAP_PRESENCE'
+                        if not has_geography:
+                            assert 'Map not available' in text
                         page.locator('#electorate-search').fill('TAMAKI')
                         assert page.locator('[data-search-key]:visible').count() >= 1
                         page.locator('#electorate-search').fill('')
-                        for kind in ('general', 'maori'):
+                        for kind in (('general', 'maori') if has_geography else ()):
                             page.locator('#map-' + kind).check()
                             page.locator('#map-' + kind).focus()
                             assert page.locator('.layer-' + kind).is_visible()
@@ -232,7 +345,7 @@ def main():
                             map_images.append(dict(state='map-' + kind, path=state_name,
                                                    viewport=dict(width=width, height=height),
                                                    sha256=hashlib.sha256((args.out / state_name).read_bytes()).hexdigest()))
-                    if path == 'electorates/':
+                    if path == 'electorates/' and has_geography:
                         page.locator('#map-general').check()
                         page.locator('a[href$="/electorates/wellington-north/"]').last.focus()
                         state_name = f'map-selected-focus-{width}x{height}.png'
@@ -241,7 +354,10 @@ def main():
                                                viewport=dict(width=width, height=height),
                                                sha256=hashlib.sha256((args.out / state_name).read_bytes()).hexdigest()))
                     if path == 'electorates/wellington-north/':
-                        assert 'Wellington Central (2023)' in text
+                        if has_baseline:
+                            assert 'Wellington Central (2023)' in text
+                        else:
+                            assert 'No candidate baseline or party baseline available' in text
                     if path == 'electorates/te-tai-tonga/':
                         from product.nz_election.pipeline.electorate_pages import detail
                         row = next(r for r in registry if r['slug'] == 'te-tai-tonga')
@@ -257,14 +373,14 @@ def main():
                     page.close()
                 nojs.close()
                 context.close()
-            additional = state_images(browser, args.out) + map_images
+            additional = ([] if args.og_only else state_images(browser, args.out) + map_images) + extra_images(browser, site, origin, args.out, args.og_only)
             browser.close()
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()
         server.server_close()
-    print('PASS screenshots: 77 routes, 154 baseline images')
-    print('Additional state images: ' + str(len(additional)))
+    print(f'PASS screenshots: {0 if args.og_only else 77} routes, {len(manifest) + len(additional)} images')
+    print('Source-note bottom edges: ' + json.dumps([r for r in manifest + additional if r.get('source_note_bottom') is not None]))
 
 
 if __name__ == '__main__':

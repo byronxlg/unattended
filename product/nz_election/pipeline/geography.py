@@ -166,7 +166,7 @@ def svg(collections, rows, only=None):
     width, height = (xmax - xmin) * scale + 20, (ymax - ymin) * scale + 20
     result = [f'<svg xmlns="http://www.w3.org/2000/svg" class="electorate-map" viewBox="0 0 {width:.1f} {height:.1f}" aria-labelledby="map-title map-description">',
               '<title id="map-title">2025 electorate boundaries</title><desc id="map-description">General and Māori electorates. Use the adjacent directory to select small areas. Source: Stats NZ.</desc>',
-              '<defs><pattern id="selected-hatch" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 0L6 6" stroke="#181818"/></pattern></defs>']
+              '<defs><pattern id="selected-hatch" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 0L6 6" stroke="currentColor"/></pattern></defs>']
     by_id = {r['id']: r for r in rows}
     for kind in KINDS:
         result.append('<g class="map-layer layer-' + kind + '">')

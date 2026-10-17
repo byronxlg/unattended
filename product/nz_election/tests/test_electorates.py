@@ -73,6 +73,39 @@ def test_local_unknown_table_fails():
     assert electorate_polls.parse('No local tables in this source.', '2026-10-17T00:00:00Z') == []
 
 
+def test_local_poll_regions_have_distinct_names():
+    from copy import deepcopy
+    from html.parser import HTMLParser
+    from product.nz_election.pipeline.electorate_pages import detail
+
+    class Tables(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.regions, self.sources = [], []
+
+        def handle_starttag(self, tag, attrs):
+            attrs = dict(attrs)
+            if attrs.get('role') == 'region':
+                self.regions.append(attrs['aria-label'])
+            if tag == 'table':
+                self.sources.append(attrs.get('aria-describedby'))
+
+    poll = next(p for p in electorate_polls.load()[0]['electorate-polls'] if p['electorate_id'])
+    row = next(r for r in config('electorates') if r['id'] == poll['electorate_id'])
+    other = deepcopy(poll)
+    other['id'] += '-second-report'
+    other['poll_id'] = other['id']
+    env = dict(data=[poll, other], source=[], run_url='offline-verification')
+    for measure in ('party_vote', 'candidate_vote'):
+        other['measure'] = measure
+        parsed = Tables()
+        parsed.feed(detail(row, {'electorate-polls': env}))
+        assert len(parsed.regions) == len(set(parsed.regions)) == 2
+        assert all(poll['pollster'] in name and poll['boundary_basis']['fieldwork_label'] in name
+                   for name in parsed.regions)
+        assert parsed.sources == ['source-electorate-polls', 'source-electorate-polls']
+
+
 def test_71_pages_and_missing_data(tmp_path):
     from product.nz_election.pipeline.daily_refresh import daily_refresh
     from product.nz_election.pipeline.build import build
@@ -92,6 +125,7 @@ def test_71_pages_and_missing_data(tmp_path):
     old['field_sources']['candidate_status'] = 'Missing candidate capture.'
     html = detail(central, missing)
     assert 'No candidate baseline. Missing candidate capture.' in html
+    assert '<summary>No 2023 candidate results for this electorate</summary>' in html
     assert 'Auckland Central (2023)' in html and 'party votes' in html
     row = next(r for r in config('electorates') if r['slug'] == 'te-tai-tonga')
     html = detail(row, {})

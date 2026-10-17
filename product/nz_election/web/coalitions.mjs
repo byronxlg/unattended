@@ -76,53 +76,60 @@ export function scenario(data,state) {
     selected_total:Number(state.selected.reduce((s,p)=>s+BigInt(seats[p]),0n))};
 }
 
-function element(tag, text, className) {
-  const node=document.createElement(tag);
-  if (text!==undefined) node.textContent=text;
-  if (className) node.className=className;
-  return node;
+const htmlEscape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'}[c]));
+export function stripHTML(result, labels) {
+  const ordered=Object.entries(result.seats).filter(([,n])=>n).sort((a,b)=>b[1]-a[1]||(a[0]<b[0]?-1:1));
+  const fixed=n=>n.toFixed(6);
+  const percent=n=>{
+    const scaled=BigInt(n)*100000000n, house=BigInt(result.assumed_house);
+    let units=scaled/house;
+    const twice=2n*(scaled%house);
+    if(twice>house || (twice===house && units%2n)) units++;
+    return String(units/1000000n)+'.'+String(units%1000000n).padStart(6,'0');
+  };
+  let offset=0;
+  const anchors=ordered.map(([p,n])=>{const anchor=offset*100/result.assumed_house; offset+=Math.min(n,result.entitlements[p]); return [p,anchor];});
+  const positions=width=>{
+    let cursor=0;
+    const columns=width>=600?anchors.length:Math.max(1,Math.ceil(anchors.length/2));
+    return Object.fromEntries(anchors.map(([p,anchor],index)=>{
+      const row=Math.floor(index/columns);
+      if(index%columns===0) cursor=0;
+      const start=anchor*width/100, remaining=Math.min(columns-index%columns,anchors.length-index);
+      const left=Math.min(Math.max(cursor,row===0?start:0),width-remaining*68+8);
+      cursor=left+68; return [p,{row,left:left*100/width,anchor:start*100/width}];
+    }));
+  };
+  const mobile=positions(328),desktop=positions(1072);
+  let segments='',lanes='',rows='';
+  for(const [p,n] of ordered) {
+    const base=Math.min(n,result.entitlements[p]), name=htmlEscape(labels[p].name);
+    segments+=`<div class="segment" data-party="${htmlEscape(p)}" style="width:${percent(base)}%;background:${htmlEscape(labels[p].colour)}"></div>`;
+    for(const [mode,pos] of [['phone',mobile[p]],['wide',desktop[p]]]) {
+      if(Math.abs(pos.left-pos.anchor)>.01 || pos.row) {
+        const side=pos.anchor>pos.left?'right':'left';
+        lanes+=`<span class="label-connector ${mode}" aria-hidden="true" style="left:${fixed(Math.min(pos.left,pos.anchor))}%;width:${fixed(Math.abs(pos.left-pos.anchor))}%;height:${6+pos.row*21}px;border-${side}:1px solid var(--ink)"></span>`;
+      }
+    }
+    lanes+=`<div class="lane" role="group" data-party="${htmlEscape(p)}" style="--row:${mobile[p].row};--left:${fixed(mobile[p].left)}%;--large-left:${fixed(desktop[p].left)}%" aria-label="${name}: ${n} calculated seats"><span>${htmlEscape(p.toUpperCase())}</span> <strong>${n}</strong></div>`;
+    rows+=`<tr><td>${name}</td><td>${base}</td><td>${n-base}</td><td>${n}</td></tr>`;
+  }
+  if(result.overhang) segments+=`<div class="segment overhang" style="width:${percent(result.overhang)}%"></div>`;
+  return '<figure class="seat-figure" aria-describedby="source-seats"><div class="strip" role="img" '+
+    'aria-describedby="source-seats" aria-label="Theoretical party seats, detailed in the following table">'+segments+
+    `<span class="majority" style="left:${percent(result.assumed_majority)}%"></span></div>`+
+    '<div class="lanes">'+lanes+'</div>'+`<p class="majority-label">${result.assumed_majority} for a majority</p>`+
+    '<figcaption class="strip-note">Calculated seats; list capacity not checked.</figcaption></figure>'+
+    '<details class="seat-data"><summary>Seat table and assumptions</summary>'+
+    `<p aria-describedby="source-seats">Seats needed for a majority: <strong>${result.assumed_majority}</strong>, `+
+    `assuming sufficient list candidates in a House of ${result.assumed_house}.</p>`+
+    '<div class="scroll " tabindex="0" role="region" aria-label="Theoretical seats and overhang">'+
+    '<table aria-describedby="source-seats"><caption>Theoretical seats and overhang</caption><thead><tr>'+
+    ['Party','Base seats','Overhang','Seats'].map(h=>`<th scope="col">${h}</th>`).join('')+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div></details>';
 }
 function picture(root,result,labels) {
-  root.replaceChildren();
-  const figure=element('figure',undefined,'seat-figure');
-  const strip=element('div',undefined,'strip');
-  strip.setAttribute('role','img');
-  strip.setAttribute('aria-label','Assumed party seats, detailed in the following table');
-  const lanes=element('div',undefined,'lanes');
-  const table=element('table');
-  table.append(element('caption','Assumed seats by party'));
-  const body=element('tbody'); table.append(body);
-  const house=BigInt(result.assumed_house);
-  const percent=n=>String(n*10000n/house/100n)+'.'+String(n*10000n/house%100n).padStart(2,'0')+'%';
-  let position=0n, mobile=0, desktop=0;
-  for (const [p,n] of Object.entries(result.seats).filter(([,n])=>n).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))) {
-    const base=BigInt(result.entitlements[p]), classes=(base<8n?' small':'')+(base<32n?' mobile-small':'');
-    const segment=element('div',undefined,'segment'+classes);
-    segment.style.width=percent(base); segment.style.background=labels[p].colour;
-    const label=element('span',labels[p].name,'seat-label'); label.append(element('strong',String(n)));
-    segment.append(label); strip.append(segment);
-    if (base<32n) {
-      const lane=element('div',undefined,'lane'+classes);
-      lane.style.setProperty('--anchor',percent(position+base/2n));
-      lane.style.setProperty('--mobile-row',String(mobile++));
-      lane.style.setProperty('--desktop-row',String(base<8n?desktop++:0));
-      const leader=element('span',undefined,'leader'), elbow=element('span',undefined,'elbow');
-      leader.setAttribute('aria-hidden','true'); elbow.setAttribute('aria-hidden','true');
-      const name=element('span',labels[p].name,'lane-label'); name.append(element('strong',String(n)));
-      lane.append(leader,elbow,name); lanes.append(lane);
-    }
-    position+=base;
-    const row=element('tr'); row.append(element('th',labels[p].name),element('td',String(n))); body.append(row);
-  }
-  if (result.overhang) {
-    const extra=element('div',undefined,'segment overhang');
-    extra.style.width=percent(BigInt(result.overhang)); extra.setAttribute('aria-label','Overhang'); strip.append(extra);
-  }
-  const marker=element('span',undefined,'majority'); marker.style.left=percent(BigInt(result.assumed_majority)); strip.append(marker);
-  lanes.style.setProperty('--desktop-height',String(desktop?desktop*96+24:0)+'px');
-  lanes.style.setProperty('--mobile-height',String(mobile?mobile*96+24:0)+'px');
-  figure.append(strip,lanes,element('figcaption',`${result.overhang} overhang seats. Counts assume sufficient list candidates.`,'strip-note'));
-  root.append(figure,table);
+  root.innerHTML=stripHTML(result,labels);
 }
 async function start(root) {
   const note=root.querySelector('[data-note]'), controls=root.querySelector('fieldset');

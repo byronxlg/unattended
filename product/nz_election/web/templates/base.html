@@ -4,13 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{title}} | NZ election 2026</title>
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="{{prefix}}favicon.svg">
+<link rel="apple-touch-icon" href="{{prefix}}icon-180.png">
+<link rel="manifest" href="{{prefix}}manifest.webmanifest">
 <link rel="stylesheet" href="{{prefix}}styles.css">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header><a class="brand" href="{{prefix}}">NZ election 2026</a><nav aria-label="Main navigation">{{nav}}</nav></header>
-<main id="main" tabindex="-1"><h1>{{title}}</h1>{{body}}</main>
+<header><a class="brand" href="{{prefix}}">NZ election 2026</a><nav class="desktop-nav" aria-label="Main navigation">{{nav}}</nav><details class="phone-menu"><summary>Menu</summary><nav aria-label="Phone navigation">{{nav}}</nav></details></header>
+<main id="main" tabindex="-1"><h1 class="{{heading_class}}"{{heading_source}}>{{title}}</h1>{{body}}</main>
 <footer><p>Independent election information. Not an Electoral Commission service.</p><p>{{built}}</p></footer>
 </body>
 </html>

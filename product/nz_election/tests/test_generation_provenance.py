@@ -1,4 +1,5 @@
 """Equal-acquisition publication and local-time download regressions for PR 10."""
+import re
 from html import unescape
 import json
 
@@ -56,7 +57,8 @@ def test_download_retrieval_summary_is_auckland_and_records_stay_utc(tmp_path):
             assert '<dt>Retrieved (Pacific/Auckland)</dt><dd>Not available</dd>' in summary
         for key in ('observation_start', 'observation_end'):
             if entry[key] and 'T' in entry[key]:
-                assert local_time(entry[key]) in summary and entry[key] not in summary
+                assert f'<time datetime="{entry[key]}">{local_time(entry[key])}</time>' in summary
+                assert entry[key] not in re.sub(r'<[^>]+>', '', summary)
         assert json.loads(unescape(raw_record.split('<pre>')[1].split('</pre>')[0])) == entry
     assert (out / 'data/manifest.json').read_bytes() == original
     for utc, expected in [('2026-07-01T01:00:00Z', '1:00 pm, Wednesday 1 July 2026 NZST'),
