@@ -45,3 +45,6 @@ paid services, changes to other repos. Ask in a `needs-byron` issue; keep workin
 - Supervisor: a build brief that forbids editing existing tests while adding a route or a data
   family blocked the job (social POC, 2026-10-17). Say which contracts move with the registered
   set; the no-edit rule is for fix jobs.
+- Supervisor: a fix brief asked for a wording change that an existing assertion pinned verbatim while
+  forbidding assertion edits (social POC fix-2, 2026-10-17). Grep the tests for what a fix item
+  changes; a pinned nit goes to the next build round.

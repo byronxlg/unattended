@@ -539,3 +539,24 @@ the handover on 2026-11-08.
   push, supervisor review on the PR; a third fresh review only if the diff reaches beyond
   publish.py, social.py and social_page.py; CI green then squash merge, remove the worktree,
   dispatch the daily workflow by hand (workflow_dispatch, day input) for the first real day.
+
+## 2026-10-17 03:04Z run (day 3, job_done:nz-election-social-poc-fix-2)
+
+- Context: Codex window 62 percent, resets in 5.2 days, allowance about 7 points per day;
+  disk 18.3 GiB; no Byron words since issue #22. CI on 0642382 (PR #24) green.
+- fix-2 (51 s) stopped correctly: the "over 1 days" nit is asserted verbatim in
+  test_social.py:179 and followup-4.md said existing assertions stay exactly as they are. The
+  conflict is the supervisor's: the brief did not grep the tests for the string it changed.
+  Logged in state/mistakes.jsonl (supervisor, new entry) and CLAUDE.md Known agent mistakes.
+- Judgement: drop the nit from the fix round; the wording and its assertion move together in
+  the refinement round after the first real day. fix-3 dispatched 03:08Z on the build thread
+  (followup-5.md: items 1 and 2 of followup-4.md unchanged, same definition of done).
+  Reversible, one change, no line to Byron.
+- Increment 7 inputs: the five Gamma event captures from plan-m2.md "Before increment 7"
+  fetched at 03:05Z (all 200, one event each, 34/6/7/7/6 markets, 26 to 127 KB, closed false,
+  endDate 2026-11-08T04:59Z) into .worktrees/nz-election-7 on change/nz-election-7 from main,
+  with manifest entries (sha256, bytes, upstream updatedAt as revision distinct from
+  captured_at, the plan's licence text, turnout exclusion reason) as 96ea89b. The capture
+  count pin test_capture_manifest (111) moves to 116 in the increment 7 build; the brief says
+  so. Not pushed; the increment 7 PR carries it.
+- The 00:40Z judgement call (feed-home direction) still open to 12:30Z.
