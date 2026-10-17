@@ -306,3 +306,32 @@ the handover on 2026-11-08.
 - PR #21 CI was pending at 01:08Z on 0108d71.
 - Next run: read the second review; if clean and CI green, log both reviews on the PR, squash
   merge, remove the worktree, record merged; then brief the sentiment POC.
+
+## 2026-10-17 01:19Z run (reasons: job_done:review-nz-election-design-2, issue #22 at 01:08Z)
+
+- Context: Codex window 56 percent, resets in 5.3 days, allowance about 8 points per day (4
+  spent today: fix-4, review, fix-5, review-2). Disk 19.7 GiB. PR #21 CI green on 0108d71.
+- Issue #22 carries the operator's 01:00Z acknowledgement of the POC-first instruction; nothing
+  new from Byron this run.
+- Second fresh review (review-nz-election-design-2, 124 s): seven of eight prior findings
+  fixed, the eighth (per-route og:image) deferred as decided. Fix-5's strip test confirmed
+  stronger than the one it replaced. One new Important: web/templates/source-note.html now says
+  "Seats calculated by this site" in every note, including the poll table, the averages note
+  and the threshold note beneath a headline that withholds seats; and the averages and seats
+  notes show retrieval time without the fieldwork date of their contributing polls because
+  source_note reads fieldwork_end only from poll rows. The reviewer could not run pytest in the
+  sandbox (uv cache); host evidence stands for that.
+- Judgement, small: checked main, where the sentence was "Parsed and averaged by this project",
+  true everywhere. So the PR introduces a false provenance line; the lab's rule is no number
+  without a true provenance chip, and this would deploy on merge. Alternatives: merge and fold
+  the wording into the feed-home change (days away, false line live meanwhile), or fix now.
+  Chose fix-6 on the build thread, scoped to that one finding, invariant named (each note states
+  only what is true of the thing it sits under; each note's dates describe its contributing
+  data), shape left to the engineer, tests per note kind, no existing test edited. Cost about
+  two window points; the sentiment POC build still fits today's allowance if fix-6 is cheap,
+  otherwise it is tomorrow's first dispatch.
+- Both reviews logged on PR #21 (second pass plus the supervisor verdict at 01:2xZ).
+- Dispatched nz-election-design-fix-6 at 01:24Z (resume of the build thread, workspace-write).
+- Next run: read fix-6; run the host harness (refresh, build, verify, screenshots, OG); spot
+  check the four note sentences in the built home page; then log the check on the PR, squash
+  merge, remove the worktree, record merged; then brief the sentiment POC.
