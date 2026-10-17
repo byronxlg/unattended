@@ -1,8 +1,30 @@
 [
-  {"path":"", "label":"Polls and seats"},
-  {"path":"electorates/", "label":"Electorates"},
-  {"path":"night/", "label":"Election night"},
-  {"path":"campaign/", "label":"Campaign"},
-  {"path":"downloads/", "label":"Downloads"},
-  {"path":"methods/", "label":"Methods"}
+  {
+    "path": "",
+    "label": "Polls and seats"
+  },
+  {
+    "path": "electorates/",
+    "label": "Electorates"
+  },
+  {
+    "path": "night/",
+    "label": "Election night"
+  },
+  {
+    "path": "campaign/",
+    "label": "Campaign"
+  },
+  {
+    "path": "downloads/",
+    "label": "Downloads"
+  },
+  {
+    "path": "methods/",
+    "label": "Methods"
+  },
+  {
+    "path": "social/poc/",
+    "label": "Proof of concept"
+  }
 ]

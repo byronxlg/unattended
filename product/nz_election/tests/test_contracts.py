@@ -119,16 +119,22 @@ def test_hourly_daily_race_preserves_union(tmp_path):
     with ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(run, ['hourly', 'daily']))
     assert sorted(r['attempts'] for r in results) == [1, 2]
+    from product.nz_election.pipeline.social import refresh_social, fixture_send
+    social = tmp_path / 'social'
+    assert refresh_social(social, '2026-10-17', now='2026-10-18T01:00:00Z',
+                          fixture=True, send=fixture_send(), sleep=lambda _: None) == 'ok'
+    publish(social, remote, family='social')
     checkout = tmp_path / 'checkout'
     git(tmp_path, 'clone', '-q', '--branch', 'data', str(remote), str(checkout))
     envs = export.validate_bundle(checkout / DATA)
     assert set.union(*export.FAMILIES.values()) <= envs.keys()
     assert {r['dataset'] for r in envs['status']['data']} == set(export.FAMILIES)
     assert 'Stats NZ' in (checkout / DATA / 'LICENCES.md').read_text()
-    for source in (hourly, daily):
-        for p in source.iterdir():
-            if p.stem in set.union(*export.FAMILIES.values()):
-                assert p.read_bytes() == (checkout / DATA / p.name).read_bytes()
+    for source in (hourly, daily, social):
+        for p in source.rglob('*'):
+            relative = p.relative_to(source)
+            if p.is_file() and relative.with_suffix('').as_posix() in set.union(*export.FAMILIES.values()):
+                assert p.read_bytes() == (checkout / DATA / relative).read_bytes()
 
 
 def test_family_scoped_capture_failure(tmp_path):

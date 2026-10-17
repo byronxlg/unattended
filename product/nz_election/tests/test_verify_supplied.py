@@ -21,6 +21,9 @@ def polls_only(tmp_path):
 def test_verify_all_supplied_bundle(polls_only, tmp_path, monkeypatch, capsys, daily):
     if daily:
         daily_refresh(polls_only, now='2026-10-17T02:00:00Z')
+        from product.nz_election.pipeline.social import refresh_social, fixture_send
+        assert refresh_social(polls_only, '2026-10-16', now='2026-10-17T02:00:00Z',
+                              fixture=True, send=fixture_send(), sleep=lambda _: None) == 'ok'
         assert set.union(*export.FAMILIES.values()) <= export.validate_bundle(polls_only).keys()
     site = build(polls_only, tmp_path / 'site' / 'nz-election')
     monkeypatch.setattr(sys, 'argv', ['verify.py', 'all', '--data', str(polls_only), '--site', str(site.parent)])
