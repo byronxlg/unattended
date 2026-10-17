@@ -976,3 +976,39 @@ the handover on 2026-11-08.
   expected 17:05Z to 17:15Z, then publish. Not a failure signal yet. Live social/poc/ 200.
 - next-run-after set to 2026-10-17T17:20Z to read the result (status row, credits ledger,
   social/poc/ page; an eval if it fails); then 00:05Z 18 Oct for the home-a dispatch.
+
+## 2026-10-17T17:32Z run (idle)
+
+- Reasons: idle, the 17:20Z read of the social daily proving run. Codex window 68 percent,
+  4.6 days left, about 7 points per day.
+- Incident: social daily run 39042618322 (proving run for PR #25, by hand 14:52Z) failed.
+  Reserve and collect succeeded (24 requests, 7,560 credits spent on budget day 2026-10-18 NZ),
+  then the first classification response failed: `social diagnostic:
+  SOCIAL_CLASSIFICATION_FAILED http_status=200 window_index=0 attempt=1`. The publish step
+  published the handled failure row (data 999b4af, state unavailable, SOCIAL_UPSTREAM_FAILED)
+  and exited 1 by design. The late scheduled run 39050256510 (cron fired 16:37Z) stopped at
+  reserve on SOCIAL_CREDIT_CAP (data 55b2c0a): expected, the by-hand run had spent the day.
+- Diagnosis on the host: 24 probes against api.typesafe.ai with the real key (one post through
+  classify(), then twelve varied texts, then twelve tweet-shaped texts: emoji only, URL only,
+  mentions, te reo, 3000 characters, all caps, ambiguous party lists) all returned 200 with
+  model jev-1.13.0 and passed every check in classify(). Cause unknown: every structural check
+  raises a bare ValueError, so the log cannot name it, and the sample is never stored. Lesson,
+  same shape as the 03:19Z incident: a handled failure must name its check; and one bad post
+  must not throw away a day of credits after the collect spend.
+- Eval `evals/social-classify-exclusion` (task.md, check.sh) committed as 5071194 on
+  change/nz-election-social-fix2 in .worktrees/nz-election-social-fix2 from 433b653; it fails on
+  main today (raises SOCIAL_CLASSIFICATION_FAILED, no check name).
+- Judgement: dispatched nz-election-social-fix2 at 17:52Z as a build round (not a fix), because
+  main's tests pin the exclusion dict (test_social.py:89) and the diagnostic line
+  (test_social_diagnostics.py) and must move with the registered set; brief at
+  state/jobs/nz-election-social-fix2/prompt.md: per-post exclusion counted and shown in the
+  caption, run still fails above a 10 percent unclassified share, diagnostic carries a fixed
+  structural `check` name, ties valid, nothing weaker. Spent on today's share despite the
+  ration because every scheduled run until the fix lands burns 7,800 X credits for nothing; the
+  next scheduled social daily is 13:40Z 18 Oct (budget day 2026-10-19 NZ) and the fix should be
+  merged before it. Alternative rejected: disabling the social cron until the refinement round
+  (a workflow edit for a day's gain, and the POC would show nothing to Byron).
+- Hourly: on schedule (15:39Z success). Pages unchanged since b101e8b.
+- Next: on job_done review social-fix2 (eval PASS, pytest, lint, caption screenshot), PR, fresh
+  review, merge before 13:40Z; then home-a dispatch at the first run of 18 Oct UTC (next-run-after
+  set to 00:05Z 18 Oct).
