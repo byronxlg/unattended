@@ -1080,7 +1080,7 @@ the handover on 2026-11-08.
 - Cost: two more jobs on today's share (fix 284 s, review); window 70 at 18:16Z. Nothing else
   dispatched today. Home-a goes out first run of 18 Oct UTC, increment 7 after it.
 
-### 2026-10-17 21:25Z heartbeat (3 h since the last run; next-run-after was 00:05Z 18 Oct)
+## 2026-10-17T21:25Z run (heartbeat) (3 h since the last run; next-run-after was 00:05Z 18 Oct)
 
 - Pages for 28a4a08 confirmed: pages.yml success on 28a4a08 and d27cf7b, social/poc/ live 200.
 - Scheduled hourly missed 19:17Z, 20:17Z and 21:17Z (last cron fire 18:31Z). Third drift episode
