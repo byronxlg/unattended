@@ -31,12 +31,14 @@ def page(envs, built):
     counts = {p: sum(r['party_counts'][p] for r in records) for p in PARTIES}
     colours = {v['label']: v['colour'] for v in config('party-colours').values()}
     colours['Green'] = config('party-colours')['grn']['colour']
-    source = ('<p class="source-note" id="source-social">From <a href="https://twitterapi.io/">twitterapi.io</a>, '
+    source = ('<div role="note" class="source-note" id="source-social"><p>From twitterapi.io, '
               f'X posts sampled {dates}. Retrieved {compact_time(max(w["retrieved_at"] for r in records for w in r["provenance"]["windows"]))}. '
               'Posts sampled and classified by this site; counts only. '
-              f'<a href="{PREFIX}data/social/daily.json">Inputs</a>, <a href="#social-method">method</a>, '
-              f'<a href="{PREFIX}downloads/">data run</a>. X terms apply; no CC licence asserted for X data. '
-              'Wikipedia-derived data elsewhere on this site is CC BY-SA 4.0.</p>')
+              'X terms apply; no CC licence asserted for X data. '
+              'Wikipedia-derived data elsewhere on this site is CC BY-SA 4.0.</p>'
+              '<p class="source-actions"><a href="https://twitterapi.io/">twitterapi.io</a>'
+              f'<a href="{PREFIX}data/social/daily.json">Inputs</a><a href="#social-method">method</a>'
+              f'<a href="{PREFIX}downloads/">data run</a></p></div>')
     bars, rows = [], []
     for i, p in enumerate(PARTIES):
         value = counts[p]
