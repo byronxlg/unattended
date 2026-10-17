@@ -3,23 +3,44 @@ from .presentation import overdue
 from decimal import Decimal
 from html import escape
 from . import geography
-from .build import PREFIX, render, link, table, observation_label, local_time, compact_time
+from urllib.parse import urlsplit
+from .build import PREFIX, render, link, table, observation_label, compact_time
+
+
+def publisher(source):
+    identity = source['id']
+    host = urlsplit(source['url']).hostname or ''
+    if 'representation-commission/' in identity:
+        return 'Representation Commission'
+    if 'Stats NZ' in source['licence']:
+        return 'Stats NZ'
+    if host.endswith('wikipedia.org') or 'Wikipedia contributors' in source['licence']:
+        return 'Wikipedia contributors'
+    if host.endswith('wikidata.org'):
+        return 'Wikidata contributors'
+    if host in ('elections.nz', 'vote.nz', 'www.elections.nz', 'www.vote.nz', 'electionresults.govt.nz', 'www.electionresults.govt.nz'):
+        return 'Electoral Commission'
+    return host
 
 
 def source(envs, stem, built=None):
     env = envs.get(stem)
     if not env:
         return f'<p class="source-note" id="source-{stem}">Not available: no validated data bundle.</p>'
-    result = '<div role="note" class="source-note" id="source-' + stem + '"><p>From ' + ('Stats NZ' if stem == 'electorates' else 'Wikipedia contributors' if stem == 'electorate-polls' else 'Electoral Commission') + f'. <a href="{PREFIX}downloads/">Downloads and provenance</a>.</p><details><summary>Sources and dates</summary>'
-    if env.get('fetched_at'):
-        value = env['fetched_at']
-        result = result.replace('</p><details>', f' Retrieved <time datetime="{value}">{compact_time(value)}</time>.</p><details>', 1)
-    for s in env['source']:
-        result += '<p>From ' + link(s['url'], 'Stats NZ' if stem == 'electorates' else 'Wikipedia contributors' if stem == 'electorate-polls' else 'Electoral Commission') + ' ' + escape(s['licence']) + ' Retrieved ' + f'<time datetime="{s["fetched_at"]}">{escape(local_time(s["fetched_at"]))}</time>' + '.</p>'
-        if s['history_url']:
-            result += link(s['history_url'], 'Contributor history')
-    result += f'<p><a href="{PREFIX}data/{stem}.json">Download data and field sources</a></p>'
-    result += '<p>' + (link(env['run_url'], 'Producing run') if env['run_url'] != 'offline-verification' else 'Offline verification from captured sources. Not live data.') + '</p>'
+    result = '<div role="note" class="source-note" id="source-' + stem + '">'
+    for entry in env['source']:
+        result += '<p class="source-actions">From ' + link(entry['url'], publisher(entry)) + ' <span>' + escape(entry['licence']) + '</span></p>'
+        result += '<p>Retrieved ' + f'<time datetime="{entry["fetched_at"]}">{compact_time(entry["fetched_at"])}</time>' + '.</p>'
+    result += '<p class="source-actions">' + f'<a href="{PREFIX}downloads/">Downloads and provenance</a>'
+    result += f'<a href="{PREFIX}data/{stem}.json">Download data and field sources</a>'
+    if env['run_url'] != 'offline-verification':
+        result += link(env['run_url'], 'Producing run')
+    result += '</p><details><summary>Source history and producing run</summary>'
+    for entry in env['source']:
+        if entry['history_url']:
+            result += '<p class="source-actions">' + link(entry['history_url'], publisher(entry) + ': contributor history') + '</p>'
+    if env['run_url'] == 'offline-verification':
+        result += '<p>Offline verification from captured sources. Not live data.</p>'
     family = 'geography' if stem == 'electorates' else stem
     status = next((s for s in envs.get('status', {}).get('data', []) if s['dataset'] == family), None)
     if status and (status['state'] != 'fresh' or (built and status['last_success_at'] and
@@ -45,7 +66,7 @@ def detail(row, envs, built=None):
         for field in ('name', 'party_id'):
             for ref in c['field_sources'][field]:
                 src = next(s for s in envs['candidates']['source'] if s['id'] == ref['source_id'])
-                candidates += '<p>' + link(src['url'], 'Electoral Commission') + ': ' + escape(ref['locator']) + ' (' + escape(field) + ')</p>'
+                candidates += '<p>' + link(src['url'], publisher(src)) + ': ' + escape(ref['locator']) + ' (' + escape(field) + ')</p>'
         for identity in c['conflict_ids']:
             conflict = reviews[identity]
             candidates += '<p>Unresolved: ' + escape(conflict['field']) + '</p><ul>'

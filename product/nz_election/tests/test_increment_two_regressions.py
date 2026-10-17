@@ -195,6 +195,35 @@ def test_strip_labels_are_below_fills_in_reading_order():
     assert len(segments) == 6 and all(content == '' for content in segments)
     assert html.index('class="lanes"') > html.index('class="majority"')
     assert '62 for a majority' in html and 'segment overhang' in html
+    # Independently calculate the reserved-label geometry and every connector.
+    offset, expected_connectors = 0, []
+    ordered = [p for p, _ in lanes]
+    for width, mode, prop in [(328, 'phone', '--left'), (1072, 'wide', '--large-left')]:
+        cursor, offset = 0, 0
+        columns = 3 if mode == 'phone' else 6
+        for index, party in enumerate(ordered):
+            row = index // columns
+            if index % columns == 0:
+                cursor = 0
+            anchor = Fraction(offset * 100, 122)
+            left_px = min(max(cursor, float(anchor) * width / 100 if row == 0 else 0),
+                          width - min(columns - index % columns, len(ordered) - index) * 68 + 8)
+            left = left_px * 100 / width
+            style = re.search(r'data-party="' + party + r'" style="(--row:[^"]+)"', html)[1]
+            assert f'{prop}:{left:.6f}%' in style
+            if mode == 'phone':
+                assert f'--row:{row};' in style
+            if abs(left - float(anchor)) > .01 or row:
+                side = 'right' if anchor > left else 'left'
+                expected_connectors.append((mode, f'left:{min(left, float(anchor)):.6f}%;width:{abs(left-float(anchor)):.6f}%;height:{6+row*21}px;border-{side}:1px solid var(--ink)'))
+            cursor = left_px + 68
+            offset += seats['entitlements'][party]
+    actual_connectors = re.findall(r'class="label-connector (phone|wide)" aria-hidden="true" style="([^"]+)"', html)
+    assert sorted(actual_connectors) == sorted(expected_connectors)
+    widths = re.findall(r'class="segment" data-party="([^"]+)" style="width:([\d.]+)%', html)
+    assert widths == [(p, f'{Decimal(seats["entitlements"][p])*100/122:.6f}') for p in ordered]
+    assert f'class="majority" style="left:{Decimal(62)*100/122:.6f}%' in html
+
     css = (Path(__file__).resolve().parents[1] / 'web/styles.css').read_text()
     assert 'font-size:26px' in css and 'font-size:32px' in css
     assert 'height:72px' in css and 'height:120px' in css

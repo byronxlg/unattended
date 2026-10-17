@@ -98,7 +98,7 @@ def check_page(page, url, site, origin):
     assert focused['text'] == 'Skip to content' and focused['width'] == '3px' and focused['top'] >= 0, 'FOCUS_NOT_VISIBLE'
     page.keyboard.press('Enter')
     assert page.evaluate('document.activeElement.id') == 'main', 'SKIP_LINK_FAILED'
-    page.locator('h1').click()
+    page.evaluate('document.activeElement.blur()')
     page.evaluate('scrollTo(0,0)')
     from product.nz_election.tests.design_checks import provenance
     provenance(page.content())
@@ -203,7 +203,7 @@ def fold_check(page):
 def extra_images(browser, site, origin, out, og_only=False):
     from html import escape
     from product.nz_election.pipeline import export, geography
-    from product.nz_election.pipeline.build import render, default_scenario, home_sentence, strip, source_note, config
+    from product.nz_election.pipeline.build import render, strip, config
     results = []
     for width, height, mode in ([] if og_only else [(390, 844, 'dark')]):
         context = browser.new_context(viewport=dict(width=width, height=height), color_scheme=mode, reduced_motion='reduce')
@@ -215,6 +215,18 @@ def extra_images(browser, site, origin, out, og_only=False):
         page.screenshot(path=str(out / name))
         results.append(dict(state='home-' + mode, path=name, source_note_bottom=bottom))
         context.close()
+    if not og_only:
+        focus_context = browser.new_context(viewport=dict(width=390, height=844))
+        focus_context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
+        focus_page = focus_context.new_page()
+        focus_page.goto(origin + PREFIX + 'nz-election/', wait_until='networkidle')
+        focus_page.keyboard.press('Tab')
+        focus_page.screenshot(path=str(out / 'home-keyboard-focus.png'))
+        results.append(dict(state='keyboard-focus', path='home-keyboard-focus.png'))
+        focus_page.keyboard.press('Enter')
+        focus_page.screenshot(path=str(out / 'home-main-focus.png'))
+        results.append(dict(state='main-focus', path='home-main-focus.png'))
+        focus_context.close()
     envs = export.validate_bundle(site / 'nz-election/data') if (site / 'nz-election/data').exists() else {}
     context = browser.new_context(viewport=dict(width=1200, height=630), color_scheme='light', reduced_motion='reduce')
     context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
@@ -222,10 +234,11 @@ def extra_images(browser, site, origin, out, og_only=False):
         page = context.new_page()
         page.goto(origin + PREFIX + 'nz-election/', wait_until='networkidle')
         if slug == 'home':
-            result = default_scenario(envs)
-            title = home_sentence(result)
-            picture = strip(result).split('<details class="seat-data">')[0] if result and result['seats'] else ''
-            source = source_note(envs.get('polls'), 'source-seats')
+            home = json.loads((site / 'nz-election/home-presentation.json').read_text())
+            result = home['result']
+            title = home['title']
+            picture = strip(result).split('<details class="seat-data">')[0] if result else ''
+            source = home['source']
         else:
             row = next(r for r in config('electorates') if r['slug'] == slug)
             title = row['name'] + ': your electorate on the 2025 boundaries'
@@ -235,6 +248,9 @@ def extra_images(browser, site, origin, out, og_only=False):
             entry = next(e for e in json.loads((geography.ROOT / 'manifest.json').read_text())['entries'] if e['path'] == 'stats-nz/general-2025.geojson')
             source = '<p class="source-note" id="source-og-geography">From ' + link(entry['url'], 'Stats NZ, 2025 boundaries') + f'. Retrieved <time datetime="{entry["captured_at"]}">{compact_time(entry["captured_at"])}</time>. ' + escape(entry['licence']) + '.</p>'
         page.set_content(render('og', title=escape(title), prefix=origin + PREFIX + 'nz-election/', picture=picture, source=source), wait_until='networkidle')
+        page.add_script_tag(path=str(PRODUCT / 'tests/axe.min.js'))
+        violations = page.evaluate('async () => (await axe.run(document)).violations')
+        assert not violations, 'AXE_VIOLATIONS: ' + json.dumps(violations)
         name = 'og-' + slug + '.png'
         page.screenshot(path=str(out / name))
         results.append(dict(state='og-' + slug, path=name, viewport=dict(width=1200, height=630)))
