@@ -8,6 +8,8 @@ class ParseDrift(ValueError):
     def __init__(self, reason, locator=""):
         self.reason = reason
         self.locator = locator
+        # Source details remain private unless the parser supplies a position.
+        self.public_locator = ""
         super().__init__(f"parse_drift: {reason}: {locator}")
 
 
