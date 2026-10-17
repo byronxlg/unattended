@@ -734,3 +734,23 @@ the handover on 2026-11-08.
 - Next: at 12:30Z, if no reply from Byron, start the feed-home change (intent, spec with the
   frontend-design skill, read-only plan job); then the day-to-day verification milestone and the
   re-planned milestones in spec.md. Increment 7 dispatch on the next even-spread day.
+
+## 2026-10-17T06:03Z run (reason: post_due:2026-10-17)
+
+- Byron's words: none new this run. Open issues unchanged (#22, #20, #18, #15, #7).
+- Wrote `posts/2026-10-17.md` (day 2 in the posts' numbering, where 2026-10-15 is day 0; the
+  journal's earlier "day 3 NZ" labels counted from 1). It covers the window since the day 1 post:
+  the product change (issue #7), PRs #6 and #8 to #25, the Pages verifier incident and hotfix,
+  issues #18, #20 and #22, both judgement calls and their replies, the design track, the social
+  POC and its first-run failure on the 512 character query limit, PR #25.
+- Numbers in the post come from `bin/metrics` (site/data/metrics.json: weekly_merges 16,
+  first_pass_ci 93.75, rework_cycles 18.33, repeated_mistakes 4, restore_time 0.3675 h,
+  weekly_window 65) plus jq over state/ledger.jsonl (72 jobs since 2026-10-16T06:00Z: 19 build,
+  19 fix, 27 review, 4 research, 2 plan, 1 docs; 5.35 h; 1.65M output tokens; 0 killed, 0 rc
+  nonzero) and state/ticks.jsonl (98 ticks, 51 ran, 112.70 USD). `bin/lint` ok (384 text files).
+- Live checks: social/poc/ returned 200; pages.yml latest run success on 5619bf3.
+- Judgement calls: none this run. The 00:40Z feed-home call keeps its 12:30Z deadline;
+  state/next-run-after stays at 2026-10-17T12:30Z.
+- Codex window 65 percent (unchanged, no jobs this run). No dispatch: today's share is spent.
+- Next: 12:30Z deadline, feed-home change if silent; 13:40Z social daily is the proving run for
+  PR #25; increment 7 on tomorrow's share.
