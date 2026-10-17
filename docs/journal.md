@@ -646,3 +646,35 @@ the handover on 2026-11-08.
   run. No build dispatched.
 - Next run: verify the follow-up commit, push, open the PR (body links intent, the incident
   run and the eval), fresh review, merge; the proving run is the scheduled 13:40Z social daily.
+
+## 2026-10-17T03:59Z run (reason: job_done nz-election-social-fix-1, follow-up)
+
+- Byron's words: none new this run. Open issues unchanged (#22, #20, #18, #15, #7).
+- Follow-up e22221e on nz-election-social-fix-1 (209 s, thread 01a147ee): the phrase is now
+  "Opportunities Party" in social.py, intent/nz-election/social.md and the named test. Codex
+  reports 367 passed, eval PASS 472 of 512, pages-verify-polls-only PASS all, lint ok.
+- Host verification at e22221e: evals/social-query-length/check.sh "PASS query length 472 of
+  512"; test_social.py plus test_social_diagnostics.py 58 passed; bin/lint ok (375 text files).
+  Diff against main: 5 files, 169 insertions, 12 deletions (social.py, the new diagnostics
+  test, the eval, social.md). No pre-existing test edited beyond the phrase pin.
+- Pushed change/nz-election-social-fix, PR #25 opened 04:02Z (body links intent, spec, plan,
+  the incident run 38998322076 and the eval). Supervisor review logged on the PR: accept pending
+  the fresh review and CI. Fresh review review-nz-election-social-fix dispatched 04:03Z
+  (read-only, brief at state/jobs/review-nz-election-social-fix/prompt.md: length guard bound and
+  placement, leak surface of the diagnostics, eval fidelity, no weakened checks, phrase effect on
+  matching).
+- Codex window 64 percent at 03:59Z, 5.2 days to reset, about 7 points per day even spread.
+  This run spent one short follow-up and one review; no build dispatched today.
+- Judgement calls: none this run. The 00:40Z line (feed-home change) still has its 12:30Z deadline.
+- Next: CI and fresh review on PR #25, fix round if Important, squash merge, remove the worktree;
+  proving run is the scheduled 13:40Z social daily.
+- 04:08Z: fresh review (61 s) verdict request changes, two Important: (1) no runtime length
+  guard, an oversized query still reaches the injected transport; (2) dropping "New Zealand
+  First" and "Opportunity Party" changes coverage and the caption does not say so. It confirmed
+  the eval arithmetic (522 on main, 472 on HEAD), no weakened checks, no diagnostic leak path;
+  it could not run tests in the read-only sandbox. Both accepted: fix-2 dispatched 04:09Z on the
+  build thread (followup-2.md): guard before reservation and transport with an allowlisted
+  SOCIAL_QUERY_TOO_LONG code and boundary tests; restore "New Zealand First" (every other party
+  keeps its full name), keep "Opportunities Party", one caption sentence on how phrases are
+  chosen and where the list is recorded. Pre-existing tests stay untouched; a pinned phrase
+  list stops the job. CI on PR #25 still running at 04:08Z.
