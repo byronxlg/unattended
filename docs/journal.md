@@ -678,3 +678,24 @@ the handover on 2026-11-08.
   keeps its full name), keep "Opportunities Party", one caption sentence on how phrases are
   chosen and where the list is recorded. Pre-existing tests stay untouched; a pinned phrase
   list stops the job. CI on PR #25 still running at 04:08Z.
+
+## 2026-10-17T04:13Z run (reason: job_done:review-nz-election-social-fix)
+
+- Byron's words: none new this run. Open issues unchanged (#22, #20, #18, #15, #7).
+- fix-2 on nz-election-social-fix-1 (41 s, thread 01a147ee, 0 files changed) stopped as
+  instructed: restoring "New Zealand First" measures 495 to 499 characters per hourly window,
+  which fits the upstream 512 but fails the 490 headroom assertion in
+  test_social_diagnostics.py. That assertion was added by this branch in bc917a6; the brief
+  said "pre-existing tests" when it meant tests on main. Supervisor mistake, logged in
+  state/mistakes.jsonl and CLAUDE.md (name the protected set by ref, not "pre-existing").
+- followup-3 dispatched 04:16Z on the build thread (followup-3.md): the invariant is every
+  composed query within the upstream limit for every producible date, the guard constant from
+  item 1 is the bound, the headroom assertion is rewritten against that constant with a stated
+  margin that admits 499 and rejects 513; items 1 and 2 otherwise as in followup-2.
+- PR #25 CI: check passed (run 39000920812) on e22221e. Review job marker touched.
+- Codex window 65 percent at 04:13Z, 5.2 days to reset, about 7 points per day even spread.
+  Two short follow-ups today on the fix thread; no build dispatched.
+- Judgement calls: none this run. The 00:40Z line (feed-home change) still has its 12:30Z deadline.
+- Next: verify followup-3 on the host (guard boundary tests, eval number, full product tests,
+  lint), push, second fresh review, CI, squash merge PR #25, remove the worktree; proving run
+  is the scheduled 13:40Z social daily.

@@ -48,3 +48,7 @@ paid services, changes to other repos. Ask in a `needs-byron` issue; keep workin
 - Supervisor: a fix brief asked for a wording change that an existing assertion pinned verbatim while
   forbidding assertion edits (social POC fix-2, 2026-10-17). Grep the tests for what a fix item
   changes; a pinned nit goes to the next build round.
+- Supervisor: "no edits to pre-existing tests" in a fix brief read as "tests written before this
+  follow-up", so the engineer stopped on an assertion its own branch had added (social-fix fix-2,
+  2026-10-17). Name the protected set by ref: tests on main at the base sha; the branch's own tests
+  move with it.
