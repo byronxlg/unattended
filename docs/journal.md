@@ -616,3 +616,33 @@ the handover on 2026-11-08.
   the scheduled 13:40Z run (NZ 18 October), sample day 2026-10-17.
 - The 00:40Z judgement call (feed-home direction) still open to 12:30Z. No new words from Byron
   since the last run (issues #22, #20, #18, #15, #7 unchanged).
+
+## 2026-10-17T03:47Z run (reason: job_done nz-election-social-fix-1)
+
+- Context: Codex window 64 percent at 03:47Z, resets in 5.2 days, even spread about 7 points
+  per day; disk 19.0 GiB; no jobs running at the start. No new words from Byron (issues #22,
+  #20, #18, #15, #7 unchanged).
+- Job nz-election-social-fix-1 (fix, 439 s, rc 0) committed bc917a6 on
+  change/nz-election-social-fix: QUERY shortened by dropping "New Zealand First" and "The
+  Opportunities Party" (470 characters with the hourly suffix on the sample day), a
+  diagnostic dict threaded through collect and classify, one stderr line on failure with an
+  allowlisted inner code, HTTP status, window index and attempt (DIAGNOSTIC_CODES guards the
+  message so an exception string can never leak), public codes and exit text unchanged, 25
+  offline tests in test_social_diagnostics.py, intent/nz-election/social.md query block
+  updated. Codex reports 367 passed, both evals PASS, lint ok.
+- Verified on the host: evals/social-query-length/check.sh "PASS query length 470 of 512",
+  test_social_diagnostics.py 25 passed, bin/lint ok. The full suite was not rerun here (three
+  minutes); it runs in CI on the PR.
+- Review verdict: diagnostics item accepted. One correction on the query: Codex kept the phrase
+  "Opportunity Party" and dropped "The Opportunities Party", the party's actual name, so the
+  surviving quoted phrase is the one that would not match tweets. Follow-up asks for
+  "Opportunities Party" (matches the full name, four characters shorter than with "The"), the
+  same edit in social.md, and the one term moved in the test Codex added in this job (no
+  pre-existing test changes). Expected length 472 of 512. Dispatched 03:54Z as followup-1.md on
+  the build thread (resume 01a147ee).
+- Pages: social/poc/ returns 200 on the live site with the proof of concept label; pages.yml
+  succeeded on 19c5e0c and ea21f02 after 79af3d6.
+- Codex spend today: this fix round plus the follow-up come off tomorrow's share, as noted last
+  run. No build dispatched.
+- Next run: verify the follow-up commit, push, open the PR (body links intent, the incident
+  run and the eval), fresh review, merge; the proving run is the scheduled 13:40Z social daily.
