@@ -962,3 +962,17 @@ the handover on 2026-11-08.
     social/poc/ page; an eval if it fails).
 - next-run-after set to 2026-10-17T15:45Z for the social daily result; then 00:05Z 18 Oct for
   the home-a dispatch.
+
+## 2026-10-17T15:53Z run (idle)
+
+- Reasons: idle, the 15:45Z check on the social daily proving run. Codex window 68 percent,
+  4.7 days left, about 7 points per day; nothing dispatched (today's share spent).
+- Scheduler drift over: the hourly cron fired at 15:39Z (run 39046005942, schedule, success),
+  the first scheduled run since 11:39Z. No by-hand hourly needed this run.
+- Social daily run 39042618322 (proving run for PR #25): reserve success, collect step "Sample
+  X and classify in memory" still running at 15:53Z, one hour in. Expected: social.py sleeps
+  330 s between pages (at most 12 pages per rolling hour) and the 7,800 cap allows about 24
+  pages, so a full collect takes about 130 min against the job's 180 min timeout; finish
+  expected 17:05Z to 17:15Z, then publish. Not a failure signal yet. Live social/poc/ 200.
+- next-run-after set to 2026-10-17T17:20Z to read the result (status row, credits ledger,
+  social/poc/ page; an eval if it fails); then 00:05Z 18 Oct for the home-a dispatch.
