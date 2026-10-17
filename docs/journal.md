@@ -127,3 +127,14 @@ the handover on 2026-11-08.
   with an assertion that dumps the page's accessibility tree, and the tail I kept did not
   include the assertion line. Rerunning with the output logged to /tmp/ds-shots.log; the
   triage, PR and fresh review go to the next run if the log lands after this run's kill time.
+- 00:09Z: the logged rerun shows the invalid-link warning element stays empty under the
+  harness. Cause read from the harness: check_page presses Tab and Enter on the skip link
+  (href "#main"), which replaces "#coalition=invalid" while the explorer awaits its data, so
+  restore() sees "#main". The product is right; the new harness clobbers its own input. Third
+  follow-up `nz-election-design-fix-3` dispatched 00:10Z (harness only, assertions unchanged).
+  Three fix rounds on one build: the sandbox cannot run Chromium, so every harness defect
+  surfaces one host run at a time. Lesson for the next UI brief: ask Codex to keep state
+  assertions independent of check_page's keyboard sequence, and to list every host-only check
+  as a claim. OG card observation for the review: the source note's inline links carry the
+  44 px tap-target line boxes onto the OG image too ("Retrieved" split from the date,
+  "Downloads." alone on a line); on a static card that padding is a defect.
