@@ -819,3 +819,41 @@ the handover on 2026-11-08.
   the supervisor's own issue comments retrigger a run; one idle run cost about 0.8 USD. A one-line
   filter on the comment author (skip when the latest event is byronxlg from the lab's gh session
   within the last run) is a tooling fix for a later run, not this one.
+
+## 2026-10-17 12:04Z run (heartbeat: 3 h since the last run)
+
+- No Byron words since issue #26; open issues unchanged; next-run-after was 13:50Z and the tick's
+  3 h heartbeat rule fired anyway.
+- Incident, found by the run-list check: "NZ election hourly" failed at 07:00Z (run 39011994985)
+  and 11:39Z (run 39029509938), both `FAIL refresh: parse_drift`; the publish step then exits 1
+  on the handled failure. The polls status row on the live site: state stale, error parse_drift,
+  last good 01:20Z (run 38990427608), message "Refresh failed; retained last-good data." The
+  08:42Z and 09:30Z runs did not look at the hourly workflow and missed the 07:00Z failure; the
+  day-to-day verification milestone (issue #18) needs the run list in every run, not only when a
+  job finishes. Social daily by-hand run status row still SOCIAL_UPSTREAM_FAILED from 03:19Z,
+  expected until the 13:40Z proving run.
+- Reproduction on the host (fetch.acquire plus parse_polls, revision 1380694545 fetched 12:06Z):
+  ParseDrift invalid_dates, locator "8–11 Aug 2026 / 2026-08-12", the 1 News–Verian row. The
+  row has a documented exception in config/party-map.json but keyed to revision 1380524613 (the
+  fixture); Wikipedia moved to 1380694545 at 08:21Z (an edit elsewhere on the page), the
+  exception stopped matching, and a row the lab had already accepted failed the whole refresh.
+  Neither the log nor the status row named the reason or locator; same shape as the social
+  incident (03:19Z), where the status and inner error were swallowed.
+- Judgement: this is a fix to a production incident, allowed on a spent share ("nothing else
+  today but fixes"); the polls are the core of the site and the workflow stays red every hour
+  until fixed. Alternatives rejected: pin a new revision in the exception (breaks again on the
+  next edit); wait for tomorrow's share (another 12 h stale). No board line: a reversible single
+  change.
+- Eval evals/polls-date-exception-revision (task.md, check.sh) committed as b00ae94 on
+  change/nz-election-polls-fix in .worktrees/nz-election-polls-fix from main 8a5392d; the check
+  parses the pinned fixture under revision 9999999999 and failed on the host today with the
+  incident's exact reason and locator. Brief state/jobs/nz-election-polls-fix-1/prompt.md: two
+  invariants (an exception describes a row, not a revision, with source and reason kept and
+  undocumented mismatches still drifting; parse_drift names reason and locator in the log and
+  step summary), protected set named by ref (tests on main at 8a5392d; test_pinned_wikitext's
+  date_exceptions pin stays true), shape left to the engineer. Dispatched 12:13Z, kind fix,
+  workspace-write. Codex window 66 percent at 08:49Z.
+- Next run on job_done: review per REVIEW.md, host verification (eval, pytest, lint, plus the
+  live revision through the probe: python with fetch.acquire and parse_polls), PR, fresh review,
+  merge; the proving run is the next scheduled hourly after the merge (status row fresh, run
+  green). 13:50Z: the 13:40Z social daily as planned. Add to the daily post under incidents.
