@@ -29,12 +29,13 @@ from product.nz_election.pipeline.storage import replace_directory
 
 NZ = ZoneInfo('Pacific/Auckland')
 CAP, RESERVATION, MAX_BYTES = 7800, 315, 1024 * 1024
+MAX_QUERY_LENGTH = 512
 QUERY = '''(#nzpol OR #nzvotes OR #nzelection OR
 "Christopher Luxon" OR "Chris Hipkins" OR "David Seymour" OR
 "Winston Peters" OR "Chlöe Swarbrick" OR "Chloe Swarbrick" OR
 "Marama Davidson" OR "Rawiri Waititi" OR "Debbie Ngarewa-Packer" OR
 "Qiulae Wong" OR "Te Pāti Māori" OR "Te Pati Maori" OR
-"NZ First" OR "ACT New Zealand" OR
+"NZ First" OR "New Zealand First" OR "ACT New Zealand" OR
 "Opportunities Party" OR
 ((National OR Labour OR Greens) (NZ OR "New Zealand" OR Aotearoa)))
 -filter:retweets'''
@@ -110,6 +111,7 @@ def decode(raw):
 # Only locally defined codes may reach logs; exception messages can contain secrets.
 DIAGNOSTIC_CODES = frozenset({
     'SOCIAL_COLLECTION_FAILED', 'SOCIAL_TRANSPORT_FAILED', 'SOCIAL_INVALID_PAGE',
+    'SOCIAL_QUERY_TOO_LONG',
     'SOCIAL_RESPONSE_LIMIT', 'SOCIAL_INVALID_RESPONSE', 'SOCIAL_CLASSIFICATION_FAILED',
     'SOCIAL_INVALID_CLASSIFICATION', 'SOCIAL_BUDGET_DAY_CHANGED', 'SOCIAL_FROZEN',
 })
@@ -120,11 +122,24 @@ def diagnostic_code(exc, fallback):
     return code if isinstance(code, str) and code in DIAGNOSTIC_CODES else fallback
 
 
+def hourly_queries(day, diagnostic=None):
+    # Preflight the whole day so a longer later suffix cannot incur partial spend.
+    queries = []
+    for index, (start, end) in enumerate(windows(day)):
+        query = QUERY + f' since_time:{start} until_time:{end}'
+        if len(query) > MAX_QUERY_LENGTH:
+            if diagnostic is not None:
+                diagnostic.update(window=index, attempt=1, http_status=None, code=None)
+            raise ValueError('SOCIAL_QUERY_TOO_LONG')
+        queries.append((start, end, query))
+    return queries
+
+
 def collect(day, ledger, run, *, key, send, sleep, now=utc_now, checkpoint=lambda: None, diagnostic=None):
     diagnostic = {} if diagnostic is None else diagnostic
     diagnostic['post_windows'] = []
     posts, provenance = [], []
-    for window_index, (start, end) in enumerate(windows(day)):
+    for window_index, (start, end, query) in enumerate(hourly_queries(day, diagnostic)):
         for attempt in range(3):
             diagnostic.update(window=window_index, attempt=attempt + 1, http_status=None, code=None)
             allocated = run['allocation']
@@ -152,7 +167,6 @@ def collect(day, ledger, run, *, key, send, sleep, now=utc_now, checkpoint=lambd
             run['requests'] += 1
             run['spent'] += RESERVATION
             checkpoint()
-            query = QUERY + f' since_time:{start} until_time:{end}'
             url = 'https://api.twitterapi.io/twitter/tweet/advanced_search?' + urlencode(dict(query=query, queryType='Latest'))
             # Atomic checkpointing can outlast the pre-reservation clock check.
             instant = now()
@@ -421,27 +435,31 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                 export.inventory(stage, run_url, sha, now)
                 export.validate_bundle(stage)
                 replace_directory(stage, out)
-        if reserve:
-            remaining = CAP - sum(r['reserved'] for r in ledger if r['day'] == budget_day)
-            run['allocation'] = run['reserved'] = remaining // RESERVATION * RESERVATION
-            if not run['reserved']:
-                error = 'SOCIAL_CREDIT_CAP'
-                run['closed'] = True
-            save()
-            return run['id'] if not error else error
         diagnostic = dict(window=None, attempt=None, http_status=None, code=None)
         try:
-            posts, provenance, limited = collect(day, ledger, run, key=x_key, send=send, sleep=sleep, now=clock_now or (lambda: now), checkpoint=save, diagnostic=diagnostic)
-            if limited:
-                error = 'SOCIAL_CREDIT_CAP'
+            if reserve:
+                hourly_queries(day, diagnostic)
             else:
-                classified, exclusions = classify(posts, key=jev_key, send=send, diagnostic=diagnostic)
-                record = aggregate(day, posts, classified, exclusions, provenance, now)
-                record['provenance']['fixture'] = fixture
+                posts, provenance, limited = collect(day, ledger, run, key=x_key, send=send, sleep=sleep, now=clock_now or (lambda: now), checkpoint=save, diagnostic=diagnostic)
+                if limited:
+                    error = 'SOCIAL_CREDIT_CAP'
+                else:
+                    classified, exclusions = classify(posts, key=jev_key, send=send, diagnostic=diagnostic)
+                    record = aggregate(day, posts, classified, exclusions, provenance, now)
+                    record['provenance']['fixture'] = fixture
         except Exception as exc:
             code = diagnostic['code'] or diagnostic_code(exc, 'SOCIAL_UPSTREAM_FAILED')
             print(f"social diagnostic: {code} http_status={diagnostic['http_status']} window_index={diagnostic['window']} attempt={diagnostic['attempt']}", file=sys.stderr)
             error = 'SOCIAL_UPSTREAM_FAILED'
+        else:
+            if reserve:
+                remaining = CAP - sum(r['reserved'] for r in ledger if r['day'] == budget_day)
+                run['allocation'] = run['reserved'] = remaining // RESERVATION * RESERVATION
+                if not run['reserved']:
+                    error = 'SOCIAL_CREDIT_CAP'
+                    run['closed'] = True
+                save()
+                return run['id'] if not error else error
         run['closed'] = True
         if frozen((clock_now or (lambda: now))()):
             record, error = None, 'SOCIAL_FROZEN'

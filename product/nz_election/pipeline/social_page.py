@@ -80,6 +80,7 @@ def page(envs, built):
     models = ', '.join(sorted({m for r in records for m in r['model_versions']})) or 'No eligible classifications'
     exclusions = {k: sum(r['sample']['exclusions'][k] for r in records) for k in ('duplicate', 'unsupported', 'irrelevant')}
     caption = (f'<section id="social-method"><h2>How this sample was made</h2><p>One latest page from each hourly window of the NZ day: a time-stratified, recency-biased convenience sample. '
+               "The search matches each party's name and common short form as quoted phrases; the exact phrase list is recorded in each day's provenance. "
                f'{count(sum(r["sample"]["returned"] for r in records))} posts returned; {count(n)} eligible after deduplication and the relevance gate. '
                f'{count(sum(r["sample"]["unique_authors"] for r in records))} daily unique authors summed across days (authors may repeat between days). '
                f'The largest daily share from one author was {Decimal(concentration)/10000:.1f}%. '

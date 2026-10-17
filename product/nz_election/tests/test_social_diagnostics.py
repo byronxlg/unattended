@@ -13,7 +13,8 @@ from product.nz_election.tests.test_social import DAY, NOW, run_row
 def test_hourly_queries_fit_with_headroom(day):
     queries = [social.QUERY + f' since_time:{start} until_time:{end}'
                for start, end in social.windows(day)]
-    assert max(map(len, queries)) <= 490
+    # Reserve 13 characters for future operators while admitting 12-digit epochs.
+    assert max(map(len, queries)) <= social.MAX_QUERY_LENGTH - 13
     calls = []
     def send(method, url, headers, body):
         calls.append(parse_qs(urlsplit(url).query)['query'][0])
@@ -99,5 +100,60 @@ def test_query_keeps_hashtags_leaders_and_parties():
     for term in ('#nzpol', '#nzvotes', '#nzelection', 'Christopher Luxon', 'Chris Hipkins',
                  'David Seymour', 'Winston Peters', 'Chlöe Swarbrick', 'Marama Davidson',
                  'Rawiri Waititi', 'Debbie Ngarewa-Packer', 'Qiulae Wong', 'National',
-                 'Labour', 'Greens', 'ACT New Zealand', 'NZ First', 'Te Pāti Māori', 'Opportunities Party'):
+                 'Labour', 'Greens', 'ACT New Zealand', 'NZ First', 'New Zealand First', 'Te Pāti Māori', 'Opportunities Party'):
         assert term in social.QUERY
+
+
+def test_query_at_upstream_limit_is_sent(monkeypatch):
+    start, end = social.windows(DAY)[0]
+    suffix = f' since_time:{start} until_time:{end}'
+    monkeypatch.setattr(social, 'QUERY', 'x' * (social.MAX_QUERY_LENGTH - len(suffix)))
+    sent = []
+    def send(method, url, headers, body):
+        sent.append(parse_qs(urlsplit(url).query)['query'][0])
+        return 200, b'{"tweets":[],"has_next_page":false}'
+    run = run_row()
+    social.collect(DAY, [run], run, key='fiction', send=send, sleep=lambda _: None, now=lambda: NOW)
+    assert social.MAX_QUERY_LENGTH == 512
+    assert len(sent) == run['requests'] == 24
+    assert all(len(query) == 512 for query in sent)
+
+
+@pytest.mark.parametrize('reserve', [False, True])
+def test_query_over_upstream_limit_never_reserves_or_sends(monkeypatch, tmp_path, capsys, reserve):
+    start, end = social.windows(DAY)[0]
+    suffix = f' since_time:{start} until_time:{end}'
+    monkeypatch.setattr(social, 'QUERY', 'x' * (513 - len(suffix)))
+    def forbidden(*args):
+        pytest.fail('oversized queries must not send or sleep')
+    out = tmp_path / 'data'
+    result = social.refresh_social(out, DAY, now=NOW, send=forbidden, sleep=forbidden, reserve=reserve)
+    assert result == 'SOCIAL_UPSTREAM_FAILED'
+    assert capsys.readouterr().err == 'social diagnostic: SOCIAL_QUERY_TOO_LONG http_status=None window_index=0 attempt=1\n'
+    bundle = export.validate_bundle(out)
+    run = bundle['social/credits']['data'][0]
+    assert run['requests'] == run['reserved'] == run['spent'] == run['allocation'] == 0
+    assert run['closed']
+    assert bundle['status']['data'][0]['error_code'] == 'SOCIAL_UPSTREAM_FAILED'
+
+
+def test_later_longer_suffix_is_rejected_before_first_reservation(monkeypatch):
+    monkeypatch.setattr(social, 'windows', lambda day: [(1, 2), (10, 20)])
+    monkeypatch.setattr(social, 'QUERY', 'x' * (512 - len(' since_time:1 until_time:2')))
+    def forbidden(*args):
+        pytest.fail('preflight must happen before transport, sleep or checkpoint')
+    run = run_row()
+    diagnostic = {}
+    with pytest.raises(ValueError, match='^SOCIAL_QUERY_TOO_LONG$'):
+        social.collect(DAY, [run], run, key='fiction', send=forbidden, sleep=forbidden,
+                       checkpoint=forbidden, now=lambda: NOW, diagnostic=diagnostic)
+    assert run['requests'] == run['reserved'] == run['spent'] == 0
+    assert diagnostic['window'] == 1
+
+
+def test_daily_provenance_records_search_phrase_list():
+    row = social.aggregate(DAY, [], [], {}, [], NOW)
+    assert row['provenance']['query'] == social.QUERY
+    assert '"New Zealand First"' in row['provenance']['query']
+    assert '"Opportunities Party"' in row['provenance']['query']
+    assert '"Opportunity Party"' not in row['provenance']['query']

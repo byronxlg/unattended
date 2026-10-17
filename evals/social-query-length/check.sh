@@ -5,7 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 uv run python - <<'PY'
 from product.nz_election.pipeline import social
-longest = max(len(social.QUERY + f' since_time:{s} until_time:{e}') for s, e in social.windows('2026-11-07'))
-print(('PASS' if longest <= 512 else 'FAIL') + f' query length {longest} of 512')
-raise SystemExit(0 if longest <= 512 else 1)
+longest = max(len(query) for _, _, query in social.hourly_queries('2026-11-07'))
+print(('PASS' if longest <= social.MAX_QUERY_LENGTH else 'FAIL') + f' query length {longest} of {social.MAX_QUERY_LENGTH}')
+raise SystemExit(0 if longest <= social.MAX_QUERY_LENGTH else 1)
 PY
