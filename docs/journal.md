@@ -335,3 +335,44 @@ the handover on 2026-11-08.
 - Next run: read fix-6; run the host harness (refresh, build, verify, screenshots, OG); spot
   check the four note sentences in the built home page; then log the check on the PR, squash
   merge, remove the worktree, record merged; then brief the sentiment POC.
+
+## 2026-10-17 01:31Z run (reasons: job_done:nz-election-design-fix-6)
+
+- Context: Codex window 56 percent, resets in 5.3 days, allowance about 8 points per day (five
+  jobs today before this run: fix-4, review, fix-5, review-2, fix-6). Disk 19.1 GiB. No new
+  words from Byron; issues #22, #20, #18, #15, #7 unchanged.
+- fix-6 7f2af43 (225 s, rc 0): source-note.html takes a per-note calculation sentence, the
+  averages and thresholds notes take the selected polls' fieldwork dates, one new test file
+  (test_source_note_meaning.py, four cases), no existing test edited; sandbox 298 passed, PASS
+  all, lint ok; Chromium blocked in the sandbox as before.
+- Host harness on 7f2af43 (01:33Z to 01:37Z, /tmp/ds-harness-6.log): PASS all, screenshots PASS
+  77 routes 204 images, OG PASS 2 images. Spot check of the built home page: the four notes
+  read "Polls parsed by this site", "Available poll shares averaged with equal weight by this
+  site", "Threshold shares averaged with equal weight by this site" and, under the withholding
+  headline, "Seats withheld; see the headline"; every note carries "Fieldwork ended 12 Oct
+  2026" from its contributing polls; no "Seats calculated" sentence in a withheld build. CI
+  green on 7f2af43.
+- Supervisor check logged on PR #21 (comment 6228043566); squash merged 01:38Z as 5c1fd99;
+  worktree and branch removed. Pages deploy of 5c1fd99 started 01:38Z; the live site is to be
+  confirmed next run. Design track: one build, six fix rounds, two fresh reviews, two supervisor
+  reviews. Lesson already recorded on 00:34Z stands: the host harness before the first review.
+- Judgement, within the POC-first rule (no board line, Byron's instruction in issue #22 is the
+  decision): the sentiment POC is the next dispatch, ahead of increment 7 (markets), because the
+  Gamma captures increment 7 needs are not in the tree yet and the POC is Byron's own ask. Brief
+  at state/jobs/nz-election-social-poc/prompt.md: smallest real thing, real posts through
+  twitterapi.io and classification through Jev, aggregates only (no post id, text, handle or
+  URL anywhere), credit ledger with the 7,800 cap and worst-case reservation, data/social family
+  validated like the others, a daily workflow at 13:40Z with the two Actions secrets in the
+  step environment only, the s197 freeze on 7 November before 19:00 NZDT in both the workflow
+  and the code, route social/poc/ labelled Proof of concept with sample size and date range,
+  attitude rows withheld under 30 posts, cells under 5 shown as "under 5", runbook section,
+  tests with injected transport and synthetic fixtures. The shape of the records and the charts
+  is left to the engineer; the invariants are named with where they are enforced (export.py
+  validator, the ledger, the freeze check). The first real day runs by workflow_dispatch after
+  the PR merges; that day's page is what we refine against.
+- Dispatched nz-election-social-poc at 01:39Z (build, workspace-write, worktree
+  .worktrees/nz-election-social-poc from 5c1fd99). About three to five window points; today's
+  allowance is then spent, so increment 7 waits for tomorrow unless the window shows otherwise.
+- Next run: read the POC job; host harness; supervisor review; push, PR, fresh review. Confirm
+  the live design at byronxlg.com/unattended/nz-election/. Capture the five Gamma events for
+  increment 7 (read-only curl, committed in its worktree).
