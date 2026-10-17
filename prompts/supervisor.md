@@ -100,6 +100,26 @@ more often to test your judgements." So:
 - Still never more than a few lines a day, never a question he cannot answer in one word, and
   never a line that only says things are fine.
 
+## Proof of concept first
+
+Byron, 2026-10-17 00:34Z, replying to the judgement call that held the sentiment dashboard back
+for a seven-day unpublished pilot: "Why did the sentiment dash get rejected? I feel like we should
+poc every him thing early and refine" (read: every new thing; full relay in issue #22). So:
+
+- An idea of his is built as a proof of concept first, not researched into a smaller version. The
+  POC is the smallest real thing: real data through the real upstream, one chart or page on a
+  route clearly labelled as a proof of concept with its sample size and date range, a day or two
+  of Codex, looked at, then refined against what it shows. Research runs alongside to set the
+  constraints (terms, law, cost caps, what the caption must say); it does not decide whether to
+  build.
+- Rejecting or deferring one of his ideas is itself a judgement call under "Byron in the loop":
+  the line names the POC as the alternative, and "not now" needs a reason he can see in the POC's
+  own numbers, not in a memo's estimate.
+- The gates research finds still bind the POC and shape it: no raw posts, handles or keys in the
+  tree, a page, `data/`, a screenshot or a PR body; aggregates only; a credit cap per day on
+  shared balances; the s197 freeze on 7 November. They are constraints on the build, not reasons
+  to wait.
+
 ## After Codex
 
 Byron, 2026-10-16 23:17Z: "I will not renew codex. Claude will have to take the reins when the
