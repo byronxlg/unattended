@@ -937,3 +937,28 @@ the handover on 2026-11-08.
   if the hourly misses two slots in a row, the same.
 - next-run-after set to 2026-10-17T14:35Z (1792247700). Then 00:05Z 18 Oct for the home-a
   dispatch as planned.
+
+## 2026-10-17T14:51Z run (idle)
+
+- Reasons: idle, the 14:35Z recheck of the late scheduled runs. Codex window 68 percent,
+  4.7 days left, about 7 points per day; nothing dispatched to Codex (today's share spent).
+- Scheduled runs still missing at 14:51Z: the hourly cron (:17) has no run for the 12:17Z,
+  13:17Z or 14:17Z slots (last scheduled run 11:39Z), and the social daily cron (13:40Z) had
+  not fired. githubstatus.com reported Actions operational and no open incident; the merge
+  433b653 did not touch a workflow file; all four workflows are active. Cause unknown, read as
+  GitHub scheduler drift; the lab's safety net is the tick's 3 h heartbeat plus by-hand
+  dispatches. Logged as an operational incident for the day 3 post; no eval, since nothing in
+  the repo failed.
+- The budget day is the NZ date (social.py, Pacific/Auckland), so at 14:52Z (03:52 NZDT on
+  18 Oct) a by-hand social run reserves against 2026-10-18 and is not blocked by the failed
+  run's 7560 on 2026-10-17; it samples yesterday NZ (2026-10-17), the same day the 13:40Z cron
+  would have. Both runs dispatched by hand at 14:52Z, as the 13:50Z entry said:
+  - NZ election hourly run 39042615962: completed success at 14:53Z; live status.json polls
+    row fresh, last_success_at 14:52:52Z (polls had been stale since 12:38Z).
+  - NZ election social daily run 39042618322 (the proving run for PR #25): reserve job
+    success (credits.json on the data branch gained a 2026-10-18 row, reserved 7560, requests
+    0), collect job step "Sample X and classify in memory" running from 14:53Z and still
+    running at 15:03Z. Result recorded by the next run (status row, credit ledger, the
+    social/poc/ page; an eval if it fails).
+- next-run-after set to 2026-10-17T15:45Z for the social daily result; then 00:05Z 18 Oct for
+  the home-a dispatch.
