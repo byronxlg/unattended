@@ -2,7 +2,7 @@
 
 Change slug: `nz-election-home`. Part of the `nz-election` product change, M2 (v1 live before
 advance voting opens on 26 October). Plan: `plan-home.md` beside this file, from a read-only
-Codex plan job. Status: spec accepted by the supervisor 2026-10-17T09:10Z; Byron chose the
+Codex plan job. Status: spec accepted 2026-10-17T09:10Z, plan accepted 09:30Z; Byron chose the
 direction (issue #26).
 
 ## Intent
@@ -40,7 +40,7 @@ The operator fetched the NBC page at 07:05Z (issue #26). Its order and the home'
 | Battle for control: seat strip, stacked rating bar, majority marker, tally, legend | "Seats from current polls" (`#seats`): the existing 120-seat proportional strip with the "61 for a majority" marker, party seat rows, the 5 percent and electorate-seat threshold watch; legend as a details element | seats.json, averages.json |
 | Latest polling: two stat cards | "Where the party vote stands" (`#polls`): the window average per party as large figures, two columns (the two largest parties), the rest in a row; fieldwork range and the source line; link "All polls" to `/polls/` | averages.json, polls.json |
 | More polling coverage | Not built: no stories exist. The slot carries "How seats are calculated" and "Explore seat combinations" links | |
-| Senate battlegrounds: wide race cards | "Electorates to watch" (`#electorates`): six wide cards, the closest 2023 margins on unchanged boundaries, each with the electorate name, the margin line, the top candidates by party, incumbent marker, "More" to the electorate page | baseline-2023.json, candidates.json, electorates.json |
+| Senate battlegrounds: wide race cards | "Electorates to watch" (`#electorates`): six wide cards, the closest 2023 margins on unchanged boundaries, each with the electorate name, the margin line, the top candidates by party, "More" to the electorate page | baseline-2023.json, candidates.json, electorates.json |
 | House battlegrounds: grid of small cards | "All 71 electorates" (`#directory`): the compact grid of every electorate (name, held-by party mark, boundary flag), linking to the page; one column at 390 px | electorates.json, baseline-2023.json |
 | Governor section | Not built (no analogue) | |
 | Live updates and story lists | "What people are posting" (`#social`): the social proof of concept's one chart with its sample size and date range, labelled as a proof of concept, link to `social/poc/`; empty state when no run has published | social family |
@@ -71,8 +71,9 @@ render without it. Headshots: none (licensing, issue #26); candidates carry a pa
   the module says so in one sentence. No rating labels (Solid, Lean, Toss-up): no electorate
   polling base exists, and a rating from one old margin would read as a forecast. Each card:
   name with macrons, "Held by {party}, {N} votes in 2023 on the original boundaries",
-  candidates as "{Name} ({Party})" for the parties with a published candidate, incumbent
-  marker, "More" link. If `baseline-2023.json` or `candidates.json` is absent, the module
+  candidates as "{Name} ({Party})" for the parties with a published candidate, "More"
+  link. No incumbent marker: published data cannot support one without name inference
+  (plan-home.md, supervisor decision 3). East Cape (renamed, boundary unchanged) is eligible. If `baseline-2023.json` or `candidates.json` is absent, the module
   renders "Not available" with the reason (the publish contract), never an empty card.
 - H6. `/night/` becomes results-first copy: the countdown line, "Results appear here from 7 pm
   on 7 November", what the page will show (places counted, seat waterfall, party table), the
@@ -87,7 +88,8 @@ render without it. Headshots: none (licensing, issue #26); candidates carry a pa
   the name and held-by line; others: the page title), written to
   `site/nz-election/og/<route>.png` by the screenshot harness on the host and referenced by
   `og:image` and `twitter:image` with absolute URLs. The harness image count grows by the
-  route count; the plan says the exact number. The build never runs a browser.
+  route count; the plan says the exact number. The build never runs a browser; pages.yml runs
+  the OG step with Playwright between build and upload (plan-home.md, supervisor decision 2).
 - H9. Social module: reads the social family's published aggregate; shows the single chart the
   POC shows, its sample size and date range, the "Proof of concept" label, and the link. The
   s197 freeze logic lives in the social workflow, not here; the home renders whatever was last

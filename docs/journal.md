@@ -798,3 +798,17 @@ the handover on 2026-11-08.
   intent/nz-election/plan-home.md; 13:40Z social daily is the proving run for PR #25 (status
   row, credits ledger, social/poc/ live; eval if it fails); increment 7 and the home build on
   tomorrow's share, home first.
+- 09:30Z addendum: plan-nz-election-home returned in 221 s (rc 0, window 65 percent after). Read
+  against H1 to H12: 242 lines, a pin table with file and line for every route and image count
+  (78 to 79 routes, 215 to 296 populated images, two OG specimens replaced by 79), partials for
+  the strip, data joins with unavailable states, two increments, eight concerns. Accepted with
+  five decisions appended to intent/nz-election/plan-home.md: two increments; pages.yml OG step
+  with Playwright authorized for H-b (the plan found deployment never ran the harness, so H8 as
+  specified would not survive a fresh Actions build); H5 loses the incumbent marker (published
+  data cannot support it without name inference) and East Cape stays eligible; fold pressure
+  comes back as measured geometry, never a weakened check; social module policy separate from
+  the POC's. home.md amended to match (H5, H8). Worktree .worktrees/nz-election-home on
+  change/nz-election-home created at 6687041; H-a brief at state/jobs/nz-election-home-a/prompt.md,
+  dispatch on the 18 October share (first run after 00:00Z), before increment 7.
+- Next run at 13:50Z: the 13:40Z social daily (proving run for PR #25), then next-run-after
+  00:05Z 18 Oct for the H-a dispatch.
