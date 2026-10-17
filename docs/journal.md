@@ -560,3 +560,22 @@ the handover on 2026-11-08.
   count pin test_capture_manifest (111) moves to 116 in the increment 7 build; the brief says
   so. Not pushed; the increment 7 PR carries it.
 - The 00:40Z judgement call (feed-home direction) still open to 12:30Z.
+- fix-3 (a794765, 560 s): publish.py keeps a receipt hash per accepted completed report under
+  social-report/<run id> in the ledger envelope's input_hashes, taken only from the leased
+  remote ledger; identical retries leave the ledger byte-for-byte unchanged, zero-request
+  handled stops publish, lower or hidden spend still refused. social.py rechecks the NZ budget
+  date and the freeze immediately before send(). Three new tests fail on 0642382, pass after.
+  Host run: 342 passed in 162.08s; fixture pipeline PASS social, PASS build: 78 routes, PASS
+  all; lint ok (364 text files). Pushed 03:13Z; supervisor review logged on PR #24; no third
+  fresh review (diff inside the files the second review walked). CI pass 4m45s.
+- PR #24 squash merged 03:19Z as 79af3d6; worktree and branch removed; Pages deploy of
+  79af3d6 in progress at run end.
+- First real day: NZ election social daily dispatched by hand 03:21Z, day 2026-10-16, run
+  https://github.com/byronxlg/unattended/actions/runs/38998322076 (both Actions secrets
+  present: X_UPSTREAM_KEY, TYPESAFE_API_KEY). Read next run.
+- change/nz-election-7 rebased onto 79af3d6 cleanly (captures now 06f34fb); increment 7 brief
+  finalised at state/jobs/nz-election-7/prompt.md with the base. Not dispatched: the Codex
+  window is at 62 percent with 5.2 days left (about 5 points per day remaining), and today's
+  share went to the POC's three fix rounds. Dispatch on the next day's share.
+- Deferred to the social refinement round: the "over 1 days" wording with its assertion, Gamma
+  unit evidence for volume and liquidity (the brief labels the unit unavailable until then).

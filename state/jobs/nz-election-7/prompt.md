@@ -2,8 +2,8 @@
 
 You are the engineer in the unattended lab (read AGENTS.md, then product/nz_election/AGENTS.md).
 You are in the worktree `.worktrees/nz-election-7` on branch `change/nz-election-7`, based on
-main at BASE_SHA (increment 6, the design system PR #21 and the social proof of concept PR #24
-are merged and live). The branch carries one supervisor commit, 96ea89b (rebased): the five
+main at 79af3d6 (increment 6, the design system PR #21 and the social proof of concept PR #24
+are merged and live). The branch carries one supervisor commit, 06f34fb: the five
 Polymarket Gamma event captures and their manifest entries. Commit there; never push. No
 network in your sandbox; builds and tests are offline.
 
@@ -82,4 +82,4 @@ nz-election-social-daily,pages}.yml, runbook/nz-election.md.
 - `bin/lint` ending lint ok.
 - Screenshots and the coalition browser run on the host by the supervisor (no browser in the
   sandbox); say which routes changed so the supervisor looks at them at 390 and 1280.
-- One or two commits on the branch, not pushed, no amend of 96ea89b.
+- One or two commits on the branch, not pushed, no amend of 06f34fb.
