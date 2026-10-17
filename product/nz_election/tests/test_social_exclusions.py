@@ -19,7 +19,9 @@ def test_tied_choice_and_per_post_exclusion(capsys):
                                       send=lambda *args: (200, json.dumps(next(bodies)).encode()), diagnostic=diagnostic)
     assert len(rows) == 2
     assert exclusions == dict(duplicate=0, unsupported=0, irrelevant=0, classification=1)
-    assert diagnostic['check'] == 'answers'
+    assert diagnostic['check'] == 'complete'
+    assert diagnostic['code'] is None
+    assert diagnostic['last_exclusion']['check'] == 'answers'
     assert capsys.readouterr().err == 'social diagnostic: SOCIAL_CLASSIFICATION_FAILED http_status=200 window_index=3 attempt=1 check=answers\n'
 
 
@@ -42,7 +44,7 @@ def test_daily_bound_uses_sent_posts_and_retains_last_good(tmp_path, capsys, sen
         return 200, json.dumps(body).encode()
     now = '2026-10-18T03:00:00Z'
     assert social.refresh_social(out, '2026-10-17', now=now, send=send, sleep=lambda _: None) == expected
-    assert post_calls == sent
+    assert post_calls == (sent if expected == 'ok' else 1)
     line = 'social diagnostic: SOCIAL_CLASSIFICATION_FAILED http_status=200 window_index=0 attempt=1 check=answers\n'
     assert capsys.readouterr().err == line * (1 if expected == 'ok' else 2)
     bundle = export.validate_bundle(out)
@@ -70,19 +72,34 @@ def test_malformed_structures_name_only_fixed_check(value, check, capsys):
                                       send=lambda *args: (200, json.dumps(body).encode()), diagnostic=diagnostic)
     assert rows == []
     assert exclusions == dict(duplicate=0, unsupported=0, irrelevant=0, classification=1)
-    assert diagnostic['code'] == 'SOCIAL_CLASSIFICATION_FAILED'
-    assert diagnostic['check'] == check
+    assert diagnostic['code'] is None
+    assert diagnostic['check'] == 'complete'
+    assert diagnostic['last_exclusion']['code'] == 'SOCIAL_CLASSIFICATION_FAILED'
+    assert diagnostic['last_exclusion']['check'] == check
     assert capsys.readouterr().err == f'social diagnostic: SOCIAL_CLASSIFICATION_FAILED http_status=200 window_index=None attempt=1 check={check}\n'
 
 
-@pytest.mark.parametrize('raw', [b'', b'null', b'[]', b'1.5', b'"private-post"', b' ' * (social.MAX_BYTES + 1)])
-def test_decode_failures_are_exclusions(raw, capsys):
+@pytest.mark.parametrize('raw', [b'', b'null', b'[]', b'1.5', b'"private-post"', b' ' * (social.MAX_BYTES + 1)],
+                         ids=['empty', 'null', 'array', 'float', 'string', 'oversized'])
+def test_decode_failures_stay_fatal(raw, tmp_path, capsys):
+    code = 'SOCIAL_RESPONSE_LIMIT' if len(raw) > social.MAX_BYTES else 'SOCIAL_INVALID_RESPONSE'
     diagnostic = {}
-    rows, exclusions = social.classify([post()], key='k', send=lambda *args: (200, raw), diagnostic=diagnostic)
-    assert rows == []
-    assert exclusions == dict(duplicate=0, unsupported=0, irrelevant=0, classification=1)
+    with pytest.raises(ValueError, match='^' + code + '$'):
+        social.classify([post()], key='k', send=lambda *args: (200, raw), diagnostic=diagnostic)
     assert diagnostic['check'] == 'decode'
-    assert capsys.readouterr().err == 'social diagnostic: SOCIAL_CLASSIFICATION_FAILED http_status=200 window_index=None attempt=1 check=decode\n'
+    assert diagnostic['code'] == code
+    assert capsys.readouterr().err == ''
+    calls = {'GET': 0, 'POST': 0}
+    def send(method, *args):
+        calls[method] += 1
+        if method == 'GET':
+            return 200, json.dumps(dict(tweets=[post(i) for i in range(10)] if calls[method] == 1 else [], has_next_page=False)).encode()
+        return 200, raw if calls[method] == 10 else json.dumps(response()).encode()
+    out = tmp_path / 'data'
+    assert social.refresh_social(out, DAY, now=NOW, send=send, sleep=lambda _: None) == 'SOCIAL_UPSTREAM_FAILED'
+    assert calls['POST'] == 10
+    assert 'social/daily' not in export.validate_bundle(out)
+    assert capsys.readouterr().err == f'social diagnostic: {code} http_status=200 window_index=0 attempt=1 check=decode\n'
 
 
 @pytest.mark.parametrize('probability,excluded', [('0.999', 0), ('0.9989', 1), ('1.001', 1)])
@@ -94,3 +111,43 @@ def test_sum_tolerance_and_probability_range(probability, excluded, capsys):
     assert exclusions == dict(duplicate=0, unsupported=0, irrelevant=0, classification=excluded)
     check = 'value' if probability == '1.001' else 'sum'
     assert capsys.readouterr().err == (f'social diagnostic: SOCIAL_CLASSIFICATION_FAILED http_status=200 window_index=None attempt=1 check={check}\n' if excluded else '')
+
+
+def test_aggregate_failure_does_not_reuse_exclusion(tmp_path, monkeypatch, capsys):
+    calls = {'GET': 0, 'POST': 0}
+    def send(method, *args):
+        calls[method] += 1
+        if method == 'GET':
+            return 200, json.dumps(dict(tweets=[post(i) for i in range(10)] if calls[method] == 1 else [], has_next_page=False)).encode()
+        body = response()
+        if calls[method] == 1:
+            del body['answers']['topic']
+        return 200, json.dumps(body).encode()
+    def fail(*args):
+        raise RuntimeError('private aggregate detail')
+    monkeypatch.setattr(social, 'aggregate', fail)
+    out = tmp_path / 'data'
+    assert social.refresh_social(out, DAY, now=NOW, send=send, sleep=lambda _: None) == 'SOCIAL_UPSTREAM_FAILED'
+    assert calls['POST'] == 10
+    assert 'social/daily' not in export.validate_bundle(out)
+    assert capsys.readouterr().err == (
+        'social diagnostic: SOCIAL_CLASSIFICATION_FAILED http_status=200 window_index=0 attempt=1 check=answers\n'
+        'social diagnostic: SOCIAL_UPSTREAM_FAILED http_status=None window_index=None attempt=None\n')
+
+
+def test_certain_failure_stops_after_49_requests(tmp_path, capsys):
+    calls = {'GET': 0, 'POST': 0}
+    def send(method, *args):
+        calls[method] += 1
+        if method == 'GET':
+            start = (calls[method] - 1) * 20
+            return 200, json.dumps(dict(tweets=[post(i) for i in range(start, start + 20)], has_next_page=False)).encode()
+        body = response()
+        del body['answers']['topic']
+        return 200, json.dumps(body).encode()
+    out = tmp_path / 'data'
+    assert social.refresh_social(out, DAY, now=NOW, send=send, sleep=lambda _: None) == 'SOCIAL_UPSTREAM_FAILED'
+    assert calls == {'GET': 24, 'POST': 49}
+    assert 'social/daily' not in export.validate_bundle(out)
+    line = lambda window: f'social diagnostic: SOCIAL_CLASSIFICATION_FAILED http_status=200 window_index={window} attempt=1 check=answers\n'
+    assert capsys.readouterr().err == ''.join(line(i // 20) for i in range(49)) + line(2)

@@ -133,12 +133,10 @@ def print_diagnostic(diagnostic):
     print(f"social diagnostic: {code} http_status={diagnostic.get('http_status')} window_index={diagnostic.get('window')} attempt={diagnostic.get('attempt')}{suffix}", file=sys.stderr)
 
 
-def classification_response(raw, diagnostic):
+def classification_response(body, diagnostic):
     # Check labels are local constants, never derived from upstream fields.
-    check = 'decode'
+    check = 'model'
     try:
-        body = decode(raw)
-        check = 'model'
         model = body.get('model')
         if not isinstance(model, str) or model not in MODEL_VERSIONS:
             raise ValueError()
@@ -260,13 +258,14 @@ def probability(value):
     return Decimal(value)
 
 
-def classify(posts, *, key, send, diagnostic=None):
+def classify(posts, *, key, send, diagnostic=None, enforce_bound=False):
     diagnostic = {} if diagnostic is None else diagnostic
     result, ids, texts = [], set(), set()
     excluded = Counter(dict.fromkeys(EXCLUSIONS, 0))
-    last_exclusion = None
+    diagnostic['last_exclusion'] = None
+    candidates = []
+    origins = diagnostic.get('post_windows', [])
     for index, post in enumerate(posts):
-        origins = diagnostic.get('post_windows', [])
         diagnostic.update(window=origins[index] if index < len(origins) else None, attempt=1, http_status=None, code=None, check=None)
         if not isinstance(post, dict):
             raise ValueError('SOCIAL_INVALID_PAGE')
@@ -283,6 +282,10 @@ def classify(posts, *, key, send, diagnostic=None):
         if post.get('lang') != 'en' or len(text) > 8000:
             excluded['unsupported'] += 1
             continue
+        candidates.append((index, text, author))
+    sent = len(candidates)
+    for index, text, author in candidates:
+        diagnostic.update(window=origins[index] if index < len(origins) else None, attempt=1, http_status=None, code=None, check=None)
         payload = dict(model='jev-latest', state=text, questions=QUESTIONS)
         try:
             diagnostic['check'] = 'transport'
@@ -294,20 +297,28 @@ def classify(posts, *, key, send, diagnostic=None):
         except Exception as exc:
             diagnostic['code'] = diagnostic_code(exc, 'SOCIAL_CLASSIFICATION_FAILED')
             raise ValueError('SOCIAL_CLASSIFICATION_FAILED') from None
+        diagnostic['check'] = 'decode'
         try:
-            model, clean = classification_response(raw, diagnostic)
+            body = decode(raw)
+        except ValueError as exc:
+            diagnostic['code'] = diagnostic_code(exc, 'SOCIAL_INVALID_RESPONSE')
+            raise
+        try:
+            model, clean = classification_response(body, diagnostic)
         except ValueError:
             excluded['classification'] += 1
-            last_exclusion = {k: diagnostic[k] for k in ('window', 'attempt', 'http_status', 'code', 'check')}
+            diagnostic['last_exclusion'] = {k: diagnostic[k] for k in ('window', 'attempt', 'http_status', 'code', 'check')}
             print_diagnostic(diagnostic)
+            if enforce_bound and excluded['classification'] * 10 > sent:
+                raise ValueError('SOCIAL_CLASSIFICATION_FAILED') from None
             continue
         diagnostic['check'] = None
         if clean['relevant'] < Decimal('.8'):
             excluded['irrelevant'] += 1
             continue
         result.append(dict(author=author, probabilities=clean, model=model))
-    if last_exclusion is not None:
-        diagnostic.update(last_exclusion)
+    # Completion is distinct from a failed check for existing diagnostic readers.
+    diagnostic.update(window=None, attempt=None, http_status=None, code=None, check='complete')
     return result, dict(excluded)
 
 
@@ -491,10 +502,11 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                 if limited:
                     error = 'SOCIAL_CREDIT_CAP'
                 else:
-                    classified, exclusions = classify(posts, key=jev_key, send=send, diagnostic=diagnostic)
+                    classified, exclusions = classify(posts, key=jev_key, send=send, diagnostic=diagnostic, enforce_bound=True)
                     # Judge the complete sample, not a prefix containing one odd post.
                     sent = len(posts) - exclusions['duplicate'] - exclusions['unsupported']
                     if exclusions['classification'] * 10 > sent:
+                        diagnostic.update(diagnostic['last_exclusion'])
                         raise ValueError('SOCIAL_CLASSIFICATION_FAILED')
                     record = aggregate(day, posts, classified, exclusions, provenance, now)
                     record['provenance']['fixture'] = fixture
