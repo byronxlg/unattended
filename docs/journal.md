@@ -462,3 +462,27 @@ the handover on 2026-11-08.
   merge, then look at the real numbers with Byron (judgement call line then, per issue #22).
 - Next: fresh review verdict, CI, merge, dispatch the workflow by hand, then Gamma captures for
   increment 7; the 12:30Z deadline on the 00:40Z feed-home judgement call stands.
+- 02:33Z addendum. Fresh review review-nz-election-social-poc (read-only, 144 s, window 60
+  percent) returned five Important: (1) the Jev model field is persisted and rendered after a
+  permissive regex, so echoed upstream text can reach data and the page; (2) the s197 freeze
+  stops the social publication but not pages.yml, which can deploy a pre-midnight update after
+  midnight or rebuild inside the window; (3) a retried collection reuses the downloaded unused
+  reservation and publication merges counters with max (replay spent 14,400, ledger said
+  7,200); (4) the budget day is fixed at collection start, so a run crossing NZ midnight plus
+  a fresh run can exceed the cap; (5) str(Decimal) can emit 1E-8 which the validator rejects
+  after paid collection. Logged on PR #24. Judgement: all five are real and each is cheaper to
+  fix now than after the first paid day, so a fix round before merge rather than merge and
+  patch.
+- Host found a sixth: with the social fixture collected (`social.py --fixtures --day
+  2026-10-16`) the populated page fails the harness with MISSING_SOURCE: figure {} (a figure
+  without aria-describedby). Neither the engineer's sandbox nor the supervisor's first harness
+  run captured the populated state. Looked at an unstyled capture of the populated page: the
+  copy states 240 posts, 16 October, one page per hour, withholding under 5 and under 30, the
+  method and X terms; honest. Codex mistake, second occurrence (shared design shapes on a new
+  page): logged in state/mistakes.jsonl, one line added to AGENTS.md Design.
+- Dispatched nz-election-social-poc-fix-1 at 02:38Z on the build thread (resume, workspace-write)
+  with followup-3.md: six items, each as an invariant and where it is enforced, engineer chooses
+  the shape; existing tests untouched, a failing-then-passing test per item; definition of done
+  includes the social fixture step before the harness.
+- Next run: fix-1 last.md, host harness with the social fixture to the end, look at the
+  populated screenshots at 390 and 1280, push, second fresh review, CI, merge.

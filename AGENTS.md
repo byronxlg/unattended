@@ -33,6 +33,9 @@ work; Byron is not here. Finish the task in the prompt, nothing more.
   meta strings, arrows on links, fade-up animation on every section.
 - Quality floor: keyboard focus visible, reduced motion respected, contrast checked, works at
   390 px. Screenshots at 390x844 and 1280x800 are part of done; look at them before finishing.
+- A new page reuses the shared shapes the design checks enforce (source note in div.source-note
+  with links in p.source-actions, every figure with aria-describedby): read build.py's helpers
+  before writing markup, and run the harness on the populated state, not only the empty one.
 
 ## Repo
 
