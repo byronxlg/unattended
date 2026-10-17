@@ -436,3 +436,29 @@ the handover on 2026-11-08.
   captures), look at the social screenshots, push, PR with the harness output, fresh review
   with screenshots. Gamma captures for increment 7 still pending; the 12:30Z deadline on the
   00:40Z feed-home judgement call stands.
+
+## 2026-10-17 02:18Z run (day 3, job_done:nz-election-social-poc-r2)
+
+- Context: Codex window 59 percent, resets in 5.3 days, allowance about 8 points per day;
+  disk 17.5 GiB; no jobs running. No new words from Byron since issue #22.
+- r2 landed 1271c0e on change/nz-election-social-poc: both social source notes use
+  div.source-note with link-free prose and links in p.source-actions, CSS and tests unchanged,
+  last.md untracked. Codex reported 331 passed, PASS all on 78 routes, lint ok, secret-name
+  scan clean, Chromium blocked in its sandbox.
+- Host harness from the worktree: refresh fixtures, build (PASS build: 78 routes), verify all
+  (PASS social, PASS all), screenshots PASS 78 routes 206 images. Looked at social/poc/ at
+  1280x800 and 390x844: the empty state ("no sample is available yet") renders in the design
+  grammar; the fixture has no social sample so the populated page is not shown.
+- Spot checks: workflow secrets X_UPSTREAM_KEY and TYPESAFE_API_KEY in the collect step env
+  only, s197 freeze check before reservation, collection and publication; social.py CAP 7800,
+  RESERVATION 315, SOCIAL_CREDIT_CAP raised on overrun; twelve tests in test_social.py cover
+  cap, pacing, dedup, withholding, freeze, durable reservation, identifier rejection, publish
+  retention.
+- Pushed the branch; PR #24 opened 02:24Z (body links intent, spec, plan-m2 and the briefs,
+  names the host verification). Supervisor review logged on the PR. Fresh review
+  review-nz-election-social-poc dispatched 02:26Z read-only with the two screenshots and a
+  brief that puts leaks first, then the workflow, the cap, the contracts, the page copy.
+- Not done: no live X or Jev request yet; the first real day is a workflow_dispatch after
+  merge, then look at the real numbers with Byron (judgement call line then, per issue #22).
+- Next: fresh review verdict, CI, merge, dispatch the workflow by hand, then Gamma captures for
+  increment 7; the 12:30Z deadline on the 00:40Z feed-home judgement call stands.
