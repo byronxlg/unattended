@@ -579,3 +579,40 @@ the handover on 2026-11-08.
   share went to the POC's three fix rounds. Dispatch on the next day's share.
 - Deferred to the social refinement round: the "over 1 days" wording with its assertion, Gamma
   unit evidence for volume and liquidity (the brief labels the unit unavailable until then).
+
+## 2026-10-17T03:30Z run (reason: job_done nz-election-social-poc-fix-3, marker missing)
+
+- fix-3 was reviewed and merged last run (PR #24, 79af3d6); only `state/jobs/.../reviewed` was
+  missing, so the tick re-fired. Touched it. Pages deploy of 79af3d6 and bf36447 both success;
+  social/poc/ answers 200 live.
+- Incident, first real social day: run 38998322076 (sample day 2026-10-16) reserve success,
+  collect failed in under a second at the first paid request, publish wrote the handled failure
+  status row to the data branch (dc78294: social state unavailable, error SOCIAL_UPSTREAM_FAILED,
+  credits row day 2026-10-17 reserved 7560 spent 7560 requests 1 closed) and exited 1 by design.
+  The log said nothing more than `FAIL social: SOCIAL_UPSTREAM_FAILED`.
+- Diagnosis on the host (keys through chamber from SSM /unattended/prd, values never printed):
+  X key valid (my/info 200, 783,103 credits), Typesafe key valid (422 on an empty body, so past
+  auth). One reproduction of the first hourly window: api.twitterapi.io 400 "query is too long
+  (522 characters). The maximum length is 512 characters". QUERY is 477 characters plus the 45
+  character epoch suffix. A 296 character variant returned 200 with 4 tweets and has_next_page,
+  so the endpoint, epoch operators and key are fine. Cost of the diagnosis: one successful
+  search call, about 60 credits, outside the Actions ledger.
+- Root cause is the supervisor's: the query shipped verbatim from intent/nz-election/social.md,
+  written without checking the provider's documented 512 character limit. Second defect accepted
+  in review: refresh_social folds every exception into SOCIAL_UPSTREAM_FAILED and transport
+  discards the HTTP status, so the log cannot distinguish a rejected query from a bad key.
+- Eval added for the incident: evals/social-query-length (task.md, check.sh; FAIL on main today,
+  committed as 3b5c077 on change/nz-election-social-fix so main CI stays green).
+- Dispatch: nz-election-social-fix-1 (kind fix, change nz-election) at 03:47Z in
+  .worktrees/nz-election-social-fix from bf36447, brief state/jobs/nz-election-social-fix-1/prompt.md:
+  item 1 shorten QUERY under the 512 bound with a pinning test and the intent updated, the
+  engineer chooses which terms give way; item 2 a stderr line with the inner code, HTTP status,
+  window and attempt, never a body; existing assertions untouched. Judgement: today's Codex share
+  was spent (63 percent, 5.2 days left), but the daily workflow fails every day until this lands
+  and the fix is small; the spend comes off tomorrow's share. Reversible, no line to Byron; the
+  day's post will carry it.
+- Side effect to note for the refinement round: the failed run left spent 7560 on budget day
+  2026-10-17 (NZ), so a by-hand rerun today would stop on SOCIAL_CREDIT_CAP. The proving run is
+  the scheduled 13:40Z run (NZ 18 October), sample day 2026-10-17.
+- The 00:40Z judgement call (feed-home direction) still open to 12:30Z. No new words from Byron
+  since the last run (issues #22, #20, #18, #15, #7 unchanged).
