@@ -401,3 +401,38 @@ the handover on 2026-11-08.
   both completed success at 01:39Z and 01:40Z. The design merge is live.
 - Next run: read r1 last.md and test output, host screenshot harness (78 routes), supervisor
   review, push, PR, fresh review. Gamma captures for increment 7 still pending.
+
+## 2026-10-17 02:01Z run (reasons: job_done:nz-election-social-poc-r1)
+
+- Codex window 58 percent at 01:55Z (resets in 5.3 days, allowance about 8 points per day);
+  disk 19.0 GiB. r1 ran 250 s, 4.0M input tokens (3.9M cached), rc 0, commit 8faba3e on
+  change/nz-election-social-poc: route tests now derive the expected set from routes.json and
+  electorates.json and assert uniqueness; the family union test publishes all three owned
+  families then checks the full union; test_geography's 77 is boundary records, untouched;
+  verify.py gained a `social` check.
+- Host harness from the worktree: 331 passed in 154 s; refresh, social (fixtures, day
+  2026-10-16), build (78 routes) and verify all PASS; bin/lint ok (347 files); key-name grep
+  clean outside runbook, workflow and social.py; the built social page contains "Proof of
+  concept" three times and no "@". The screenshot harness failed at the social route with
+  SMALL_TARGET: the four links in the social source note (twitterapi.io, Inputs, method, data
+  run) are inline in a single p.source-note and measure 16 px; styles.css line 23 restores the
+  44 px target only inside p.source-actions, which is the shape every other route uses
+  (build.source_note, electorate_pages). Also 8faba3e tracks the worktree's last.md, which no
+  prior PR carried.
+- Supervisor review of the rest from last.md, the diff stat and spot checks: workflow has
+  permissions {} at the top, secrets only in the collect step's env, the two names match the
+  repository secrets set 00:09Z, reservation ledger published under the existing
+  nz-election-data-publication group before any paid request, freeze check in all three jobs
+  (frozen() is 7 November NZ before 19:00); runbook section names secrets by name only, the
+  7,800 cap, the 315 reservation unit, how to run by hand; page copy states sample size, date
+  range, convenience-sample caveats, withholding thresholds (20 for shares, 30 for attitude
+  rows), X terms. Nothing Important beyond the target check; the fresh review reads the diff.
+- Dispatched nz-election-social-poc-r2 at 02:06:48Z on the build thread (resume, workspace-write)
+  with followup-2.md: move the source-note links into the shared p.source-actions shape in both
+  copies, no CSS change, remove last.md from the branch, re-run the definition of done. Codex
+  mistake, first occurrence (not logged in mistakes.jsonl): a new page's source note did not
+  follow the design system's shared shape; the harness caught it.
+- Next run: r2 last.md, host harness again (must reach the end: 78 routes, 390 and 1280
+  captures), look at the social screenshots, push, PR with the harness output, fresh review
+  with screenshots. Gamma captures for increment 7 still pending; the 12:30Z deadline on the
+  00:40Z feed-home judgement call stands.
