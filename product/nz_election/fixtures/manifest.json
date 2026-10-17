@@ -1396,6 +1396,71 @@
    "licence": "CC0 1.0 (Wikidata)",
    "revision": "query at 2026-10-16T20:19:39Z",
    "notes": "SPARQL candidacies for the 2026 election (P3602 = Q104843407) with party, electorate and list rank qualifiers; statement URIs preserved."
+  },
+  {
+   "path": "polymarket/new-zealand-election-turnout.json",
+   "url": "https://gamma-api.polymarket.com/events?slug=new-zealand-election-turnout",
+   "archive_url": null,
+   "captured_at": "2026-10-17T03:05:08Z",
+   "sha256": "7eb6c16fbdb07fa9fd2fa9e7cf69b8e5e4196e89cb32714e95a6129cb00114e1",
+   "bytes": 26219,
+   "http_status": 200,
+   "reviewer": "supervisor (Claude), unattended lab",
+   "licence": "Source: Polymarket. Subject to Polymarket terms. No open licence asserted.",
+   "revision": "event updatedAt 2026-10-17T03:01:31.001965Z (upstream timestamp, distinct from captured_at)",
+   "notes": "Gamma events response, one event, 6 markets, closed=False, endDate 2026-11-08T04:59:00Z; each market's resolution wording is in its description field and its rules page is https://polymarket.com/event/new-zealand-election-turnout. Captured for the record only: turnout is excluded from the three displayed M2 contract families (plan-m2.md: it is not a party, seat or prime minister contract)."
+  },
+  {
+   "path": "polymarket/next-prime-minister-of-new-zealand-174.json",
+   "url": "https://gamma-api.polymarket.com/events?slug=next-prime-minister-of-new-zealand-174",
+   "archive_url": null,
+   "captured_at": "2026-10-17T03:05:06Z",
+   "sha256": "f10a7029b9f82218b295a9b5cc6e2d10793d6abe2f6a55baafad84d617814e2d",
+   "bytes": 127087,
+   "http_status": 200,
+   "reviewer": "supervisor (Claude), unattended lab",
+   "licence": "Source: Polymarket. Subject to Polymarket terms. No open licence asserted.",
+   "revision": "event updatedAt 2026-10-17T03:03:25.927906Z (upstream timestamp, distinct from captured_at)",
+   "notes": "Gamma events response, one event, 34 markets, closed=False, endDate 2026-11-08T04:59:00Z; each market's resolution wording is in its description field and its rules page is https://polymarket.com/event/next-prime-minister-of-new-zealand-174."
+  },
+  {
+   "path": "polymarket/nz-election-labour-party-of-seats.json",
+   "url": "https://gamma-api.polymarket.com/events?slug=nz-election-labour-party-of-seats",
+   "archive_url": null,
+   "captured_at": "2026-10-17T03:05:08Z",
+   "sha256": "36dbfc87019c3c6050816e48f43c7858b3ecbf5d99a07394315ffd91b1a658ed",
+   "bytes": 31998,
+   "http_status": 200,
+   "reviewer": "supervisor (Claude), unattended lab",
+   "licence": "Source: Polymarket. Subject to Polymarket terms. No open licence asserted.",
+   "revision": "event updatedAt 2026-10-17T03:01:31.001965Z (upstream timestamp, distinct from captured_at)",
+   "notes": "Gamma events response, one event, 7 markets, closed=False, endDate 2026-11-08T04:59:00Z; each market's resolution wording is in its description field and its rules page is https://polymarket.com/event/nz-election-labour-party-of-seats."
+  },
+  {
+   "path": "polymarket/nz-election-national-party-of-seats.json",
+   "url": "https://gamma-api.polymarket.com/events?slug=nz-election-national-party-of-seats",
+   "archive_url": null,
+   "captured_at": "2026-10-17T03:05:07Z",
+   "sha256": "5a1c5f75af05bd0d709cfa718c1bdee4c9399e47b0df9f980c4a959608784a5a",
+   "bytes": 30680,
+   "http_status": 200,
+   "reviewer": "supervisor (Claude), unattended lab",
+   "licence": "Source: Polymarket. Subject to Polymarket terms. No open licence asserted.",
+   "revision": "event updatedAt 2026-10-17T03:03:25.927906Z (upstream timestamp, distinct from captured_at)",
+   "notes": "Gamma events response, one event, 7 markets, closed=False, endDate 2026-11-08T04:59:00Z; each market's resolution wording is in its description field and its rules page is https://polymarket.com/event/nz-election-national-party-of-seats."
+  },
+  {
+   "path": "polymarket/which-parties-will-be-part-of-the-next-government-of-new-zealand.json",
+   "url": "https://gamma-api.polymarket.com/events?slug=which-parties-will-be-part-of-the-next-government-of-new-zealand",
+   "archive_url": null,
+   "captured_at": "2026-10-17T03:05:07Z",
+   "sha256": "3d26ef7cc2183fa6a1f9774e249f86d7b264f734134874032c6f02d3465c287c",
+   "bytes": 29552,
+   "http_status": 200,
+   "reviewer": "supervisor (Claude), unattended lab",
+   "licence": "Source: Polymarket. Subject to Polymarket terms. No open licence asserted.",
+   "revision": "event updatedAt 2026-10-17T03:03:25.927906Z (upstream timestamp, distinct from captured_at)",
+   "notes": "Gamma events response, one event, 6 markets, closed=False, endDate 2026-11-08T04:59:00Z; each market's resolution wording is in its description field and its rules page is https://polymarket.com/event/which-parties-will-be-part-of-the-next-government-of-new-zealand."
   }
  ]
 }
