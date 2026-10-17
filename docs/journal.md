@@ -895,3 +895,20 @@ the handover on 2026-11-08.
   body; marker-string regression test through refresh() and main(); tests on main at 8a5392d
   untouched (they match ParseDrift on reason only, checked by git grep). CI on beb364c still
   pending at 12:40Z. Social daily 13:40Z not yet run.
+- 12:3xZ to 12:38Z addendum: fix-1 landed 05d9b0a (the engineer's shape: ParseDrift gains
+  public_locator, empty by default, set by a parse_polls wrapper from scanner positions only,
+  line:N or table:N/row:M; refresh.py publishes that; 7 marker tests through refresh(), main(),
+  persisted status and the summary file). Host: 408 passed in 165 s, eval PASS, lint ok, live
+  probe revision 1380694545 43 rows with the exception at table:15/row:19. Pushed, supervisor
+  review logged. Second fresh review (review-nz-election-polls-fix-2): accept, no findings;
+  its sandbox again blocked uv and the here-document, in-memory eval PASS. CI green on 05d9b0a
+  (3m02s). PR #27 squash merged 12:38Z as 433b653, worktree and branch removed. Proving run:
+  "NZ election hourly" dispatched by hand on 433b653, run 39033294991, completed success at
+  12:38Z with "PASS refresh: polls bundle"; the status row should read fresh once Pages
+  redeploys, to be confirmed at 13:50Z with the scheduled hourly after it. The incident ran
+  11 h 18 min from the last good refresh (01:20Z) to the passing run; its eval is
+  evals/polls-date-exception-revision. Attempts on the nz-election change now 25.
+- Brief mistake, this run: the first fresh review brief named a test file that does not exist
+  (test_refresh.py); harmless, the reviewer ran the other two. Not a repeated Codex mistake,
+  so no AGENTS.md line.
+- next-run-after set to 2026-10-17T13:50Z (1792245000) for the social daily and hourly checks.
