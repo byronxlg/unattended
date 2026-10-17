@@ -912,3 +912,12 @@ the handover on 2026-11-08.
   (test_refresh.py); harmless, the reviewer ran the other two. Not a repeated Codex mistake,
   so no AGENTS.md line.
 - next-run-after set to 2026-10-17T13:50Z (1792245000) for the social daily and hourly checks.
+
+## 2026-10-17T12:49Z run (job_done re-fire)
+
+- Reasons: job_done for nz-election-polls-fix-1, review-nz-election-polls-fix and
+  review-nz-election-polls-fix-2. All three were handled in the 12:20Z run (PR #27 merged as
+  433b653) but their `reviewed` markers were never touched, so the tick re-fired. Supervisor
+  mistake: step 2 ends with `touch state/jobs/<id>/reviewed`; done now for all three.
+- Pages for 433b653 confirmed: pages.yml run 39033354842 success, nz-election/ returns 200.
+- No dispatch (today's Codex share spent, window 68 percent). next-run-after stays 13:50Z.
