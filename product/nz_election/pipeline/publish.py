@@ -92,6 +92,11 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                     # Ledger accounting must survive stale aggregates and lease retries.
                     old_rows = {r['id']: r for r in current.get('social/credits', {}).get('data', [])}
                     incoming_rows = incoming.get('social/credits', {}).get('data', [])
+                    # Receipts identify accepted actual reports without refunding the
+                    # conservative charge. Only the leased remote can supply receipts.
+                    receipt_prefix = 'social-report/'
+                    receipts = {k: v for k, v in current.get('social/credits', {}).get('input_hashes', {}).items()
+                                if k.startswith(receipt_prefix)}
                     if claim and claim not in old_rows:
                         raise ValueError('SOCIAL_RESERVATION_CONSUMED')
                     for row in incoming_rows:
@@ -107,19 +112,31 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                             raise ValueError('SOCIAL_LEDGER_CONFLICT')
                         if old == row:
                             continue
+                        receipt_key = receipt_prefix + row['id']
+                        report_hash = export.digest(export.canonical(row).encode())
+                        if receipt_key in receipts:
+                            if not old or receipts[receipt_key] != report_hash:
+                                raise ValueError('SOCIAL_LEDGER_CONFLICT')
+                            continue
                         if old and old['closed']:
                             consumed = old['requests'] == 0 and old['spent'] == old['reserved'] and old['allocation'] > 0
-                            if not consumed or not row['closed'] or not row['requests']:
+                            if not consumed or not row['closed']:
                                 raise ValueError('SOCIAL_LEDGER_CONFLICT')
                             # The final report can add request counts but cannot refund unknown spend.
                             old_rows[row['id']] = dict(row, spent=old['spent'])
+                            receipts[receipt_key] = report_hash
                         elif old and (old['spent'] or old['requests']):
                             raise ValueError('SOCIAL_LEDGER_CONFLICT')
                         else:
                             # Distinct run IDs append distinct spending records; never merge via max.
                             old_rows[row['id']] = row
                     metadata = incoming['social/credits']
+                    hashes = {k: v for k, v in metadata.get('input_hashes', {}).items()
+                              if not k.startswith(receipt_prefix)}
+                    hashes.update(receipts)
                     merged_ledger = dict(metadata, data=list(old_rows.values()))
+                    if 'input_hashes' in metadata or receipts:
+                        merged_ledger['input_hashes'] = hashes
                     from product.nz_election.pipeline.social import validate_ledger
                     validate_ledger(merged_ledger['data'])
                     export.pair(target, 'social/credits', merged_ledger)

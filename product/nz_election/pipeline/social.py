@@ -137,8 +137,15 @@ def collect(day, ledger, run, *, key, send, sleep, now=utc_now, checkpoint=lambd
             run['spent'] += RESERVATION
             checkpoint()
             query = QUERY + f' since_time:{start} until_time:{end}'
+            url = 'https://api.twitterapi.io/twitter/tweet/advanced_search?' + urlencode(dict(query=query, queryType='Latest'))
+            # Atomic checkpointing can outlast the pre-reservation clock check.
+            instant = now()
+            if (datetime.fromisoformat(instant.replace('Z', '+00:00')) + timedelta(seconds=31)).astimezone(NZ).date().isoformat() != run['day']:
+                raise ValueError('SOCIAL_BUDGET_DAY_CHANGED')
+            if frozen(instant):
+                raise ValueError('SOCIAL_FROZEN')
             try:
-                status, raw = send('GET', 'https://api.twitterapi.io/twitter/tweet/advanced_search?' + urlencode(dict(query=query, queryType='Latest')), {'X-API-Key': key, 'Accept': 'application/json'}, None)
+                status, raw = send('GET', url, {'X-API-Key': key, 'Accept': 'application/json'}, None)
             except Exception:
                 status, raw = 503, b''
             if status in {429, 500, 502, 503, 504} and attempt < 2:
