@@ -1012,3 +1012,39 @@ the handover on 2026-11-08.
 - Next: on job_done review social-fix2 (eval PASS, pytest, lint, caption screenshot), PR, fresh
   review, merge before 13:40Z; then home-a dispatch at the first run of 18 Oct UTC (next-run-after
   set to 00:05Z 18 Oct).
+
+## 2026-10-17 17:49Z (job_done: nz-election-social-fix2)
+
+- Codex job nz-election-social-fix2 (build, 511 s, thread 01a14af1-fc0d-7911-846e-baadd421997d)
+  committed 983f112 on change/nz-election-social-fix2: per-post exclusion `classification`
+  (EXCLUSIONS tuple shared by aggregate, validator and caption), 10 percent bound on posts sent,
+  `check` names from a local frozenset printed per excluded post and on the fatal line, ties
+  valid, tolerance .001 kept (observed responses sum to exactly 1.00). Window 69 percent.
+- Host verification at 983f112: evals/social-classify-exclusion PASS (2 classified, 1 excluded,
+  check named); evals/social-query-length PASS 495 of 512; pytest 475 passed in 168.93 s;
+  bin/lint ok (401 text files); fixture build PASS social, PASS build 78 routes; rendered
+  caption "Excluded: duplicates under 5, unsupported language or length under 5, relevance below
+  0.8 under 5, invalid classification under 5." Codex could not run the screenshot harness
+  (Chromium sandbox); caption-only page change, no host screenshot run.
+- Branch pushed, PR #28 opened, supervisor review logged (accept pending, two nits: bound judged
+  after the whole sample; stale code in the diagnostic after a good batch). CI green on 983f112.
+- Fresh review review-nz-election-social-fix2 (138 s, read-only; gh and uv unavailable in its
+  sandbox, probed in-memory): request changes, four Important. (1) decode failures (oversize,
+  invalid JSON, non-object) became exclusions where main failed with SOCIAL_RESPONSE_LIMIT or
+  SOCIAL_INVALID_RESPONSE: weaker than main. (2) The stale code after a good batch misreports a
+  later aggregate failure. (3) An all-invalid sample makes 480 Jev calls before the bound trips.
+  (4) Rows with the old three-key exclusions would fail the strict validator.
+- Judgement: items 1 to 3 to fix round 1 on the build thread (followup-1.md: decode failures
+  fatal again with original code plus check=decode, since the incident printed
+  SOCIAL_CLASSIFICATION_FAILED and so was post-decode; exclusion context kept apart from the
+  live failure state; stop sending once classification exclusions exceed 10 percent of posts
+  sent, at most 49 calls for 480 invalid). Item 4 accepted with reasoning on the PR: the data
+  branch holds only social/credits.csv and credits.json, no daily rows were ever published (both
+  real runs failed before aggregate), the validator stays strict. Both nits I had deferred were
+  the reviewer's items 2 and 3: the fresh review was right to rank them Important, a daily run
+  that wastes Jev calls or misnames its failure is the incident shape again.
+- Cost: this is the fourth job on today's share (window 56 at 01:31Z, 69 at 17:53Z, about 13
+  points against an allowance of 7); spent because every scheduled social run until the fix
+  lands burns a day of X credits. Nothing else is dispatched today; home-a goes out on 18 Oct UTC.
+- Next: on job_done host-verify fix-1 (eval, pytest, lint, fixture), push, second fresh review,
+  merge before the 13:40Z 18 Oct social daily, confirm Pages; home-a first run of 18 Oct UTC.

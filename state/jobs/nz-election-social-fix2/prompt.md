@@ -1,62 +1,47 @@
-# Social POC: a bad classification response excludes a post, names its check, and does not waste the day's credits
+# Fix round 1 on change/nz-election-social-fix2 (PR #28)
 
-You are the engineer on the NZ election social proof of concept. Work in this worktree
-(`.worktrees/nz-election-social-fix2`, branch `change/nz-election-social-fix2`, from main at
-433b653 plus the eval commit 5071194). Commit here; never push. Read `AGENTS.md` first.
+Same worktree, same branch, on top of 983f112. Commit here; never push. The fresh review (second
+comment on PR #28, pasted below in full) found four Important items; items 1 to 3 are yours, item 4
+is accepted by the supervisor with reasoning on the PR (no rows with the old key exist anywhere:
+the data branch holds only social/credits.*; the validator stays strict). This is a fix round:
+protected tests are the ones on main at the base commit eecc6fb (`git diff eecc6fb..HEAD --stat --
+product/nz_election/tests` shows what this branch already moved; move nothing else there). Tests
+this branch added (test_social_exclusions.py, and the lines 983f112 changed in test_social.py,
+test_social_diagnostics.py, test_social_fix_round1.py) are yours and move with the fix.
 
-## What happened
+## Item 1: decode failures stay fatal with their original code
 
-The proving run of PR #25 (NZ election social daily, run 39042618322, budget day 2026-10-18 NZ)
-collected 24 pages, spent the whole 7,560 credit reservation, then failed on the first
-classification response:
+Invariant: nothing weaker than main. A 200 whose body fails `decode()` (over MAX_BYTES, invalid
+JSON, non-object JSON) is fatal as on main, with its original code (SOCIAL_RESPONSE_LIMIT or
+SOCIAL_INVALID_RESPONSE), and the fatal line now also carries `check=decode`. Only the structural
+checks after a successful decode (model, answers, type, probabilities, sum, choice, value) are
+per-post exclusions. Reasoning: main would have printed SOCIAL_RESPONSE_LIMIT or
+SOCIAL_INVALID_RESPONSE for a decode failure, and the incident printed
+SOCIAL_CLASSIFICATION_FAILED, so the incident was a post-decode structural failure; a body that
+does not decode is more likely an upstream outage than one odd post. Enforce where: `classify()`
+in product/nz_election/pipeline/social.py. Verify: nine valid responses plus one oversized,
+malformed or non-object response: the run fails, the stderr line names the original code and
+`check=decode`, no row is written. Rewrite test_decode_failures_are_exclusions accordingly.
 
-    social diagnostic: SOCIAL_CLASSIFICATION_FAILED http_status=200 window_index=0 attempt=1
+## Item 2: a successful classification batch leaves no stale failure state
 
-The response was HTTP 200 and failed one of the structural checks in `classify()`
-(`product/nz_election/pipeline/social.py`), but every check there raises a bare `ValueError`, so
-the log cannot say which. Twenty-four supervisor probes against the live upstream (emoji only,
-URL only, mentions, te reo, 3000 characters, all caps, ambiguous party texts) all validated, so
-the cause is unknown. The sample is never stored (that is a gate), so the post cannot be replayed.
-Every run from now until this lands spends a day of credits for nothing.
+Invariant: the code printed by the fatal line in refresh_social is the code of the failure that
+stopped the run. After `classify()` returns with exclusions, `diagnostic['code']` and `check` must
+not still say SOCIAL_CLASSIFICATION_FAILED; keep the last exclusion's context separately so that
+the fatal line after the 10 percent bound trips still carries that exclusion's check and window
+(as the review confirmed it does today). Verify: inject an aggregate failure after one exclusion
+among ten posts: the fatal line reads SOCIAL_UPSTREAM_FAILED, not SOCIAL_CLASSIFICATION_FAILED;
+and the bound-trip test still pins its line.
 
-Read first: `evals/social-classify-exclusion/task.md` and `check.sh` (the incident's eval),
-`product/nz_election/pipeline/social.py` (`classify`, `diagnostic_code`, `DIAGNOSTIC_CODES`,
-`refresh_social`, `aggregate`, the validator at `keys(sample['exclusions'], ...)`),
-`product/nz_election/pipeline/social_page.py` (lines 81 and 90, the exclusion caption),
-`product/nz_election/tests/test_social.py` (line 89 pins the exclusion dict),
-`product/nz_election/tests/test_social_diagnostics.py` (pins the diagnostic line format),
-`evals/social-query-length/task.md` (the previous incident, same shape of lesson).
+## Item 3: stop sending to Jev once the bound cannot be met
 
-## Invariants (name them in your commit message)
-
-1. A classification response that fails validation excludes that one post. The exclusion is
-   counted alongside `duplicate`, `unsupported` and `irrelevant`, flows through `aggregate`, the
-   bundle validator, and the social/poc/ page caption ("Excluded: ..."), and the page's sample
-   size stays honest. Choose the key name.
-2. The run still fails with `SOCIAL_CLASSIFICATION_FAILED` when the excluded-for-classification
-   count exceeds 10 percent of the posts sent for classification (so a broken upstream or a
-   broken contract still stops the run, and a single odd post does not).
-3. The diagnostic names the failed check with a fixed structural name from a small set you define
-   (for example model, answers, type, probabilities, sum, choice, value, decode), stored in the
-   diagnostic dict under the key `check` (the eval reads `diagnostic['check']`) and printed to
-   stderr in the diagnostic line. Never a response body, post text, handle or key. The fatal
-   line keeps its present shape for the present cases and gains the check name; the per-post
-   exclusion prints one line per excluded post in the same shape.
-4. The tie case is valid: `choice` may be any key whose probability equals the maximum, not only
-   the first such key in mapping order. Decide whether the sum tolerance (.001) matches a
-   two-decimal upstream (observed responses sum to exactly 1.00; keep the tolerance unless you can
-   show it is wrong, and say so either way in `last.md`).
-5. Nothing weaker: every existing structural check stays, the data gates stay (aggregates only,
-   no raw posts), the credit ledger and the s197 freeze are untouched.
-
-## Tests
-
-This is a build round of the POC, not a fix: tests on main that pin the exclusion dict
-(`test_social.py:89`) and the diagnostic line (`test_social_diagnostics.py`) move with the
-registered set. Each changed assertion must still pin the full line or the full dict; add tests
-for the per-post exclusion, the 10 percent bound (just under passes, just over fails), the tie,
-and that the check name never carries post text. Use the injected transport like the existing
-tests do.
+Invariant: no Jev request is made once failure is certain. Duplicate and unsupported posts are
+decided without a Jev call, so the number of posts that will be sent is known before the first
+request. Stop (fatal, SOCIAL_CLASSIFICATION_FAILED, with the last exclusion's check and window)
+as soon as `excluded['classification'] * 10 > sent`. An isolated first failure still continues;
+exactly 10 percent still passes; the final check in refresh_social may stay as a backstop.
+Choose the shape. Verify: 480 invalid candidates make at most 49 Jev calls (pin the count with the
+injected transport); the existing 9, 10, 11 sent cases still hold.
 
 ## Definition of done
 
@@ -64,9 +49,30 @@ tests do.
 - `evals/social-query-length/check.sh` last line: `PASS query length 495 of 512`
 - `uv run --with pytest pytest -q product/nz_election` passes
 - `bin/lint` clean
-- `uv run product/nz_election/pipeline/social.py --fixtures --out /tmp/social-fixture` (or the
-  documented offline verification command in `runbook/`) still passes and the rendered social
-  page caption shows the new exclusion count; say which command in `last.md`
-- `last.md`: what the diagnostic will now print for the incident's shape of failure, the
-  exclusion key you chose, the decision on the sum tolerance, and the test outputs verbatim.
+- `uv run product/nz_election/pipeline/social.py --fixtures --out /tmp/social-fixture --day 2026-10-16 --now 2026-10-17T03:00:00Z` prints `PASS social`
+- `last.md`: per item, where it is enforced and the test that fails without it, outputs verbatim.
   Do not commit `last.md`.
+
+## The fresh review, verbatim
+
+**Verdict: request changes.**
+
+- **Important: `product/nz_election/pipeline/social.py:140,175`**: Decode failures, including oversized bodies and non-object JSON, now become recoverable classification exclusions. Main failed immediately with `SOCIAL_RESPONSE_LIMIT` or `SOCIAL_INVALID_RESPONSE`; HEAD can publish when these failures stay within 10%. This weakens invariant 5 and loses the original diagnostic code. Verify a fix with nine valid responses plus one oversized, malformed or non-object response: each must remain fatal with its original code and `check=decode`.
+
+- **Important: `product/nz_election/pipeline/social.py:309,502`**: Restoring the last exclusion leaves `code`, `check` and location populated after a successful classification batch. A subsequent aggregate exception is reported as that earlier classification failure because `diagnostic['code']` takes precedence. This violates invariant 3’s accurate diagnostics. Keep exclusion context separately and clear active failure state after accepting the bound. Verify by injecting an aggregate failure after one exclusion among ten posts. Final writes/publication occur outside this catch, so they do not inherit this particular misreport.
+
+- **Important: `product/nz_election/pipeline/social.py:494`**: The bound runs only after every Jev request. An all-invalid 480-post sample makes **480 calls**, although failure is inevitable after 49 exclusions once the final eligible denominator is known. That is unacceptable avoidable spend for a daily run intended to survive upstream failures. Precompute the denominator after deduplication and unsupported filtering, then stop when recovery becomes impossible. Verify 49 calls for 480 invalid candidates while preserving isolated-first-failure and exactly-10% cases.
+
+- **Important: `product/nz_election/pipeline/social.py:370`**: Existing rows containing only the original three exclusion keys now fail `INVALID_SOCIAL_FIELDS`. There is no compatibility handling before `refresh_social` validates the old bundle at line 453; the page also directly indexes the new key. If legacy rows exist, refresh and rendering are blocked. Verify a fix using a main-produced bundle through validation, refresh and rendering, preserving sample arithmetic. Live legacy-row presence remains unverified.
+
+Other checks: the denominator correctly excludes duplicates and unsupported posts, includes irrelevant responses, and exactly 10% passes. The bound’s fatal line retains the last exclusion’s correct check/window. Ties are accepted and `.001` remains unchanged. Registered exclusions, arithmetic, caption, fixed check names and moved full-dict/full-line assertions are intact. No real post text, handles or credentials found in the added fixtures; HTTP and transport failures remain fatal.
+
+Read-only verification used `.venv/bin/python -B -c` for in-memory probes and both evals’ embedded Python:
+```text
+PASS classify: 2 classified, 1 excluded, check named
+PASS query length 495 of 512
+PASS malformed structures main versus HEAD: 54
+PASS transport exceptions remain fatal
+```
+
+Review limitations: PR body/comments could not be retrieved: `gh` connectivity failed and the connector requires reauthentication. Live-site retrieval also failed. Full pytest and `bin/lint` could not start because uv cache access was denied. No files changed.
