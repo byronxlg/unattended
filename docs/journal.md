@@ -857,3 +857,41 @@ the handover on 2026-11-08.
   live revision through the probe: python with fetch.acquire and parse_polls), PR, fresh review,
   merge; the proving run is the next scheduled hourly after the merge (status row fresh, run
   green). 13:50Z: the 13:40Z social daily as planned. Add to the daily post under incidents.
+
+## 2026-10-17T12:20Z run (job_done: nz-election-polls-fix-1)
+
+- Codex window 67 percent at 12:13Z, resets in 4.8 days, about 7 points per day. Disk 18.0 GiB.
+- nz-election-polls-fix-1 landed beb364c (285 s, 1.1M input tokens, 4.3k output). The engineer
+  chose: a date exception matches a row by visible text, data-sort-value and pollster, on any
+  revision, and only when the entry carries `source` and `reason`; `party-map.json`'s entry
+  swaps `revision` for an explicit `source` oldid URL; `dates()` validates the sort value as an
+  ISO date before the mismatch check (tighter than before); `refresh.py` appends the reason and
+  locator JSON to the status message on ParseDrift, and the `FAIL refresh: parse_drift` log line
+  carries it; 29 new tests in test_date_exception_revision.py; no test on main at 8a5392d edited;
+  last.md not committed (the earlier mistake did not repeat).
+- Host verification: eval PASS on revision 9999999999; 401 passed in 164 s (372 on main plus
+  29); lint ok (393 files); live probe (fetch.acquire plus parse_polls) on the current revision
+  1380694545 parsed 43 rows with the exception applied at table:15/row:19.
+- Pushed, PR #27 opened 12:30Z with the intent, spec, plan-m2, eval and brief links and the four
+  command outputs. Supervisor review logged on the PR: accept pending fresh review and CI, both
+  invariants checked against the diff.
+- Fresh review review-nz-election-polls-fix dispatched 12:32Z read-only on the worktree. Brief
+  mistake: it names product/nz_election/tests/test_refresh.py, which does not exist; the
+  reviewer has the other two files and the eval.
+- Hourly run list at 12:2xZ: 11:39Z and 07:00Z failed, 01:20Z last success; the proving run is
+  the first scheduled hourly after the merge.
+- Next: merge PR #27 when the fresh review accepts and CI is green, confirm Pages, watch the
+  next hourly; 13:50Z the 13:40Z social daily (proving run for PR #25); first run of 18 Oct UTC
+  dispatches nz-election-home-a, increment 7 after it.
+- 12:3xZ addendum: fresh review (46 s class, read-only; its sandbox blocked uv and the eval's
+  here-document, so it probed in memory: 28 rejection probes pass, incident reproduced on main
+  and parsed on HEAD) returned request changes with one Important: refresh.py publishes
+  exc.locator, and for invalid_attributes, unknown_template, unknown_pollster,
+  unknown_party_mapping and the dates() path that locator is page text (reproduced a status
+  message carrying a data-sort-value attribute string). Supervisor accepted: the brief said
+  "nothing but the row's locator" and the diff checked only the invalid_dates case. Logged on
+  PR #27. Fix round followup-1.md dispatched 12:40Z on the build thread: public outputs carry
+  the reason and a structural locator (table:N/row:M or line) and nothing from the source
+  body; marker-string regression test through refresh() and main(); tests on main at 8a5392d
+  untouched (they match ParseDrift on reason only, checked by git grep). CI on beb364c still
+  pending at 12:40Z. Social daily 13:40Z not yet run.
