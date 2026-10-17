@@ -1,0 +1,2 @@
+schema_version,source_json,fetched_at,run_url,code_sha,input_hashes_json,method_version,generated_at,allocation,cap,closed,day,id,observed_at,requests,reserved,source_ref_json,spent
+1,[],,https://github.com/byronxlg/unattended/actions/runs/38998322076,79af3d6d1280257baba13325b9e8125a0eeae2d3,"{""questions"":""fa08fb6a46d6e07d15136f774df3668964321407b8992225ca1585de7c12d9cb""}",nz-politics-poc-1,2026-10-17T03:19:25Z,7560,7800,false,2026-10-17,run-70d54d93baf4d042bf0e75cf,2026-10-17T03:19:25Z,0,7560,[],0
