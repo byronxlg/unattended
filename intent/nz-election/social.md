@@ -17,7 +17,7 @@ Use one combined query, avoiding separate party searches that multiply billing a
 "Marama Davidson" OR "Rawiri Waititi" OR "Debbie Ngarewa-Packer" OR
 "Qiulae Wong" OR "Te Pāti Māori" OR "Te Pati Maori" OR
 "NZ First" OR "New Zealand First" OR "ACT New Zealand" OR
-"The Opportunities Party" OR "Opportunity Party" OR
+"Opportunities Party" OR
 ((National OR Labour OR Greens) (NZ OR "New Zealand" OR Aotearoa)))
 -filter:retweets since_time:{start_epoch} until_time:{end_epoch}
 ```
