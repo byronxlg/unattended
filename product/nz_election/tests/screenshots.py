@@ -144,6 +144,9 @@ def state_images(browser, out):
                     context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
                     page = context.new_page()
                     check_page(page, origin + PREFIX + 'nz-election/' + route_path, site, origin)
+                    if state in ('invalid-link', 'changed-inputs'):
+                        # The skip-link check replaces the scenario hash with #main.
+                        page.goto(origin + PREFIX + 'nz-election/' + route_path, wait_until='networkidle')
                     if state == 'invalid-count':
                         root_control = page.locator('[data-count="nat"]')
                         root_control.fill('72')
