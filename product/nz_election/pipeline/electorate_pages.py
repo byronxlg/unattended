@@ -80,12 +80,18 @@ def detail(row, envs, built=None):
         enrolment = '<p aria-describedby="source-enrolment">Enrolment at ' + f'<time datetime="{roll["as_of"]}">{escape(observation_label(roll["as_of"]))}</time>' + '.</p><p>' + escape(roll['roll_basis'] or 'Roll basis not available.') + '</p>'
         enrolment += '<p aria-describedby="source-enrolment">Enrolled: ' + (f'{roll["enrolled"]:,}' if roll['enrolled'] is not None else 'Not available') + '. Eligible: ' + (f'{roll["eligible"]:,}' if roll['eligible'] is not None else 'Not available') + '.</p>'
     polls = ''
+    poll_captions = {}
     for poll in data('electorate-polls'):
         if poll['electorate_id'] != row['id']:
             continue
-        polls += '<section class="local-poll"><h3>' + escape(poll['pollster']) + ': ' + ('Party vote' if poll['measure'] == 'party_vote' else 'Candidate vote') + '</h3>'
+        heading = poll['pollster'] + ': ' + ('Party vote' if poll['measure'] == 'party_vote' else 'Candidate vote')
+        caption = heading + ', ' + poll['boundary_basis']['fieldwork_label'] + ': reported local shares'
+        poll_captions[caption] = poll_captions.get(caption, 0) + 1
+        if poll_captions[caption] > 1:
+            caption += f' (report {poll_captions[caption]})'
+        polls += '<section class="local-poll"><h3>' + escape(heading) + '</h3>'
         polls += '<p aria-describedby="source-electorate-polls">Fieldwork: ' + escape(poll['boundary_basis']['fieldwork_label']) + '. Sample: ' + str(poll['sample'] or 'Not reported') + '.</p>'
-        polls += table('Reported local shares', ['Party or candidate', 'Share'],
+        polls += table(caption, ['Party or candidate', 'Share'],
                        [[escape(name), ('Not reported' if share['value'] is None else ('About ' if share['approximate'] else '') + str(Decimal(share['value']) / poll['scale']) + '%')]
                         for name, share in poll['shares'].items()], source='source-electorate-polls')
         polls += '<p>' + escape(poll['boundary_basis']['basis']) + '.</p>'
