@@ -35,7 +35,7 @@ QUERY = '''(#nzpol OR #nzvotes OR #nzelection OR
 "Marama Davidson" OR "Rawiri Waititi" OR "Debbie Ngarewa-Packer" OR
 "Qiulae Wong" OR "Te Pāti Māori" OR "Te Pati Maori" OR
 "NZ First" OR "ACT New Zealand" OR
-"Opportunity Party" OR
+"Opportunities Party" OR
 ((National OR Labour OR Greens) (NZ OR "New Zealand" OR Aotearoa)))
 -filter:retweets'''
 PARTIES = ('National', 'Labour', 'Green', 'ACT', 'NZ First', 'Te Pāti Māori', 'Opportunity', 'other', 'multiple', 'none/unclear')

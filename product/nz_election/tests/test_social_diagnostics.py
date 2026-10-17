@@ -99,5 +99,5 @@ def test_query_keeps_hashtags_leaders_and_parties():
     for term in ('#nzpol', '#nzvotes', '#nzelection', 'Christopher Luxon', 'Chris Hipkins',
                  'David Seymour', 'Winston Peters', 'Chlöe Swarbrick', 'Marama Davidson',
                  'Rawiri Waititi', 'Debbie Ngarewa-Packer', 'Qiulae Wong', 'National',
-                 'Labour', 'Greens', 'ACT New Zealand', 'NZ First', 'Te Pāti Māori', 'Opportunity Party'):
+                 'Labour', 'Greens', 'ACT New Zealand', 'NZ First', 'Te Pāti Māori', 'Opportunities Party'):
         assert term in social.QUERY
