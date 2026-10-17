@@ -120,3 +120,10 @@ the handover on 2026-11-08.
   "--help" to Byron's Telegram. Read the script header next time.
 - Codex window at end of run: 51 percent after the first fix; the research job and fix-2 are
   not in the ledger yet.
+- 23:57Z: fix-2 33eb475 landed: the race was latent (start() and module startup match main
+  byte for byte); only tests/screenshots.py changed, three states now read the warning with an
+  auto-waiting expectation and the asserted strings unchanged. Host rerun 23:58Z to 00:03Z:
+  the state images (181 files) and the OG captures passed; the harness then failed further on
+  with an assertion that dumps the page's accessibility tree, and the tail I kept did not
+  include the assertion line. Rerunning with the output logged to /tmp/ds-shots.log; the
+  triage, PR and fresh review go to the next run if the log lands after this run's kill time.
