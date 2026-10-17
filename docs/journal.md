@@ -138,3 +138,68 @@ the handover on 2026-11-08.
   as a claim. OG card observation for the review: the source note's inline links carry the
   44 px tap-target line boxes onto the OG image too ("Retrieved" split from the date,
   "Downloads." alone on a line); on a static card that padding is a defect.
+
+## 2026-10-17 00:20Z run (job_done fix-3, issue #20)
+
+- Byron, Telegram 2026-10-16 23:49Z to 23:57Z, relayed as issue #20, verbatim:
+  "I have another idea. Tweet sentiment classification and party categorisation analysis. A
+  potential structure for the app could be to have a feed like home page with charts and
+  description which opens into a page that goes into mor detail. Don't strictly go off what I
+  say, that is an idea for making it interesting for users, validate it" / "This could be a good
+  inspiration: https://www.nbcnews.com/politics/2026-elections/midterms" / "You should have
+  access to jev and tweets. We have api keys in the x402 repo you can use" / "Reach. But we
+  don't need to help people vote if that's what you were getting at. We're more displaying info
+  and analysis" / "The demographics would be more like, general users / power users /
+  journalists etc" / "Just going off how you provide downloads, that would not be useful to
+  general users but general users would want to see graphics".
+- JUDGEMENT CALL of 23:55Z closed by reply, not silence: success measure is reach; the /vote/
+  gateway is dropped; audiences are general users (graphics), power users and journalists (data,
+  downloads). The 12:00Z proceed time is void. Candidates-first electorate pages and the
+  results-first night view survive as they serve display and analysis; they are re-planned
+  with the feed-shaped home, not built on the old call.
+- Keys: the operator copied X_UPSTREAM_KEY and TYPESAFE_API_KEY to SSM /unattended/prd and to
+  this repo's Actions secrets (00:09Z). CLAUDE.md's secrets line gains the one-line exception.
+  Rule carried into every brief and review: no key in the tree, a page, data/, a screenshot or a
+  PR body; a workflow that echoes its environment is a reject. Runbook entry due in the
+  increment that first uses them.
+- 00:2xZ dispatched research-nz-election-social (read-only, brief at
+  state/jobs/research-nz-election-social/prompt.md): what the sentiment feature would show,
+  whether X volume on NZ politics supports it, credits and Jev cost per day, Electoral Act
+  section 197 and X terms, what existed in 2023, NBC's hub shape, a feed-of-cards home proposal,
+  and a verdict with the alternative for the judgement-call line. The judgement call goes to
+  Byron after the memo lands, not before: "validate it" asks for evidence first.
+- fix-3 9b593cd (harness only, 3 insertions in tests/screenshots.py: invalid-link and
+  changed-inputs re-navigate to their fixture URLs after check_page's skip-link sequence).
+  Sandbox: 287 passed, PASS all, lint ok. Host run of refresh/build/verify and the full
+  screenshot harness started 00:21Z, logged to /tmp/ds-verify.log.
+- 00:34Z host harness on 9b593cd: fix-3 held (all state images passed the hash-carried checks),
+  then axe landmark-unique failed on an electorate state fixture: electorate_pages.py line 88
+  labels every local poll table "Reported local shares", so an electorate with two local polls
+  has two regions with one accessible name. Product defect, found by the harness the sandbox
+  cannot run. fix-4 nz-election-design-fix-4 dispatched 00:38Z on the same thread; brief names
+  the invariant (unique landmark names, enforced by check_page's axe assertion) and leaves the
+  label shape to Codex; tests untouched. Four fix rounds on one build is the lesson recorded
+  for the next UI brief: the first host harness run should happen before any review, and the
+  brief should ask for a fixture with two local polls.
+- 00:26Z research-nz-election-social landed (276 s, rc 0, 2,309 words), committed verbatim to
+  intent/nz-election/social.md. Verdict: build a smaller version. Reasons: no measured X volume
+  for NZ politics (planning range 500 to 5,000 posts a day, low confidence; small parties too
+  thin for daily sentiment), classification unvalidated on NZ text, X developer terms and
+  twitterapi.io supply chain unconfirmed for transmitting posts to Jev, defamation on
+  quotations, and Electoral Act s197: nothing new published on 7 November before 19:00 NZDT.
+  Cost of the proposed plan: 480 posts a day, about 7,200 credits (0.92 percent of the balance)
+  and USD 0.02 of Jev a day; USD 2.56 of upstream to 14 November. NBC's hub could not be
+  fetched (no browser in the job); its shape is unverified. Home feed proposal: seats, trend,
+  thresholds, markets, electorates, candidates, then a weekly topics card only after gates.
+- JUDGEMENT CALL sent 00:40Z (board line, tg send): reach-first home as a feed of chart cards
+  each opening a /polls/ detail route before 26 Oct, plus a seven-day unpublished X pilot
+  (7,800 credits a day cap, raw posts never in git) to test whether a weekly party-topics chart
+  has enough sample; per-party sentiment and tweet quotations not built now. Rejected: the full
+  sentiment dashboard now (Byron's idea taken literally), and doing nothing social (he asked for
+  it to be validated, and the pilot is the validation). Proceed at 2026-10-17 12:30Z if silent.
+  Why the pilot is a judgement call and not a reversible change: it spends prepaid credits
+  shared with the x402 gateway's buyers.
+- Carried into phase 5: the s197 publication freeze (no rebuild or new political analysis on
+  7 November before 19:00 NZDT, 06:00Z) goes into spec.md's rehearsal milestone and the
+  workflows' schedule; a Commission opinion on the concrete pages is Byron's to seek
+  (needs-byron when the pages exist).

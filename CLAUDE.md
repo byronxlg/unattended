@@ -29,7 +29,8 @@ definitions. `runbook/` says how to operate the loop.
 - Codex works in `.worktrees/<change>` on branch `change/<slug>`; product code reaches `main` only by PR.
 - Lab bookkeeping (state, posts, intent) is committed straight to `main` by the supervisor.
 - No emojis, no em dashes anywhere. Humble language: a thing worked when a command showed it.
-- Secrets: none in this repo, ever. The loop needs only `codex login` and `gh auth` on the host.
+- Secrets: none in this repo, ever. The loop needs only `codex login` and `gh auth` on the host;
+  the product's upstream keys (X, Jev) are Actions secrets and SSM `/unattended/prd`, never in the tree.
 
 ## The floor (Byron only)
 
