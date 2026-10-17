@@ -31,17 +31,17 @@ def status_of(envs, family='polls'):
 
 def success_order(envs, family='polls'):
     if family != 'polls':
-        env = envs.get('electorates' if family == 'geography' else family, {})
-        return (env.get('fetched_at', ''), env.get('generated_at', ''))
+        env = envs.get('electorates' if family == 'geography' else 'social/daily' if family == 'social' else family, {})
+        return (env.get('fetched_at') or '', env.get('generated_at', ''))
     if 'polls' not in envs:
         return ('', '')
     return (envs['polls']['fetched_at'], envs['averages']['generated_at'])
 
 
 def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'):
-    if family not in {'hourly', 'daily'}:
+    if family not in {'hourly', 'daily', 'social'}:
         raise ValueError('INVALID_FAMILY')
-    datasets = ['polls'] if family == 'hourly' else [f for f in export.FAMILIES if f != 'polls']
+    datasets = ['polls'] if family == 'hourly' else ['social'] if family == 'social' else [f for f in export.FAMILIES if f not in {'polls', 'social'}]
     bundle = Path(bundle).absolute()
     incoming = export.validate_bundle(bundle)
     remote = str(repository)
@@ -83,9 +83,23 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
             all_older = True
             for dataset in datasets:
                 proposed = status_of(incoming, dataset)
-                stem = 'electorates' if dataset == 'geography' else dataset
+                stem = 'electorates' if dataset == 'geography' else 'social/daily' if dataset == 'social' else dataset
                 owned = {s + ext for s in export.FAMILIES[dataset] for ext in ('.json', '.csv')}
                 previous = status_of(current, dataset)
+                if dataset == 'social':
+                    # Ledger accounting must survive stale aggregates and lease retries.
+                    old_rows = {r['id']: r for r in current.get('social/credits', {}).get('data', [])}
+                    for row in incoming.get('social/credits', {}).get('data', []):
+                        old = old_rows.get(row['id'])
+                        if old and any(old[k] != row[k] for k in ('day', 'cap', 'allocation')):
+                            raise ValueError('SOCIAL_LEDGER_CONFLICT')
+                        old_rows[row['id']] = dict(row, **{k: max(old[k], row[k]) for k in ('reserved', 'spent', 'requests', 'closed')}) if old else row
+                    metadata = incoming['social/credits']
+                    merged_ledger = dict(metadata, data=list(old_rows.values()))
+                    from product.nz_election.pipeline.social import validate_ledger
+                    validate_ledger(merged_ledger['data'])
+                    export.pair(target, 'social/credits', merged_ledger)
+                    owned -= {'social/credits.json', 'social/credits.csv'}
                 # Validation guarantees canonical UTC strings, so lexical order is instant order.
                 # Acquisition wins first; unchanged captures use successful average-generation
                 # time. Exact ties retain repository bytes, independently of attempt chronology.
@@ -102,6 +116,7 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                 if not keep_data:
                     for name in owned:
                         if (bundle / name).exists():
+                            (target / name).parent.mkdir(parents=True, exist_ok=True)
                             shutil.copyfile(bundle / name, target / name)
                 # Attempt chronology and successful acquisition chronology are independent.
                 merged = dict(previous if keep_status else proposed)
@@ -111,7 +126,7 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                     merged['state'] = 'stale' if merged['last_success_at'] else 'unavailable'
                 statuses = [s for s in statuses if s['dataset'] != dataset] + [merged]
                 metadata = current['status'] if keep_status else incoming['status']
-            if all_older:
+            if all_older and family != 'social':
                 return dict(outcome='older-run-retained', attempts=attempt + 1, sha=git(checkout, 'rev-parse', 'HEAD').stdout.strip())
             export.pair(target, 'status', export.envelope(statuses, [], metadata['run_url'], metadata['code_sha']))
             export.merged_licences(target)
@@ -123,6 +138,11 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
             git(checkout, 'commit', '-qm', 'Publish validated poll bundle')
             if before_push:
                 before_push(attempt)
+            if family == 'social':
+                from product.nz_election.pipeline.social import frozen
+                from product.nz_election.pipeline.refresh import utc_now
+                if frozen(utc_now()):
+                    return dict(outcome='frozen', attempts=attempt + 1, sha=fetched_sha)
             pushed = git(checkout, 'push', '--porcelain', f'--force-with-lease=refs/heads/data:{fetched_sha}',
                          remote, 'HEAD:refs/heads/data', check=False)
             if pushed.returncode == 0:
@@ -137,22 +157,28 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--bundle', type=Path, required=True)
-    parser.add_argument('--family', choices=['hourly', 'daily'], default='hourly')
+    parser.add_argument('--family', choices=['hourly', 'daily', 'social'], default='hourly')
     args = parser.parse_args()
     # Validate the artifact before any git operation or credential use.
     incoming = export.validate_bundle(args.bundle)
+    if args.family == 'social':
+        from product.nz_election.pipeline.social import frozen
+        from product.nz_election.pipeline.refresh import utc_now
+        if frozen(utc_now()):
+            print('Social publication frozen.')
+            return
     token = os.environ['GITHUB_TOKEN']
     authorization = base64.b64encode(('x-access-token:' + token).encode()).decode()
     os.environ.update(GIT_CONFIG_COUNT='1', GIT_CONFIG_KEY_0='http.https://github.com/.extraheader',
                       GIT_CONFIG_VALUE_0='AUTHORIZATION: basic ' + authorization)
     result = publish(args.bundle, 'https://github.com/' + os.environ['GITHUB_REPOSITORY'] + '.git', family=args.family)
-    report = dict(result, status=status_of(incoming, 'polls' if args.family == 'hourly' else 'geography'))
+    report = dict(result, status=status_of(incoming, 'polls' if args.family == 'hourly' else 'social' if args.family == 'social' else 'geography'))
     if os.environ.get('GITHUB_STEP_SUMMARY'):
         with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
             summary.write('## Data publication\n\n```json\n' + json.dumps(report, indent=2) + '\n```\n')
     print(json.dumps(result))
     if any(r['error_code'] is not None for r in incoming['status']['data']
-           if (r['dataset'] == 'polls') == (args.family == 'hourly')):
+           if r['dataset'] in (['polls'] if args.family == 'hourly' else ['social'] if args.family == 'social' else [f for f in export.FAMILIES if f not in {'polls', 'social'}])):
         raise SystemExit('FAIL refresh: handled failure status published')
 
 

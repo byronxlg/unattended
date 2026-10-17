@@ -2,7 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = []
 # ///
-"""Render 77 offline pages, validating everything before replacing product output."""
+"""Render 78 offline pages, validating everything before replacing product output."""
 import argparse
 from datetime import datetime
 from decimal import Decimal
@@ -454,7 +454,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             'night/': 'This page will show the count on election night, with replay practice planned for 1 November. There are no live results here yet; polling day is 7 November 2026.',
             'campaign/': 'This page will bring together advance voting and disclosed donations, with source dates and limits. It is planned for 1 November; no campaign totals are available here yet.'}
         routes = config('routes')
-        if len(routes) != 6 or {r['path'] for r in routes} != {'', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/'}:
+        if len(routes) != 7 or {r['path'] for r in routes} != {'', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
             raise ValueError('INVALID_ROUTES')
         primary_routes = routes
         routes = routes + [dict(path='electorates/' + r['slug'] + '/', label=r['name']) for r in config('electorates')]
@@ -470,6 +470,9 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
                 from product.nz_election.pipeline.electorate_pages import detail
                 row = next(r for r in envs.get('electorates', {}).get('data', config('electorates')) if slug == 'electorates/' + r['slug'] + '/')
                 body = detail(row, envs, built)
+            elif slug == 'social/poc/':
+                from product.nz_election.pipeline.social_page import page
+                body = page(envs, built)
             elif slug == 'methods/':
                 body = methods
             elif slug == 'downloads/':
@@ -478,7 +481,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
                 body = render('placeholder', description=descriptions[slug])
             target = stage / slug
             target.mkdir(parents=True, exist_ok=True)
-            (target / 'index.html').write_text(render('base', title=escape(home['title']) if slug == '' else route['label'], heading_class='home-sentence' if slug == '' else '', heading_source=' aria-describedby="source-seats"' if slug == '' else '', prefix=PREFIX, nav=nav, body=body,
+            (target / 'index.html').write_text(render('base', title=escape(home['title']) if slug == '' else ('Proof of concept: what X says about the parties' if slug == 'social/poc/' else route['label']), heading_class='home-sentence' if slug == '' else '', heading_source=' aria-describedby="source-seats"' if slug == '' else '', prefix=PREFIX, nav=nav, body=body,
                                                     built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.'))
         for asset in ('favicon.svg', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'):
             shutil.copyfile(PRODUCT / 'web' / asset, stage / asset)
@@ -500,7 +503,7 @@ def main():
     args = parser.parse_args()
     build(args.data, args.out, data_sha=args.data_sha or os.environ.get('NZ_DATA_SHA') or None,
           sha=os.environ.get('NZ_CODE_SHA'))
-    print('PASS build: 77 routes')
+    print('PASS build: 78 routes')
 
 
 if __name__ == '__main__':

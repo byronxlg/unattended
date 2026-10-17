@@ -1,0 +1,139 @@
+name: NZ election social daily
+
+on:
+  schedule:
+    - cron: '40 13 * * *'
+  workflow_dispatch:
+    inputs:
+      day:
+        description: Closed NZ day to sample (YYYY-MM-DD); blank means yesterday
+        required: false
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: nz-election-social-collection
+  cancel-in-progress: false
+
+jobs:
+  reserve:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: nz-election-data-publication
+      cancel-in-progress: false
+    outputs:
+      reservation: ${{ steps.reserve.outputs.reservation }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - name: Check s197 freeze before reservation
+        id: freeze
+        run: uv run product/nz_election/pipeline/social.py --check-freeze
+      - name: Resolve previous data
+        if: steps.freeze.outputs.allowed == 'true'
+        id: data
+        shell: bash
+        run: |
+          set -euo pipefail
+          ref=$(git ls-remote origin refs/heads/data)
+          sha=$(printf '%s' "$ref" | cut -f1)
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        if: steps.freeze.outputs.allowed == 'true' && steps.data.outputs.sha != ''
+        with:
+          ref: ${{ steps.data.outputs.sha }}
+          path: _nz-election-data
+          persist-credentials: false
+      - name: Reserve worst-case credit allowance
+        id: reserve
+        if: steps.freeze.outputs.allowed == 'true'
+        continue-on-error: true
+        env:
+          SAMPLE_DAY: ${{ inputs.day }}
+        run: uv run product/nz_election/pipeline/social.py --reserve --out _nz-election-data/product/nz_election/data --day "$SAMPLE_DAY"
+      - name: Persist reservation before any paid request
+        if: steps.reserve.outputs.validated == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run product/nz_election/pipeline/publish.py --family social --bundle _nz-election-data/product/nz_election/data
+      - uses: actions/upload-artifact@v4
+        if: success() && steps.reserve.outputs.reservation != ''
+        with:
+          name: nz-social-reservation
+          path: _nz-election-data/product/nz_election/data/
+          if-no-files-found: error
+  collect:
+    needs: reserve
+    if: needs.reserve.outputs.reservation != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    permissions:
+      contents: read
+    outputs:
+      validated: ${{ steps.collect.outputs.validated }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/download-artifact@v4
+        with:
+          name: nz-social-reservation
+          path: _nz-social-bundle
+      - name: Check s197 freeze before collecting
+        id: freeze
+        run: uv run product/nz_election/pipeline/social.py --check-freeze
+      - name: Sample X and classify in memory
+        id: collect
+        if: steps.freeze.outputs.allowed == 'true'
+        continue-on-error: true
+        env:
+          X_UPSTREAM_KEY: ${{ secrets.X_UPSTREAM_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+          SAMPLE_DAY: ${{ inputs.day }}
+          RESERVATION: ${{ needs.reserve.outputs.reservation }}
+        run: uv run product/nz_election/pipeline/social.py --out _nz-social-bundle --day "$SAMPLE_DAY" --reservation "$RESERVATION"
+      - uses: actions/upload-artifact@v4
+        if: steps.collect.outputs.validated == 'true'
+        with:
+          name: nz-social-result
+          path: _nz-social-bundle/
+          if-no-files-found: error
+      - name: Reject unexpected collection failure
+        if: steps.freeze.outputs.allowed == 'true' && steps.collect.outputs.validated != 'true'
+        run: exit 1
+  publish:
+    needs: collect
+    if: needs.collect.outputs.validated == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: nz-election-data-publication
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/download-artifact@v4
+        with:
+          name: nz-social-result
+          path: _nz-social-bundle
+      - name: Check s197 freeze at publication time
+        id: freeze
+        run: uv run product/nz_election/pipeline/social.py --check-freeze
+      - name: Validate and publish social family under the data lease
+        if: steps.freeze.outputs.allowed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run product/nz_election/pipeline/publish.py --family social --bundle _nz-social-bundle

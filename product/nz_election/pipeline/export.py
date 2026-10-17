@@ -36,8 +36,11 @@ for stem, fields in NEW_FIELDS.items():
     FIELDS[stem] = ROW | set(fields.split())
 FAMILIES.update({'candidates': {'candidates', 'party-lists', 'candidate-review'},
                  **{s: {s} for s in ('baseline-2023', 'enrolment', 'electorate-polls')}})
+FAMILIES['social'] = {'social/daily', 'social/credits'}
+FIELDS['social/daily'] = ROW | set('day sample party_counts attitude topic_counts model_versions question_version provenance probability_sums'.split())
+FIELDS['social/credits'] = ROW | set('day reserved spent cap requests allocation closed'.split())
 DATE_OBSERVATIONS = {'polls', 'averages', 'seats', 'baseline-2023', 'enrolment'}
-STEMS = set(NEW_FIELDS) | GEO | {'electorates', 'polls', 'averages', 'seats', 'status', 'manifest'}
+STEMS = {'social/daily', 'social/credits'} | set(NEW_FIELDS) | GEO | {'electorates', 'polls', 'averages', 'seats', 'status', 'manifest'}
 ALLOWED = {s + ext for s in STEMS for ext in ('.json', '.csv')} | {'LICENCES.md'}
 META = ['schema_version', 'source_json', 'fetched_at', 'run_url', 'code_sha',
         'input_hashes_json', 'method_version', 'generated_at']
@@ -181,6 +184,9 @@ def validate_envelope(env, stem):
             for value in row['shares'].values():
                 if value is not None and (type(value) is not int or not 0 <= value <= 100 * row['scale']):
                     raise ValueError('INVALID_SHARE')
+        if stem.startswith('social/'):
+            from .social import validate_row
+            validate_row(row, stem)
         if stem in NEW_FIELDS:
             validate_daily_row(row, stem, env['source'])
         if stem == 'status':
@@ -274,6 +280,7 @@ def scalar(value):
 
 def pair(root, stem, env):
     validate_envelope(env, stem)
+    (root / stem).parent.mkdir(parents=True, exist_ok=True)
     (root / (stem + '.json')).write_text(canonical(env) + '\n')
     (root / (stem + '.csv')).write_bytes(csv_bytes(env))
 
@@ -281,19 +288,20 @@ def pair(root, stem, env):
 def inventory(root, run_url, code_sha, now):
     timestamp(now, 'inventory.now')
     entries = []
-    for path in sorted(root.iterdir()):
-        if path.name.startswith('manifest.'):
+    for path in sorted(data_files(root)):
+        name = path.relative_to(root).as_posix()
+        if name.startswith('manifest.'):
             continue
-        if path.name not in ALLOWED or path.is_symlink() or not path.is_file():
+        if name not in ALLOWED or path.is_symlink() or not path.is_file():
             raise ValueError('UNSAFE_DATA_PATH')
-        stem = path.stem
+        stem = path.relative_to(root).with_suffix('').as_posix()
         env = json.loads((root / (stem + '.json')).read_text()) if path.suffix in {'.json', '.csv'} else None
         if env:
             validate_envelope(env, stem)
         data = rows(env) if env else []
         observations = [r['observed_at'] for r in data if r['observed_at'] is not None]
-        entries.append(dict(id=path.name, source_ref=env['source'] if env else [], observed_at=now,
-                            path=path.name, format=path.suffix[1:], sha256=digest(path.read_bytes()),
+        entries.append(dict(id=name, source_ref=env['source'] if env else [], observed_at=now,
+                            path=name, format=path.suffix[1:], sha256=digest(path.read_bytes()),
                             bytes=path.stat().st_size, row_count=len(data),
                             licences=sorted({s['licence'] for s in env['source']}) if env else ['See LICENCES.md'],
                             observation_start=min(observations, default=None), observation_end=max(observations, default=None),
@@ -312,18 +320,20 @@ def validate_bundle(root):
     root = Path(root)
     if root.is_symlink() or not root.is_dir():
         raise ValueError('UNSAFE_DATA_PATH')
-    files = {p.name for p in root.iterdir()}
+    paths = data_files(root)
+    files = {p.relative_to(root).as_posix() for p in paths}
     if files - ALLOWED or not {'manifest.json', 'manifest.csv', 'status.json', 'status.csv', 'LICENCES.md'} <= files:
         raise ValueError('INVALID_INVENTORY')
-    for path in root.iterdir():
+    for path in paths:
         if path.is_symlink() or not path.is_file():
             raise ValueError('UNSAFE_DATA_PATH')
     envs = {}
-    for path in root.glob('*.json'):
-        env = validate_envelope(json.loads(path.read_text()), path.stem)
-        if (root / (path.stem + '.csv')).read_bytes() != csv_bytes(env):
+    for path in [p for p in paths if p.suffix == '.json']:
+        stem = path.relative_to(root).with_suffix('').as_posix()
+        env = validate_envelope(json.loads(path.read_text()), stem)
+        if path.with_suffix('.csv').read_bytes() != csv_bytes(env):
             raise ValueError('CSV_MISMATCH')
-        envs[path.stem] = env
+        envs[stem] = env
     entries = envs['manifest']['data']
     if {e['path'] for e in entries} != files or len(entries) != len(files):
         raise ValueError('INVALID_INVENTORY')
@@ -339,7 +349,7 @@ def validate_bundle(root):
             if digest(raw) != entry['sha256'] or len(raw) != entry['bytes']:
                 raise ValueError('DATA_HASH_MISMATCH')
             if Path(name).suffix in {'.json', '.csv'}:
-                env = envs[Path(name).stem]
+                env = envs[str(Path(name).with_suffix(''))]
                 payload = rows(env)
                 observations = [r['observed_at'] for r in payload if r['observed_at'] is not None]
                 if (entry['row_count'] != len(payload)
@@ -350,6 +360,11 @@ def validate_bundle(root):
                         or entry['observation_start'] != min(observations, default=None)
                         or entry['observation_end'] != max(observations, default=None)):
                     raise ValueError('INVENTORY_METADATA_MISMATCH')
+    if 'social/daily' in envs and 'social/credits' not in envs:
+        raise ValueError('MISSING_SOCIAL_LEDGER')
+    if 'social/credits' in envs:
+        from .social import validate_ledger
+        validate_ledger(envs['social/credits']['data'])
     geo = FAMILIES['geography'] & envs.keys()
     if geo and geo != FAMILIES['geography']:
         raise ValueError('PARTIAL_GEOGRAPHY_BUNDLE')
@@ -423,3 +438,20 @@ def merged_licences(root):
             text += '\n' + family + ':\n'
             text += ''.join(s['url'] + '\n' + s['licence'] + '\n' for s in json.loads(path.read_text())['source'])
     (root / 'LICENCES.md').write_text(text)
+
+
+def data_files(root):
+    paths = []
+    for path in root.iterdir():
+        if path.is_symlink():
+            raise ValueError('UNSAFE_DATA_PATH')
+        if path.is_dir():
+            if path.name != 'social':
+                raise ValueError('UNSAFE_DATA_PATH')
+            children = list(path.iterdir())
+            if any(p.is_symlink() or not p.is_file() for p in children):
+                raise ValueError('UNSAFE_DATA_PATH')
+            paths.extend(children)
+        else:
+            paths.append(path)
+    return paths
