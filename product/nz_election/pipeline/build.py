@@ -79,7 +79,8 @@ def table(caption, headings, records, css='', source=None):
             ''.join('<tr>' + ''.join(f'<td>{v}</td>' for v in row) + '</tr>' for row in records) + '</tbody></table></div>')
 
 
-def source_note(env=None, identity='source-polls', inputs='polls.json'):
+def source_note(env=None, identity='source-polls', inputs='polls.json', *,
+                calculation='Polls parsed by this site.', contributing_polls=None):
     if inputs == 'validation-2023.json':
         captured = max(s['fetched_at'] for s in (env['source'] if env else source_entries()[1]))
         return (f'<div role="note" class="source-note" id="{identity}"><p>From '
@@ -95,7 +96,7 @@ def source_note(env=None, identity='source-polls', inputs='polls.json'):
     producing = link(run, 'Data run') if run and safe_url(run) else f'<a href="{PREFIX}downloads/">Data run</a>' if run else 'No poll data run yet.'
     dates = ''
     if env:
-        rows = env['data'] if isinstance(env['data'], list) else []
+        rows = contributing_polls if contributing_polls is not None else env['data'] if isinstance(env['data'], list) else []
         ends = [r['fieldwork_end'] for r in rows if r.get('fieldwork_end')]
         if ends:
             end = max(ends)
@@ -104,7 +105,7 @@ def source_note(env=None, identity='source-polls', inputs='polls.json'):
         dates += f' Retrieved <time datetime="{fetched}">{compact_time(fetched)}</time>.'
     return render('source-note', id=identity, revision=safe_url(p['url']) or '#', history=safe_url(p['history_url']) or '#',
                   inputs=PREFIX + (inputs if inputs == 'validation-2023.json' else 'data/' + inputs), prefix=PREFIX,
-                  dates=dates, run=producing)
+                  dates=dates, run=producing, calculation=escape(calculation))
 
 
 
@@ -153,7 +154,8 @@ def home_presentation(envs, built):
     provenance = dict(polls, data=selected) if result else polls
     return dict(result=result, selected=selected, stale=stale,
                 title=home_sentence(result), source=source_note(provenance, 'source-seats',
-                    'seats.json' if result else 'polls.json' if polls else 'validation-2023.json'))
+                    'seats.json' if result else 'polls.json' if polls else 'validation-2023.json',
+                    calculation='Seats calculated by this site.' if result else 'Seats withheld; see the headline.'))
 
 
 def home_sentence(result):
@@ -287,7 +289,9 @@ def polls_page(envs, built, presentation=None):
         details += '<p>Missing observations:</p><ul>' + ''.join(f'<li>{escape(m["poll_id"])}: {escape(label(m["party_id"]))}</li>' for m in average['missing']) + '</ul>'
     if average['exclusions']:
         details += '<ul>' + ''.join(f'<li>{escape(e["poll_id"])}: {escape(e["reason"])}</li>' for e in average['exclusions']) + '</ul>'
-    details += source_note(envs['averages'], 'source-average', 'averages.json')
+    details += source_note(envs['averages'], 'source-average', 'averages.json',
+                           calculation='Available poll shares averaged with equal weight by this site.',
+                           contributing_polls=presentation['selected'])
     details += '</section><section><h2>Threshold watch</h2><p class="threshold-rule" aria-describedby="source-thresholds">5% of the party vote qualifies a party with a list. An electorate win can also qualify it below 5%.</p>'
     watch = threshold_watch(polls, average, seats['assumptions'])
     details += table('Parties near the threshold', ['Party', 'Share', 'Below 5%'],
@@ -297,7 +301,9 @@ def polls_page(envs, built, presentation=None):
         if row['missing_poll_ids']:
             details += f'<p aria-describedby="source-thresholds">{escape(label(row["party_id"]))}: missing in {len(row["missing_poll_ids"])} window polls.</p>'
     details += '<p aria-describedby="source-thresholds">2023 electorate seats assumed; 2026 has different boundaries. List capacity not checked.</p>'
-    details += source_note(envs['seats'], 'source-thresholds', 'seats.json') + '</section></div>'
+    details += source_note(envs['seats'], 'source-thresholds', 'seats.json',
+                           calculation='Threshold shares averaged with equal weight by this site.',
+                           contributing_polls=presentation['selected']) + '</section></div>'
     parties = list(config('party-map')['headers'].values())
     history, row_notes = [], []
     for poll in sorted(polls, key=lambda p: (p['fieldwork_end'], p['id']), reverse=True):
