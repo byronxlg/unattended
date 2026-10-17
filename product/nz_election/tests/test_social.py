@@ -86,7 +86,7 @@ def test_dedup_language_and_noul_gates():
     calls = []
     rows, excluded = social.classify([post(), post(), post(1, text='  FICTIONAL test statement 0  '), post(2, lang='mi'), post(3)], key='fiction', send=classifier(calls=calls))
     assert len(rows) == 2 and len(calls) == 2
-    assert excluded == dict(duplicate=2, unsupported=1, irrelevant=0)
+    assert excluded == dict(duplicate=2, unsupported=1, irrelevant=0, classification=0)
     assert calls[0]['questions'] == social.QUESTIONS
     rows, excluded = social.classify([post()], key='fiction', send=classifier(response(relevant=0)))
     assert rows == [] and excluded['irrelevant'] == 1
@@ -166,8 +166,9 @@ def test_size_and_sanitized_errors():
     for value in [None, '', [], {}, True, -1, 'NaN']:
         data = response()
         data['answers']['relevant']['noul'] = value
-        with pytest.raises(ValueError, match='^SOCIAL_CLASSIFICATION_FAILED$'):
-            social.classify([post()], key='fiction', send=classifier(data))
+        rows, excluded = social.classify([post()], key='fiction', send=classifier(data))
+        assert rows == []
+        assert excluded == dict(duplicate=0, unsupported=0, irrelevant=0, classification=1)
 
 
 def test_build_present_absent_stale_no_identifiers(tmp_path):
