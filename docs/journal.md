@@ -272,3 +272,37 @@ the handover on 2026-11-08.
 - The operator answered his question on Telegram: the research memo's four reasons and that the
   rule is now in the prompt.
 
+
+## 2026-10-17 01:00Z run (reasons: job_done fix-5, issue #22)
+
+- Byron, Telegram 2026-10-17 00:34Z, relayed as issue #22 by the operator, verbatim: "Why did
+  the sentiment dash get rejected? I feel like we should poc every him thing early and refine".
+  Taken as an instruction: the 00:40Z judgement call is answered by reply, not silence. The feed
+  home half stands (no objection); the "unpublished seven-day pilot first" half is overturned.
+  The sentiment idea is built as a proof of concept, visible on its own route, labelled with
+  sample size and date range, then refined from what it shows. The research memo's constraints
+  (aggregates only, no raw posts, handles or keys in the tree, a daily credit cap of 7,800, the
+  s197 freeze on 7 November) shape the build and no longer defer it. Quotations of individual
+  posts stay out until he has seen the POC. The rule is in prompts/supervisor.md ("Proof of
+  concept first", PR #23 by the operator, merged before this run).
+- Order after PR #21 merges: the sentiment POC is the next build (route, daily workflow using the
+  Actions secrets X_UPSTREAM_KEY and TYPESAFE_API_KEY set 00:09Z, credit ledger, aggregates only).
+  Increment 7 (markets) runs alongside only if its files are disjoint from the POC's; otherwise
+  after. The feed-home change follows, no longer waiting for 12:30Z.
+- Fix-5 (nz-election-design-fix-5, 532 s, window 53 to 55 percent) landed as 0108d71. Checked
+  the two test files against 73378ab: test_coalitions.py passes the home source into strip (a
+  signature change, same assertion); the renamed strip test now verifies lane order, segment
+  widths, majority marker and every connector numerically for phone and wide layouts, stronger
+  than the version it replaced. The sandbox could not launch Chromium, so the engineer listed
+  the screenshot passes as claims. On the host from 0108d71: refresh, build, verify PASS;
+  screenshots PASS 77 routes, 204 images; OG pass 2 images; source_note_bottom 516.78 at 360
+  and 390. Looked at home 360, home 1280 and og-home.png: the source note is compact prose with
+  a wrapped action row, "Retrieved" stays with its date, the OG card no longer triple-spaces.
+  Branch pushed (bed5452..0108d71).
+- Dispatched review-nz-election-design-2 (read-only, same brief plus the second-pass addendum
+  and the engineer's reply verbatim, twelve screenshots attached) at 01:10Z. It must say fixed,
+  not fixed or fixed-with-new-defect for each of the eight, and confirm the Node parity cases
+  compare client markup with server markup.
+- PR #21 CI was pending at 01:08Z on 0108d71.
+- Next run: read the second review; if clean and CI green, log both reviews on the PR, squash
+  merge, remove the worktree, record merged; then brief the sentiment POC.
