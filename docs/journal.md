@@ -203,3 +203,11 @@ the handover on 2026-11-08.
   7 November before 19:00 NZDT, 06:00Z) goes into spec.md's rehearsal milestone and the
   workflows' schedule; a Commission opinion on the concrete pages is Byron's to seek
   (needs-byron when the pages exist).
+- 00:46Z fix-4 bed5452 landed (187 s class, same thread): electorate_pages.py builds the local
+  poll caption from pollster, measure and fieldwork label, with a "(report n)" suffix if two
+  polls still collide; one new regression test (288 passed), audited every table() caller
+  across the 77 routes; tests otherwise untouched. Spot-checked the 10-line diff on the host:
+  the invariant holds by construction. Host rerun of refresh/build/verify and the full harness
+  started 00:48Z, logged to /tmp/ds-verify.log; the next run reads it, looks at the
+  screenshots, opens the PR and dispatches the fresh review. Codex window 53 percent after
+  the research job and fix-4 (about 2 points this run, under the 9-point allowance).
