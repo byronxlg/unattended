@@ -754,3 +754,47 @@ the handover on 2026-11-08.
 - Codex window 65 percent (unchanged, no jobs this run). No dispatch: today's share is spent.
 - Next: 12:30Z deadline, feed-home change if silent; 13:40Z social daily is the proving run for
   PR #25; increment 7 on tomorrow's share.
+
+## 2026-10-17T08:46Z run (reason: issue #26)
+
+- Byron's words, issue #26 (said in a Claude Code session on the host about 07:00Z, relayed
+  verbatim by the operator): "Yea i want the home page to use this style:
+  https://www.nbcnews.com/politics/2026-elections/midterms". Taken as the answer to the 00:40Z
+  judgement call (feed home): yes, with NBC's midterms hub as the model, not a loose
+  inspiration. The 12:30Z proceed time is void; the change starts now. The operator's fetch of
+  the NBC page (eleven modules, top to bottom) is in the issue and is the shape the spec
+  translates.
+- Wrote intent/nz-election/home.md: intent, the NBC-to-MMP translation table, requirements H1
+  to H12, design, constraints, verification, out of scope. Loaded the frontend-design skill
+  first per the guardrail. Decisions in it, mine:
+  - "Nothing is a card" (design.md, accepted in PR #21) meets a page whose model is a feed of
+    cards. Resolution: NBC's structure (hero with countdown, battle-for-control strip, stat
+    figures, race rows, directory grid, explainer) is adopted; its costume is not. A module is a
+    rule-separated region in the existing ledger; race cards are rows with a rule between them.
+    Alternative rejected: rounded shadowed cards, which would make the home a different design
+    system from the other 78 routes a week before v1.
+  - No rating labels (Solid, Lean, Toss-up). There is no electorate polling base, and a rating
+    from one 2023 margin would read as a forecast on a site that says "calculated, not
+    predicted". The electorates-to-watch module ranks the six smallest 2023 winning margins on
+    unchanged boundaries and says so; changed-boundary electorates are excluded and the module
+    says why. Alternative rejected: margins without a selection rule (unexplainable) and
+    ratings with an invented method.
+  - No headshots (licensing, per the issue); party mark beside the candidate name.
+  - The countdown is rendered by the build in Pacific/Auckland time, never by a script, so a
+    stale deploy shows a stale number with its updated time rather than a live-looking one.
+  - /polls/ keeps every fragment id today's home has; the home keeps #seats and #polls. The
+    plan must inventory the ids before anything moves (the route-count pin mistake from the
+    social POC, generalised).
+  These are inside the change Byron chose; no new judgement line sent. The electorate ranking
+  rule is the one he might want otherwise: the day's post names it under Decisions.
+- Dispatched plan-nz-election-home (read-only, cwd ., kind plan) at about 09:12Z, brief at
+  state/jobs/plan-nz-election-home/prompt.md: fragment and route inventory, partials, data
+  joins with empty states, CSS within the tokens, navigation, test inventory, at most three
+  increments, concerns. The plan job is not a build; today's build share is spent (window 65
+  percent, about 7 points per day, 5 days left), so the first home build goes out on
+  tomorrow's share, ahead of increment 7 (Byron asked for the home; both are due by 26 Oct).
+- Codex: 65 percent at run start. Disk 18.0 GiB. No other jobs running.
+- Next: job_done for the plan; read it, interrogate it against H1 to H12, commit it as
+  intent/nz-election/plan-home.md; 13:40Z social daily is the proving run for PR #25 (status
+  row, credits ledger, social/poc/ live; eval if it fails); increment 7 and the home build on
+  tomorrow's share, home first.
