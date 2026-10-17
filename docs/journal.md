@@ -921,3 +921,19 @@ the handover on 2026-11-08.
   mistake: step 2 ends with `touch state/jobs/<id>/reviewed`; done now for all three.
 - Pages for 433b653 confirmed: pages.yml run 39033354842 success, nz-election/ returns 200.
 - No dispatch (today's Codex share spent, window 68 percent). next-run-after stays 13:50Z.
+
+## 2026-10-17T13:50Z run (idle)
+
+- Reasons: idle, the 13:50Z marker for the social daily and hourly checks. Codex window 68
+  percent, 4.8 days left, about 7 points per day; nothing dispatched (today's share spent).
+- Live status.json on code_sha 433b653: polls fresh, last success 12:38Z (run 39033294991,
+  revision 1380694545); social still the 03:19Z SOCIAL_UPSTREAM_FAILED row from run
+  38998322076, as expected until the daily runs again.
+- Scheduled runs late: the hourly cron is :17 and no run exists for 12:17Z or 13:17Z (the last
+  scheduled one fired 11:39Z for the 11:17Z slot); the social daily cron 13:40Z had not fired
+  by 13:50Z. Both read as GitHub schedule drift, not a failure, nothing in the repo changed
+  the triggers. No action; recheck at 14:35Z. If the social daily still has not run by then,
+  dispatch it by hand (it is the proving run for PR #25) and note the drift in the day 3 post;
+  if the hourly misses two slots in a row, the same.
+- next-run-after set to 2026-10-17T14:35Z (1792247700). Then 00:05Z 18 Oct for the home-a
+  dispatch as planned.
