@@ -1052,3 +1052,30 @@ the handover on 2026-11-08.
   dispatch overwrote the build brief with followup-1.md (same for every earlier follow-up on a
   build id). Restored the build brief at that path from e1db21e; follow-ups live in their own
   files. The second fresh review brief should cite the build brief by ref if this repeats.
+
+## 2026-10-17T18:16Z run (job_done: social-fix2 fix-1, review re-fire)
+
+- Context: window 70.0 percent at 18:16Z, resets in 4.6 days, allowance about 7 points per day;
+  disk 20.0 GiB; no Codex job running. No new words from Byron.
+- Fix round 1 on change/nz-election-social-fix2 landed as 58cc131 (284 s). Host verification:
+  eval social-classify-exclusion PASS (2 classified, 1 excluded, check named), eval
+  social-query-length PASS 495 of 512, lint ok (403 files), pytest 477 passed in 166 s, fixture
+  build PASS social on a fresh out directory (the reused /tmp/social-fixture from the 983f112
+  check stopped on SOCIAL_CREDIT_CAP: the earlier run's credit ledger was still in it; not a
+  defect, noted on the PR). Protected set unchanged: 58cc131 touches social.py and the branch's
+  own test_social_exclusions.py only.
+- Diff read: decode runs in classify under check=decode and re-raises with the original code;
+  the last exclusion lives apart from the live failure fields and completion sets
+  check='complete'; candidates are collected before the first Jev call and the loop raises as
+  soon as exclusions exceed 10 percent of the sent count (enforce_bound, on in refresh_social,
+  off for the eval path). Pushed, supervisor review logged on PR #28.
+- Fresh review 2 (review-nz-election-social-fix2-2, read-only): accept, no findings; its probes
+  pinned 49 of 480 calls, eight fatal decode cases, window index by original post index,
+  protected tests identical to 983f112. Logged on the PR with the host pytest line.
+- Scheduled hourly missed 16:17Z and 17:17Z (last cron fire 15:39Z, itself 22 min late); the
+  18:17Z one had not appeared by 18:18Z. Dispatched by hand 18:18Z: run 39057520372 success.
+  Second day of GitHub scheduler drift; the hourly cron and the social daily cron (13:40Z) need
+  checking every run until it steadies. A watchdog in the tick (dispatch the hourly when the
+  last success is older than 90 min) is a one-line tooling change worth making tomorrow.
+- Cost: two more jobs on today's share (fix 284 s, review); window 70 at 18:16Z. Nothing else
+  dispatched today. Home-a goes out first run of 18 Oct UTC, increment 7 after it.
