@@ -1,4 +1,4 @@
-"""Bounded, serial acquisition from the one approved Wikipedia API endpoint."""
+"""Bounded, serial acquisition from approved Wikipedia and Gamma API endpoints."""
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from http.client import HTTPException
@@ -54,7 +54,7 @@ def delay(headers, attempt, now):
     return seconds
 
 
-def decode(raw):
+def decode(raw, title=TITLE):
     try:
         # Oversized integer tokens remain invalid revision values without hitting Python's digit limit.
         body = json.loads(raw, parse_int=lambda value: int(value) if len(value) < 21 else value)
@@ -64,7 +64,7 @@ def decode(raw):
         if not isinstance(pages, list) or len(pages) != 1:
             raise FetchError('WRONG_PAGE')
         page = pages[0]
-        if page['title'] != TITLE or type(page['ns']) is not int or page['ns'] != 0 or 'missing' in page:
+        if page['title'] != title or type(page['ns']) is not int or page['ns'] != 0 or 'missing' in page:
             raise FetchError('WRONG_PAGE')
         revisions = page['revisions']
         if not isinstance(revisions, list) or len(revisions) != 1:
@@ -86,22 +86,39 @@ def decode(raw):
         raise FetchError('INVALID_RESPONSE') from None
 
 
-def acquire(transport=http, *, sleep=time.sleep, now=lambda: datetime.now(timezone.utc)):
+CANDIDATE_TITLE = 'Candidates in the 2026 New Zealand general election by electorate'
+CANDIDATE_URL = 'https://en.wikipedia.org/w/api.php?' + urlencode(dict(
+    action='query', prop='revisions', titles=CANDIDATE_TITLE, rvprop='ids|timestamp|content',
+    rvslots='main', format='json', formatversion=2, maxlag=5))
+
+
+def gamma_url(slug):
+    from .markets import events
+    if slug not in {e['slug'] for e in events()}:
+        raise FetchError('UNAPPROVED_SOURCE')
+    return 'https://gamma-api.polymarket.com/events?' + urlencode({'slug': slug})
+
+
+def acquire(transport=http, *, sleep=time.sleep, now=lambda: datetime.now(timezone.utc), url=URL):
+    from .markets import events
+    gamma_urls = {gamma_url(e['slug']) for e in events()}
+    if url not in {URL, CANDIDATE_URL} | gamma_urls:
+        raise FetchError('UNAPPROVED_SOURCE')
     for attempt in range(3):
         headers = {}
         try:
-            with transport(Request(URL, headers={'User-Agent': USER_AGENT}), timeout=20) as response:
+            with transport(Request(url, headers={'User-Agent': USER_AGENT}), timeout=20) as response:
                 headers = response.headers
                 status = response.status
                 if status != 200:
-                    raise HTTPError(URL, status, 'HTTP failure', headers, None)
+                    raise HTTPError(url, status, 'HTTP failure', headers, None)
                 length = headers.get('Content-Length')
                 if length is not None and length.isdecimal() and (len(length) > 10 or int(length) > LIMIT):
                     raise FetchError('RESPONSE_TOO_LARGE')
                 raw = response.read(LIMIT + 1)
                 if len(raw) > LIMIT:
                     raise FetchError('RESPONSE_TOO_LARGE')
-                result = decode(raw)
+                result = dict(raw=raw) if url in gamma_urls else decode(raw, CANDIDATE_TITLE if url == CANDIDATE_URL else TITLE)
                 result['fetched_at'] = export.timestamp(now().isoformat(timespec='seconds').replace('+00:00', 'Z'))
                 return result
         except HTTPError as exc:

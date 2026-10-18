@@ -100,7 +100,7 @@ def test_pages_triggers_and_pinned_checkouts(tmp_path):
     doc = workflow('pages.yml')
     triggers = doc[True]
     assert triggers['push'] == {'branches': ['main']}
-    assert triggers['workflow_run'] == {'workflows': ['NZ election hourly'], 'types': ['completed'], 'branches': ['main']}
+    assert triggers['workflow_run'] == {'workflows': ['NZ election hourly', 'NZ election daily'], 'types': ['completed'], 'branches': ['main']}
     assert set(triggers['workflow_dispatch']['inputs']) == {'code_sha', 'data_sha'}
     assert all(v['required'] is False for v in triggers['workflow_dispatch']['inputs'].values())
     assert doc['concurrency'] == {'group': 'pages', 'cancel-in-progress': False}

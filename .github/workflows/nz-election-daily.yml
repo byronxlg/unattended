@@ -1,0 +1,73 @@
+name: NZ election daily
+
+on:
+  schedule:
+    - cron: '43 15 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  refresh:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      validated: ${{ steps.refresh.outputs.validated }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - name: Resolve previous data
+        id: data
+        shell: bash
+        run: |
+          set -euo pipefail
+          ref=$(git ls-remote origin refs/heads/data)
+          sha=$(printf '%s' "$ref" | cut -f1)
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        if: steps.data.outputs.sha != ''
+        with:
+          ref: ${{ steps.data.outputs.sha }}
+          path: _nz-election-data
+          persist-credentials: false
+      - name: Refresh daily sources
+        id: refresh
+        continue-on-error: true
+        run: uv run product/nz_election/pipeline/daily_refresh.py --live --out _nz-election-data/product/nz_election/data
+      - uses: actions/upload-artifact@v4
+        if: steps.refresh.outputs.validated == 'true'
+        with:
+          name: nz-election-bundle
+          path: _nz-election-data/product/nz_election/data/
+          if-no-files-found: error
+      - name: Reject unexpected refresh failure
+        if: steps.refresh.outputs.validated != 'true'
+        run: exit 1
+  publish:
+    needs: refresh
+    if: needs.refresh.outputs.validated == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: nz-election-data-publication
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/download-artifact@v4
+        with:
+          name: nz-election-bundle
+          path: _nz-election-bundle
+      - name: Validate and publish owned bundle
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run product/nz_election/pipeline/publish.py --family daily --bundle _nz-election-bundle

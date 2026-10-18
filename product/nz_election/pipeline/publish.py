@@ -35,7 +35,7 @@ def success_order(envs, family='polls'):
         return (env.get('fetched_at') or '', env.get('generated_at', ''))
     if 'polls' not in envs:
         return ('', '')
-    return (envs['polls']['fetched_at'], envs['averages']['generated_at'])
+    return (envs['polls'].get('fetched_at') or '', envs['averages']['generated_at'])
 
 
 def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly', claim=None):
