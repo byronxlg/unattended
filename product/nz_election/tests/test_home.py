@@ -212,3 +212,27 @@ def test_supplied_home_verifier_rejects_missing_fragments(populated, tmp_path):
     target.write_text(target.read_text().replace('id="coalition-explorer"', 'id="removed-explorer"'))
     with pytest.raises(ValueError, match='legacy fragment inventory'):
         check_site(damaged, envs)
+
+
+@pytest.mark.parametrize(('extra_bytes', 'failure'), [
+    (60_000, 'RESERVED_FONT_BUDGET'),
+    (130_000, 'FIRST_VIEW_GZIP_BYTES'),
+])
+def test_poll_budget_rejects_oversized_dependency(populated, tmp_path, extra_bytes, failure):
+    import base64
+    import random
+    import shutil
+    from product.nz_election.tests.design_checks import transfer_bytes
+    from product.nz_election.tests.test_design import test_real_first_view_budget as check_budgets
+
+    _, source = populated
+    site = tmp_path / 'oversized'
+    shutil.copytree(source, site)
+    before = transfer_bytes(site)[0]
+    # Deterministic incompressible padding exercises the transferred-byte limit.
+    padding = base64.b64encode(random.Random(0).randbytes(extra_bytes)).decode('ascii')
+    dependency = site / 'coalitions.mjs'
+    dependency.write_text(dependency.read_text() + '\n/*' + padding + '*/\n')
+    assert transfer_bytes(site)[0] == before
+    with pytest.raises(AssertionError, match=f'{failure}: polls/index.html:'):
+        check_budgets((None, site))

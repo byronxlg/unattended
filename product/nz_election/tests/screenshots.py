@@ -193,6 +193,19 @@ def state_images(browser, out):
     return results
 
 
+def legend_check(page):
+    overlaps = page.locator('.seat-figure').evaluate_all("""figures=>figures.flatMap(figure=>{
+      const visible=e=>e.getClientRects().length;
+      const labels=[...figure.querySelectorAll('.lane')].filter(visible);
+      const rules=[...figure.querySelectorAll('.segment,.majority,.label-connector')].filter(visible);
+      return labels.flatMap(label=>rules.filter(rule=>{
+        const a=label.getBoundingClientRect(),b=rule.getBoundingClientRect();
+        return a.left<b.right && b.left<a.right && a.top<b.bottom && b.top<a.bottom;
+      }).map(rule=>({label:label.textContent,rule:rule.className})));
+    })""")
+    assert not overlaps, f'LEGEND_RULE_OVERLAP: {page.viewport_size["width"]}: {overlaps}'
+
+
 def fold_check(page):
     bottom = page.locator('#source-seats').evaluate('e=>e.getBoundingClientRect().bottom + scrollY')
     height = min(780, page.viewport_size['height'])
@@ -317,6 +330,8 @@ def main():
                     page = context.new_page()
                     url = origin + PREFIX + 'nz-election/' + path
                     text = check_page(page, url, site, origin)
+                    if path == "":
+                        legend_check(page)
                     assert page.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")
                     assert page.evaluate("[...document.querySelectorAll('*')].every(e=>getComputedStyle(e).animationName==='none')")
                     bottom = fold_check(page) if path == '' and width in (360, 390) else None
@@ -338,7 +353,7 @@ def main():
                         page.locator('.electorate-directory').screenshot(path=str(args.out / name_all))
                         map_images.append(dict(state='all-electorate-names', path=name_all))
                     if path == 'electorates/':
-                        assert plain.locator('.electorate-directory li').count() == 71
+                        assert plain.locator('.electorate-directory li[id^="electorate-"]').count() == 71
                         assert page.locator('.electorate-map').count() == int(has_geography), 'MAP_PRESENCE'
                         if not has_geography:
                             assert 'Map not available' in text
