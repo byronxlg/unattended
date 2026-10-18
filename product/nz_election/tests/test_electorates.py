@@ -115,7 +115,7 @@ def test_71_pages_and_missing_data(tmp_path):
     build(path, site)
     assert len(list((site / 'electorates').glob('*/index.html'))) == 71
     expected = [r['path'] for r in config('routes')] + ['electorates/' + r['slug'] + '/' for r in config('electorates')]
-    assert len(expected) == len(set(expected))
+    assert len(expected) == len(set(expected)) == 79
     assert {p.relative_to(site).as_posix() for p in site.rglob('index.html')} == {p + 'index.html' for p in expected}
     from copy import deepcopy
     envs = export.validate_bundle(path)

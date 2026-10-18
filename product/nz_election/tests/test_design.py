@@ -83,7 +83,7 @@ def test_built_routes_have_source_targets(built_design):
     _, site = built_design
     pages = list(site.rglob('index.html'))
     expected = [r['path'] for r in config('routes')] + ['electorates/' + r['slug'] + '/' for r in config('electorates')]
-    assert len(expected) == len(set(expected))
+    assert len(expected) == len(set(expected)) == 79
     assert {p.relative_to(site).as_posix() for p in site.rglob('index.html')} == {p + 'index.html' for p in expected}
     for page in pages:
         try:
@@ -106,7 +106,11 @@ def test_real_first_view_budget(built_design):
     assert total < 100_000, f'FIRST_VIEW_GZIP_BYTES: {total}: {files}'
     assert total + 45_000 < 100_000, f'RESERVED_FONT_BUDGET: {total}'
     assert {'favicon.svg', 'icon-180.png', 'manifest.webmanifest'} <= files.keys()
-    assert {'index.html', 'styles.css', 'coalitions.mjs', 'allocator.mjs', 'data/averages.json', 'data/seats.json'} <= files.keys()
+    assert {'index.html', 'styles.css'} <= files.keys()
+    explorer_assets = {'coalitions.mjs', 'allocator.mjs', 'data/averages.json', 'data/seats.json'}
+    assert not explorer_assets & files.keys()
+    _, poll_files = transfer_bytes(site, 'polls/index.html')
+    assert explorer_assets <= poll_files.keys()
     assert not any('2025' in name or name.endswith('.woff2') for name in files)
     assert not list(site.rglob('axe*'))
 

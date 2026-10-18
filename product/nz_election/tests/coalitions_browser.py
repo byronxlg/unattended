@@ -53,7 +53,7 @@ def context(browser, origin, width=390, **options):
 
 def checks(browser, site):
     server, origin = serve(site)
-    url = origin + PREFIX + 'nz-election/'
+    url = origin + PREFIX + 'nz-election/polls/'
     try:
         for width in (390, 1280):
             ctx = context(browser, origin, width)
@@ -68,7 +68,7 @@ def checks(browser, site):
             assert static_text(plain) == static_text(page)
             assert plain.locator('#coalition-explorer fieldset').is_hidden()
             assert 'requires JavaScript' in plain.locator('[data-note]').inner_text()
-            assert plain.locator('main > .seat-figure .majority').count() == 1
+            assert plain.locator('main .seat-module .seat-figure .majority').count() == 1
             assert plain.locator('#source-seats').is_visible()
             assert root.locator('input:checked').count() == 0
             assert root.locator('[data-select="others"]').count() == 0
@@ -121,7 +121,7 @@ def checks(browser, site):
             ctx.route('**/' + resource, lambda route: route.abort())
             page = ctx.new_page(); page.goto(url, wait_until='networkidle')
             assert page.locator('#coalition-explorer fieldset').is_hidden()
-            assert page.locator('main > .seat-figure .majority').count() == 1
+            assert page.locator('main .seat-module .seat-figure .majority').count() == 1
             assert page.locator('#source-seats').is_visible()
             ctx.close()
     finally:
@@ -134,7 +134,7 @@ def check_unassigned_after_unavailable_allocation(browser, site):
     from product.nz_election.pipeline import export
 
     server, origin = serve(site)
-    url = origin + PREFIX + 'nz-election/'
+    url = origin + PREFIX + 'nz-election/polls/'
     try:
         for no_eligible in (False, True):
             average, seats = unassigned_inputs(no_eligible)
@@ -179,7 +179,7 @@ def main():
     parser.add_argument('--site', type=Path, required=True)
     args = parser.parse_args()
     from playwright.sync_api import sync_playwright
-    assert (args.site / 'nz-election/index.html').is_file()
+    assert (args.site / 'nz-election/polls/index.html').is_file()
     with sync_playwright() as pw:
         candidates = sorted((Path.home() / 'Library/Caches/ms-playwright').glob('chromium_headless_shell-*/chrome-headless-shell-mac-arm64/chrome-headless-shell'))
         candidates += [Path(pw.chromium.executable_path)]
@@ -201,7 +201,7 @@ def main():
         server, origin = serve(args.site.resolve())
         try:
             ctx = context(browser, origin)
-            page = ctx.new_page(); page.goto(origin + PREFIX + 'nz-election/', wait_until='networkidle')
+            page = ctx.new_page(); page.goto(origin + PREFIX + 'nz-election/polls/', wait_until='networkidle')
             if not page.locator('#coalition-explorer').get_attribute('data-averages'):
                 assert page.locator('#coalition-explorer fieldset').is_hidden()
                 assert 'incomplete' in page.locator('[data-note]').inner_text()

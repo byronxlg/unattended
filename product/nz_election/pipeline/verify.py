@@ -36,7 +36,7 @@ def verify_polls(envs, root):
     missing = [dict(p, shares=dict(p['shares'], nat=None)) for p in polls]
     incomplete = trend(missing, [average['date']])[0]
     require(not incomplete['coherent'] and not project(incomplete)['available'], 'withhold incomplete seats')
-    page = build(root / 'data', root / 'rendered') / 'index.html'
+    page = build(root / 'data', root / 'rendered') / 'polls/index.html'
     html = page.read_text()
     from product.nz_election.pipeline.scripts import validate_scripts
     require('Poll history' in html and validate_scripts(html), 'static poll history')
@@ -138,7 +138,7 @@ def verify_coalitions(envs, root):
     official['lists'] = {p: list(v) for p, v in official['electorateWinners'].items() if v}
     vacancy = allocate(official)
     require(vacancy['vacancies'] > 0 and vacancy['occupiedHouse'] == 120 + vacancy['overhang'] - vacancy['vacancies'], 'list vacancies')
-    page = build(root / 'data', root / 'coalition-site') / 'index.html'
+    page = build(root / 'data', root / 'coalition-site') / 'polls/index.html'
     html = page.read_text()
     require('<fieldset hidden disabled>' in html and 'data-note' in html and 'source-seats' in html,
             'static fallback and provenance')
@@ -239,13 +239,30 @@ def verify_social(envs, root):
     require('unavailable' in html and '<svg' not in html, 'social absent page')
 
 
+def verify_home(envs, root):
+    from product.nz_election.pipeline.home_checks import check_site
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.pipeline.presentation import election_countdown
+    refresh(root / 'home-data', now='2026-10-17T01:00:00Z', end_date='2026-07-18')
+    daily_refresh(root / 'home-data', now='2026-10-17T01:00:00Z')
+    current = export.validate_bundle(root / 'home-data')
+    site = build(root / 'home-data', root / 'home-site', built='2026-10-17T01:00:00Z')
+    check_site(site, current)
+    empty = build(root / 'home-absent', root / 'home-empty', built='2026-10-17T01:00:00Z')
+    check_site(empty, {})
+    for instant, expected in [('2026-11-06T10:59:59Z', '1 day until election day'),
+                              ('2026-11-06T11:00:00Z', 'Election day'),
+                              ('2026-11-07T11:00:00Z', 'Results')]:
+        require(election_countdown(instant) == expected, 'NZ countdown')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social'])
+    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     args = parser.parse_args()
-    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social}
+    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
@@ -266,6 +283,9 @@ def main():
             export.validate_envelope(json.loads((product / 'build-manifest.json').read_text()), 'build-manifest')
             if (product / 'data').exists():
                 export.validate_bundle(product / 'data')
+        if args.site and args.check in {'home', 'all'}:
+            from product.nz_election.pipeline.home_checks import check_site
+            check_site(product, export.validate_bundle(product / 'data') if (product / 'data').exists() else {})
         for name, check in checks.items():
             if args.check in ('all', name):
                 check(envs, root)

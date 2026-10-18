@@ -37,7 +37,7 @@ def fixture(root, state):
     if state in {'missing-baseline', 'unresolved', 'source-conflict'}:
         daily_refresh(data, now='2026-10-17T01:00:00Z')
     build(data, site / 'nz-election', built='2026-10-17T12:00:00Z' if state in {'stale', 'validation-error'} else '2026-10-17T01:00:00Z')
-    route = ''
+    route = 'polls/' if state in COHERENT else ''
     if state in {'missing-baseline', 'source-conflict'}:
         from product.nz_election.pipeline.electorate_pages import detail
         row = next(r for r in config('electorates') if r['slug'] == 'auckland-central')
@@ -56,11 +56,11 @@ def fixture(root, state):
     if state == 'unresolved':
         route = 'electorates/'
     if state == 'invalid-link':
-        route = '#coalition=invalid'
+        route = 'polls/#coalition=invalid'
     if state == 'changed-inputs':
         envs = export.validate_bundle(data)
         inputs = coalitions.inputs(envs['averages']['data'][-1], envs['seats']['data'], 'b' * 64)
-        route = coalitions.encode(inputs['initial'])
+        route = 'polls/' + coalitions.encode(inputs['initial'])
     if state == 'offline':
         route = 'downloads/'
     if state == 'allocation-tie':

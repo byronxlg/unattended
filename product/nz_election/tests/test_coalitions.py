@@ -145,7 +145,7 @@ def test_script_allowlist():
 
 def test_static_content_preserved(tmp_path, request_data):
     out = build(tmp_path / 'data', tmp_path / 'output', built='2026-10-17T01:00:00Z')
-    html = (out / 'index.html').read_text()
+    html = (out / 'polls/index.html').read_text()
     from product.nz_election.pipeline.build import home_presentation
     home = home_presentation(export.validate_bundle(tmp_path / 'data'), '2026-10-17T01:00:00Z')
     assert strip(request_data['seats'], home['source']) in html

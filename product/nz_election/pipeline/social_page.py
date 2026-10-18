@@ -11,19 +11,15 @@ def count(n):
     return 'under 5' if n < 5 else str(n)
 
 
-def page(envs, built):
+def primary_chart(envs):
     from .build import config, table, compact_time, PREFIX
-    records = envs.get('social/daily', {}).get('data', [])
+    records = envs['social/daily']['data']
     status = next((s for s in envs.get('status', {}).get('data', []) if s['dataset'] == 'social'), {})
-    latest = max((r['day'] for r in records), default=None)
-    now = datetime.fromisoformat(built.replace('Z', '+00:00'))
-    if not latest or now - datetime.combine(datetime.fromisoformat(latest).date() + timedelta(days=1), time(), NZ) > timedelta(hours=36):
-        message = 'X proof of concept unavailable: no sample is available yet.' if not latest else 'X proof of concept unavailable: the last sampled day is more than 36 hours old.'
-        return '<p class="state">' + message + '</p>'
+    latest = max(r['day'] for r in records)
     n = sum(r['sample']['eligible'] for r in records)
     start, end = (datetime.fromisoformat(d) for d in (min(r['day'] for r in records), latest))
     dates = f'{start.day} {start:%B %Y}' if start == end else f'{start.day} {start:%B %Y} to {end.day} {end:%B %Y}'
-    intro = f'<p class="numeric">{count(n)} posts sampled from X over {len(records)} days, {dates}, one page per hour, not a complete count.</p>'
+    intro = f'<p class="numeric" aria-describedby="source-social">{count(n)} posts sampled from X over {len(records)} days, {dates}, one page per hour, not a complete count.</p>'
     if any(r['provenance']['fixture'] for r in records):
         intro += '<p class="state">Offline verification: synthetic examples, not live data.</p>'
     if status.get('error_code'):
@@ -51,6 +47,19 @@ def page(envs, built):
                '<svg class="social-chart" role="img" aria-label="Primary party counts" aria-describedby="source-social" viewBox="0 0 355 255">' + ''.join(bars) +
                '</svg><figcaption>Primary subjects in sampled X posts, not party support or all NZ posts. Search coverage and prolific authors affect the result.</figcaption></figure>' + source +
                '<details><summary>Party counts and shares</summary>' + table('Primary subjects', ('Party', 'Posts', 'Share'), rows, source='source-social') + '</details></section>')
+    return intro, primary, source
+
+
+def page(envs, built):
+    from .build import table, PREFIX
+    records = envs.get('social/daily', {}).get('data', [])
+    latest = max((r['day'] for r in records), default=None)
+    now = datetime.fromisoformat(built.replace('Z', '+00:00'))
+    if not latest or now - datetime.combine(datetime.fromisoformat(latest).date() + timedelta(days=1), time(), NZ) > timedelta(hours=36):
+        message = 'X proof of concept unavailable: no sample is available yet.' if not latest else 'X proof of concept unavailable: the last sampled day is more than 36 hours old.'
+        return '<p class="state" id="social-method">' + message + '</p>'
+    intro, primary, source = primary_chart(envs)
+    n = sum(r['sample']['eligible'] for r in records)
     fills = ('var(--ink)', 'var(--grey)', 'var(--surface)', 'var(--rule)', 'var(--paper)')
     bars, rows = [], []
     for i, p in enumerate(PARTIES[:7]):

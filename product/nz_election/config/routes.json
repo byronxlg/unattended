@@ -1,6 +1,10 @@
 [
   {
     "path": "",
+    "label": "Home"
+  },
+  {
+    "path": "polls/",
     "label": "Polls and seats"
   },
   {

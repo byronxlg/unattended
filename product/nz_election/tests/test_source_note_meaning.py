@@ -32,7 +32,7 @@ def test_built_note_sentences_and_contributing_dates(tmp_path, end_date, built, 
     polls = envs['polls']['data']
     selected = [p for p in polls if p['id'] in envs['averages']['data'][-1]['poll_ids']]
     site = build(data, tmp_path / 'output', built=built)
-    html = (site / 'index.html').read_text()
+    html = (site / 'polls/index.html').read_text()
     assert ('class="strip"' in html) is available
     cases = [
         ('source-history', 'Polls parsed by this site.', polls, 'polls'),

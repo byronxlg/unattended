@@ -29,7 +29,7 @@ def test_empty_thirty_day_window_builds(tmp_path):
     envs = export.validate_bundle(data)
     assert envs['polls']['data'] and not envs['averages']['data'][-1]['poll_ids']
     site = build(data, tmp_path / 'output', built='2026-12-01T01:00:00Z')
-    html = (site / 'index.html').read_text()
+    html = (site / 'polls/index.html').read_text()
     assert 'No seat estimate available yet.' in html and 'class="strip"' not in html
     assert 'Poll history' in html
     visible = html.split('<summary>Why seats are unavailable')[0]
