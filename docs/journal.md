@@ -1162,3 +1162,10 @@ the handover on 2026-11-08.
 - Fresh review review-nz-election-7 (108 s, window 7 percent) on 176944f: request changes, two Important: (1) daily_sources.py:58 falls back to committed captures on a Gamma failure, so daily_refresh records fresh and exits 0; (2) malformed market observed_at gets INVALID_TIMESTAMP in export but INVALID_MARKET in the parser. Its pytest was blocked by the sandbox. Logged on PR #30.
 - Combined fix-1 nz-election-7-fix-1 dispatched about 08:56Z on the build thread 01a14e12 (state/jobs/nz-election-7/followup-1.md): the four supervisor items, the two fresh-review items, and a harness check that must fail on 176944f. Protected tests named by ref: main at 29bf079.
 - Next: on job_done, host-verify (pytest, lint, harness, module height at 390 and 1280 looked at), push, second fresh review, merge when CI green.
+
+## 2026-10-18 09:14Z (job_done nz-election-7-fix-1)
+
+- fix-1 5e3ef85 (753 s, window 9 percent): Codex reported 639 passed and lint ok; its Chromium was blocked by the sandbox, so no screenshot claims.
+- Host verification: pytest 639 passed, bin/lint ok, verify.py all PASS (incl. markets, home), screenshot harness PASS 79 routes 219 images on the populated build plus two market closeups. Module 358x733 at 390 (bound 844), 1072x644 at 1280; looked at: priced contracts only, percentages rounded, one rules link per event, licence line exact. The harness on the 176944f build fails with UNPRICED_OR_PLACEHOLDER_CONTRACT gamma-2116547, so the new check would have caught the original defect.
+- Supervisor review logged on PR #30; branch pushed; second fresh review review-nz-election-7-2 dispatched (read-only). CI pending at write time.
+- Next: merge if accept and CI green, confirm Pages; seats withheld on the live home to look into; H-b brief; 13:40Z social daily is the proving run for PR #28.
