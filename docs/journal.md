@@ -1176,3 +1176,11 @@ the handover on 2026-11-08.
 - CI check pass; PR #30 squash merged 09:36Z as 3bdcce8; worktree .worktrees/nz-election-7 and branch removed. Increment 7 is the last plan-m2 increment.
 - Codex window 10 percent, resets in 6.9 days.
 - Next: confirm Pages for 3bdcce8 and the first markets daily run; seats withheld (Incomplete party coverage) on the live home to look into; H-b brief (night/detail, per-route OG); 13:40Z social daily is the proving run for PR #28.
+
+## 2026-10-18 10:37Z (idle)
+
+- Pages for 3bdcce8 confirmed (pages.yml success 09:36Z and 09:40Z; home 200, markets module present, "Not available: no validated market observations" until the first daily run at 15:43Z). Hourly 09:40Z success, under the 90 min watchdog bound.
+- Seats withheld looked into: live averages.json has no coherent average since 2026-07-18. Cause: Talbot Mills (7 rows, 2026-01 to 2026-08) and Anacta (2026-09-10, 2026-10-10) rows have Others null on Wikipedia; spec.md line 71 requires every party, Others included, in every window poll, so average.py marks the window incoherent and seats.py withholds. Working as specified, but the home headline has never shown seats.
+- JUDGEMENT CALL sent 10:4xZ (board line, tg send): derive Others as 100 minus the named parties for those rows only, labelled derived on /polls/ and methods, spec line 71 amended. Rejected: reviewed exclusion of the 9 rows (spec route, drops two pollsters) and keeping seats withheld. Proceed at 22:45Z 18 Oct if he says nothing.
+- First attempt piped nothing: `fleet line` alone only prints the line; the send is `fleet line ... | tg send -`.
+- Codex window 10 percent, nothing dispatched. next-run-after 16:10Z: read the 13:40Z social daily (proving run for PR #28) and the 15:43Z markets daily (first run), then the H-b brief.
