@@ -87,7 +87,7 @@ def test_threshold_uses_only_average_ids_including_missing_coverage(tmp_path):
     envs['averages']['data'] = [avg]
     envs['seats']['data'] = project(avg)
     html = polls_page(envs, '2026-10-17T01:00:00Z')
-    watch = html.split('<h2>Threshold watch</h2>')[1].split('id="source-thresholds"')[0]
+    watch = html.split('<h2>Which parties are near the 5 percent threshold?</h2>')[1].split('id="source-thresholds"')[0]
     assert 'Opportunity' not in watch and 'missing in' not in watch
     polls[0]['shares']['opp'], polls[1]['shares']['opp'] = 6, 9
     avg = trend(polls, ['2026-10-17'], review=review)[0]

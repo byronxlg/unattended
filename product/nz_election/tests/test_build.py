@@ -59,7 +59,7 @@ def test_incomplete_vector_withholds_seats(tmp_path):
     out = build(path, tmp_path / 'output')
     html = (out / 'polls/index.html').read_text()
     assert 'Incomplete party coverage' in html and 'class="strip"' not in html
-    assert 'Missing observations' in html and 'Poll history' in html
+    assert 'Missing observations' in html and 'How have the polls moved?' in html
 
 
 def test_source_html_escaped(tmp_path):

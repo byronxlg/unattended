@@ -109,16 +109,17 @@ def social(envs, built):
     from .social_page import primary_chart
     records = envs.get('social/daily', {}).get('data', [])
     if not records:
-        return '<p>Proof of concept. Not available: no published sample.</p>' + note('source-social', unavailable(envs, 'social'), f'<a href="{PREFIX}social/poc/">Social method and availability</a>')
+        return '<p class="state">Proof of concept. Not available: no published sample.</p>' + note('source-social', unavailable(envs, 'social'), f'<a href="{PREFIX}social/poc/">Social method and availability</a>')
     intro, chart, _ = primary_chart(envs)
     retrieved = max(w['retrieved_at'] for r in records for w in r['provenance']['windows'])
-    dated = '<p>Update overdue. Showing the last published sample with its original dates.</p>' if overdue(retrieved, built, 'daily') else ''
-    return ('<p>Proof of concept</p>' + dated + intro + chart).replace('href="#social-method"', f'href="{PREFIX}social/poc/#social-method"')
+    dated = '<p class="state">Update overdue. Showing the last published sample with its original dates.</p>' if overdue(retrieved, built, 'daily') else ''
+    return ('<p class="state">Proof of concept</p>' + dated + intro + chart).replace('href="#social-method"', f'href="{PREFIX}social/poc/#social-method"')
 
 
 def page(envs, built, presentation):
     from .market_panel import panel
     state, seats = seat_module(envs, built, presentation)
+    markets = panel(envs, built)
     registry = envs.get('electorates', {}).get('data', config('electorates'))
     directory = '<ul class="home-directory" aria-describedby="source-directory">' + ''.join(
         f'<li><a href="{PREFIX}electorates/{r["slug"]}/"><span class="swatch" aria-hidden="true"></span>{escape(r["name"])}</a><p>{escape(electorate_summary(r, envs)[1])}</p></li>' for r in registry) + '</ul>'
@@ -128,7 +129,7 @@ def page(envs, built, presentation):
         countdown = f'<strong>{number}</strong><br>{unit}'
     return render('home', prefix=PREFIX, state=state, countdown=countdown,
                   updated=compact_time(built), sentence=escape(presentation['title']), seats=seats,
-                  markets=panel(envs, built), polls=poll_figures(envs, presentation), watch=watch(envs), directory=directory,
+                  markets=markets, market_nav='<a href="#markets">Markets</a>' if markets else '', polls=poll_figures(envs, presentation), watch=watch(envs), directory=directory,
                   watch_source=family_note(envs, 'source-watch', ('electorates', 'baseline-2023', 'candidates')),
                   directory_source=family_note(envs, 'source-directory', ('electorates', 'baseline-2023')),
                   social=social(envs, built),

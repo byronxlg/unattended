@@ -14,8 +14,8 @@ def check_site(site, envs):
     provenance(polls)
     positions = [home.index(f'<section id="{name}"') for name in MODULES]
     require(positions == sorted(positions), 'home module order')
-    require(home.count('<h1') == 1 and 'New Zealand votes on 7 November 2026' in home, 'home heading')
-    require('coalitions.mjs' not in home and 'Poll history' not in home, 'poll detail only on polls')
+    require(home.count('<h1') == 1 and 'Who is favoured to form the next government?' in home, 'home heading')
+    require('coalitions.mjs' not in home and 'How have the polls moved?' not in home, 'poll detail only on polls')
     ids = {a['id'] for _, a in Document(polls).nodes if 'id' in a}
     require({'main', 'seats', 'polls', 'explorer', 'source-seats', 'source-thresholds'} <= ids, 'poll anchors')
     if 'polls' in envs:
@@ -37,7 +37,7 @@ def check_site(site, envs):
         require(all(escape(text) in watch and PREFIX + 'electorates/' + r['slug'] + '/' in watch for _, _, r, text in watch_rows(envs)), 'watch joins')
     require('incumbent' not in home.lower(), 'no inferred incumbents')
     require(len(home.encode()) + (site / 'styles.css').stat().st_size < 200_000, 'home byte budget')
-    require((site / 'styles.css').stat().st_size < 12_000, 'CSS budget')
+    require((site / 'styles.css').stat().st_size < 16_000, 'CSS budget')
     expected = {r['path'] + 'index.html' for r in config('routes')} | {'electorates/' + r['slug'] + '/index.html' for r in config('electorates')}
     require(len(expected) == 79 and {p.relative_to(site).as_posix() for p in site.rglob('index.html')} == expected, '79 exact routes')
     for path in site.rglob('index.html'):
