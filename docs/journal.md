@@ -1220,3 +1220,11 @@ the handover on 2026-11-08.
 - Gap found: the bin/tick watchdog covers only the hourly; the social and markets dailies have no watchdog. Candidate one-line tooling fix next run.
 - Codex window 12 percent, resets in 6.6 days. No dispatch (nothing waiting before the 22:45Z deadline on the Others judgement call).
 - Next: 22:50Z: social/poc/ and the markets module live after a deploy; the Others change if Byron is silent (derive Others as remainder, labelled), with the coalitions_browser failure; daily watchdog.
+
+## 2026-10-18 19:39Z (heartbeat)
+
+- social/poc/ live 200 with the real sample ("sampled from X over 1 days, 18 October 2026"); home markets module live.
+- Scheduled social daily 16:50Z ended red on SOCIAL_CREDIT_CAP: expected (the 14:15Z by-hand run spent the budget day), but an expected stop showing as a failed run is noise; to the social refinement round (exit clean on a spent day).
+- Hourly healthy (18:59Z dispatch success). NZ election daily (markets) cron 15:43Z fired late at 18:16Z, success.
+- bin/tick watchdog generalised: hourly at 90 min as before, plus nz-election-daily.yml and nz-election-social-daily.yml at 26 h of no run. A late social dispatch cannot overspend (credit ledger caps the budget day). bash -n and bin/lint ok; first exercised by the next tick.
+- Next: 22:50Z, the Others-as-remainder change if Byron is silent (deadline 22:45Z), with the coalitions_browser failure.

@@ -54,10 +54,17 @@ LATEST=$(gh api "repos/byronxlg/unattended/issues?state=all&sort=updated&directi
 # is queued or running and the newest run (any conclusion) started over 90 min ago, dispatch one
 # by hand. Age of the newest attempt, not the newest success, so a failing hourly is not redispatched
 # every tick; the supervisor handles failures. Nothing here stops the tick.
-HOURLY_AGE=$(gh run list --workflow nz-election-hourly.yml --limit 6 --json status,createdAt --jq 'if any(.[]; .status != "completed") then -1 else ([.[] | now - (.createdAt | fromdateiso8601)] | min // 999999 | floor) end' 2>/dev/null || echo "")
-if [ -n "$HOURLY_AGE" ] && [ "$HOURLY_AGE" -ge 5400 ] 2>/dev/null; then
-  if gh workflow run nz-election-hourly.yml --ref main >/dev/null 2>&1; then log "watchdog: newest hourly run ${HOURLY_AGE}s old, dispatched by hand"; else log "watchdog: hourly dispatch failed"; fi
-fi
+# The dailies get the same check at 26 h (cron plus two hours of drift); the social daily's credit
+# ledger stops a second run on the same budget day, so a late dispatch cannot overspend.
+watchdog() { # workflow file, max age in seconds
+  local age
+  age=$(gh run list --workflow "$1" --limit 6 --json status,createdAt --jq 'if any(.[]; .status != "completed") then -1 else ([.[] | now - (.createdAt | fromdateiso8601)] | min // 999999 | floor) end' 2>/dev/null || echo "")
+  if [ -n "$age" ] && [ "$age" -ge "$2" ] 2>/dev/null; then
+    if gh workflow run "$1" --ref main >/dev/null 2>&1; then log "watchdog: newest $1 run ${age}s old, dispatched by hand"; else log "watchdog: $1 dispatch failed"; fi
+  fi
+}
+watchdog nz-election-hourly.yml 5400
+for wf in nz-election-daily.yml nz-election-social-daily.yml; do watchdog "$wf" 93600; done
 LAST_RUN=$(stat -f %m "$STATE/supervisor.last" 2>/dev/null || echo 0); NOW=$(date +%s)
 NEXT_AFTER=$(cat "$STATE/next-run-after" 2>/dev/null || echo 0)
 if [ "$RUNNING_JOBS" = "0" ] && [ $((NOW-LAST_RUN)) -ge 3600 ] && [ "$NOW" -ge "${NEXT_AFTER:-0}" ]; then REASONS+=("idle"); fi
