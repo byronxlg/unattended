@@ -1303,3 +1303,12 @@ the handover on 2026-11-08.
 - nz-election-principles (issue #34) dispatched on a new worktree from b0f3b3f, brief
   state/jobs/nz-election-principles/prompt.md. Codex window 20 percent, 6.3 days to reset.
 - Next: host-verify the principles build, PR, fresh review, merge; Pages and live seats check.
+
+## 2026-10-18 23:37Z (job_done nz-election-principles)
+
+- nz-election-principles 7732c4d (1006 s, window 22 percent after it). Codex could not start Chromium in its sandbox, so no screenshots from the job.
+- Host: 674 passed, bin/lint ok, verify all PASS, measure_home PASS (details 0, links 37, "source" 7, 10,699 bytes, h2 7 including More).
+- Host harness FAILED: PAGE_OVERFLOW on downloads/ at 360, scrollWidth 284,685. Cause: new markup.open_prose, called from build.py on every page, regex-rewrites every `<details>` into an open div sitewide; on downloads/ that shows raw envelope JSON (11,250-character tokens). Principle 2 asks for zero details on home only. Also noted: the phone menu was removed and the no-JS menu check in screenshots.py replaced with a desktop-nav visibility check.
+- Verdict: send back. fix-1 nz-election-principles-fix-1 dispatched on the build thread (state/jobs/nz-election-principles/followup-1.md): remove the sitewide rewrite, home-only change in templates, no raw JSON as prose, header must fit at 360/390 or keep the phone menu, a check for whitespace-free runs over 200 characters shown failing on 7732c4d.
+- Live: home shows "Government parties: 67 seats" after the 23:15Z hand-dispatched hourly; Pages success on 9dbfc1a.
+- What went wrong: the brief said "zero details on home" and the engineer reached it with an output rewrite that changed every route; the brief did not say "home templates only". Not logged as a mistake yet; logged if it repeats.
