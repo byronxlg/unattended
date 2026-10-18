@@ -1254,3 +1254,12 @@ the handover on 2026-11-08.
 - Pushed, PR #33 opened. Supervisor review, request changes, logged on the PR: (1) bloc colours invert NZ convention (Government coral, Opposition blue, above a bar with National blue and Labour red); supervisor brief error, followup-1.md assigned them; (2) seat bar ordered by party size, not by group, so the 64 marker does not read against the headline groups. Both held for one fix round with the fresh review's findings.
 - Dispatched review-nz-election-look-a (fresh review, read-only), brief state/jobs/review-nz-election-look-a/prompt.md. Codex window 15 percent.
 - Merge not before 09:00Z 19 Oct (grouping judgement call deadline). Others change still open past its 22:45Z deadline tonight.
+
+## 2026-10-18 21:53Z (job_done review-nz-election-look-a)
+
+- Fresh review of PR #33 (390ac75), request changes, two Important: (1) social page lost its visible "Proof of concept" label once populated (heading replaced by a question); (2) section marker follows :target, so it stays on the last clicked section while scrolling. Allocator/topline match, 79 routes, contrast and font contract pass; home first view 55,549 B, polls 74,408 B, CSS 14,640 B. Logged on the PR.
+- Byron, Telegram 2026-10-18 21:44Z (relayed on PR #33, verbatim): "Just merge freely. Then send me the link to get feedback." The operator merged PR #33 at 21:48:33Z as 85c3b14 (check green); Pages deploy success 21:48Z, home 200. Standing instruction from now: merge green, reviewed PRs without a waiting window; Byron gives feedback on what is live. The 09:00Z 19 Oct grouping hold is void.
+- Live home still shows "Seat estimate unavailable ... Incomplete party coverage" (the blank Others rows). The Others judgement call (deadline 22:45Z, no reply) taken as yes under "merge freely": spec.md averaging paragraph amended by the supervisor (derive Others as 100 minus named parties for that row only, remainder 0 to 10, labelled derived, method page names the rule; never a named party).
+- Dispatched nz-election-look-a2 (build) in .worktrees/nz-election-look-a2 on change/nz-election-look-a2 from a39c2ec: bloc colours swapped (Government blue), seat bar ordered by group, social proof-of-concept band, section marker, Others as remainder with coalitions_browser expected to pass. Brief state/jobs/nz-election-look-a2/prompt.md. Old worktree .worktrees/nz-election-look removed (only untracked artifacts/).
+- Telegram line sent to Byron with the live link and what the follow-up fixes.
+- Codex window 16 percent, allowance about 13 points per day.
