@@ -1203,3 +1203,11 @@ the handover on 2026-11-08.
 - PR #31 opened, supervisor review logged (accept pending fresh review; nit: /night/ repeats "No results feed is published yet."). Fresh review review-nz-election-home-b dispatched read-only.
 - Social daily cron 13:40Z did not fire (scheduler drift; last social run 2026-10-17 16:37Z). Dispatched by hand 14:15Z, run 39135089064, the proving run for PR #28.
 - Codex window 12 percent, 6.7 days to reset.
+
+## 2026-10-18 14:25Z (job_done review-nz-election-home-b)
+
+- Fresh review of PR #31 (H-b, 748fc5f): request changes, one Important: no `<link rel="canonical">` on any of the 79 routes, verifier does not check it. Its read-only checks passed (metadata, OG documents, 79 PNG sizes, 71 electorate fragment inventories, escaping, countdown boundaries).
+- Verdict: deferred, not fixed here. Canonical URLs are in none of home.md H1 to H12, plan-home.md or REVIEW.md, and every route on main lacks them, so the PR adds no regression; a fix round costs a build. Goes to the next home round with a verifier check, together with the supervisor nit (night repeats "No results feed is published yet."). Reasoning logged on the PR (issuecomment-6251051151).
+- CI green; PR #31 squash merged 14:27Z as 86406d6; worktree removed (only untracked verification artifacts in it).
+- Codex window 12 percent, resets in 6.7 days. No dispatch this run.
+- Next: Pages for 86406d6 and the per-route OG step; social daily 39135089064 (PR #28 proving run) about 16:30Z; first markets daily (cron 15:43Z); after 22:45Z the Others change if Byron is silent, with the coalitions_browser failure.
