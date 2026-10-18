@@ -1273,3 +1273,12 @@ the handover on 2026-11-08.
 - PR #35 opened; supervisor review accept with one nit (Opportunity labelled OPP reads as Opposition; TOP). Fresh review review-nz-election-look-a2 dispatched read-only with host screenshots in artifacts/a2-screenshots/.
 - Codex window 17 percent.
 - Next: on review job_done, merge if accept and CI green (Byron: merge freely), then dispatch the hourly by hand so the live home shows seats, confirm Pages, send nothing new to Byron unless the look changed visibly; then L-b brief, TOP label, coalitions_browser fix.
+
+## 2026-10-18 22:34Z run (job_done review-nz-election-look-a2, issue #34)
+
+- Fresh review of PR #35: request changes, two Important: derived Others not disclosed where it feeds headline seats and averages (build.py:161); stale social band publishes sample counts without provenance or fixture notice (social_page.py:68). Both accepted, logged on PR #35; fix-1 nz-election-look-a2-fix-1 dispatched on the build thread (state/jobs/nz-election-look-a2/followup-1.md): disclosure as one footnote line per module, full list on the sources page, per #34. CI on 972ed1a green. Not merged on "merge freely": the review found disclosure gaps in published numbers, which REVIEW.md treats as blocking.
+- Issue #34, Byron verbatim (Telegram 2026-10-18 21:58Z): "There's a lot of bad design choices made in there. Use the reference site to influence the design starting by creating design principles based on the site and then implementing. Some example of what is bad. Overall color / layout. Too many collapsibles, too many references flooding the main page etc"
+- Principles written: intent/nz-election/design-principles.md (eight rules from the 538 page; measurable targets against the operator's baseline: details 9 to 0, links 314 to under 60, "source" 135 to under 12, HTML 70 KB to under 35 KB, modules 10 to at most 6). Judgement in it: social POC and coalition statements leave home for a "More" list; provenance moves to a sources page, nothing deleted. Alternative rejected: keep all ten modules and only restyle them (does not answer "layout" or "references flooding").
+- Build brief state/jobs/nz-election-principles/prompt.md written; dispatch after PR #35 merges (same files), on a new worktree from main.
+- Line to Byron: principles doc link, the module cut, proceeding at once (his "merge freely"); he can stop it by reply.
+- Codex window 18 percent.
