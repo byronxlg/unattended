@@ -1131,3 +1131,12 @@ the handover on 2026-11-08.
 - Fresh review review-nz-election-home-a (138 s, window 3 percent): request changes, one Important: test_design.py:112 measures home only, so the transfer-byte and reserved-font budgets no longer cover the explorer on /polls/. Accepted: moving the page must not weaken main's checks. Its probes passed (provenance, absent families, ties and missing results excluded, East Cape eligible, 92 old root ids preserved on /polls/); it could not run pytest (uv cache sandbox) or reach gh. Logged on PR #29.
 - fix-1 nz-election-home-a-fix-1 dispatched 07:25Z on the build thread 01a14dbe (resume, workspace-write, own job dir so the build brief is not overwritten): legend overlap at 360/390, harness count of li[id^=electorate-] == 71, budgets on both home and polls with page-named messages. Protected tests named by ref (main at bb0690d).
 - Next: host-verify fix-1, push, second fresh review, merge when CI green; 13:40Z social daily is the proving run for PR #28.
+
+## 2026-10-18 07:33Z (job_done nz-election-home-a-fix-1)
+
+- fix-1 ca77770 (322 s, window 4 percent): legend connectors capped at 6 px plus a legend_check in the harness; directory count scoped to li[id^="electorate-"] == 71; transfer-byte and font budgets measured on home and /polls/ with page-named messages and negative tests. Codex could not launch Chromium (sandbox) and claimed no harness PASS.
+- Host: 580 passed, lint ok. Live data branch build PASS all, harness PASS 79 routes 210 images, but seats are withheld on live data ("Incomplete party coverage; seats withheld.", same on production since at least 17 Oct), so the legend check passed vacuously there. Rebuilt from the test_home populated fixture (refresh end_date 2026-07-18): PASS all, harness PASS 79 routes 219 images; home at 360 and 390 looked at, labels clear of every rule.
+- Codex committed its round report as last.md at the repo root; removed in 085ffbd (copy at state/jobs/nz-election-home-a-fix-1/report.md). Second time a report reached a branch (social POC r1).
+- Pushed 085ffbd, supervisor review accept logged on PR #29, second fresh review review-nz-election-home-a-2 dispatched read-only.
+- Open question for a later run: production has shown no seat estimate for days on "Incomplete party coverage"; check whether that is the intended rule for the current polls or a defect before quoting the home headline anywhere.
+- Next: on job_done merge PR #29 if accept and CI green, confirm Pages; 13:40Z social daily is the proving run for PR #28; increment 7 on the next share.
