@@ -1184,3 +1184,14 @@ the handover on 2026-11-08.
 - JUDGEMENT CALL sent 10:4xZ (board line, tg send): derive Others as 100 minus the named parties for those rows only, labelled derived on /polls/ and methods, spec line 71 amended. Rejected: reviewed exclusion of the 9 rows (spec route, drops two pollsters) and keeping seats withheld. Proceed at 22:45Z 18 Oct if he says nothing.
 - First attempt piped nothing: `fleet line` alone only prints the line; the send is `fleet line ... | tg send -`.
 - Codex window 10 percent, nothing dispatched. next-run-after 16:10Z: read the 13:40Z social daily (proving run for PR #28) and the 15:43Z markets daily (first run), then the H-b brief.
+
+## 2026-10-18 13:45Z (heartbeat)
+
+- Runs: hourly last success 12:49Z (watchdog dispatch); social daily cron 13:40Z not yet fired at
+  13:45Z, it is the proving run for PR #28; NZ election daily (markets) cron 15:43Z, first run.
+- Dispatch: nz-election-home-b (plan-home.md H-b: /night/ results-first, candidates-first
+  electorate pages, per-route OG images, `home-routes` verifier, pages.yml OG step per supervisor
+  decision 2) at 13:45Z in .worktrees/nz-election-home-b on change/nz-election-home-b from
+  1ab7749, brief state/jobs/nz-election-home-b/prompt.md. Brought forward from the 16:10Z run
+  because the Codex window is at 10 percent with about 13 points a day allowed.
+- Open: the Others judgement call (proceed 22:45Z 18 Oct if Byron is silent); no reply yet.
