@@ -1263,3 +1263,13 @@ the handover on 2026-11-08.
 - Dispatched nz-election-look-a2 (build) in .worktrees/nz-election-look-a2 on change/nz-election-look-a2 from a39c2ec: bloc colours swapped (Government blue), seat bar ordered by group, social proof-of-concept band, section marker, Others as remainder with coalitions_browser expected to pass. Brief state/jobs/nz-election-look-a2/prompt.md. Old worktree .worktrees/nz-election-look removed (only untracked artifacts/).
 - Telegram line sent to Byron with the live link and what the follow-up fixes.
 - Codex window 16 percent, allowance about 13 points per day.
+
+## 2026-10-18 22:06Z run (issue #32 operator note, job_done look-a2)
+
+- Trigger: operator note on issue #32 (22:00Z): live home still shows "Seat estimate unavailable ... Incomplete party coverage; seats withheld", so the new hero is invisible to Byron; "Merge those as soon as green; no waiting windows." Already covered by look-a2, dispatched last run.
+- look-a2 landed 972ed1a (653 s; Codex: 587 passed, verify PASS all, lint ok; Chromium blocked in its sandbox).
+- Host: a plain build on the live data branch still withheld seats, because averages.json there is computed by main's hourly. refresh.py with this code on a copy of the live data, then build: PASS 79 routes, verify PASS all, home shows Government 67 / Opposition 58 / Opportunity 8, 67 needed. Screenshot harness PASS 79 routes 296 images; home looked at 390 and 1280 (Government blue, Opposition coral, bar grouped). The live site will show seats after the first hourly on the merged code.
+- coalitions_browser.py still fails at check_unassigned_after_unavailable_allocation. It uses synthetic inputs, not live data, so derived Others was never going to fix it (supervisor brief assumption wrong); same failure as main. Separate follow-up.
+- PR #35 opened; supervisor review accept with one nit (Opportunity labelled OPP reads as Opposition; TOP). Fresh review review-nz-election-look-a2 dispatched read-only with host screenshots in artifacts/a2-screenshots/.
+- Codex window 17 percent.
+- Next: on review job_done, merge if accept and CI green (Byron: merge freely), then dispatch the hourly by hand so the live home shows seats, confirm Pages, send nothing new to Byron unless the look changed visibly; then L-b brief, TOP label, coalitions_browser fix.
