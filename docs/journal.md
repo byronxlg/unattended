@@ -1293,3 +1293,13 @@ the handover on 2026-11-08.
   dispatched; CI pending (run 39174936911). Codex window 19 percent.
 - Next: merge PR #35 on accept and green (Byron 21:44Z: merge freely), dispatch the hourly by hand,
   then nz-election-principles from main.
+
+## 2026-10-18T23:15Z (job_done review-nz-election-look-a2-2)
+
+- Second fresh review of PR #35 on 4cc41f7: accept, no Critical, Important or Nit (2,547 links and
+  fragments checked; reviewer could not run pytest in its sandbox, host run 673 passed). Logged on
+  the PR. CI green (run 39174936911). Squash merged as b0f3b3f, worktree removed.
+- Hourly dispatched by hand on b0f3b3f (run 39175752568) so the live home publishes seats.
+- nz-election-principles (issue #34) dispatched on a new worktree from b0f3b3f, brief
+  state/jobs/nz-election-principles/prompt.md. Codex window 20 percent, 6.3 days to reset.
+- Next: host-verify the principles build, PR, fresh review, merge; Pages and live seats check.
