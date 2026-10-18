@@ -1246,3 +1246,11 @@ the handover on 2026-11-08.
 - Fix: group by a sourced fact, the 2023 coalition agreements: Government (National, ACT, NZ First) coral, Opposition (Labour, Green, Te Pati Maori) blue, others grey; caption says it is not a 2026 commitment. Rejected: left/right blocs with NZ First grey (no source places anyone in a bloc), invented blocs.
 - JUDGEMENT CALL sent ~21:30Z (board line, tg send): the Government/Opposition grouping; merge after 09:00Z 19 Oct unless Byron says no.
 - Dispatched nz-election-look-a-fix-1 (build round, same thread) with state/jobs/nz-election-look-a/followup-1.md. Codex window 14 percent, allowance about 13 points per day.
+
+## 2026-10-18 21:34Z (job_done nz-election-look-a-fix-1)
+
+- fix-1 landed 390ac75: config/seat-groups.json (membership, arrangement date, Wikipedia source), hero "Government parties: 67 seats / 64 needed / Opposition parties: 60 seats", caption "Grouped by the 2023 coalition agreements, not by any 2026 commitment." Codex: 576 passed, PASS all, lint ok.
+- Host: screenshot harness PASS 79 routes 296 images on 390ac75; home looked at 390 and 1280; sums check (43+14+10, 39+15+6). The internal message is gone.
+- Pushed, PR #33 opened. Supervisor review, request changes, logged on the PR: (1) bloc colours invert NZ convention (Government coral, Opposition blue, above a bar with National blue and Labour red); supervisor brief error, followup-1.md assigned them; (2) seat bar ordered by party size, not by group, so the 64 marker does not read against the headline groups. Both held for one fix round with the fresh review's findings.
+- Dispatched review-nz-election-look-a (fresh review, read-only), brief state/jobs/review-nz-election-look-a/prompt.md. Codex window 15 percent.
+- Merge not before 09:00Z 19 Oct (grouping judgement call deadline). Others change still open past its 22:45Z deadline tonight.
