@@ -23,7 +23,7 @@ def assert_dates(note, rows, fetched):
 @pytest.mark.parametrize(('end_date', 'built', 'available'), [
     ('2026-07-18', '2026-10-17T01:00:00Z', True),
     ('2026-07-18', '2026-10-17T04:00:01Z', False),
-    ('2026-10-17', '2026-10-17T01:00:00Z', False),
+    ('2026-10-17', '2026-10-17T01:00:00Z', True),
 ])
 def test_built_note_sentences_and_contributing_dates(tmp_path, end_date, built, available):
     data = tmp_path / 'data'

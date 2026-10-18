@@ -11,6 +11,14 @@ def count(n):
     return 'under 5' if n < 5 else str(n)
 
 
+def notice(records):
+    if not records:
+        return '<p class="state">Proof of concept. Sample size unavailable; date range unavailable. No published sample.</p>'
+    n = sum(r['sample']['eligible'] for r in records)
+    start, end = min(r['day'] for r in records), max(r['day'] for r in records)
+    return f'<p class="state">Proof of concept. {count(n)} posts sampled from X; {start} to {end}. Not a measure of voter support.</p>'
+
+
 def primary_chart(envs):
     from .build import config, table, compact_time, PREFIX
     records = envs['social/daily']['data']
@@ -57,7 +65,7 @@ def page(envs, built):
     now = datetime.fromisoformat(built.replace('Z', '+00:00'))
     if not latest or now - datetime.combine(datetime.fromisoformat(latest).date() + timedelta(days=1), time(), NZ) > timedelta(hours=36):
         message = 'X proof of concept unavailable: no sample is available yet.' if not latest else 'X proof of concept unavailable: the last sampled day is more than 36 hours old.'
-        return '<p class="state" id="social-method">' + message + '</p>'
+        return notice(records) + '<p class="state" id="social-method">' + message + '</p>'
     intro, primary, source = primary_chart(envs)
     n = sum(r['sample']['eligible'] for r in records)
     fills = ('var(--ink)', 'var(--grey)', 'var(--surface)', 'var(--rule)', 'var(--paper)')
@@ -104,4 +112,4 @@ def page(envs, built):
                'The distribution uses the most likely ordered class, not a rounded expected score. Aggregate probability sums remain in the inputs; individual answers and posts are discarded.</p>'
                '<p>X terms apply; no CC licence is asserted for X data. This sample does not measure platform totals, voter support or a representative population. '
                'The pilot has no bot detector. Collection has a 7,800-credit daily cap. Publication freezes on 7 November 2026 until 19:00 NZDT.</p></section>')
-    return intro + '<div class="social-grid">' + primary + attitude + '</div><h2>Topics</h2>' + topics + caption
+    return notice(records) + intro + '<div class="social-grid">' + primary + attitude + '</div><h2>Topics</h2>' + topics + caption

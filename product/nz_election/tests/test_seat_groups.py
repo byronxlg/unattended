@@ -28,8 +28,8 @@ def test_totals_exclude_every_unlisted_party(seats, majority):
     html = seat_topline(result)
     government = sum(seats.get(p, 0) for p in ('nat', 'act', 'nzf'))
     opposition = sum(seats.get(p, 0) for p in ('lab', 'grn', 'tpm'))
-    assert f'<p class="bloc-right">Government parties: {government} seats</p>' in html
-    assert f'<p class="bloc-left">Opposition parties: {opposition} seats</p>' in html
+    assert f'<p class="bloc-left">Government parties: {government} seats</p>' in html
+    assert f'<p class="bloc-right">Opposition parties: {opposition} seats</p>' in html
     assert f'on the current poll average, {majority} needed' in html
     hero = html.split('</div>', 1)[0]
     assert hero.count('<p') == 3

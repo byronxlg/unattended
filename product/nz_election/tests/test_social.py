@@ -183,7 +183,7 @@ def test_build_present_absent_stale_no_identifiers(tmp_path):
     assert all(b'fiction-author' not in p.read_bytes() and b'Fictional civic' not in p.read_bytes() for p in out.rglob('*') if p.is_file())
     envs = export.validate_bundle(out)
     stale = page(envs, '2026-10-18T23:00:00Z')
-    assert 'unavailable' in stale and '<svg' not in stale and '240' not in stale
+    assert 'unavailable' in stale and '<svg' not in stale and 'Proof of concept. 240 posts sampled from X; 2026-10-16 to 2026-10-16.' in stale
     absent = build(tmp_path / 'absent', tmp_path / 'absent-site', built=NOW)
     html = (absent / 'social/poc/index.html').read_text()
     assert 'unavailable' in html and '<svg' not in html

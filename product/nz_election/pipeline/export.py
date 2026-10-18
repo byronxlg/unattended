@@ -13,7 +13,7 @@ SOURCE = {'id', 'url', 'revision', 'licence', 'fetched_at', 'history_url'}
 ROW = {'id', 'source_ref', 'observed_at'}
 FIELDS = {
     'polls': ROW | set('fieldwork_start fieldwork_end pollster sample shares scale reference_urls revision history'.split()),
-    'averages': ROW | set('date window_start window_end coherent shares scale denominator descriptive poll_ids excluded_ids exclusions missing rounding_policy'.split()),
+    'averages': ROW | set('date window_start window_end coherent shares scale denominator descriptive poll_ids excluded_ids exclusions missing derivations rounding_policy'.split()),
     'seats': ROW | set('average_id available reason assumptions entitlements list_members seats overhang vacancies occupied_house majority assumed_house assumed_majority capacity_checked quotients unresolved_ties'.split()),
     'status': ROW | set('dataset state last_attempt_at last_success_at last_good_run_url error_code message'.split()),
     'manifest': ROW | set('path format sha256 bytes row_count licences observation_start observation_end fetched_at producing_run_url input_hashes'.split()),
@@ -161,7 +161,10 @@ def validate_envelope(env, stem):
                 raise ValueError('BOUNDARY_ID_MISMATCH')
     seen = set()
     for row in rows(env):
-        if set(row) != FIELDS[stem] or row['id'] in seen or not isinstance(row['source_ref'], list):
+        fields = FIELDS[stem]
+        if stem == 'averages' and env['method_version'] == 'window-mean-30d-v1':
+            fields = fields - {'derivations'}
+        if set(row) != fields or row['id'] in seen or not isinstance(row['source_ref'], list):
             raise ValueError('INVALID_ROW: ' + stem)
         seen.add(row['id'])
         if stem in DATE_OBSERVATIONS:
@@ -424,7 +427,8 @@ def validate_bundle(root):
             raise ValueError('INCOMPLETE_DAILY_SERIES')
         # Recompute from the exported rows, not rounded display strings.
         from .refresh import config
-        expected = trend(polls, [a['date'] for a in averages], config('party-map'), config('poll-review'))
+        expected = trend(polls, [a['date'] for a in averages], config('party-map'), config('poll-review'),
+                         derive=envs['averages']['method_version'] != 'window-mean-30d-v1')
         if expected != averages or project(averages[-1]) != envs['seats']['data']:
             raise ValueError('DERIVATION_MISMATCH')
         for stem, deps in [('averages', ['polls.json']), ('seats', ['averages.json'])]:

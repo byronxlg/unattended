@@ -3,6 +3,6 @@
   "source_url": "https://en.wikipedia.org/wiki/Sixth_National_Government_of_New_Zealand#Coalition_agreements",
   "source_label": "Wikipedia: 2023 coalition agreements",
   "caption": "Grouped by the 2023 coalition agreements, not by any 2026 commitment.",
-  "government": {"label": "Government parties", "token": "right", "parties": ["nat", "act", "nzf"]},
-  "opposition": {"label": "Opposition parties", "token": "left", "parties": ["lab", "grn", "tpm"]}
+  "government": {"label": "Government parties", "token": "left", "parties": ["nat", "act", "nzf"]},
+  "opposition": {"label": "Opposition parties", "token": "right", "parties": ["lab", "grn", "tpm"]}
 }
