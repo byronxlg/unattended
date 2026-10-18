@@ -1282,3 +1282,14 @@ the handover on 2026-11-08.
 - Build brief state/jobs/nz-election-principles/prompt.md written; dispatch after PR #35 merges (same files), on a new worktree from main.
 - Line to Byron: principles doc link, the module cut, proceeding at once (his "merge freely"); he can stop it by reply.
 - Codex window 18 percent.
+
+## 2026-10-18T22:46Z run (job_done nz-election-look-a2-fix-1)
+
+- fix-1 4cc41f7 (Others disclosure linking to the affected-poll list on Methods; fixture notice and
+  provenance beside stale social counts; two regression tests). Codex could not launch Chromium in
+  its sandbox and claimed no harness PASS. Host: 673 passed, PASS all, lint ok, build 79 routes,
+  harness PASS 79 routes 296 images; home 1280 looked at, disclosure above the seat bar.
+- Pushed, supervisor accept logged on PR #35, second fresh review review-nz-election-look-a2-2
+  dispatched; CI pending (run 39174936911). Codex window 19 percent.
+- Next: merge PR #35 on accept and green (Byron 21:44Z: merge freely), dispatch the hourly by hand,
+  then nz-election-principles from main.
