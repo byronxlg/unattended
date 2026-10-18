@@ -41,7 +41,7 @@ def label(row):
 def panel(envs, built):
     env = envs.get('markets')
     status = next((r for r in envs.get('status', {}).get('data', []) if r['dataset'] == 'markets'), {})
-    body = '<section id="markets" class="home-module" aria-describedby="source-markets"><h2>Market prices</h2>'
+    body = '<section id="markets" class="home-module" aria-describedby="source-markets"><h2>What do prediction markets say?</h2>'
     actions = link('https://polymarket.com/tos', 'Polymarket terms') + f'<a href="{PREFIX}downloads/">Data and sources</a>'
     amounts = ''
     if not env:

@@ -44,8 +44,8 @@ def test_home_module_order(populated):
     html = (site / 'index.html').read_text()
     positions = [html.index(f'<section id="{name}"') for name in MODULES]
     assert positions == sorted(positions)
-    assert html.count('<h1') == 1 and 'New Zealand votes on 7 November 2026' in html
-    assert 'coalitions.mjs' not in html and 'Poll history' not in html
+    assert html.count('<h1') == 1 and 'Who is favoured to form the next government?' in html
+    assert 'coalitions.mjs' not in html and 'How have the polls moved?' not in html
     provenance(html)
 
 
@@ -169,7 +169,7 @@ def test_home_navigation(populated):
         nav = html.split('<header>')[1].split('</header>')[0]
         assert nav.count(f'<a href="{PREFIX}"') == 2
         assert nav.count(f'<a href="{PREFIX}polls/"') == 2
-        assert html.count('aria-current="page"') == (0 if path.parent.parent.name == 'electorates' else 2)
+        assert html.count('aria-current="page"') == (2 if path.parent == site or path.parent.name in {'polls', 'electorates', 'night', 'methods'} else 0)
         assert ('aria-label="Home sections"' in html) == (path == site / 'index.html')
 
 
@@ -215,7 +215,7 @@ def test_supplied_home_verifier_rejects_missing_fragments(populated, tmp_path):
 
 
 @pytest.mark.parametrize(('extra_bytes', 'failure'), [
-    (60_000, 'RESERVED_FONT_BUDGET'),
+    (60_000, 'FIRST_VIEW_GZIP_BYTES'),
     (130_000, 'FIRST_VIEW_GZIP_BYTES'),
 ])
 def test_poll_budget_rejects_oversized_dependency(populated, tmp_path, extra_bytes, failure):

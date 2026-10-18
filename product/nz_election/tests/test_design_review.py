@@ -31,7 +31,7 @@ def test_empty_thirty_day_window_builds(tmp_path):
     site = build(data, tmp_path / 'output', built='2026-12-01T01:00:00Z')
     html = (site / 'polls/index.html').read_text()
     assert 'No seat estimate available yet.' in html and 'class="strip"' not in html
-    assert 'Poll history' in html
+    assert 'How have the polls moved?' in html
     visible = html.split('<summary>Why seats are unavailable')[0]
     assert 'Read how seats are calculated.</a>' in visible
     assert json.loads((site / 'home-presentation.json').read_text())['result'] is None

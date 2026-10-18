@@ -177,6 +177,16 @@ def home_sentence(result):
     return f'{leaders[0]} leads with {maximum} calculated seats; no party reaches the assumed majority of {majority}.'
 
 
+def seat_topline(result):
+    # This checkout has no reviewed coalition statements. Never infer membership.
+    rows = sorted(result['seats'].items(), key=lambda row: (-row[1], row[0]))
+    return ('<div class="topline" aria-describedby="source-seats"><p class="topline-note">'
+            'Bloc totals unavailable: coalition statements have not been supplied.</p>'
+            '<p class="bloc-neutral">' + '<br>'.join(f'{escape(label(p))}: {n} seats' for p, n in rows) +
+            '</p><p>On the current poll average; ' + str(result['assumed_majority']) +
+            ' needed for an assumed majority.</p></div>')
+
+
 def strip(seats, note=''):
     colours = config('party-colours')
     ordered = sorted(((p, n) for p, n in seats['seats'].items() if n), key=lambda item: (-item[1], item[0]))
@@ -205,12 +215,12 @@ def strip(seats, note=''):
         width = Decimal(seats['overhang']) * 100 / total
         segments.append(f'<div class="segment overhang" style="width:{width:.6f}%"></div>')
     marker = Decimal(seats['assumed_majority']) * 100 / total
-    return ('<figure class="seat-figure" aria-describedby="source-seats"><div class="strip" role="img" '
+    return (note + '<figure class="seat-figure" aria-describedby="source-seats"><div class="strip" role="img" '
             'aria-describedby="source-seats" aria-label="Theoretical party seats, detailed in the following table">' + ''.join(segments) +
             f'<span class="majority" style="left:{marker:.6f}%"></span></div>'
             '<div class="lanes">' + ''.join(labels) + '</div>'
             f'<p class="majority-label">{seats["assumed_majority"]} for a majority</p>'
-            '<figcaption class="strip-note">Calculated seats; list capacity not checked.</figcaption></figure>' + note +
+            '<figcaption class="strip-note">Calculated seats; list capacity not checked.</figcaption></figure>' +
             render('party-rows', majority=seats['assumed_majority'], total=total,
                    rows=table('Theoretical seats and overhang', ['Party', 'Base seats', 'Overhang', 'Seats'], records, source='source-seats')).rstrip())
 
@@ -272,7 +282,7 @@ def seat_module(envs, built, presentation=None):
         first, end = min(a for a, b in dates), max(b for a, b in dates)
         date_line = (f'<p class="poll-dates" aria-describedby="source-seats">Polls <time datetime="{first}">{observation_label(first)}</time> '
                      f'to <time datetime="{end}">{observation_label(end)}</time>. <a href="{PREFIX}methods/">How seats are calculated</a>.</p>')
-        picture = strip(presentation['result'], presentation['source']) + date_line
+        picture = seat_topline(presentation['result']) + strip(presentation['result'], presentation['source']) + date_line
     else:
         picture = (f'<p aria-describedby="source-seats">Seat estimate unavailable. Polls to {observation_label(last)} are below.</p>'
                    f'<p><a href="{PREFIX}methods/">Read how seats are calculated.</a></p>'
@@ -281,7 +291,7 @@ def seat_module(envs, built, presentation=None):
         names = [label(p) for p in tie.get('candidates', [])]
         if names:
             picture += '<p class="missing" aria-describedby="source-seats">Tie for the last seat between ' + escape(' and '.join(names)) + '; shown unassigned.</p>'
-    thresholds = '<section><h2>Threshold watch</h2><p class="threshold-rule" aria-describedby="source-thresholds">5% of the party vote qualifies a party with a list. An electorate win can also qualify it below 5%.</p>'
+    thresholds = '<section><h2>Which parties are near the 5 percent threshold?</h2><p class="threshold-rule" aria-describedby="source-thresholds">5% of the party vote qualifies a party with a list. An electorate win can also qualify it below 5%.</p>'
     watch = threshold_watch(polls, average, seats['assumptions'])
     thresholds += table('Parties near the threshold', ['Party', 'Share', 'Below 5%'],
                      [[escape(label(row['party_id'])), display(row['value'], row['scale']),
@@ -304,7 +314,7 @@ def polls_page(envs, built, presentation=None):
     if 'polls' not in envs:
         return render('polls', state=state, picture=picture, explorer='', details='')
     polls, average = envs['polls']['data'], envs['averages']['data'][-1]
-    details = '<div class="grid"><section><h2>Average party vote</h2>'
+    details = '<div class="grid"><section><h2>What is the average party vote?</h2>'
     details += f'<p aria-describedby="source-average">Window: {average["window_start"]} to {average["window_end"]}. Equal weight for {len(average["poll_ids"])} polls.</p>'
     details += table('Descriptive shares and coverage', ['Party', 'Share', 'Polls'],
                      [[escape(label(p)), display(d['value'], d['scale']), str(len(d['poll_ids']))]
@@ -327,7 +337,7 @@ def polls_page(envs, built, presentation=None):
                         escape(poll['fieldwork_start'] + ' to ' + poll['fieldwork_end']),
                         'Not reported' if poll['sample'] is None else str(poll['sample']),
                         *[display(poll['shares'].get(p), poll['scale']) for p in parties], refs])
-    details += '<h2>Poll history</h2>' + table('All national 2026 observations in the source revision; scroll for all parties',
+    details += '<h2>How have the polls moved?</h2>' + table('All national 2026 observations in the source revision; scroll for all parties',
                                             ['Pollster', 'Fieldwork', 'Sample'] + [label(p) for p in parties] + ['Reports'], history, source='source-history')
     details += source_note(envs['polls'], 'source-history', 'polls.json') + '<details><summary>Individual poll sources and fieldwork dates</summary>' + ''.join(row_notes) + '</details>'
     details += f'<p><a href="{PREFIX}data/averages.json">Daily average series and exact inputs</a></p>'
@@ -469,7 +479,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
         routes = config('routes')
         if len(routes) != 8 or {r['path'] for r in routes} != {'', 'polls/', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
             raise ValueError('INVALID_ROUTES')
-        primary_routes = routes
+        primary_routes = [dict(r, label={'': 'Overview', 'polls/': 'Polls', 'night/': 'Night'}.get(r['path'], r['label'])) for r in routes if r['path'] in {'', 'polls/', 'electorates/', 'night/', 'methods/'}]
         routes = routes + [dict(path='electorates/' + r['slug'] + '/', label=r['name']) for r in config('electorates')]
         from product.nz_election.pipeline.route_cards import route_key, summary, card, night, ORIGIN
         keys = [route_key(r["path"]) for r in routes]
@@ -479,7 +489,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
         cards = []
         for route in routes:
             slug = route['path']
-            nav = ''.join(f'<a href="{PREFIX + r["path"]}"' + (' aria-current="page"' if r == route else '') +
+            nav = ''.join(f'<a href="{PREFIX + r["path"]}"' + (' aria-current="page"' if r["path"] == slug else '') +
                           f'>{escape(r["label"])}</a>' for r in primary_routes)
             if slug == '':
                 from product.nz_election.pipeline.home import page
@@ -508,8 +518,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             title = ('New Zealand votes on 7 November 2026' if slug == '' else
                      'Proof of concept: what X says about the parties' if slug == 'social/poc/' else route['label'])
             heading = ('' if slug == '' else
-                       '<h1 class="home-sentence" aria-describedby="source-seats">' + escape(home['title']) + '</h1>' if slug == 'polls/' else
-                       '<h1>' + escape(title) + '</h1>')
+                       '<h1>What do the polls tell us?</h1><p aria-describedby="source-seats">' + escape(home['title']) + '</p>' if slug == 'polls/' else
+                       '<h1>' + escape({'night/': 'When will the results arrive?', 'electorates/': 'Who is standing in your electorate?', 'methods/': 'How are these numbers calculated?', 'downloads/': 'Where does the data come from?', 'campaign/': 'What is happening in the campaign?', 'social/poc/': 'What are people posting about the parties?'}.get(slug, 'Who is standing in ' + title + '?')) + '</h1>')
             title, description = summary(route, envs, home, built)
             key = route_key(slug)
             cards.append(dict(route=slug, key=key, title=title, description=description, html='og/' + key + '.html', png='og/' + key + '.png'))
@@ -525,6 +535,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             validate_scripts(page.read_text())
         shutil.copyfile(PRODUCT / 'web/coalitions.mjs', stage / 'coalitions.mjs')
         shutil.copyfile(PRODUCT / 'web/styles.css', stage / 'styles.css')
+        shutil.copytree(PRODUCT / 'web/fonts', stage / 'fonts')
         shutil.copyfile(PRODUCT / 'web/allocator.mjs', stage / 'allocator.mjs')
         shutil.copyfile(PRODUCT / 'web/electorates.mjs', stage / 'electorates.mjs')
         replace_directory(stage, out)

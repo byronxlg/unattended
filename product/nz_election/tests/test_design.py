@@ -36,8 +36,12 @@ def test_all_token_and_party_pairings(mode):
     css = (PRODUCT / 'web/styles.css').read_text()
     tables = re.findall(r':root\{([^}]+)', css)
     tokens = dict(re.findall(r'--(\w+):(#[0-9A-Fa-f]{6})', tables[mode == 'night']))
-    assert set(tokens) == {'paper', 'ink', 'grey', 'rule', 'surface', 'tick', 'focus'} | ({'live'} if mode == 'night' else set())
+    assert set(tokens) == {'paper', 'ink', 'grey', 'rule', 'surface', 'tick', 'focus', 'left', 'right', 'notice'} | ({'live'} if mode == 'night' else set())
+    if mode == 'light':
+        assert {k: tokens[k] for k in ('paper', 'ink', 'grey', 'rule', 'left', 'right', 'notice', 'focus')} == dict(paper='#FFFFFF', ink='#222222', grey='#6B6B6B', rule='#949494', left='#2F6DB5', right='#C94D49', notice='#FFF6CC', focus='#005EA8')
     for fg in ('ink', 'grey'):
+        assert contrast(rgb(tokens[fg]), rgb(tokens['notice'])) >= Decimal('4.5')
+    for fg in ('ink', 'grey', 'left', 'right'):
         for bg in ('paper', 'surface'):
             assert contrast(rgb(tokens[fg]), rgb(tokens[bg])) >= Decimal('4.5'), (mode, fg, bg)
     for fg in ('rule', 'ink', 'focus'):
@@ -76,7 +80,11 @@ def test_default_scenario_is_unselected(built_design):
     assert inputs['initial']['selected'] == []
     result = default_scenario(envs)
     assert result == coalitions.scenario(inputs, inputs['initial'])
-    assert home_sentence(result) in (site / 'index.html').read_text()
+    html = (site / 'index.html').read_text()
+    from product.nz_election.pipeline.build import seat_topline, label
+    assert seat_topline(result) in html
+    for party, seats in result['seats'].items():
+        assert f'{label(party)}: {seats} seats' in html
 
 
 def test_built_routes_have_source_targets(built_design):
@@ -104,15 +112,15 @@ def test_real_first_view_budget(built_design):
     for page in ('index.html', 'polls/index.html'):
         css = (site / 'styles.css').stat().st_size
         total, files = transfer_bytes(site, page)
-        assert css < 12_000, f'CSS_BYTES: {page}: {css}'
+        assert css < 16_000, f'CSS_BYTES: {page}: {css}'
         assert total < 100_000, f'FIRST_VIEW_GZIP_BYTES: {page}: {total}: {files}'
-        assert total + 45_000 < 100_000, f'RESERVED_FONT_BUDGET: {page}: {total}'
+        assert {f'fonts/{name}.woff2' for name in ('libre-franklin-400', 'libre-franklin-700', 'jetbrains-mono-400')} <= files.keys()
         assert {'favicon.svg', 'icon-180.png', 'manifest.webmanifest', page, 'styles.css'} <= files.keys()
         if page == 'index.html':
             assert not explorer_assets & files.keys()
         else:
             assert explorer_assets <= files.keys()
-        assert not any('2025' in name or name.endswith('.woff2') for name in files), page
+        assert not any('2025' in name for name in files), page
     assert not list(site.rglob('axe*'))
 
 
@@ -184,3 +192,16 @@ def test_state_category_copy(tmp_path):
                          ('offline', 'fixture run')]:
         site, route = fixture(tmp_path, state)
         assert words in (site / 'nz-election' / route / 'index.html').read_text()
+
+
+def test_self_hosted_font_contract():
+    css = (PRODUCT / 'web/styles.css').read_text()
+    for family in ('Libre Franklin', 'JetBrains Mono'):
+        assert f'font-family:"{family}"' in css
+    assert css.count('font-display:swap') == 3
+    assert '"Helvetica Neue"' not in css
+    for name in ('libre-franklin-400', 'libre-franklin-700', 'jetbrains-mono-400'):
+        raw = (PRODUCT / 'web/fonts' / (name + '.woff2')).read_bytes()
+        assert raw[:4] == b'wOF2'
+    for name in ('LibreFranklin-OFL.txt', 'JetBrainsMono-OFL.txt'):
+        assert 'SIL OPEN FONT LICENSE Version 1.1' in (PRODUCT / 'web/fonts' / name).read_text()
