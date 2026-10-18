@@ -25,6 +25,7 @@ FIELDS['electorates'] = ROW | set('name kind slug stats_id search_key baseline_i
 for stem in GEO:
     FIELDS[stem] = ROW | {'name', 'kind'}
 NEW_FIELDS = {
+    'markets': 'event_id event_slug event_title market_id family question outcomes unpriced_outcomes volume volume_unit liquidity liquidity_unit resolution_url resolution_criteria updated_at closed active',
     'candidates': 'person_id name party_id electorate_id list_rank wikidata_id wikipedia_url join_status conflict_ids field_sources',
     'party-lists': 'party_id candidate_ids complete review_ref field_sources',
     'candidate-review': 'person_id electorate_id field claims resolution review_ref',
@@ -35,7 +36,7 @@ NEW_FIELDS = {
 for stem, fields in NEW_FIELDS.items():
     FIELDS[stem] = ROW | set(fields.split())
 FAMILIES.update({'candidates': {'candidates', 'party-lists', 'candidate-review'},
-                 **{s: {s} for s in ('baseline-2023', 'enrolment', 'electorate-polls')}})
+                 **{s: {s} for s in ('baseline-2023', 'enrolment', 'electorate-polls', 'markets')}})
 FAMILIES['social'] = {'social/daily', 'social/credits'}
 FIELDS['social/daily'] = ROW | set('day sample party_counts attitude topic_counts model_versions question_version provenance probability_sums'.split())
 FIELDS['social/credits'] = ROW | set('day reserved spent cap requests allocation closed'.split())
@@ -118,6 +119,13 @@ def validate_envelope(env, stem):
     extra = {'type', 'features'} if stem in GEO else set()
     if set(env) not in (BASE | extra, BASE | DERIVED | extra) or type(env['schema_version']) is not int or env['schema_version'] != 1:
         raise ValueError('INVALID_ENVELOPE')
+    if stem == 'markets':
+        if not isinstance(env['data'], list) or not env['data']:
+            raise ValueError('INVALID_MARKET')
+        for market in env['data']:
+            validate_market_row(market)
+        if len({r['id'] for r in env['data']}) != len(env['data']):
+            raise ValueError('INVALID_MARKET')
     validate_times(env, nullable_dates=env.get("method_version") in {"enrolment-v1", "electorate-polls-v1"})
     for source in env['source']:
         if set(source) != SOURCE:
@@ -203,7 +211,9 @@ def validate_daily_row(row, stem, sources):
             return
         if type(value) is not int or value < 0:
             raise ValueError('INVALID_DAILY_NUMBER: ' + stem)
-    if stem == 'candidates':
+    if stem == 'markets':
+        validate_market_row(row)
+    elif stem == 'candidates':
         if not isinstance(row['name'], str) or not row['name'] or not isinstance(row['party_id'], str) or not row['party_id']:
             raise ValueError('INVALID_CANDIDATE')
         natural(row['list_rank'], True)
@@ -249,7 +259,7 @@ def validate_daily_row(row, stem, sources):
     source_ids = {s['id'] for s in sources}
     for ref in row['source_ref']:
         if not isinstance(ref, dict) or ref.get('source_id') not in source_ids or not ref.get('locator'):
-            raise ValueError('INVALID_FIELD_SOURCE')
+            raise ValueError('INVALID_MARKET' if stem == 'markets' else 'INVALID_FIELD_SOURCE')
 
 
 def csv_bytes(env):
@@ -381,7 +391,7 @@ def validate_bundle(root):
             raise ValueError('GEOGRAPHY_REGISTRY_HASH_MISMATCH')
         for kind in ('general', 'maori'):
             validate(envs[kind + '-2025'], kind, registry)
-    for family in ('candidates', 'baseline-2023', 'enrolment', 'electorate-polls'):
+    for family in ('candidates', 'baseline-2023', 'enrolment', 'electorate-polls', 'markets'):
         present_new = FAMILIES[family] & envs.keys()
         if present_new and present_new != FAMILIES[family]:
             raise ValueError('PARTIAL_DAILY_FAMILY')
@@ -432,7 +442,7 @@ def merged_licences(root):
         sources = json.loads((root / 'electorates.json').read_text())['source']
         text += '\nGeography: Stats NZ 2025 electorate boundaries and derived registry.\n'
         text += ''.join(s['url'] + '\n' + s['licence'] + '\n' for s in sources)
-    for family in ('candidates', 'baseline-2023', 'enrolment', 'electorate-polls'):
+    for family in ('candidates', 'baseline-2023', 'enrolment', 'electorate-polls', 'markets'):
         path = root / (family + '.json')
         if path.exists():
             text += '\n' + family + ':\n'
@@ -455,3 +465,79 @@ def data_files(root):
         else:
             paths.append(path)
     return paths
+
+
+def validate_market_row(row, *, allow_turnout=False):
+    """Bound decimal tokens before arithmetic; money units require reviewed evidence."""
+    from decimal import Decimal
+    from urllib.parse import urlsplit
+    from .markets import FAMILIES
+    def text(value, limit=10000):
+        if not isinstance(value, str) or not value.strip() or len(value) > limit:
+            raise ValueError('INVALID_MARKET')
+    def identifier(value):
+        if not isinstance(value, str) or not re.fullmatch(r'[0-9]{1,100}', value):
+            raise ValueError('INVALID_MARKET')
+    def decimal(value, price=False):
+        if not isinstance(value, str) or not re.fullmatch(r'[0-9]{1,24}(?:\.[0-9]{1,24})?', value):
+            raise ValueError('INVALID_MARKET')
+        if price and Decimal(value) > 1:
+            raise ValueError('INVALID_MARKET')
+    try:
+        if not isinstance(row, dict) or set(row) != FIELDS['markets']:
+            raise ValueError
+        if not isinstance(row['source_ref'], list) or not row['source_ref']:
+            raise ValueError
+        for ref in row['source_ref']:
+            if not isinstance(ref, dict) or set(ref) != {'field', 'source_id', 'locator'}:
+                raise ValueError
+            for value in ref.values():
+                text(value)
+        identifier(row['event_id'])
+        identifier(row['market_id'])
+        if row['id'] != 'gamma-' + row['market_id']:
+            raise ValueError
+        if row['family'] not in FAMILIES | ({'excluded-turnout'} if allow_turnout else set()):
+            raise ValueError
+        if not isinstance(row['event_slug'], str) or len(row['event_slug']) > 200 or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', row['event_slug']):
+            raise ValueError
+        for key in ('event_title', 'question', 'resolution_criteria'):
+            text(row[key])
+        outcomes = row['outcomes']
+        unpriced = row['unpriced_outcomes']
+        if not isinstance(outcomes, list) or not isinstance(unpriced, list) or bool(outcomes) == bool(unpriced):
+            raise ValueError
+        if unpriced and (row['active'] is not False or row['closed'] is not False):
+            raise ValueError
+        values = outcomes or unpriced
+        if not 1 <= len(values) <= 100:
+            raise ValueError
+        for outcome in values:
+            if set(outcome) != ({'id', 'name', 'price'} if outcomes else {'id', 'name'}):
+                raise ValueError
+            identifier(outcome['id'])
+            text(outcome['name'], 500)
+            if outcomes:
+                decimal(outcome['price'], True)
+        if len({o['id'] for o in values}) != len(values) or len({o['name'] for o in values}) != len(values):
+            raise ValueError
+        for key in ('volume', 'liquidity'):
+            decimal(row[key])
+            if row[key + '_unit'] not in (None, 'USD'):
+                raise ValueError
+        url = row['resolution_url']
+        text(url, 2000)
+        parsed = urlsplit(url)
+        if (parsed.scheme not in {'https', 'http'} or not parsed.hostname or parsed.username or parsed.password
+                or any(c.isspace() or ord(c) < 32 for c in url) or '\\' in url):
+            raise ValueError
+        for key in ('closed', 'active'):
+            if type(row[key]) is not bool:
+                raise ValueError
+        updated = row['updated_at']
+        if not isinstance(updated, str) or not re.fullmatch(DATE_PATTERN + r'T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?Z', updated):
+            raise ValueError
+        datetime.fromisoformat(updated)
+        timestamp(row['observed_at'])
+    except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
+        raise ValueError('INVALID_MARKET') from None

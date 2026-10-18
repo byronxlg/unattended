@@ -114,6 +114,11 @@ def check_page(page, url, site, origin):
     page.add_script_tag(path=str(PRODUCT / 'tests/axe.min.js'))
     violations = page.evaluate('async () => (await axe.run(document)).violations')
     assert not violations, 'AXE_VIOLATIONS: ' + json.dumps(violations)
+    from product.nz_election.tests.market_checks import check_markup, check_browser
+    market_file = site / 'nz-election/data/markets.json'
+    market_rows = json.loads(market_file.read_text())['data'] if market_file.exists() else []
+    check_markup(page.content(), market_rows)
+    check_browser(page)
     assert not errors, 'CONSOLE_ERRORS: ' + str(errors)
     return static_text(page)
 
@@ -338,6 +343,9 @@ def main():
                     name = (path.strip('/').replace('/', '--') or 'home') + f'-{width}x{height}.png'
                     target = args.out / name
                     page.screenshot(path=str(target))
+                    if path == '' and width in (390, 1280) and page.locator('#markets').count():
+                        page.locator('#markets').screenshot(path=str(args.out / f'markets-module-{width}.png'))
+                        (args.out / f'markets-module-{width}.json').write_text(json.dumps(page.locator('#markets').bounding_box()))
                     plain = nojs.new_page()
                     plain.goto(url, wait_until='networkidle')
                     assert static_text(plain) == text, 'NO_JS_CONTENT_MISMATCH'

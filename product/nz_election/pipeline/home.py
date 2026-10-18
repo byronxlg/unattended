@@ -117,6 +117,7 @@ def social(envs, built):
 
 
 def page(envs, built, presentation):
+    from .market_panel import panel
     state, seats = seat_module(envs, built, presentation)
     registry = envs.get('electorates', {}).get('data', config('electorates'))
     directory = '<ul class="home-directory" aria-describedby="source-directory">' + ''.join(
@@ -127,7 +128,7 @@ def page(envs, built, presentation):
         countdown = f'<strong>{number}</strong><br>{unit}'
     return render('home', prefix=PREFIX, state=state, countdown=countdown,
                   updated=compact_time(built), sentence=escape(presentation['title']), seats=seats,
-                  polls=poll_figures(envs, presentation), watch=watch(envs), directory=directory,
+                  markets=panel(envs, built), polls=poll_figures(envs, presentation), watch=watch(envs), directory=directory,
                   watch_source=family_note(envs, 'source-watch', ('electorates', 'baseline-2023', 'candidates')),
                   directory_source=family_note(envs, 'source-directory', ('electorates', 'baseline-2023')),
                   social=social(envs, built),

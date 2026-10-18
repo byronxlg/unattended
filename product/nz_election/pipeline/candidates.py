@@ -129,12 +129,12 @@ def apply_mappings(rows, mappings):
     return conflicts
 
 
-def load():
+def load(input_loader=ds.inputs):
     mappings = config('candidate-mappings')['mappings']
     supplemental = {claim['source_id'] for mapping in mappings for claims in mapping['claims'].values() for claim in claims}
     if supplemental - {WIKI, WD}:
         raise ValueError('INVALID_SUPPLEMENTAL_SOURCE')
-    raw, sources, hashes = ds.inputs({SHEET, PDF} | supplemental, ('electorate-aliases', 'candidate-mappings', 'ec-party-lists-2026'))
+    raw, sources, hashes = input_loader({SHEET, PDF} | supplemental, ('electorate-aliases', 'candidate-mappings', 'ec-party-lists-2026'))
     aliases = config('electorate-aliases')
     registry = {r['id']: r['name'] for r in config('electorates')}
     if any(nfc(name) != nfc(registry.get(identity, '')) for name, identity in aliases.items()):

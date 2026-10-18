@@ -256,13 +256,30 @@ def verify_home(envs, root):
         require(election_countdown(instant) == expected, 'NZ countdown')
 
 
+def verify_markets(envs, root):
+    from product.nz_election.pipeline.markets import load, FAMILIES, ATTRIBUTION
+    from product.nz_election.pipeline.market_panel import panel, leaders
+    from product.nz_election.tests.design_checks import provenance
+    payloads, sources, hashes = load()
+    current = {'markets': export.envelope(payloads['markets'], sources, 'offline-verification', 'verify',
+               inputs=hashes, method='markets-v1', generated='2026-10-18T01:00:00Z')}
+    export.validate_envelope(current['markets'], 'markets')
+    require({r['family'] for r in payloads['markets']} == FAMILIES, 'three market families')
+    html = panel(current, '2026-10-20T01:00:00Z')
+    provenance(html)
+    require(html.count('<table') == 3 and ATTRIBUTION in html and ' USD' in html, 'market contracts and terms')
+    require('Update overdue' in html and 'Source observations are more than 36 hours old' in html, 'market stale states')
+    require('Not available' in panel({}, '2026-10-20T01:00:00Z'), 'market unavailable')
+    require(all(r['observed_at'] in html and 'https://polymarket.com/event/' + e['slug'] in html for e, r in leaders(payloads['markets']) if r), 'market observation and rules')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home'])
+    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'markets'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     args = parser.parse_args()
-    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home}
+    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'markets': verify_markets}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
@@ -286,6 +303,11 @@ def main():
         if args.site and args.check in {'home', 'all'}:
             from product.nz_election.pipeline.home_checks import check_site
             check_site(product, export.validate_bundle(product / 'data') if (product / 'data').exists() else {})
+        if args.site and args.check in {'markets', 'all'}:
+            from product.nz_election.pipeline.market_panel import panel
+            actual = export.validate_bundle(product / 'data') if (product / 'data').exists() else {}
+            built = json.loads((product / 'build-manifest.json').read_text())['data']['built_at']
+            require(panel(actual, built) in (product / 'index.html').read_text(), 'supplied market panel')
         for name, check in checks.items():
             if args.check in ('all', name):
                 check(envs, root)

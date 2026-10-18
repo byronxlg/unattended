@@ -1,0 +1,26 @@
+{
+  "events": [
+    {
+      "slug": "next-prime-minister-of-new-zealand-174",
+      "family": "next-pm"
+    },
+    {
+      "slug": "which-parties-will-be-part-of-the-next-government-of-new-zealand",
+      "family": "government-membership"
+    },
+    {
+      "slug": "nz-election-national-party-of-seats",
+      "family": "seat-bands"
+    },
+    {
+      "slug": "nz-election-labour-party-of-seats",
+      "family": "seat-bands"
+    },
+    {
+      "slug": "new-zealand-election-turnout",
+      "family": "excluded-turnout"
+    }
+  ],
+  "review": "Increment 7 brief and plan-m2 supervisor decision 9. Turnout excluded from the three displayed contract families; see capture manifest notes.",
+  "unit_evidence": "USD: supervisor fix round 1 on PR #30, item 3. This instruction supersedes the increment 7 unavailable-unit policy; no Gamma documentation capture is asserted."
+}

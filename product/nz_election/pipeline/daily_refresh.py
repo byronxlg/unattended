@@ -2,27 +2,30 @@
 # requires-python = ">=3.12"
 # dependencies = []
 # ///
-"""Offline daily geography ingestion, retaining last-good family bytes atomically."""
+"""Daily ingestion with optional bounded live sources and atomic family retention."""
 import argparse
 import fcntl
 import json
+import os
 from pathlib import Path
 import shutil
 import sys
 import tempfile
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from product.nz_election.pipeline import export, geography, candidates, baseline, enrolment, electorate_polls
+from product.nz_election.pipeline import export, geography, candidates, baseline, enrolment, electorate_polls, markets
 from product.nz_election.pipeline.refresh import config, code_sha, utc_now
 from product.nz_election.pipeline.storage import replace_directory
 
 
-def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', load=geography.load, loaders=None):
+def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', load=geography.load, loaders=None, messages=None):
     out = Path(out).absolute()
     if out.is_symlink():
         raise ValueError('UNSAFE_OUTPUT_PATH')
     out.parent.mkdir(parents=True, exist_ok=True)
     now, sha = export.timestamp(now or utc_now()), sha or code_sha()
+    capture_message = ('Offline verification from captured sources. Not live data.' if run_url == 'offline-verification'
+                       else 'Ingested committed captures with original acquisition dates. Not live observations.')
     with (out.parent / ('.' + out.name + '.lock')).open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         old = export.validate_bundle(out) if out.exists() else {}
@@ -74,10 +77,10 @@ def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', lo
             status = dict(id='status-geography', source_ref=[], observed_at=now, dataset='geography',
                           state=('stale' if success else 'unavailable') if error else 'fresh',
                           last_attempt_at=now, last_success_at=success, last_good_run_url=good_run,
-                          error_code=error, message='Retained last-good geography.' if error else 'Offline verification from captured sources. Not live data.')
+                          error_code=error, message='Retained last-good geography.' if error else capture_message)
             statuses = [r for r in statuses if r['dataset'] != 'geography'] + [status]
             producers = loaders if loaders is not None else {'candidates': candidates.load, 'baseline-2023': baseline.load,
-                                                            'enrolment': enrolment.load, 'electorate-polls': electorate_polls.load}
+                                                            'enrolment': enrolment.load, 'electorate-polls': electorate_polls.load, 'markets': markets.load}
             for family, producer in producers.items():
                 previous = next((r for r in statuses if r['dataset'] == family), {})
                 failure = None
@@ -103,8 +106,9 @@ def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', lo
                 family_status = dict(id='status-' + family, source_ref=[], observed_at=now, dataset=family,
                                      state=('stale' if success else 'unavailable') if failure else 'fresh',
                                      last_attempt_at=now, last_success_at=success, last_good_run_url=good_run,
-                                     error_code=failure, message='Retained last-good family.' if failure else
-                                     'Offline verification from captured sources. Not live data.')
+                                     error_code=failure, message=((('Retained last-good family' if success else 'No validated family available') +
+                                                               ' (' + failure + ').') if failure else
+                                     (messages or {}).get(family, capture_message)))
                 statuses = [r for r in statuses if r['dataset'] != family] + [family_status]
             export.pair(stage, 'status', export.envelope(statuses, [], run_url, sha))
             export.merged_licences(stage)
@@ -117,9 +121,22 @@ def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', lo
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--live', action='store_true')
     args = parser.parse_args()
-    status = daily_refresh(args.out)
-    failures = [r['error_code'] for r in export.validate_bundle(args.out)['status']['data'] if r['dataset'] != 'polls' and r['error_code']]
+    options = {}
+    if args.live:
+        from product.nz_election.pipeline.daily_sources import live_loaders
+        loaders, messages = live_loaders()
+        options = dict(loaders=loaders, messages=messages, sha=os.environ['GITHUB_SHA'],
+                       run_url=os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'])
+    daily_refresh(args.out, **options)
+    if os.environ.get('GITHUB_OUTPUT'):
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+            output.write('validated=true\n')
+    if os.environ.get('GITHUB_STEP_SUMMARY'):
+        with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+            summary.write('## Daily refresh\n\n```json\n' + json.dumps(export.validate_bundle(args.out)['status']['data'], indent=2) + '\n```\n')
+    failures = [r['error_code'] for r in export.validate_bundle(args.out)['status']['data'] if r['dataset'] in export.FAMILIES.keys() - {'polls', 'social'} and r['error_code']]
     if failures:
         raise SystemExit('FAIL refresh: ' + '; '.join(failures))
     print('PASS refresh: daily bundles')
