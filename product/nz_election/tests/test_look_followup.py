@@ -61,9 +61,11 @@ def test_live_capture_seats_and_published_derivations(tmp_path):
     methods = (site / 'methods/index.html').read_text()
     assert 'Affected pollsters: Anacta, Talbot Mills.' in methods
     home = (site / 'index.html').read_text()
-    assert 'Government parties: 67 seats' in home
-    assert 'Opposition parties: 58 seats' in home and '67 needed' in home
-    assert re.findall(r'data-(?:overhang-)?party="([^"]+)"', home.split('class="lanes"')[0]) == ['nat', 'nat', 'act', 'nzf', 'opp', 'lab', 'grn', 'tpm', 'tpm']
+    assert 'Government 67 seats' in home
+    assert 'Opposition 58 seats' in home and '67 needed' in home
+    assert re.findall(r'class="segment bloc-fill-([^"]+)"', home) == ['left', 'right', 'neutral']
+    assert '8 seats outside these groups or unassigned' in home
+    assert 'methods/#home-seats' in home
 
 
 def test_group_colours_and_segment_order():
@@ -156,9 +158,12 @@ def test_derived_input_disclosure_on_every_affected_module(tmp_path):
         assert expected in module and f'href="{target}"' in module
         assert expected in VisibleText(module).text
     site = build(data, tmp_path / 'output', built=built)
-    for route in ('index.html', 'polls/index.html', 'og/home.html', 'og/polls.html'):
+    for route in ('methods/index.html', 'polls/index.html', 'og/home.html', 'og/polls.html'):
         html = (site / route).read_text()
         assert expected in html and f'href="{target}"' in html
+    home = (site / 'index.html').read_text()
+    for anchor in ('seats', 'trend', 'thresholds'):
+        assert f'methods/#home-{anchor}' in home
     polls = (site / 'polls/index.html').read_text()
     for heading, end in [('Which parties are near the 5 percent threshold?', '</section>'),
                          ('What is the average party vote?', '</section>')]:

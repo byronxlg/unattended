@@ -48,14 +48,15 @@ def test_page_and_card_share_availability_and_selected_provenance(tmp_path):
         stored = json.loads((site / 'home-presentation.json').read_text())
         assert stored == presentation
         html = (site / 'index.html').read_text()
-        assert stored['title'] in html and stored['source'] in html
+        from product.nz_election.pipeline.markup import open_prose
+        assert open_prose(stored['source']) in (site / 'methods/index.html').read_text()
         assert ('class="strip"' in html) is available
         if available:
             assert {p['id'] for p in stored['selected']} == set(envs['averages']['data'][-1]['poll_ids'])
             latest = max(p['fieldwork_end'] for p in stored['selected'])
             assert f'datetime="{latest}"' in stored['source']
         else:
-            assert 'Read how seats are calculated.</a>' in html.split('<summary>Why seats are unavailable')[0]
+            assert 'methods/#home-seats' in html and 'No seat estimate available yet.' in html
     assert 'Read how seats are calculated.</a>' in polls_page({}, '2026-10-17T01:00:00Z')
 
 

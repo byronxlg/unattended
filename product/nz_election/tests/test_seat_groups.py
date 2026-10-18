@@ -75,8 +75,13 @@ def test_reader_copy_and_withheld_topline(tmp_path, state):
         assert not re.search(r'\bconfig\w*\b|\bsupplied\b', visible), path
         provenance(html)
         if state == 'earlier-coherent-window':
-            assert 'Government parties:' in html and 'Opposition parties:' in html
-            assert html.index('Government parties:') < html.index('id="source-seats"') < html.index('class="strip"')
+            if route:
+                assert 'Government parties:' in html and 'Opposition parties:' in html
+                assert html.index('Government parties:') < html.index('id="source-seats"') < html.index('class="strip"')
+            else:
+                assert 'class="bloc-left">Government ' in html and 'class="bloc-right">Opposition ' in html
+                assert html.index('class="strip"') < html.index('id="source-seats"')
+                assert 'methods/#home-seats' in html
         else:
-            assert 'Seat totals are withheld until a complete, up-to-date poll average is available.' in html
+            assert ('Seat totals are withheld until a complete, up-to-date poll average is available.' if route else 'No seat estimate available yet.') in html
             assert 'Government parties:' not in html and 'Opposition parties:' not in html

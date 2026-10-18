@@ -321,7 +321,8 @@ def main():
             from product.nz_election.pipeline.market_panel import panel
             actual = export.validate_bundle(product / 'data') if (product / 'data').exists() else {}
             built = json.loads((product / 'build-manifest.json').read_text())['data']['built_at']
-            require(panel(actual, built) in (product / 'index.html').read_text(), 'supplied market panel')
+            from product.nz_election.pipeline.markup import open_prose
+            require(open_prose(panel(actual, built)) in (product / 'methods/index.html').read_text(), 'supplied market provenance')
         for name, check in checks.items():
             if args.check in ('all', name):
                 check(envs, root)

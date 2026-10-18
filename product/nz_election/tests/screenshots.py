@@ -343,10 +343,7 @@ def main():
                     plain = nojs.new_page()
                     plain.goto(url, wait_until='networkidle')
                     assert static_text(plain) == text, 'NO_JS_CONTENT_MISMATCH'
-                    if width <= 390:
-                        plain.locator('.phone-menu summary').click()
-                        assert plain.locator('.phone-menu nav').is_visible(), 'NO_JS_MENU_FAILED'
-                        plain.locator('.phone-menu summary').click()
+                    assert plain.locator('.desktop-nav').is_visible(), 'NO_JS_NAVIGATION_FAILED'
                     manifest.append(dict(route=PREFIX + 'nz-election/' + path, viewport=dict(width=width, height=height),
                                          path=name, sha256=hashlib.sha256(target.read_bytes()).hexdigest(),
                                          code_sha=build['code_sha'], data_sha=build['data_sha'], browser_version=browser.version, source_note_bottom=bottom))

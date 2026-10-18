@@ -47,7 +47,8 @@ def test_download_retrieval_summary_is_auckland_and_records_stay_utc(tmp_path):
     envs = export.validate_bundle(data)
     for entry in envs['manifest']['data']:
         row = html.split(f'data-file="{entry["path"]}"')[1].split('</tr>')[0]
-        summary, raw_record = row.split('<details>', 1)
+        summary, raw_record = row.split('<div><p class="disclosure-label">Full manifest record (stored UTC)</p>', 1)
+        assert '<details' not in row
         assert '<dt>Retrieved (Pacific/Auckland)</dt>' in summary
         assert 'Retrieved (UTC)' not in summary
         if entry['fetched_at']:

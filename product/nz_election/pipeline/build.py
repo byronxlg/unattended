@@ -513,6 +513,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
         home = home_presentation(envs, built)
         (stage / 'home-presentation.json').write_text(export.canonical(home) + '\n')
         methods = methods_page(stage, built, sha, run_url, envs)
+        from product.nz_election.pipeline.home import sources
+        methods = sources(envs, built, home) + methods
         manifest = export.envelope(dict(id='build', source_ref=[], observed_at=built, code_sha=sha,
                          data_sha=data_sha if envs else None, build_run_url=run_url, built_at=built,
                          data_available='polls' in envs), [], run_url, sha)
@@ -570,7 +572,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             page_html = render('base', title=escape(title), description=escape(description, quote=True),
                                image=ORIGIN + PREFIX + cards[-1]['png'], heading=heading, prefix=PREFIX, nav=nav, body=body,
                                built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.')
-            (target / 'index.html').write_text(page_html)
+            from product.nz_election.pipeline.markup import open_prose
+            (target / 'index.html').write_text(open_prose(page_html))
         (stage / 'og-manifest.json').write_text(export.canonical(cards) + '\n')
         for asset in ('favicon.svg', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'):
             shutil.copyfile(PRODUCT / 'web' / asset, stage / asset)

@@ -156,7 +156,8 @@ def test_home_market_summary_and_all_page_filtering(tmp_path):
     html = (site / 'index.html').read_text()
     assert all(label in html for label in ('Christopher Luxon', 'Green Party', 'National Party: 35-39 seats', 'Labour Party: 35-39 seats'))
     assert html.count('data-market-id=') == 4
-    assert html.count('href="https://polymarket.com/event/') == 4
+    assert html.count('href="https://polymarket.com/event/') == 0
+    assert (site / 'methods/index.html').read_text().count('href="https://polymarket.com/event/') == 4
     for row in envs['markets']['data']:
         row['question'] = 'Will Person A win?'
     html = panel(envs, NOW)

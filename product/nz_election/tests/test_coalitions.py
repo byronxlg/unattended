@@ -148,7 +148,8 @@ def test_static_content_preserved(tmp_path, request_data):
     html = (out / 'polls/index.html').read_text()
     from product.nz_election.pipeline.build import home_presentation
     home = home_presentation(export.validate_bundle(tmp_path / 'data'), '2026-10-17T01:00:00Z')
-    assert strip(request_data['seats'], home['source']) in html
+    from product.nz_election.pipeline.markup import open_prose
+    assert open_prose(strip(request_data['seats'], home['source'])) in html
     assert '<fieldset hidden disabled>' in html and 'requires JavaScript' in html
     assert 'source-seats' in html and 'data-select="others"' not in html
     assert 'data-select="nat" checked' not in html
