@@ -119,6 +119,13 @@ def validate_envelope(env, stem):
     extra = {'type', 'features'} if stem in GEO else set()
     if set(env) not in (BASE | extra, BASE | DERIVED | extra) or type(env['schema_version']) is not int or env['schema_version'] != 1:
         raise ValueError('INVALID_ENVELOPE')
+    if stem == 'markets':
+        if not isinstance(env['data'], list) or not env['data']:
+            raise ValueError('INVALID_MARKET')
+        for market in env['data']:
+            validate_market_row(market)
+        if len({r['id'] for r in env['data']}) != len(env['data']):
+            raise ValueError('INVALID_MARKET')
     validate_times(env, nullable_dates=env.get("method_version") in {"enrolment-v1", "electorate-polls-v1"})
     for source in env['source']:
         if set(source) != SOURCE:
@@ -137,11 +144,6 @@ def validate_envelope(env, stem):
         if isinstance(value, list):
             for v in value:
                 exact(v)
-    if stem == 'markets':
-        if not isinstance(env['data'], list) or not env['data']:
-            raise ValueError('INVALID_MARKET')
-        for market in env['data']:
-            validate_market_row(market)
     exact({k: v for k, v in env.items() if k != 'features'} if stem in GEO else env)
     if stem in GEO:
         from .geography import validate
@@ -257,7 +259,7 @@ def validate_daily_row(row, stem, sources):
     source_ids = {s['id'] for s in sources}
     for ref in row['source_ref']:
         if not isinstance(ref, dict) or ref.get('source_id') not in source_ids or not ref.get('locator'):
-            raise ValueError('INVALID_FIELD_SOURCE')
+            raise ValueError('INVALID_MARKET' if stem == 'markets' else 'INVALID_FIELD_SOURCE')
 
 
 def csv_bytes(env):
@@ -482,13 +484,22 @@ def validate_market_row(row, *, allow_turnout=False):
         if price and Decimal(value) > 1:
             raise ValueError('INVALID_MARKET')
     try:
+        if not isinstance(row, dict) or set(row) != FIELDS['markets']:
+            raise ValueError
+        if not isinstance(row['source_ref'], list) or not row['source_ref']:
+            raise ValueError
+        for ref in row['source_ref']:
+            if not isinstance(ref, dict) or set(ref) != {'field', 'source_id', 'locator'}:
+                raise ValueError
+            for value in ref.values():
+                text(value)
         identifier(row['event_id'])
         identifier(row['market_id'])
         if row['id'] != 'gamma-' + row['market_id']:
             raise ValueError
         if row['family'] not in FAMILIES | ({'excluded-turnout'} if allow_turnout else set()):
             raise ValueError
-        if not isinstance(row['event_slug'], str) or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', row['event_slug']):
+        if not isinstance(row['event_slug'], str) or len(row['event_slug']) > 200 or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', row['event_slug']):
             raise ValueError
         for key in ('event_title', 'question', 'resolution_criteria'):
             text(row[key])
@@ -512,7 +523,7 @@ def validate_market_row(row, *, allow_turnout=False):
             raise ValueError
         for key in ('volume', 'liquidity'):
             decimal(row[key])
-            if row[key + '_unit'] is not None:
+            if row[key + '_unit'] not in (None, 'USD'):
                 raise ValueError
         url = row['resolution_url']
         text(url, 2000)

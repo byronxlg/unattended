@@ -28,59 +28,51 @@ def acquired(sources, path):
 
 
 def live_loaders(acquire=None):
-    """Acquire in memory; each live family falls back as a whole to immutable evidence."""
+    """Acquire in memory; failures propagate to atomic last-good family retention."""
     from . import fetch, markets, candidates, baseline, enrolment, electorate_polls
     acquire = acquire or fetch.acquire
     messages = {}
 
     def market_loader():
-        try:
-            results = {}
-            for event in markets.events():
-                path = 'polymarket/' + event['slug'] + '.json'
-                result = acquire(url=fetch.gamma_url(event['slug']))
-                markets.parse(result['raw'], event['slug'], event['family'], result['fetched_at'])
-                results[path] = result
-            def live_inputs(paths, configs):
-                # Validate committed evidence before selecting live replacements.
-                raw, sources, hashes = inputs(paths, configs)
-                for source in sources:
-                    path = source['id']
-                    result = results[path]
-                    raw[path] = result['raw']
-                    source.update(fetched_at=result['fetched_at'], revision=None)
-                    hashes.pop('fixtures/' + path)
-                    hashes['live/' + path] = export.digest(raw[path])
-                return raw, sources, hashes
-            payload = markets.load(live_inputs)
-            messages['markets'] = 'Live Gamma observations. Amount units unavailable; no currency inferred.'
-            return payload
-        except ValueError as exc:
-            messages['markets'] = 'Live Gamma unavailable (' + str(exc) + '); fallback to committed captures with original observation times.'
-            return markets.load()
+        results = {}
+        for event in markets.events():
+            path = 'polymarket/' + event['slug'] + '.json'
+            result = acquire(url=fetch.gamma_url(event['slug']))
+            markets.parse(result['raw'], event['slug'], event['family'], result['fetched_at'])
+            results[path] = result
+        def live_inputs(paths, configs):
+            # Validate committed evidence before selecting live replacements.
+            raw, sources, hashes = inputs(paths, configs)
+            for source in sources:
+                path = source['id']
+                result = results[path]
+                raw[path] = result['raw']
+                source.update(fetched_at=result['fetched_at'], revision=None)
+                hashes.pop('fixtures/' + path)
+                hashes['live/' + path] = export.digest(raw[path])
+            return raw, sources, hashes
+        payload = markets.load(live_inputs)
+        messages['markets'] = 'Live Gamma observations. Amounts in USD per supervisor review.'
+        return payload
 
     def candidate_loader():
-        try:
-            result = acquire(url=fetch.CANDIDATE_URL)
-            def live_inputs(paths, configs):
-                raw, sources, hashes = inputs(set(paths) | {candidates.WIKI}, configs)
-                # Reviewed claims cannot silently acquire new revision provenance.
-                if candidates.WIKI in paths and raw[candidates.WIKI].decode() != result['wikitext']:
-                    raise ValueError('CANDIDATE_REVISION_REVIEW_REQUIRED')
-                raw[candidates.WIKI] = result['wikitext'].encode()
-                source = next(s for s in sources if s['id'] == candidates.WIKI)
-                source.update(fetched_at=result['fetched_at'], revision=result['revision'],
-                              url='https://en.wikipedia.org/w/index.php?oldid=' + result['revision'])
-                hashes.pop('fixtures/' + candidates.WIKI)
-                hashes['live/' + candidates.WIKI] = export.digest(raw[candidates.WIKI])
-                return raw, sources, hashes
-            payload = candidates.load(live_inputs)
-            messages['candidates'] = ('Live Wikipedia candidate revision acquired; official EC spine from committed captures. '
-                                      'Supplemental identities still require reviewed mappings.')
-            return payload
-        except ValueError as exc:
-            messages['candidates'] = 'Live Wikipedia unavailable (' + str(exc) + '); fallback to committed captures.'
-            return candidates.load()
+        result = acquire(url=fetch.CANDIDATE_URL)
+        def live_inputs(paths, configs):
+            raw, sources, hashes = inputs(set(paths) | {candidates.WIKI}, configs)
+            # Reviewed claims cannot silently acquire new revision provenance.
+            if candidates.WIKI in paths and raw[candidates.WIKI].decode() != result['wikitext']:
+                raise ValueError('CANDIDATE_REVISION_REVIEW_REQUIRED')
+            raw[candidates.WIKI] = result['wikitext'].encode()
+            source = next(s for s in sources if s['id'] == candidates.WIKI)
+            source.update(fetched_at=result['fetched_at'], revision=result['revision'],
+                          url='https://en.wikipedia.org/w/index.php?oldid=' + result['revision'])
+            hashes.pop('fixtures/' + candidates.WIKI)
+            hashes['live/' + candidates.WIKI] = export.digest(raw[candidates.WIKI])
+            return raw, sources, hashes
+        payload = candidates.load(live_inputs)
+        messages['candidates'] = ('Live Wikipedia candidate revision acquired; official EC spine from committed captures. '
+                                  'Supplemental identities still require reviewed mappings.')
+        return payload
 
     return {'candidates': candidate_loader, 'baseline-2023': baseline.load, 'enrolment': enrolment.load,
             'electorate-polls': electorate_polls.load, 'markets': market_loader}, messages

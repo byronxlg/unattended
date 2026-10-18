@@ -42,17 +42,48 @@ def test_daily_live_sources_and_provenance(tmp_path):
     assert markets.ATTRIBUTION in (tmp_path / 'data/LICENCES.md').read_text()
 
 
-def test_live_failure_falls_back_with_original_observations(tmp_path):
+@pytest.mark.parametrize('first', [False, True])
+def test_live_failure_retains_last_good_and_publishes_failure(tmp_path, monkeypatch, first):
+    import importlib
+    from product.nz_election.pipeline.publish import publish, git, DATA
+    module = importlib.import_module('product.nz_election.pipeline.daily_refresh')
+    data = tmp_path / 'data'
+    if not first:
+        loaders, messages = daily_sources.live_loaders(acquired_adapter)
+        daily_refresh(data, now=NOW, loaders=loaders, messages=messages, run_url='https://example.org/good')
+    before = {p.name: p.read_bytes() for p in data.glob('markets.*')}
     def failed(**kwargs):
         raise fetch.FetchError('HTTP_RETRIES_EXHAUSTED')
-    loaders, messages = daily_sources.live_loaders(failed)
-    daily_refresh(tmp_path / 'data', now=NOW, loaders=loaders, messages=messages)
-    envs = export.validate_bundle(tmp_path / 'data')
-    assert envs['markets']['data'] == markets.load()[0]['markets']
+    monkeypatch.setattr(fetch, 'acquire', failed)
+    monkeypatch.setattr(module, 'utc_now', lambda: '2026-10-19T01:00:00Z')
+    output = tmp_path / 'output'
+    for key, value in dict(GITHUB_OUTPUT=str(output), GITHUB_SERVER_URL='https://github.com',
+                           GITHUB_REPOSITORY='example/repo', GITHUB_RUN_ID='123', GITHUB_SHA='a'*40).items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.setattr('sys.argv', ['daily_refresh.py', '--live', '--out', str(data)])
+    with pytest.raises(SystemExit, match='HTTP_RETRIES_EXHAUSTED'):
+        module.main()
+    envs = export.validate_bundle(data)
+    assert before == {p.name: p.read_bytes() for p in data.glob('markets.*')}
     for family in ('candidates', 'markets'):
         status = next(r for r in envs['status']['data'] if r['dataset'] == family)
-        assert status['state'] == 'fresh' and 'fallback to committed captures' in status['message']
-    assert all(r['observed_at'] != NOW for r in envs['markets']['data'])
+        assert status['state'] == ('unavailable' if first else 'stale')
+        assert status['last_success_at'] == (None if first else NOW)
+        assert status['last_good_run_url'] == (None if first else 'https://example.org/good')
+        assert status['last_attempt_at'] == '2026-10-19T01:00:00Z'
+        assert status['error_code'] == 'HTTP_RETRIES_EXHAUSTED'
+    assert output.read_text() == 'validated=true\n'
+    remote = tmp_path / 'remote.git'
+    remote.mkdir()
+    git(remote, 'init', '--bare', '-q')
+    assert publish(data, remote, family='daily')['outcome'] == 'published'
+    assert json.loads(git(remote, 'show', 'data:' + str(DATA / 'status.json')).stdout)['data'] == envs['status']['data']
+    for name, raw in before.items():
+        assert git(remote, 'show', 'data:' + str(DATA / name)).stdout.encode() == raw
+
+
+def acquired_adapter(*, url):
+    return acquired(url)
 
 
 def test_partial_daily_failure_retains_family(tmp_path):
@@ -100,12 +131,13 @@ def test_daily_transport_bounds_and_hosts():
     assert candidate['revision'] == '1380178146'
 
 
-def test_daily_malformed_live_market_falls_back():
+def test_daily_malformed_live_market_fails():
     def bad(*, url):
         return dict(raw=b'null', fetched_at=NOW)
     loaders, messages = daily_sources.live_loaders(bad)
-    assert loaders['markets']()[0] == markets.load()[0]
-    assert 'INVALID_MARKET' in messages['markets']
+    with pytest.raises(ValueError, match='^INVALID_MARKET$'):
+        loaders['markets']()
+    assert 'markets' not in messages
 
 
 def test_daily_cli_validated_gate_and_unexpected_failure(tmp_path, monkeypatch):
@@ -173,8 +205,6 @@ def test_candidate_reviewed_claims_not_relabelled(monkeypatch):
         result['wikitext'] += '\nChanged content'
         return result
     loaders, messages = daily_sources.live_loaders(changed)
-    payloads, sources, hashes = loaders['candidates']()
-    assert 'CANDIDATE_REVISION_REVIEW_REQUIRED' in messages['candidates']
-    assert 'fixtures/' + candidates.WIKI in hashes and 'live/' + candidates.WIKI not in hashes
-    assert next(s for s in sources if s['id'] == candidates.WIKI)['fetched_at'] != NOW
-    assert payloads['candidates'][0]['name'] == row['name']
+    with pytest.raises(ValueError, match='^CANDIDATE_REVISION_REVIEW_REQUIRED$'):
+        loaders['candidates']()
+    assert 'candidates' not in messages

@@ -15,19 +15,19 @@ events. Each request is capped at 2 MiB, with a 20-second timeout, at most three
 bounded Retry-After and no redirects. Geometry, EC and other inputs remain immutable captures.
 The default `daily_refresh.py --out <directory>` is offline verification and never fetches.
 No raw market pages are published. Turnout is captured and validated but excluded from display.
-Volume and liquidity units are unavailable until reviewed documentation establishes them.
+Volume and liquidity display as rounded whole USD amounts under the supervisor's PR #30 fix-round instruction; normalized amounts remain exact decimal strings.
 
 Read the daily Action summary and `data/status.json` row for each dataset. `last_attempt_at`
 is the attempt time; `last_success_at` is ingestion time, not a new observation. The source
 `fetched_at` and market `observed_at` retain acquisition times. `updated_at` is Gamma's own
-update timestamp. The status message explicitly identifies live acquisition or capture fallback.
+update timestamp. The status message identifies successful acquisition or the failed attempt. Live failures never substitute fixture captures.
 Candidate supplemental identity claims still require reviewed mappings; an incompatible live
-revision falls back rather than changing a reviewed claim's provenance.
+revision fails that family rather than changing a reviewed claim's provenance.
 
 A handled family failure retains its validated last-good bytes, marks stale (or unavailable on
 first failure), uploads the validated status, and publishes before reporting failure. Unexpected
-exceptions block upload. A successful fallback is labelled as such; it does not refresh the
-capture's observation date. A daily ingestion is overdue after 36 hours, and the panel separately
+exceptions block upload. A failed live attempt keeps last-good bytes and success metadata unchanged; on first failure
+the family is unavailable without any substituted capture. Only explicit offline runs ingest fixture captures. A daily ingestion is overdue after 36 hours, and the panel separately
 reports old source observations. If publication keeps a newer remote family, its original
 last-good run and acquisition remain authoritative.
 
@@ -43,6 +43,8 @@ an older builder accept newer data. Inspect both actual checkout SHAs after the 
 
 Host visual acceptance: home `/` gained the markets module; `/downloads/` gains its catalogue
 entries. Inspect both at 390x844 and 1280x800, including populated, unavailable and stale markets.
-Run the existing all-route screenshot harness and coalition browser check. The panel has three
-static tables, source actions and locally scrollable regions, and works without JavaScript.
+Run the existing all-route screenshot harness and coalition browser check. The panel shows the highest priced, non-placeholder Yes contract per event in three static tables.
+The complete list remains a download only; no full-list route is published. Amounts sit in one
+optional disclosure, with one rules link per event. The screenshot gate requires a maximum
+844 px module height at width 390 and rejects unpriced/placeholder contracts on every page.
 The existing M1/social recovery guide is `product/nz_election/runbook.md`.

@@ -15,7 +15,7 @@ def events():
 
 def parse(raw, slug, family, observed):
     try:
-        body = json.loads(raw, parse_float=str)
+        body = json.loads(raw)
         if not isinstance(body, list) or len(body) != 1:
             raise ValueError
         event = body[0]
@@ -23,6 +23,8 @@ def parse(raw, slug, family, observed):
             raise ValueError
         rows = []
         for market in event['markets']:
+            if not isinstance(market['slug'], str) or len(market['slug']) > 500 or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', market['slug']):
+                raise ValueError
             names, ids = [json.loads(market[k]) for k in ('outcomes', 'clobTokenIds')]
             unpriced = 'outcomePrices' not in market and market['active'] is False and market['closed'] is False
             prices = [None] * len(names) if unpriced else json.loads(market['outcomePrices'])
@@ -36,7 +38,7 @@ def parse(raw, slug, family, observed):
                        event_title=event['title'], market_id=market['id'], family=family,
                        question=market['question'], outcomes=[] if unpriced else [dict(id=i, name=n, price=p) for i, n, p in zip(ids, names, prices)],
                        unpriced_outcomes=[dict(id=i, name=n) for i, n in zip(ids, names)] if unpriced else [],
-                       volume=market['volume'], volume_unit=None, liquidity=market['liquidity'], liquidity_unit=None,
+                       volume=market['volume'], volume_unit='USD', liquidity=market['liquidity'], liquidity_unit='USD',
                        resolution_url='https://polymarket.com/event/' + slug + '/' + market['slug'],
                        resolution_criteria=market['description'], updated_at=updated,
                        closed=market['closed'], active=market['active'], observed_at=observed,

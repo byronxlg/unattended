@@ -28,3 +28,10 @@ def market_price(value):
     with localcontext() as ctx:
         ctx.prec = 60
         return str((Decimal(value) * 100).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)) + '%'
+
+
+def market_money(value):
+    from decimal import Decimal, ROUND_HALF_UP, localcontext
+    with localcontext() as ctx:
+        ctx.prec = 60
+        return format(Decimal(value).quantize(Decimal('1'), rounding=ROUND_HALF_UP), ',f') + ' USD'

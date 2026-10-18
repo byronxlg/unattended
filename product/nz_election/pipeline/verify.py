@@ -258,7 +258,7 @@ def verify_home(envs, root):
 
 def verify_markets(envs, root):
     from product.nz_election.pipeline.markets import load, FAMILIES, ATTRIBUTION
-    from product.nz_election.pipeline.market_panel import panel
+    from product.nz_election.pipeline.market_panel import panel, leaders
     from product.nz_election.tests.design_checks import provenance
     payloads, sources, hashes = load()
     current = {'markets': export.envelope(payloads['markets'], sources, 'offline-verification', 'verify',
@@ -267,10 +267,10 @@ def verify_markets(envs, root):
     require({r['family'] for r in payloads['markets']} == FAMILIES, 'three market families')
     html = panel(current, '2026-10-20T01:00:00Z')
     provenance(html)
-    require(html.count('<table') == 3 and ATTRIBUTION in html and 'Unit unavailable' in html, 'market contracts and terms')
+    require(html.count('<table') == 3 and ATTRIBUTION in html and ' USD' in html, 'market contracts and terms')
     require('Update overdue' in html and 'Source observations are more than 36 hours old' in html, 'market stale states')
     require('Not available' in panel({}, '2026-10-20T01:00:00Z'), 'market unavailable')
-    require(all(r['observed_at'] in html and r['resolution_url'] in html for r in payloads['markets']), 'market observation and rules')
+    require(all(r['observed_at'] in html and 'https://polymarket.com/event/' + e['slug'] in html for e, r in leaders(payloads['markets']) if r), 'market observation and rules')
 
 
 def main():

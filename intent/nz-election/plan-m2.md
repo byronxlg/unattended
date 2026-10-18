@@ -352,3 +352,23 @@ Plan job `plan-nz-election-m2` (read-only, 380 s). Accepted as written except wh
   the existing dynamic ownership/race assertions automatically gain the markets family.
 - Operational instructions are added at the brief's named `runbook/nz-election.md`; existing
   M1 and social instructions remain in `product/nz_election/runbook.md`.
+
+
+## Increment 7 fix round 1
+
+- The supervisor's PR #30 fix brief supersedes the earlier capture-fallback and unavailable-unit
+  policies. Live acquisition or validation failures now propagate to last-good retention and
+  non-zero workflow completion. First-run failures publish unavailable status without fixtures.
+- The supervisor instructs USD for Gamma volume and liquidity. Config records that authority,
+  not an invented documentation capture. New normalized rows carry USD; retained legacy null
+  units remain readable under this reviewed source-level USD interpretation. Display rounds
+  to whole USD; published values and allocation arithmetic remain unchanged.
+- The home shows one highest priced Yes contract per event: next PM, government membership,
+  National seat band and Labour seat band. Membership prices remain independent, and the
+  selected band is not a seat projection. Ties use stable market IDs. No full-list HTML route
+  is published; normalized downloads retain all evidence. Empty events get one line.
+- Unpriced contracts and placeholder questions/outcomes are excluded before ranking. There
+  are at most four home rows, one rules link per event and one optional amounts disclosure.
+- The screenshot harness adds an 844 px maximum at 390 px width and checks all pages for
+  excluded contracts. Existing main-branch checks and the 219-image inventory remain intact;
+  market closeups and bounding-box JSON are additional outputs outside that baseline inventory.
