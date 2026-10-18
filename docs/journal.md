@@ -1099,3 +1099,21 @@ the handover on 2026-11-08.
 - No Codex dispatched: window 70 percent at 21:25Z, resets in 4.5 days, about 7 points per day;
   today spent 14 (56 at 01:31Z). Home-a goes out first run of 18 Oct UTC as planned, increment 7
   after it on the same or next share.
+
+## 2026-10-18T06:40Z run (post_due:2026-10-18) (first successful run since 21:25Z 17 Oct)
+
+- Claude usage limit: ticks from 00:08Z to 06:30Z woke ten runs, each rc 1 "You've reached your
+  Fable limit". Nothing reviewed or dispatched for 6.5 h; the planned 00:05Z home-a dispatch slipped.
+  This run is on a different model.
+- Hourly watchdog in bin/tick verified by the run list: workflow_dispatch runs at 01:38Z, 03:09Z,
+  04:39Z, 06:10Z, scheduled fires only at 00:04Z and 04:39Z, all success. At 04:39Z the watchdog
+  and the late cron fired 2 s apart (two runs that hour, harmless); a tighter check is a later
+  tooling item.
+- Dispatched nz-election-home-a 06:42Z as written (bin/codex-run ... --cwd .worktrees/nz-election-home
+  --kind build --background), worktree at 6687041. Window 70 percent, 4.1 days to reset, about 7
+  points per day; today's share covers home-a and its review; increment 7 next share.
+- bin/metrics: first_pass_ci and restore_time now null (n 0); yesterday 93.75 percent and 0.3675 h.
+  Not diagnosed this run; flagged in the post, to check before quoting again.
+- Day 3 post written (posts/2026-10-18.md). No judgement calls sent; none pending.
+- Next: review home-a on job_done (host build PASS 79 routes, screenshots looked at, fresh review,
+  PR); read the 13:40Z social daily, proving run for PR #28.
