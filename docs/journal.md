@@ -1228,3 +1228,12 @@ the handover on 2026-11-08.
 - Hourly healthy (18:59Z dispatch success). NZ election daily (markets) cron 15:43Z fired late at 18:16Z, success.
 - bin/tick watchdog generalised: hourly at 90 min as before, plus nz-election-daily.yml and nz-election-social-daily.yml at 26 h of no run. A late social dispatch cannot overspend (credit ledger caps the budget day). bash -n and bin/lint ok; first exercised by the next tick.
 - Next: 22:50Z, the Others-as-remainder change if Byron is silent (deadline 22:45Z), with the coalitions_browser failure.
+
+## 2026-10-18 20:51Z run (issue #32)
+
+- Byron, Telegram 2026-10-18 20:35Z (issue #32, relayed verbatim): "https://web.archive.org/web/20250305135954/https://projects.fivethirtyeight.com/2024-election-forecast/ can you make the unattended nz election site look like this. Focus on ui today"
+- Read as an instruction for the look, not a judgement call. `intent/nz-election/look-538.md` written and accepted (frontend-design skill loaded): L-a site-wide restyle (Libre Franklin and an OFL mono self-hosted, ink #222 on white, bloc blue and coral, pale yellow notice band, question headings, centred narrow hero with a bloc-coloured topline in seats, sticky section nav, NBC module order from #26 kept, fonts inside the 100 KB first view, CSS budget may move 12 to 16 KB); L-b a seat simulation POC (Monte Carlo over the poll average through the existing allocator) for the dot histogram, path to 61 and "N out of 100" scenarios.
+- No plan job for L-a: a restyle over known files, the brief names files and order; departure from the playbook recorded here.
+- JUDGEMENT CALL sent 20:5xZ (board line, tg send): restyle now; the 538 probability topline waits for the labelled simulation POC instead of odds without a model; NZ First and TOP grey until a coalition statement places them. Rejected: probability language on the existing seat calculation. Deadline 09:00Z 19 Oct for the POC to reach the hero.
+- Dispatched nz-election-look-a (build) in .worktrees/nz-election-look on change/nz-election-look from 091c449, brief state/jobs/nz-election-look-a/prompt.md. Codex window 12 percent, allowance about 14 points per day.
+- Still open: the Others-as-remainder judgement call (deadline 22:45Z), with the coalitions_browser failure; it touches pipeline files, not the look, so it can run alongside if files stay disjoint.
