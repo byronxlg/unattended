@@ -1125,3 +1125,9 @@ the handover on 2026-11-08.
 - Home screenshots taken by hand (390x844, 1280x800, full page) and looked at: modules as home.md describes; at 390 the seat strip outlines cross the legend ("GRN 1|5"). Candidate lists are long run-on lines at 390 (nit, H-b).
 - PR #29 opened, supervisor review request changes (two items) logged on the PR; fresh review review-nz-election-home-a dispatched read-only.
 - Next: read the fresh review, send its findings plus the two supervisor items as fix-1 on the build thread 01a14dbe-32bb-7a50-90bc-720111662c5a; 13:40Z social daily is the proving run for PR #28; increment 7 on the next share.
+
+## 2026-10-18 07:22Z (job_done review-nz-election-home-a)
+
+- Fresh review review-nz-election-home-a (138 s, window 3 percent): request changes, one Important: test_design.py:112 measures home only, so the transfer-byte and reserved-font budgets no longer cover the explorer on /polls/. Accepted: moving the page must not weaken main's checks. Its probes passed (provenance, absent families, ties and missing results excluded, East Cape eligible, 92 old root ids preserved on /polls/); it could not run pytest (uv cache sandbox) or reach gh. Logged on PR #29.
+- fix-1 nz-election-home-a-fix-1 dispatched 07:25Z on the build thread 01a14dbe (resume, workspace-write, own job dir so the build brief is not overwritten): legend overlap at 360/390, harness count of li[id^=electorate-] == 71, budgets on both home and polls with page-named messages. Protected tests named by ref (main at bb0690d).
+- Next: host-verify fix-1, push, second fresh review, merge when CI green; 13:40Z social daily is the proving run for PR #28.
