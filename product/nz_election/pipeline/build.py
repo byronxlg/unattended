@@ -572,8 +572,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             page_html = render('base', title=escape(title), description=escape(description, quote=True),
                                image=ORIGIN + PREFIX + cards[-1]['png'], heading=heading, prefix=PREFIX, nav=nav, body=body,
                                built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.')
-            from product.nz_election.pipeline.markup import open_prose
-            (target / 'index.html').write_text(open_prose(page_html))
+            (target / 'index.html').write_text(page_html)
         (stage / 'og-manifest.json').write_text(export.canonical(cards) + '\n')
         for asset in ('favicon.svg', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'):
             shutil.copyfile(PRODUCT / 'web' / asset, stage / asset)

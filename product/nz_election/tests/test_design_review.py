@@ -48,8 +48,7 @@ def test_page_and_card_share_availability_and_selected_provenance(tmp_path):
         stored = json.loads((site / 'home-presentation.json').read_text())
         assert stored == presentation
         html = (site / 'index.html').read_text()
-        from product.nz_election.pipeline.markup import open_prose
-        assert open_prose(stored['source']) in (site / 'methods/index.html').read_text()
+        assert stored['source'] in (site / 'methods/index.html').read_text()
         assert ('class="strip"' in html) is available
         if available:
             assert {p['id'] for p in stored['selected']} == set(envs['averages']['data'][-1]['poll_ids'])

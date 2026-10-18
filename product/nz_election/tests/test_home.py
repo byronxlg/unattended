@@ -64,7 +64,6 @@ def test_poll_fragments_preserved(populated):
 
 
 def test_home_figures_have_complete_source_entries(populated):
-    from product.nz_election.pipeline.markup import open_prose
     from product.nz_election.tools.measure_home import measure
     envs, site = populated
     html = (site / 'index.html').read_text()
@@ -75,7 +74,7 @@ def test_home_figures_have_complete_source_entries(populated):
     for figure in figures:
         assert figure['id'] in ids
         assert f'methods/#{figure["id"]}' in html
-    assert open_prose(home_presentation(envs, NOW)['source']) in sources
+    assert home_presentation(envs, NOW)['source'] in sources
     assert 'id="source-thresholds"' in sources
     for poll in envs['polls']['data']:
         assert f'id="source-{poll["id"]}"' in sources
@@ -254,13 +253,3 @@ def test_poll_budget_rejects_oversized_dependency(populated, tmp_path, extra_byt
     assert transfer_bytes(site)[0] == before
     with pytest.raises(AssertionError, match=f'{failure}: polls/index.html:'):
         check_budgets((None, site))
-
-
-def test_open_metadata_keeps_fragment_and_accessible_description():
-    from product.nz_election.pipeline.markup import open_prose
-    html = '<details id="old-fragment" class="source-note" open><summary>Inputs</summary><details><summary>Revision</summary><p>1234</p></details></details><figure aria-describedby="old-fragment"></figure>'
-    opened = open_prose(html)
-    provenance(opened)
-    assert '<details' not in opened and '<summary' not in opened
-    assert 'id="old-fragment" class="source-note"' in opened
-    assert '<p>1234</p>' in opened

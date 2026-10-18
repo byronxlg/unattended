@@ -309,6 +309,8 @@ def main():
             for route in config('routes') + [dict(path='electorates/' + r['slug'] + '/') for r in config('electorates')]:
                 require((product / route['path'] / 'index.html').is_file(), 'site route ' + route['path'])
             export.validate_envelope(json.loads((product / 'build-manifest.json').read_text()), 'build-manifest')
+            from product.nz_election.tools.check_visible_text import check_site as check_visible_text
+            print(f'PASS visible text: {check_visible_text(product)} routes, no whitespace-free run over 200 characters')
             if (product / 'data').exists():
                 export.validate_bundle(product / 'data')
         if args.site and args.check in {'home', 'all'}:
@@ -321,8 +323,7 @@ def main():
             from product.nz_election.pipeline.market_panel import panel
             actual = export.validate_bundle(product / 'data') if (product / 'data').exists() else {}
             built = json.loads((product / 'build-manifest.json').read_text())['data']['built_at']
-            from product.nz_election.pipeline.markup import open_prose
-            require(open_prose(panel(actual, built)) in (product / 'methods/index.html').read_text(), 'supplied market provenance')
+            require(panel(actual, built) in (product / 'methods/index.html').read_text(), 'supplied market provenance')
         for name, check in checks.items():
             if args.check in ('all', name):
                 check(envs, root)
