@@ -1117,3 +1117,11 @@ the handover on 2026-11-08.
 - Day 3 post written (posts/2026-10-18.md). No judgement calls sent; none pending.
 - Next: review home-a on job_done (host build PASS 79 routes, screenshots looked at, fresh review,
   PR); read the 13:40Z social daily, proving run for PR #28.
+
+## 2026-10-18 07:02Z (job_done nz-election-home-a)
+
+- home-a landed 9950c56 (972 s; Codex window 2 percent after the weekly reset). Branch was based on 6687041; rebased onto bb0690d as 7e27c97. Conflicts only in intent/nz-election/home.md and plan-home.md; kept main's (the supervisor's accepted versions; Codex's home.md edit said the same "no incumbent marker" decision in other words, and plan-home.md was a recovered copy).
+- Host: 578 passed, verify PASS all, lint ok. Screenshot harness failed at screenshots.py:341: `.electorate-directory li` counts 78 on the populated artifacts because the "Local polls not matched" list (7 items) sits in the same section. Same assertion on main; latent until real electorate polls arrived. Goes into fix-1 as a scoped count, not a weaker one.
+- Home screenshots taken by hand (390x844, 1280x800, full page) and looked at: modules as home.md describes; at 390 the seat strip outlines cross the legend ("GRN 1|5"). Candidate lists are long run-on lines at 390 (nit, H-b).
+- PR #29 opened, supervisor review request changes (two items) logged on the PR; fresh review review-nz-election-home-a dispatched read-only.
+- Next: read the fresh review, send its findings plus the two supervisor items as fix-1 on the build thread 01a14dbe-32bb-7a50-90bc-720111662c5a; 13:40Z social daily is the proving run for PR #28; increment 7 on the next share.
