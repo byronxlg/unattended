@@ -465,14 +465,18 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
                          data_available='polls' in envs), [], run_url, sha)
         export.pair(stage, 'build-manifest', manifest)
         descriptions = {
-            'electorates/': 'This page will help you find your electorate and candidates using the 2025 boundaries. The directory and maps are planned for 26 October; no electorate forecast is available yet.',
-            'night/': 'This page will show the count on election night, with replay practice planned for 1 November. There are no live results here yet; polling day is 7 November 2026.',
             'campaign/': 'This page will bring together advance voting and disclosed donations, with source dates and limits. It is planned for 1 November; no campaign totals are available here yet.'}
         routes = config('routes')
         if len(routes) != 8 or {r['path'] for r in routes} != {'', 'polls/', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
             raise ValueError('INVALID_ROUTES')
         primary_routes = routes
         routes = routes + [dict(path='electorates/' + r['slug'] + '/', label=r['name']) for r in config('electorates')]
+        from product.nz_election.pipeline.route_cards import route_key, summary, card, night, ORIGIN
+        keys = [route_key(r["path"]) for r in routes]
+        if len(set(keys)) != len(routes):
+            raise ValueError("DUPLICATE_ROUTE_KEY")
+        (stage / "og").mkdir()
+        cards = []
         for route in routes:
             slug = route['path']
             nav = ''.join(f'<a href="{PREFIX + r["path"]}"' + (' aria-current="page"' if r == route else '') +
@@ -482,6 +486,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
                 body = page(envs, built, home)
             elif slug == 'polls/':
                 body = polls_page(envs, built, home)
+            elif slug == 'night/':
+                body = night(built)
             elif slug == 'electorates/':
                 body = electorates_page(envs, built)
             elif slug.startswith('electorates/'):
@@ -504,9 +510,15 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             heading = ('' if slug == '' else
                        '<h1 class="home-sentence" aria-describedby="source-seats">' + escape(home['title']) + '</h1>' if slug == 'polls/' else
                        '<h1>' + escape(title) + '</h1>')
-            page_html = render('base', title=escape(title), heading=heading, prefix=PREFIX, nav=nav, body=body,
+            title, description = summary(route, envs, home, built)
+            key = route_key(slug)
+            cards.append(dict(route=slug, key=key, title=title, description=description, html='og/' + key + '.html', png='og/' + key + '.png'))
+            (stage / cards[-1]['html']).write_text(card(route, envs, home, built))
+            page_html = render('base', title=escape(title), description=escape(description, quote=True),
+                               image=ORIGIN + PREFIX + cards[-1]['png'], heading=heading, prefix=PREFIX, nav=nav, body=body,
                                built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.')
             (target / 'index.html').write_text(page_html)
+        (stage / 'og-manifest.json').write_text(export.canonical(cards) + '\n')
         for asset in ('favicon.svg', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'):
             shutil.copyfile(PRODUCT / 'web' / asset, stage / asset)
         for page in stage.rglob('*.html'):

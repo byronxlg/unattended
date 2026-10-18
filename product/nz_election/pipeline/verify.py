@@ -256,6 +256,17 @@ def verify_home(envs, root):
         require(election_countdown(instant) == expected, 'NZ countdown')
 
 
+def verify_home_routes(envs, root):
+    from product.nz_election.pipeline.route_checks import check_site
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    data = root / 'route-data'
+    refresh(data, now='2026-10-17T01:00:00Z', end_date='2026-07-18')
+    daily_refresh(data, now='2026-10-17T01:00:00Z')
+    for source, name in ((data, 'populated'), (root / 'absent-routes', 'empty')):
+        site = build(source, root / ('routes-' + name), built='2026-10-17T01:00:00Z')
+        check_site(site, export.validate_bundle(source) if source.exists() else {})
+
+
 def verify_markets(envs, root):
     from product.nz_election.pipeline.markets import load, FAMILIES, ATTRIBUTION
     from product.nz_election.pipeline.market_panel import panel, leaders
@@ -275,11 +286,11 @@ def verify_markets(envs, root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'markets'])
+    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     args = parser.parse_args()
-    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'markets': verify_markets}
+    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
@@ -302,6 +313,9 @@ def main():
                 export.validate_bundle(product / 'data')
         if args.site and args.check in {'home', 'all'}:
             from product.nz_election.pipeline.home_checks import check_site
+            check_site(product, export.validate_bundle(product / 'data') if (product / 'data').exists() else {})
+        if args.site and args.check in {'home-routes', 'all'}:
+            from product.nz_election.pipeline.route_checks import check_site
             check_site(product, export.validate_bundle(product / 'data') if (product / 'data').exists() else {})
         if args.site and args.check in {'markets', 'all'}:
             from product.nz_election.pipeline.market_panel import panel

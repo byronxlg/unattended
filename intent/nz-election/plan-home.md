@@ -259,3 +259,16 @@ Also run `uv run --with pytest pytest -q product/nz_election` as the product acc
 5. The social module renders the last published home aggregate with its date; the POC's own
    stale and withheld behaviour is untouched. The static countdown cannot update during the
    s197 freeze; the runbook says so.
+
+## H-b implementation handoff
+
+Night, candidates-first detail and 79 route cards are implemented, including the Pages
+Chromium-only render and referenced-image gate authorized by supervisor decision 2.
+The registered set remains 79; the populated image count moves from 219 to 296
+(158 baseline + 9 narrow + 33 states + 13 map/detail + 4 home extras + 79 OG).
+No data families or incumbency rules change.
+
+Browser launch in the worktree sandbox fails with macOS Mach-port permission denied.
+Host screenshot inspection and measured fold geometry remain supervisor work; neither
+the 780 px fold check nor the 44 px target check was relaxed. Deployment evidence also
+requires the subsequent Pages run. The runbook contains all host commands.

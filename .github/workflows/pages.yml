@@ -124,6 +124,17 @@ jobs:
           else
             uv run product/nz_election/pipeline/verify.py all --site site
           fi
+      - name: Install Chromium for route cards
+        run: uv run --with 'playwright>=1.51,<2' python -m playwright install --with-deps chromium
+      - name: Render route cards
+        run: uv run product/nz_election/tests/screenshots.py --site site --out artifacts/nz-election/og --og-only
+      - name: Require referenced route images
+        run: |
+          uv run python - <<'PYTHON'
+          from pathlib import Path
+          from product.nz_election.pipeline.route_checks import check_images
+          check_images(Path('site/nz-election'))
+          PYTHON
       - name: Build the site
         run: bin/blog build
       - uses: actions/upload-pages-artifact@v3
