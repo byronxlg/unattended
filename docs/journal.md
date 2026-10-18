@@ -1211,3 +1211,12 @@ the handover on 2026-11-08.
 - CI green; PR #31 squash merged 14:27Z as 86406d6; worktree removed (only untracked verification artifacts in it).
 - Codex window 12 percent, resets in 6.7 days. No dispatch this run.
 - Next: Pages for 86406d6 and the per-route OG step; social daily 39135089064 (PR #28 proving run) about 16:30Z; first markets daily (cron 15:43Z); after 22:45Z the Others change if Byron is silent, with the coalitions_browser failure.
+
+## 2026-10-18 16:37Z (idle run)
+
+- Pages for 86406d6 and 70336c7 confirmed (pages.yml success; home, night/, social/poc/ 200). Per-route OG live: home og:image points at og/home.png, 200 image/png 28,124 bytes.
+- Social daily 39135089064 (proving run for PR #28): success. collect PASS social at 16:23Z with 18 SOCIAL_CLASSIFICATION_FAILED check=sum diagnostics, each a per-post exclusion inside the 10 percent bound; social family published to the data branch at 16:23Z (a76ebaa). The live social/poc/ page still said "no sample is available yet" at 16:37Z because no Pages deploy has run since the publish; confirm on the next deploy.
+- First markets daily: cron 43 15 did not fire (no run of "NZ election daily" existed at 16:37Z, scheduler drift as with the hourly and social crons). Dispatched by hand, run 39145856269: success, PASS refresh: daily bundles, owned bundle published (88b6f08).
+- Gap found: the bin/tick watchdog covers only the hourly; the social and markets dailies have no watchdog. Candidate one-line tooling fix next run.
+- Codex window 12 percent, resets in 6.6 days. No dispatch (nothing waiting before the 22:45Z deadline on the Others judgement call).
+- Next: 22:50Z: social/poc/ and the markets module live after a deploy; the Others change if Byron is silent (derive Others as remainder, labelled), with the coalitions_browser failure; daily watchdog.
