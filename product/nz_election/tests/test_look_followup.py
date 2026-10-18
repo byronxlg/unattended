@@ -117,3 +117,78 @@ def test_v1_bundle_remains_readable_and_refreshes_to_v2(tmp_path):
     current = export.validate_bundle(data)
     assert current['averages']['method_version'] == 'window-mean-30d-v2'
     assert current['seats']['data']['available']
+
+
+def test_derived_input_disclosure_on_every_affected_module(tmp_path):
+    from html.parser import HTMLParser
+    class VisibleText(HTMLParser):
+        def __init__(self, html):
+            super().__init__()
+            self.depth, self.text = 0, ''
+            self.feed(html)
+
+        def handle_starttag(self, tag, attrs):
+            if tag == 'details':
+                self.depth += 1
+
+        def handle_endtag(self, tag):
+            if tag == 'details':
+                self.depth -= 1
+
+        def handle_data(self, text):
+            if not self.depth:
+                self.text += text
+
+    from product.nz_election.pipeline.build import derivation_note, home_presentation, explorer
+    from product.nz_election.pipeline.home import poll_figures
+    data = tmp_path / 'data'
+    built = '2026-10-19T01:00:00Z'
+    refresh(data, now=built)
+    envs = export.validate_bundle(data)
+    average = envs['averages']['data'][-1]
+    n = len({d['poll_id'] for d in average['derivations']})
+    m = len(average['poll_ids'])
+    assert 0 < n < m
+    expected = f'Others derived as 100 minus the named parties for {n} of {m} polls; '
+    target = '/unattended/nz-election/methods/#derived-polls'
+    presentation = home_presentation(envs, built)
+    for module in (presentation['source'], poll_figures(envs, presentation), explorer(envs)):
+        assert expected in module and f'href="{target}"' in module
+        assert expected in VisibleText(module).text
+    site = build(data, tmp_path / 'output', built=built)
+    for route in ('index.html', 'polls/index.html', 'og/home.html', 'og/polls.html'):
+        html = (site / route).read_text()
+        assert expected in html and f'href="{target}"' in html
+    polls = (site / 'polls/index.html').read_text()
+    for heading, end in [('Which parties are near the 5 percent threshold?', '</section>'),
+                         ('What is the average party vote?', '</section>')]:
+        module = polls.split(heading, 1)[1].split(end, 1)[0]
+        assert expected in module
+    methods = (site / 'methods/index.html').read_text().split('id="derived-polls"', 1)[1].split('</section>', 1)[0]
+    affected = {d['poll_id'] for a in envs['averages']['data'] for d in a['derivations']}
+    assert set(re.findall(r'href="/unattended/nz-election/polls/#source-([^"]+)"', methods)) == affected
+    for poll in envs['polls']['data']:
+        if poll['id'] in affected:
+            assert poll['fieldwork_start'] in methods and poll['fieldwork_end'] in methods
+    assert derivation_note(dict(average, derivations=[])) == ''
+    assert derivation_note(dict(average, poll_ids=[])) == ''
+
+
+def test_stale_social_counts_keep_fixture_notice_and_provenance(tmp_path):
+    data = tmp_path / 'data'
+    fixture(data)
+    envs = export.validate_bundle(data)
+    html = page(envs, '2026-10-19T01:00:00Z')
+    assert '240 posts sampled from X; 2026-10-16 to 2026-10-16' in html
+    assert 'Offline verification: synthetic examples, not live data.' in html
+    assert '<svg' not in html and '<details' not in html
+    assert 'From twitterapi.io' in html and 'X terms apply; no CC licence asserted for X data.' in html
+    assert 'Retrieved ' in html and 'id="source-social"' in html
+    assert 'href="https://twitterapi.io/"' in html
+    assert 'href="/unattended/nz-election/data/social/daily.json"' in html
+    assert html.index('240 posts') < html.index('Offline verification:') < html.index('id="source-social"')
+    live = deepcopy(envs)
+    for row in live['social/daily']['data']:
+        row['provenance']['fixture'] = False
+    assert 'synthetic examples' not in page(live, '2026-10-19T01:00:00Z')
+    assert 'data/social/daily.json' not in page({}, '2026-10-19T01:00:00Z')

@@ -113,6 +113,15 @@ def source_note(env=None, identity='source-polls', inputs='polls.json', *,
 
 
 
+def derivation_note(average):
+    ids = set(average.get('poll_ids', []))
+    derived = {d['poll_id'] for d in average.get('derivations', [])} & ids
+    if not derived:
+        return ''
+    return (f'<p class="poll-dates">Others derived as 100 minus the named parties for {len(derived)} of {len(ids)} polls; '
+            f'<a href="{PREFIX}methods/#derived-polls">see sources</a>.</p>')
+
+
 def label(p):
     return config('party-colours').get(p, {}).get('label', 'Others' if p == 'others' else p)
 
@@ -159,7 +168,8 @@ def home_presentation(envs, built):
     return dict(result=result, selected=selected, stale=stale,
                 title=home_sentence(result), source=source_note(provenance, 'source-seats',
                     'seats.json' if result else 'polls.json' if polls else 'validation-2023.json',
-                    calculation='Seats calculated by this site.' if result else 'Seats withheld; see the headline.', compact=True))
+                    calculation='Seats calculated by this site.' if result else 'Seats withheld; see the headline.', compact=True) +
+                    (derivation_note(average[-1]) if result else ''))
 
 
 def home_sentence(result):
@@ -265,7 +275,7 @@ def explorer(envs, available=True):
                 'The explorer is unavailable while the poll update is overdue. Previous poll observations remain above.')
     return (f'<section id="coalition-explorer" aria-labelledby="coalition-title"{attrs}>'
             '<h2 id="coalition-title">Choose parties</h2>'
-            f'<p data-note>{note}</p><fieldset hidden disabled><legend>Choose parties and electorate seats assumed</legend>'
+            f'<p data-note>{note}</p>' + derivation_note((envs.get('averages', {}).get('data') or [{}])[-1]) + '<fieldset hidden disabled><legend>Choose parties and electorate seats assumed</legend>'
             + controls + '<div class="coalition-actions"><button type="button" data-reset>Reset</button>'
             '<button type="button" data-share>Share this scenario</button></div></fieldset>'
             '<p data-warning role="status"></p><div data-results hidden><p data-live aria-describedby="source-seats" aria-live="polite" aria-atomic="true"></p>'
@@ -317,6 +327,7 @@ def seat_module(envs, built, presentation=None):
         if row['missing_poll_ids']:
             thresholds += f'<p aria-describedby="source-thresholds">{escape(label(row["party_id"]))}: missing in {len(row["missing_poll_ids"])} window polls.</p>'
     thresholds += '<p aria-describedby="source-thresholds">2023 electorate seats assumed; 2026 has different boundaries. List capacity not checked.</p>'
+    thresholds += derivation_note(average)
     thresholds += source_note(envs['seats'], 'source-thresholds', 'seats.json',
                            calculation='Threshold shares averaged with equal weight by this site.',
                            contributing_polls=presentation['selected']) + '</section>'
@@ -340,6 +351,7 @@ def polls_page(envs, built, presentation=None):
         details += '<p>Missing observations:</p><ul>' + ''.join(f'<li>{escape(m["poll_id"])}: {escape(label(m["party_id"]))}</li>' for m in average['missing']) + '</ul>'
     if average['exclusions']:
         details += '<ul>' + ''.join(f'<li>{escape(e["poll_id"])}: {escape(e["reason"])}</li>' for e in average['exclusions']) + '</ul>'
+    details += derivation_note(average)
     details += source_note(envs['averages'], 'source-average', 'averages.json',
                            calculation='Available poll shares averaged with equal weight by this site.',
                            contributing_polls=presentation['selected'])
@@ -395,7 +407,15 @@ def methods_page(stage, built, sha, run_url, envs=None):
     derived = [derive_others(p, config('party-map')['headers'].values()) for p in (envs or {}).get('polls', {}).get('data', [])]
     names = {identity: name for name, identity in config('party-map')['pollsters'].items()}
     pollsters = sorted({names.get(p['pollster'], p['pollster']) for p in derived if 'derivation' in p})
-    return render('methods', affected=escape(', '.join(pollsters) or 'None in the published data'), votes=f'{sum(official["input"]["partyVotes"].values()):,}',
+    affected_rows = [p for p in derived if 'derivation' in p]
+    listing = '<section id="derived-polls"><h2>Polls with derived Others</h2>'
+    listing += '<ul>' + ''.join(
+        f'<li><a href="{PREFIX}polls/#source-{escape(p["id"], quote=True)}">'
+        f'{escape(names.get(p["pollster"], p["pollster"]))}, {escape(p["fieldwork_start"])} to {escape(p["fieldwork_end"])}</a>: '
+        f'Others {display(p["shares"]["others"], p["scale"])} derived as 100 minus the named parties.</li>'
+        for p in affected_rows) + '</ul>' if affected_rows else '<p>No affected polls in the published data.</p>'
+    listing += '</section>'
+    return render('methods', derivations=listing, affected=escape(', '.join(pollsters) or 'None in the published data'), votes=f'{sum(official["input"]["partyVotes"].values()):,}',
                   table=table('Official 2023 entitlement and occupied seats', ['Party', 'Votes', 'Entitlement', 'Electorates', 'Seats'], records, source='source-polls'),
                   prefix=PREFIX, source=source_note(env, inputs='validation-2023.json'))
 

@@ -19,23 +19,13 @@ def notice(records):
     return f'<p class="state">Proof of concept. {count(n)} posts sampled from X; {start} to {end}. Not a measure of voter support.</p>'
 
 
-def primary_chart(envs):
-    from .build import config, table, compact_time, PREFIX
-    records = envs['social/daily']['data']
-    status = next((s for s in envs.get('status', {}).get('data', []) if s['dataset'] == 'social'), {})
-    latest = max(r['day'] for r in records)
-    n = sum(r['sample']['eligible'] for r in records)
-    start, end = (datetime.fromisoformat(d) for d in (min(r['day'] for r in records), latest))
-    dates = f'{start.day} {start:%B %Y}' if start == end else f'{start.day} {start:%B %Y} to {end.day} {end:%B %Y}'
-    intro = f'<p class="numeric" aria-describedby="source-social">{count(n)} posts sampled from X over {len(records)} days, {dates}, one page per hour, not a complete count.</p>'
-    if any(r['provenance']['fixture'] for r in records):
-        intro += '<p class="state">Offline verification: synthetic examples, not live data.</p>'
-    if status.get('error_code'):
-        intro += '<p class="state">' + escape(status['message']) + '</p>'
-    counts = {p: sum(r['party_counts'][p] for r in records) for p in PARTIES}
-    colours = {v['label']: v['colour'] for v in config('party-colours').values()}
-    colours['Green'] = config('party-colours')['grn']['colour']
-    source = ('<div role="note" class="source-note" id="source-social"><p>From twitterapi.io, '
+def fixture_notice(records):
+    return '<p class="state">Offline verification: synthetic examples, not live data.</p>' if any(r['provenance']['fixture'] for r in records) else ''
+
+
+def sample_source(records, dates):
+    from .build import compact_time, PREFIX
+    return ('<div role="note" class="source-note" id="source-social"><p>From twitterapi.io, '
               f'X posts sampled {dates}. Retrieved {compact_time(max(w["retrieved_at"] for r in records for w in r["provenance"]["windows"]))}. '
               'Posts sampled and classified by this site; counts only. '
               'X terms apply; no CC licence asserted for X data. '
@@ -43,6 +33,24 @@ def primary_chart(envs):
               '<p class="source-actions"><a href="https://twitterapi.io/">twitterapi.io</a>'
               f'<a href="{PREFIX}data/social/daily.json">Inputs</a><a href="#social-method">method</a>'
               f'<a href="{PREFIX}downloads/">data run</a></p></div>')
+
+
+def primary_chart(envs):
+    from .build import config, table
+    records = envs['social/daily']['data']
+    status = next((s for s in envs.get('status', {}).get('data', []) if s['dataset'] == 'social'), {})
+    latest = max(r['day'] for r in records)
+    n = sum(r['sample']['eligible'] for r in records)
+    start, end = (datetime.fromisoformat(d) for d in (min(r['day'] for r in records), latest))
+    dates = f'{start.day} {start:%B %Y}' if start == end else f'{start.day} {start:%B %Y} to {end.day} {end:%B %Y}'
+    intro = f'<p class="numeric" aria-describedby="source-social">{count(n)} posts sampled from X over {len(records)} days, {dates}, one page per hour, not a complete count.</p>'
+    intro += fixture_notice(records)
+    if status.get('error_code'):
+        intro += '<p class="state">' + escape(status['message']) + '</p>'
+    counts = {p: sum(r['party_counts'][p] for r in records) for p in PARTIES}
+    colours = {v['label']: v['colour'] for v in config('party-colours').values()}
+    colours['Green'] = config('party-colours')['grn']['colour']
+    source = sample_source(records, dates)
     bars, rows = [], []
     for i, p in enumerate(PARTIES):
         value = counts[p]
@@ -65,7 +73,8 @@ def page(envs, built):
     now = datetime.fromisoformat(built.replace('Z', '+00:00'))
     if not latest or now - datetime.combine(datetime.fromisoformat(latest).date() + timedelta(days=1), time(), NZ) > timedelta(hours=36):
         message = 'X proof of concept unavailable: no sample is available yet.' if not latest else 'X proof of concept unavailable: the last sampled day is more than 36 hours old.'
-        return notice(records) + '<p class="state" id="social-method">' + message + '</p>'
+        source = sample_source(records, min(r['day'] for r in records) + ' to ' + latest) if records else ''
+        return notice(records) + fixture_notice(records) + source + '<p class="state" id="social-method">' + message + '</p>'
     intro, primary, source = primary_chart(envs)
     n = sum(r['sample']['eligible'] for r in records)
     fills = ('var(--ink)', 'var(--grey)', 'var(--surface)', 'var(--rule)', 'var(--paper)')

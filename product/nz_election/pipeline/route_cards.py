@@ -1,7 +1,7 @@
 """Shared route summaries and browser-independent social card documents."""
 from html import escape
 from fractions import Fraction
-from .build import PREFIX, config, render, strip, label, source_note, compact_time, link
+from .build import PREFIX, config, render, strip, label, source_note, compact_time, link, derivation_note
 from .home import electorate_summary, note
 from .average import display
 from .presentation import election_countdown
@@ -63,7 +63,7 @@ def card(route, envs, home, built):
     elif route['path'] == 'polls/' and envs.get('averages'):
         source_id = 'source-average'
         title = description
-        source = source_note(envs['averages'], 'source-average', 'averages.json', contributing_polls=home['selected'])
+        source = source_note(envs['averages'], 'source-average', 'averages.json', contributing_polls=home['selected']) + derivation_note(envs['averages']['data'][-1])
     elif route['path'].startswith('electorates/') and route['path'] != 'electorates/':
         title = route['label']
         picture = '<p aria-describedby="source-og">' + escape(description.split(': ', 1)[1]) + '</p>'

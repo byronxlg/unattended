@@ -2,7 +2,7 @@
 from fractions import Fraction
 from html import escape
 from .build import (PREFIX, config, render, label, source_note, seat_module,
-                    observation_label, compact_time, link)
+                    observation_label, compact_time, link, derivation_note)
 from .average import display
 from .presentation import election_countdown, overdue
 
@@ -101,6 +101,7 @@ def poll_figures(envs, presentation):
     if selected:
         first, last = min(p['fieldwork_start'] for p in selected), max(p['fieldwork_end'] for p in selected)
         figures += f'<p aria-describedby="source-average">Fieldwork {observation_label(first)} to {observation_label(last)}; {len({p["pollster"] for p in selected})} pollsters. Equal weight per poll; coverage differs by party. Missing observations are not zero.</p>'
+    figures += derivation_note(average)
     figures += source_note(envs['averages'], 'source-average', 'averages.json', calculation='Available poll shares averaged with equal weight by this site.', contributing_polls=selected)
     return figures
 
