@@ -199,7 +199,7 @@ def test_screenshot_count_inventory():
     routes = len(config('routes')) + len(config('electorates'))
     assert routes == 79
     assert len(STATES) * 2 + 1 == 33
-    assert 2 * routes + 9 + 33 + 13 + 4 + 2 == 219
+    assert 2 * routes + 9 + 33 + 13 + 4 + routes == 296
 
 
 def test_supplied_home_verifier_rejects_missing_fragments(populated, tmp_path):

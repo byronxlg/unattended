@@ -219,9 +219,6 @@ def fold_check(page):
 
 
 def extra_images(browser, site, origin, out, og_only=False):
-    from html import escape
-    from product.nz_election.pipeline import export, geography
-    from product.nz_election.pipeline.build import render, strip, config
     results = []
     for width, height, mode in ([] if og_only else [(390, 844, 'dark')]):
         context = browser.new_context(viewport=dict(width=width, height=height), color_scheme=mode, reduced_motion='reduce')
@@ -253,33 +250,30 @@ def extra_images(browser, site, origin, out, og_only=False):
         focus_page.screenshot(path=str(out / 'home-row-focus.png'))
         results.append(dict(state='home-row-focus', path='home-row-focus.png'))
         focus_context.close()
-    envs = export.validate_bundle(site / 'nz-election/data') if (site / 'nz-election/data').exists() else {}
+    cards = json.loads((site / 'nz-election/og-manifest.json').read_text())
+    from product.nz_election.pipeline.route_cards import route_key
+    from product.nz_election.pipeline.build import config
+    paths = [r['path'] for r in config('routes')] + ['electorates/' + r['slug'] + '/' for r in config('electorates')]
+    assert len(cards) == len({c['key'] for c in cards}) == 79, 'OG_INVENTORY'
+    assert {c['route'] for c in cards} == set(paths), 'OG_ROUTES'
     context = browser.new_context(viewport=dict(width=1200, height=630), color_scheme='light', reduced_motion='reduce')
     context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
-    for slug in ('home', 'wellington-north'):
+    for card in cards:
+        key = route_key(card['route'])
+        assert card['key'] == key and card['html'] == 'og/' + key + '.html' and card['png'] == 'og/' + key + '.png', 'OG_PATH'
         page = context.new_page()
-        page.goto(origin + PREFIX + 'nz-election/', wait_until='networkidle')
-        if slug == 'home':
-            home = json.loads((site / 'nz-election/home-presentation.json').read_text())
-            result = home['result']
-            title = home['title']
-            picture = strip(result).split('<details class="seat-data">')[0] if result else ''
-            source = home['source']
-        else:
-            row = next(r for r in config('electorates') if r['slug'] == slug)
-            title = row['name'] + ': your electorate on the 2025 boundaries'
-            collections = {k: envs[k + '-2025'] for k in geography.KINDS if k + '-2025' in envs} or geography.load()
-            picture = geography.svg(collections, [row], row['id']).replace('<svg ', '<svg aria-describedby="source-og-geography" ')
-            from product.nz_election.pipeline.build import link, compact_time
-            entry = next(e for e in json.loads((geography.ROOT / 'manifest.json').read_text())['entries'] if e['path'] == 'stats-nz/general-2025.geojson')
-            source = '<p class="source-note" id="source-og-geography">From ' + link(entry['url'], 'Stats NZ, 2025 boundaries') + f'. Retrieved <time datetime="{entry["captured_at"]}">{compact_time(entry["captured_at"])}</time>. ' + escape(entry['licence']) + '.</p>'
-        page.set_content(render('og', title=escape(title), prefix=origin + PREFIX + 'nz-election/', picture=picture, source=source), wait_until='networkidle')
+        page.goto(origin + PREFIX + 'nz-election/' + card['html'], wait_until='networkidle')
+        assert page.evaluate('document.documentElement.scrollWidth <= 1200 && document.documentElement.scrollHeight <= 630'), 'OG_OVERFLOW: ' + key
+        assert page.locator('main').evaluate("e=>[...e.querySelectorAll('*')].filter(n=>n.getClientRects().length).every(n=>{const r=n.getBoundingClientRect();return r.left>=0 && r.top>=0 && r.right<=1200 && r.bottom<=630 && n.scrollWidth<=n.clientWidth+1})"), 'OG_CLIPPING: ' + key
         page.add_script_tag(path=str(PRODUCT / 'tests/axe.min.js'))
         violations = page.evaluate('async () => (await axe.run(document)).violations')
         assert not violations, 'AXE_VIOLATIONS: ' + json.dumps(violations)
-        name = 'og-' + slug + '.png'
-        page.screenshot(path=str(out / name))
-        results.append(dict(state='og-' + slug, path=name, viewport=dict(width=1200, height=630)))
+        name = 'og-' + key + '.png'
+        target = site / 'nz-election' / card['png']
+        page.screenshot(path=str(target))
+        (out / name).write_bytes(target.read_bytes())
+        results.append(dict(state='og-' + key, route=card['route'], path=name, site_path=card['png'],
+                            sha256=hashlib.sha256(target.read_bytes()).hexdigest(), viewport=dict(width=1200, height=630)))
         page.close()
     context.close()
     return results
@@ -289,7 +283,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--site', type=Path, default=Path('site'))
     parser.add_argument('--out', type=Path, default=Path('artifacts/nz-election/screenshots'))
-    parser.add_argument('--og-only', action='store_true', help='Render the two 1200 by 630 identity cards only')
+    parser.add_argument('--og-only', action='store_true', help='Render all registered 1200 by 630 route cards only')
     args = parser.parse_args()
     try:
         from playwright.sync_api import sync_playwright
@@ -413,7 +407,7 @@ def main():
                 assert len(captured) == len(set(captured)) == expected_count
                 assert set(captured) == {PREFIX + 'nz-election/' + r['path'] for r in routes}
         if not args.og_only and has_geography and has_baseline:
-            assert len(manifest) + len(additional) == 219, 'IMAGE_INVENTORY'
+            assert len(manifest) + len(additional) == 296, 'IMAGE_INVENTORY'
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()

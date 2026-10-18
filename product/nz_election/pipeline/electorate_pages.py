@@ -26,7 +26,7 @@ def publisher(source):
 def source(envs, stem, built=None):
     env = envs.get(stem)
     if not env:
-        return f'<p class="source-note" id="source-{stem}">Not available: no validated data bundle.</p>'
+        return f'<div class="source-note" id="source-{stem}"><p>Not available: no validated data bundle.</p><p class="source-actions"><a href="{PREFIX}downloads/">Sources and availability</a></p></div>'
     result = '<div role="note" class="source-note" id="source-' + stem + '">'
     for entry in env['source']:
         result += '<p class="source-actions">From ' + link(entry['url'], publisher(entry)) + ' <span>' + escape(entry['licence']) + '</span></p>'
@@ -56,7 +56,8 @@ def detail(row, envs, built=None):
     def data(stem):
         return envs.get(stem, {}).get('data', [])
     official = [c for c in data('candidates') if c['electorate_id'] == row['id']]
-    candidates = '<ul class="candidate-list">'
+    official.sort(key=lambda c: (c['party_id'], c['name'], c['id']))
+    candidates = '<ul class="candidate-list" aria-describedby="source-candidates">'
     reviews = {c['id']: c for c in data('candidate-review')}
     for c in official:
         candidates += '<li><strong>' + escape(c['name']) + '</strong><p>' + escape(c['party_id']) + '</p>'
@@ -120,7 +121,8 @@ def detail(row, envs, built=None):
     if not polls:
         polls = '<p>No mapped local polls in the captured source. This is not a forecast.</p>'
     collections = {k: envs[k + '-2025'] for k in geography.KINDS if k + '-2025' in envs}
-    return render('electorate', prefix=PREFIX, boundary=escape(row['boundary_note']),
+    from .home import electorate_summary
+    return render('electorate', historical=escape(electorate_summary(row, envs)[1]), prefix=PREFIX, boundary=escape(row['boundary_note']),
                   outline=geography.svg(collections, [row], row['id']).replace('<svg ', '<svg aria-describedby="source-electorates" '), geography_source=source(envs, 'electorates', built),
                   candidates=candidates, candidate_source=source(envs, 'candidates', built),
                   baseline=baseline, baseline_source=source(envs, 'baseline-2023', built),
