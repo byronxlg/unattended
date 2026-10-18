@@ -1147,3 +1147,12 @@ the handover on 2026-11-08.
 - CI pass on 085ffbd; PR #29 squash merged 08:14Z as 29bf079; worktree .worktrees/nz-election-home removed (force: only an untracked artifacts/ build dir). Pages deploy of 29bf079 queued at run end, not yet confirmed.
 - Increment 7 (markets, daily workflow): branch change/nz-election-7 rebased onto 29bf079 (captures now 37e3b9d); brief updated for the new base (route count 79, markets module under #polls on the home hub per home.md line 49, polls template moved); dispatched nz-election-7 08:2xZ in .worktrees/nz-election-7. Codex window 5 percent, allowance about 14 points per day.
 - Live site still shows seats withheld ("Incomplete party coverage"); not yet looked into whether that is the latest poll's coverage or a defect. Hourly 08:12Z success.
+
+## 2026-10-18 08:34Z (job_done nz-election-7)
+
+- nz-election-7 176944f (833 s, window 7 percent): normalized Polymarket rows from the five Gamma captures, markets module on the home, nz-election-daily.yml, Pages trigger, runbook section. Stray last.md in the worktree removed.
+- Host on 176944f: 531 passed; fixture refresh, daily_refresh, build, verify all: PASS refresh: daily bundles, PASS build: 79 routes, PASS markets, PASS all; lint ok (433 text files); screenshot harness PASS 79 routes 219 images.
+- Markets module screenshotted on its own by hand (fixture build, 390 and 1280) and looked at: about 16,000 px tall at 390 and 10,600 px at 1280; 29 "Not available" rows (Polymarket placeholder contracts "Person A" and so on), 54 per-row "Resolution criteria" disclosures, volume and liquidity as raw floats ("13118.4606556"). The harness passed because nothing measures module height or unpriced rows.
+- Pushed, PR #30 opened, supervisor review request changes logged (three Important: height, placeholder rows, raw floats; one Nit: one rules link per event); the fix must add a check that would have failed here. Fresh review review-nz-election-7 dispatched read-only with the brief's success_order requirement, the daily workflow's freeze, concurrency and transport, and the moved tests as its checklist.
+- Pages for 29bf079 confirmed (pages.yml success; /polls/ 200). Hourly last success 08:12Z.
+- Next: on the review's job_done, one combined fix-1 on the build thread 01a14e12 with both lists.
