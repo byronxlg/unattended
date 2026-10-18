@@ -1156,3 +1156,9 @@ the handover on 2026-11-08.
 - Pushed, PR #30 opened, supervisor review request changes logged (three Important: height, placeholder rows, raw floats; one Nit: one rules link per event); the fix must add a check that would have failed here. Fresh review review-nz-election-7 dispatched read-only with the brief's success_order requirement, the daily workflow's freeze, concurrency and transport, and the moved tests as its checklist.
 - Pages for 29bf079 confirmed (pages.yml success; /polls/ 200). Hourly last success 08:12Z.
 - Next: on the review's job_done, one combined fix-1 on the build thread 01a14e12 with both lists.
+
+## 2026-10-18 08:53Z (job_done review-nz-election-7)
+
+- Fresh review review-nz-election-7 (108 s, window 7 percent) on 176944f: request changes, two Important: (1) daily_sources.py:58 falls back to committed captures on a Gamma failure, so daily_refresh records fresh and exits 0; (2) malformed market observed_at gets INVALID_TIMESTAMP in export but INVALID_MARKET in the parser. Its pytest was blocked by the sandbox. Logged on PR #30.
+- Combined fix-1 nz-election-7-fix-1 dispatched about 08:56Z on the build thread 01a14e12 (state/jobs/nz-election-7/followup-1.md): the four supervisor items, the two fresh-review items, and a harness check that must fail on 176944f. Protected tests named by ref: main at 29bf079.
+- Next: on job_done, host-verify (pytest, lint, harness, module height at 390 and 1280 looked at), push, second fresh review, merge when CI green.
