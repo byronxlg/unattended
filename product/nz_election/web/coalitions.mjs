@@ -78,7 +78,11 @@ export function scenario(data,state) {
 
 const htmlEscape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'}[c]));
 export function stripHTML(result, labels) {
-  const ordered=Object.entries(result.seats).filter(([,n])=>n).sort((a,b)=>b[1]-a[1]||(a[0]<b[0]?-1:1));
+  // Keep the historical grouping in config/seat-groups.json; DOM parity checks both renderers.
+  const government=['nat','act','nzf'], opposition=['lab','grn','tpm'];
+  const grouped=[...government,...opposition];
+  const order=[...government,...Object.keys(result.seats).filter(p=>!grouped.includes(p)).sort(),...opposition];
+  const ordered=order.filter(p=>result.seats[p]).map(p=>[p,result.seats[p]]);
   const fixed=n=>n.toFixed(6);
   const percent=n=>{
     const scaled=BigInt(n)*100000000n, house=BigInt(result.assumed_house);
@@ -88,7 +92,7 @@ export function stripHTML(result, labels) {
     return String(units/1000000n)+'.'+String(units%1000000n).padStart(6,'0');
   };
   let offset=0;
-  const anchors=ordered.map(([p,n])=>{const anchor=offset*100/result.assumed_house; offset+=Math.min(n,result.entitlements[p]); return [p,anchor];});
+  const anchors=ordered.map(([p,n])=>{const anchor=offset*100/result.assumed_house; offset+=n; return [p,anchor];});
   const positions=width=>{
     let cursor=0;
     const columns=width>=600?anchors.length:Math.max(1,Math.ceil(anchors.length/2));
@@ -104,7 +108,8 @@ export function stripHTML(result, labels) {
   let segments='',lanes='',rows='';
   for(const [p,n] of ordered) {
     const base=Math.min(n,result.entitlements[p]), name=htmlEscape(labels[p].name);
-    segments+=`<div class="segment" data-party="${htmlEscape(p)}" style="width:${percent(base)}%;background:${htmlEscape(labels[p].colour)}"></div>`;
+    segments+=`<div class="segment" data-party="${htmlEscape(p)}" style="width:${percent(base)}%;background:${htmlEscape(grouped.includes(p)?labels[p].colour:'#595959')}"></div>`;
+    if(n>base) segments+=`<div class="segment overhang" data-overhang-party="${htmlEscape(p)}" style="width:${percent(n-base)}%;background:${htmlEscape(grouped.includes(p)?labels[p].colour:'#595959')}"></div>`;
     for(const [mode,pos] of [['phone',mobile[p]],['wide',desktop[p]]]) {
       if(Math.abs(pos.left-pos.anchor)>.01 || pos.row) {
         const side=pos.anchor>pos.left?'right':'left';
@@ -114,7 +119,6 @@ export function stripHTML(result, labels) {
     lanes+=`<div class="lane" role="group" data-party="${htmlEscape(p)}" style="--row:${mobile[p].row};--left:${fixed(mobile[p].left)}%;--large-left:${fixed(desktop[p].left)}%" aria-label="${name}: ${n} calculated seats"><span>${htmlEscape(p.toUpperCase())}</span> <strong>${n}</strong></div>`;
     rows+=`<tr><td>${name}</td><td>${base}</td><td>${n-base}</td><td>${n}</td></tr>`;
   }
-  if(result.overhang) segments+=`<div class="segment overhang" style="width:${percent(result.overhang)}%"></div>`;
   return '<figure class="seat-figure" aria-describedby="source-seats"><div class="strip" role="img" '+
     'aria-describedby="source-seats" aria-label="Theoretical party seats, detailed in the following table">'+segments+
     `<span class="majority" style="left:${percent(result.assumed_majority)}%"></span></div>`+

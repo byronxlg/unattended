@@ -32,6 +32,11 @@ def fixture(root, state):
     refresh(data, now='2026-10-17T01:00:00Z', end_date='2026-07-18' if state in COHERENT else None,
             **({'parse': fail} if state == 'unavailable' else {}),
             run_url='local-stale-verification' if state == 'stale' else 'offline-verification')
+    if state in {'incomplete', 'allocation-tie'}:
+        from product.nz_election.tests.test_build import rewrite
+        def omit_named_party(rows):
+            max(rows, key=lambda p: p['fieldwork_end'])['shares']['nat'] = None
+        rewrite(data, omit_named_party)
     if state == 'validation-error':
         refresh(data, now='2026-10-17T02:00:00Z', parse=fail, run_url='https://github.com/example/repo/actions/runs/1')
     if state in {'missing-baseline', 'unresolved', 'source-conflict'}:

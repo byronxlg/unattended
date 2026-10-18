@@ -2,7 +2,8 @@
 from datetime import date, timedelta
 from decimal import Decimal
 
-METHOD = 'window-mean-30d-v1'
+METHOD = 'window-mean-30d-v2'
+OTHERS_RULE = 'others-remainder-0-to-10-v1'
 ROUNDING = 'display-only-half-up-1dp'
 
 
@@ -51,7 +52,25 @@ def scaled_vector(poll):
     return result, unit
 
 
-def check_vector(polls, mapping=None, review=None):
+def derive_others(poll, parties):
+    """Keep captured shares intact; only a complete named vector permits a remainder."""
+    if poll['shares'].get('others') is not None:
+        return poll
+    named = set(parties) - {'others'}
+    if not named or any(poll['shares'].get(p) is None for p in named):
+        return poll
+    vector, scale = scaled_vector(poll)
+    remainder = 100 * scale - sum(v for p, v in vector.items() if p != 'others' and v is not None)
+    if not 0 <= remainder <= 10 * scale:
+        return poll
+    vector['others'] = remainder
+    return dict(poll, shares=vector, scale=scale,
+                derivation=dict(poll_id=poll['id'], revision=poll['revision'],
+                                pollster=poll.get('pollster', ''), party_id='others',
+                                rule=OTHERS_RULE, value=remainder, scale=scale))
+
+
+def check_vector(polls, mapping=None, review=None, *, derive=True):
     exclusions = []
     included = []
     for poll in polls:
@@ -63,6 +82,9 @@ def check_vector(polls, mapping=None, review=None):
         else:
             included.append(poll)
     parties = {'others'} | {p for row in included for p, v in row['shares'].items() if v is not None}
+    named = set((mapping or {}).get('headers', {}).values()) | {p for row in included for p in row['shares']}
+    if derive:
+        included = [derive_others(row, named) for row in included]
     missing = [dict(poll_id=row['id'], party_id=p) for row in included
                for p in sorted(parties) if row['shares'].get(p) is None]
     return included, exclusions, missing
@@ -84,11 +106,11 @@ def mean_vector(polls):
                 denominator=sum(shares.values()) if shares else None, descriptive=descriptive)
 
 
-def trend(polls, dates, mapping=None, review=None):
+def trend(polls, dates, mapping=None, review=None, *, derive=True):
     result = []
     for day in dates:
         day = str(day)
-        selected, exclusions, missing = check_vector(select_window(deduplicate(polls), day), mapping, review)
+        selected, exclusions, missing = check_vector(select_window(deduplicate(polls), day), mapping, review, derive=derive)
         mean = mean_vector(selected)
         if missing:
             mean.update(coherent=False, shares=None, denominator=None)
@@ -97,7 +119,11 @@ def trend(polls, dates, mapping=None, review=None):
                            window_start=str(date.fromisoformat(day) - timedelta(days=29)), window_end=day,
                            **mean, poll_ids=[p['id'] for p in selected],
                            excluded_ids=[e['poll_id'] for e in exclusions], exclusions=exclusions,
-                           missing=missing, rounding_policy=ROUNDING))
+                           missing=missing, derivations=[p['derivation'] for p in selected if 'derivation' in p],
+                           rounding_policy=ROUNDING))
+    if not derive:
+        for row in result:
+            del row['derivations']
     return result
 
 

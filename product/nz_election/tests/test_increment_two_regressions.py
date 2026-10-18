@@ -187,7 +187,7 @@ def test_strip_labels_are_below_fills_in_reading_order():
              'assumed_house': 122, 'assumed_majority': 62, 'overhang': 2}
     html = strip(seats)
     lanes = re.findall(r'<div class="lane" role="group" data-party="([^"]+)"[^>]*>(.*?)</div>', html)
-    assert [p for p, _ in lanes] == ['nat', 'lab', 'grn', 'act', 'nzf', 'tpm']
+    assert [p for p, _ in lanes] == ['nat', 'act', 'nzf', 'lab', 'grn', 'tpm']
     for party, content in lanes:
         assert f'<strong>{seats["seats"][party]}</strong>' in content
         assert f'<span>{party.upper()}</span>' in content
@@ -217,7 +217,7 @@ def test_strip_labels_are_below_fills_in_reading_order():
                 side = 'right' if anchor > left else 'left'
                 expected_connectors.append((mode, f'left:{min(left, float(anchor)):.6f}%;width:{abs(left-float(anchor)):.6f}%;height:{6+row*21}px;border-{side}:1px solid var(--ink)'))
             cursor = left_px + 68
-            offset += seats['entitlements'][party]
+            offset += seats['seats'][party]
     actual_connectors = re.findall(r'class="label-connector (phone|wide)" aria-hidden="true" style="([^"]+)"', html)
     assert sorted(actual_connectors) == sorted(expected_connectors)
     widths = re.findall(r'class="segment" data-party="([^"]+)" style="width:([\d.]+)%', html)
