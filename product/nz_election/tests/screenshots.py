@@ -172,12 +172,12 @@ def state_images(browser, out):
                         from coalitions_browser import edit_state
                         edit_state(page, state)
                     if state in COHERENT:
-                        assert page.locator('main > .seat-figure .strip').count() == 1, 'COHERENT_STRIP_REQUIRED'
+                        assert page.locator('main .seat-module .seat-figure .strip').count() == 1, 'COHERENT_STRIP_REQUIRED'
                         for box in page.locator('.lane').all():
                             if box.is_visible():
                                 assert box.evaluate('(e)=>e.scrollWidth<=e.clientWidth'), 'STRIP_LABEL_OVERFLOW'
                     else:
-                        assert page.locator('main > .seat-figure .strip').count() == 0, 'INVALID_CURRENT_STRIP'
+                        assert page.locator('main .seat-module .seat-figure .strip').count() == 0, 'INVALID_CURRENT_STRIP'
                     if state == 'earlier-coherent-window' and width in (360, 390):
                         fold_check(page)
                     name = f'{state}-{width}x{height}.png'
@@ -191,6 +191,19 @@ def state_images(browser, out):
                 server.shutdown()
                 server.server_close()
     return results
+
+
+def legend_check(page):
+    overlaps = page.locator('.seat-figure').evaluate_all("""figures=>figures.flatMap(figure=>{
+      const visible=e=>e.getClientRects().length;
+      const labels=[...figure.querySelectorAll('.lane')].filter(visible);
+      const rules=[...figure.querySelectorAll('.segment,.majority,.label-connector')].filter(visible);
+      return labels.flatMap(label=>rules.filter(rule=>{
+        const a=label.getBoundingClientRect(),b=rule.getBoundingClientRect();
+        return a.left<b.right && b.left<a.right && a.top<b.bottom && b.top<a.bottom;
+      }).map(rule=>({label:label.textContent,rule:rule.className})));
+    })""")
+    assert not overlaps, f'LEGEND_RULE_OVERLAP: {page.viewport_size["width"]}: {overlaps}'
 
 
 def fold_check(page):
@@ -226,6 +239,14 @@ def extra_images(browser, site, origin, out, og_only=False):
         focus_page.keyboard.press('Enter')
         focus_page.screenshot(path=str(out / 'home-main-focus.png'))
         results.append(dict(state='main-focus', path='home-main-focus.png'))
+        row_selector = '.watch-rows a:focus' if focus_page.locator('.watch-rows a').count() else '.home-directory a:focus'
+        for _ in range(300):
+            focus_page.keyboard.press('Tab')
+            if focus_page.locator(row_selector).count():
+                break
+        assert focus_page.locator(row_selector).count() == 1, 'HOME_ROW_KEYBOARD_FOCUS'
+        focus_page.screenshot(path=str(out / 'home-row-focus.png'))
+        results.append(dict(state='home-row-focus', path='home-row-focus.png'))
         focus_context.close()
     envs = export.validate_bundle(site / 'nz-election/data') if (site / 'nz-election/data').exists() else {}
     context = browser.new_context(viewport=dict(width=1200, height=630), color_scheme='light', reduced_motion='reduce')
@@ -261,8 +282,8 @@ def extra_images(browser, site, origin, out, og_only=False):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--site', type=Path, required=True)
-    parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--site', type=Path, default=Path('site'))
+    parser.add_argument('--out', type=Path, default=Path('artifacts/nz-election/screenshots'))
     parser.add_argument('--og-only', action='store_true', help='Render the two 1200 by 630 identity cards only')
     args = parser.parse_args()
     try:
@@ -274,7 +295,7 @@ def main():
     registry = json.loads((PRODUCT / 'config/electorates.json').read_text())
     expected_count = len(routes) + len(registry)
     routes += [dict(path='electorates/' + r['slug'] + '/') for r in registry]
-    assert len(routes) == expected_count and len({r['path'] for r in routes}) == expected_count
+    assert len(routes) == expected_count == 79 and len({r['path'] for r in routes}) == expected_count
     args.out.mkdir(parents=True, exist_ok=True)
     server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(site)))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -304,15 +325,17 @@ def main():
                 nojs.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
                 for route in routes:
                     path = route['path']
-                    if width == 360 and path not in {'', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/', 'electorates/wellington-north/', 'electorates/te-tai-tonga/'}:
+                    if width == 360 and path not in {'', 'polls/', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/', 'electorates/wellington-north/', 'electorates/te-tai-tonga/'}:
                         continue
                     page = context.new_page()
                     url = origin + PREFIX + 'nz-election/' + path
                     text = check_page(page, url, site, origin)
+                    if path == "":
+                        legend_check(page)
                     assert page.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")
                     assert page.evaluate("[...document.querySelectorAll('*')].every(e=>getComputedStyle(e).animationName==='none')")
                     bottom = fold_check(page) if path == '' and width in (360, 390) else None
-                    name = (path.strip('/').replace('/', '--') or 'polls') + f'-{width}x{height}.png'
+                    name = (path.strip('/').replace('/', '--') or 'home') + f'-{width}x{height}.png'
                     target = args.out / name
                     page.screenshot(path=str(target))
                     plain = nojs.new_page()
@@ -330,7 +353,7 @@ def main():
                         page.locator('.electorate-directory').screenshot(path=str(args.out / name_all))
                         map_images.append(dict(state='all-electorate-names', path=name_all))
                     if path == 'electorates/':
-                        assert plain.locator('.electorate-directory li').count() == 71
+                        assert plain.locator('.electorate-directory li[id^="electorate-"]').count() == 71
                         assert page.locator('.electorate-map').count() == int(has_geography), 'MAP_PRESENCE'
                         if not has_geography:
                             assert 'Map not available' in text
@@ -381,6 +404,8 @@ def main():
                 captured = [r['route'] for r in manifest if r['viewport']['width'] == width]
                 assert len(captured) == len(set(captured)) == expected_count
                 assert set(captured) == {PREFIX + 'nz-election/' + r['path'] for r in routes}
+        if not args.og_only and has_geography and has_baseline:
+            assert len(manifest) + len(additional) == 219, 'IMAGE_INVENTORY'
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()

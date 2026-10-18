@@ -37,7 +37,7 @@ def test_registered_routes_and_prefix(tmp_path):
         assert PREFIX in html and '<main ' in html and validate_scripts(html)
         assert 'Skip to content' in html
     expected = [r['path'] for r in config('routes')] + ['electorates/' + r['slug'] + '/' for r in config('electorates')]
-    assert len(expected) == len(set(expected))
+    assert len(expected) == len(set(expected)) == 79
     assert {p.relative_to(out).as_posix() for p in out.rglob('index.html')} == {p + 'index.html' for p in expected}
     assert '26px' in (out / 'styles.css').read_text()
 
@@ -57,7 +57,7 @@ def test_incomplete_vector_withholds_seats(tmp_path):
         max(rows, key=lambda p: p['fieldwork_end'])['shares']['nat'] = None
     rewrite(path, remove)
     out = build(path, tmp_path / 'output')
-    html = (out / 'index.html').read_text()
+    html = (out / 'polls/index.html').read_text()
     assert 'Incomplete party coverage' in html and 'class="strip"' not in html
     assert 'Missing observations' in html and 'Poll history' in html
 
@@ -68,7 +68,7 @@ def test_source_html_escaped(tmp_path):
         rows[0]['pollster'] = '<script>alert(1)</script>'
         rows[0]['reference_urls'] = ['javascript:alert(1)', 'https://example.invalid/?q="<bad>']
     rewrite(path, inject)
-    html = (build(path, tmp_path / 'output') / 'index.html').read_text()
+    html = (build(path, tmp_path / 'output') / 'polls/index.html').read_text()
     assert '<script>' not in html and '&lt;script&gt;' in html
     assert 'href="javascript:' not in html and '&quot;&lt;bad&gt;' in html
 

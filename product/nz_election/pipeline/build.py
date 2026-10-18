@@ -2,7 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = []
 # ///
-"""Render 78 offline pages, validating everything before replacing product output."""
+"""Render 79 offline pages, validating everything before replacing product output."""
 import argparse
 from datetime import datetime
 from decimal import Decimal
@@ -80,7 +80,7 @@ def table(caption, headings, records, css='', source=None):
 
 
 def source_note(env=None, identity='source-polls', inputs='polls.json', *,
-                calculation='Polls parsed by this site.', contributing_polls=None):
+                calculation='Polls parsed by this site.', contributing_polls=None, compact=False):
     if inputs == 'validation-2023.json':
         captured = max(s['fetched_at'] for s in (env['source'] if env else source_entries()[1]))
         return (f'<div role="note" class="source-note" id="{identity}"><p>From '
@@ -103,9 +103,13 @@ def source_note(env=None, identity='source-polls', inputs='polls.json', *,
             dates += f' Fieldwork ended <time datetime="{end}">{observation_label(end)}</time>.'
         fetched = env['fetched_at']
         dates += f' Retrieved <time datetime="{fetched}">{compact_time(fetched)}</time>.'
-    return render('source-note', id=identity, revision=safe_url(p['url']) or '#', history=safe_url(p['history_url']) or '#',
+    result = render('source-note', id=identity, revision=safe_url(p['url']) or '#', history=safe_url(p['history_url']) or '#',
                   inputs=PREFIX + (inputs if inputs == 'validation-2023.json' else 'data/' + inputs), prefix=PREFIX,
                   dates=dates, run=producing, calculation=escape(calculation))
+    if compact:
+        result = result.replace('<p class="source-actions">', '<details><summary>Sources, inputs and method</summary><p class="source-actions">', 1)
+        result = result.replace('<details><summary>Source history and legal method</summary>', '', 1)
+    return result
 
 
 
@@ -155,7 +159,7 @@ def home_presentation(envs, built):
     return dict(result=result, selected=selected, stale=stale,
                 title=home_sentence(result), source=source_note(provenance, 'source-seats',
                     'seats.json' if result else 'polls.json' if polls else 'validation-2023.json',
-                    calculation='Seats calculated by this site.' if result else 'Seats withheld; see the headline.'))
+                    calculation='Seats calculated by this site.' if result else 'Seats withheld; see the headline.', compact=True))
 
 
 def home_sentence(result):
@@ -207,10 +211,9 @@ def strip(seats, note=''):
             '<div class="lanes">' + ''.join(labels) + '</div>'
             f'<p class="majority-label">{seats["assumed_majority"]} for a majority</p>'
             '<figcaption class="strip-note">Calculated seats; list capacity not checked.</figcaption></figure>' + note +
-            '<details class="seat-data"><summary>Seat table and assumptions</summary>'
-            f'<p aria-describedby="source-seats">Seats needed for a majority: <strong>{seats["assumed_majority"]}</strong>, '
-            f'assuming sufficient list candidates in a House of {total}.</p>' +
-            table('Theoretical seats and overhang', ['Party', 'Base seats', 'Overhang', 'Seats'], records, source='source-seats') + '</details>')
+            render('party-rows', majority=seats['assumed_majority'], total=total,
+                   rows=table('Theoretical seats and overhang', ['Party', 'Base seats', 'Overhang', 'Seats'], records, source='source-seats')).rstrip())
+
 
 
 def explorer(envs, available=True):
@@ -246,15 +249,13 @@ def explorer(envs, available=True):
             f'<script type="module" src="{PREFIX}coalitions.mjs"></script>')
 
 
-def polls_page(envs, built, presentation=None):
+def seat_module(envs, built, presentation=None):
     presentation = presentation if presentation is not None else home_presentation(envs, built)
     if 'polls' not in envs:
         status = next((r for r in envs.get('status', {}).get('data', []) if r['dataset'] == 'polls'), None)
         failed = f' The {compact_time(status["last_attempt_at"])} update failed.' if status and status.get('error_code') else ''
-        return render('polls', state='<div class="state"><p>No data yet. Polls are checked hourly.' + failed +
-                      ' <a href="https://github.com/byronxlg/unattended/actions">Update details</a>.</p></div>',
-                      picture=f'<p><a href="{PREFIX}methods/">Read how seats are calculated.</a></p>',
-                      source=presentation['source'], explorer='', details='')
+        state = '<div class="state"><p>No data yet. Polls are checked hourly.' + failed + ' <a href="https://github.com/byronxlg/unattended/actions">Update details</a>.</p></div>'
+        return state, render('seat-module', picture=f'<p><a href="{PREFIX}methods/">Read how seats are calculated.</a></p>', source=presentation['source'], thresholds='<p id="source-thresholds">Threshold watch not available: no published polls.</p>')
     polls, average, seats = envs['polls']['data'], envs['averages']['data'][-1], envs['seats']['data']
     status = next(s for s in envs['status']['data'] if s['dataset'] == 'polls')
     checked = status['last_attempt_at'] if status['state'] == 'fresh' else status['last_success_at']
@@ -271,7 +272,7 @@ def polls_page(envs, built, presentation=None):
         first, end = min(a for a, b in dates), max(b for a, b in dates)
         date_line = (f'<p class="poll-dates" aria-describedby="source-seats">Polls <time datetime="{first}">{observation_label(first)}</time> '
                      f'to <time datetime="{end}">{observation_label(end)}</time>. <a href="{PREFIX}methods/">How seats are calculated</a>.</p>')
-        picture = date_line + strip(presentation['result'], presentation['source'])
+        picture = strip(presentation['result'], presentation['source']) + date_line
     else:
         picture = (f'<p aria-describedby="source-seats">Seat estimate unavailable. Polls to {observation_label(last)} are below.</p>'
                    f'<p><a href="{PREFIX}methods/">Read how seats are calculated.</a></p>'
@@ -280,6 +281,29 @@ def polls_page(envs, built, presentation=None):
         names = [label(p) for p in tie.get('candidates', [])]
         if names:
             picture += '<p class="missing" aria-describedby="source-seats">Tie for the last seat between ' + escape(' and '.join(names)) + '; shown unassigned.</p>'
+    thresholds = '<section><h2>Threshold watch</h2><p class="threshold-rule" aria-describedby="source-thresholds">5% of the party vote qualifies a party with a list. An electorate win can also qualify it below 5%.</p>'
+    watch = threshold_watch(polls, average, seats['assumptions'])
+    thresholds += table('Parties near the threshold', ['Party', 'Share', 'Below 5%'],
+                     [[escape(label(row['party_id'])), display(row['value'], row['scale']),
+                       'Electorate assumed' if row['electorate_qualifies'] else 'Needs 5%'] for row in watch], source='source-thresholds')
+    for row in watch:
+        if row['missing_poll_ids']:
+            thresholds += f'<p aria-describedby="source-thresholds">{escape(label(row["party_id"]))}: missing in {len(row["missing_poll_ids"])} window polls.</p>'
+    thresholds += '<p aria-describedby="source-thresholds">2023 electorate seats assumed; 2026 has different boundaries. List capacity not checked.</p>'
+    thresholds += source_note(envs['seats'], 'source-thresholds', 'seats.json',
+                           calculation='Threshold shares averaged with equal weight by this site.',
+                           contributing_polls=presentation['selected']) + '</section>'
+    return state, render('seat-module', picture=picture,
+                         source='' if presentation['result'] else presentation['source'],
+                         thresholds=render('threshold-watch', content=thresholds))
+
+
+def polls_page(envs, built, presentation=None):
+    presentation = presentation if presentation is not None else home_presentation(envs, built)
+    state, picture = seat_module(envs, built, presentation)
+    if 'polls' not in envs:
+        return render('polls', state=state, picture=picture, explorer='', details='')
+    polls, average = envs['polls']['data'], envs['averages']['data'][-1]
     details = '<div class="grid"><section><h2>Average party vote</h2>'
     details += f'<p aria-describedby="source-average">Window: {average["window_start"]} to {average["window_end"]}. Equal weight for {len(average["poll_ids"])} polls.</p>'
     details += table('Descriptive shares and coverage', ['Party', 'Share', 'Polls'],
@@ -292,18 +316,7 @@ def polls_page(envs, built, presentation=None):
     details += source_note(envs['averages'], 'source-average', 'averages.json',
                            calculation='Available poll shares averaged with equal weight by this site.',
                            contributing_polls=presentation['selected'])
-    details += '</section><section><h2>Threshold watch</h2><p class="threshold-rule" aria-describedby="source-thresholds">5% of the party vote qualifies a party with a list. An electorate win can also qualify it below 5%.</p>'
-    watch = threshold_watch(polls, average, seats['assumptions'])
-    details += table('Parties near the threshold', ['Party', 'Share', 'Below 5%'],
-                     [[escape(label(row['party_id'])), display(row['value'], row['scale']),
-                       'Electorate assumed' if row['electorate_qualifies'] else 'Needs 5%'] for row in watch], source='source-thresholds')
-    for row in watch:
-        if row['missing_poll_ids']:
-            details += f'<p aria-describedby="source-thresholds">{escape(label(row["party_id"]))}: missing in {len(row["missing_poll_ids"])} window polls.</p>'
-    details += '<p aria-describedby="source-thresholds">2023 electorate seats assumed; 2026 has different boundaries. List capacity not checked.</p>'
-    details += source_note(envs['seats'], 'source-thresholds', 'seats.json',
-                           calculation='Threshold shares averaged with equal weight by this site.',
-                           contributing_polls=presentation['selected']) + '</section></div>'
+    details += '</section></div>'
     parties = list(config('party-map')['headers'].values())
     history, row_notes = [], []
     for poll in sorted(polls, key=lambda p: (p['fieldwork_end'], p['id']), reverse=True):
@@ -319,7 +332,7 @@ def polls_page(envs, built, presentation=None):
     details += source_note(envs['polls'], 'source-history', 'polls.json') + '<details><summary>Individual poll sources and fieldwork dates</summary>' + ''.join(row_notes) + '</details>'
     details += f'<p><a href="{PREFIX}data/averages.json">Daily average series and exact inputs</a></p>'
     return render('polls', state=state, picture=picture,
-                  source='' if presentation['result'] else presentation['source'], explorer=explorer(envs, not stale), details=details)
+                  explorer=explorer(envs, not presentation['stale']), details=details)
 
 
 def methods_page(stage, built, sha, run_url):
@@ -456,7 +469,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             'night/': 'This page will show the count on election night, with replay practice planned for 1 November. There are no live results here yet; polling day is 7 November 2026.',
             'campaign/': 'This page will bring together advance voting and disclosed donations, with source dates and limits. It is planned for 1 November; no campaign totals are available here yet.'}
         routes = config('routes')
-        if len(routes) != 7 or {r['path'] for r in routes} != {'', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
+        if len(routes) != 8 or {r['path'] for r in routes} != {'', 'polls/', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
             raise ValueError('INVALID_ROUTES')
         primary_routes = routes
         routes = routes + [dict(path='electorates/' + r['slug'] + '/', label=r['name']) for r in config('electorates')]
@@ -465,6 +478,9 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             nav = ''.join(f'<a href="{PREFIX + r["path"]}"' + (' aria-current="page"' if r == route else '') +
                           f'>{escape(r["label"])}</a>' for r in primary_routes)
             if slug == '':
+                from product.nz_election.pipeline.home import page
+                body = page(envs, built, home)
+            elif slug == 'polls/':
                 body = polls_page(envs, built, home)
             elif slug == 'electorates/':
                 body = electorates_page(envs, built)
@@ -483,8 +499,14 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
                 body = render('placeholder', description=descriptions[slug])
             target = stage / slug
             target.mkdir(parents=True, exist_ok=True)
-            (target / 'index.html').write_text(render('base', title=escape(home['title']) if slug == '' else ('Proof of concept: what X says about the parties' if slug == 'social/poc/' else route['label']), heading_class='home-sentence' if slug == '' else '', heading_source=' aria-describedby="source-seats"' if slug == '' else '', prefix=PREFIX, nav=nav, body=body,
-                                                    built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.'))
+            title = ('New Zealand votes on 7 November 2026' if slug == '' else
+                     'Proof of concept: what X says about the parties' if slug == 'social/poc/' else route['label'])
+            heading = ('' if slug == '' else
+                       '<h1 class="home-sentence" aria-describedby="source-seats">' + escape(home['title']) + '</h1>' if slug == 'polls/' else
+                       '<h1>' + escape(title) + '</h1>')
+            page_html = render('base', title=escape(title), heading=heading, prefix=PREFIX, nav=nav, body=body,
+                               built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.')
+            (target / 'index.html').write_text(page_html)
         for asset in ('favicon.svg', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'):
             shutil.copyfile(PRODUCT / 'web' / asset, stage / asset)
         for page in stage.rglob('*.html'):
@@ -506,7 +528,7 @@ def main():
     args = parser.parse_args()
     build(args.data, args.out, built=args.now, data_sha=args.data_sha or os.environ.get('NZ_DATA_SHA') or None,
           sha=os.environ.get('NZ_CODE_SHA'))
-    print('PASS build: 78 routes')
+    print('PASS build: 79 routes')
 
 
 if __name__ == '__main__':

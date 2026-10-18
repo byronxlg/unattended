@@ -29,10 +29,10 @@ def provenance(html):
             assert identity in ids, 'MISSING_DESCRIPTION: ' + identity
 
 
-def transfer_bytes(root):
+def transfer_bytes(root, page='index.html'):
     """Follow built first-view dependencies, including module imports and startup fetches."""
     root = Path(root)
-    pending, seen = ['index.html'], set()
+    pending, seen = [page], set()
     sizes = {}
     while pending:
         name = pending.pop()
@@ -53,7 +53,7 @@ def transfer_bytes(root):
                 if tag == 'link' and attrs.get('rel') in {'stylesheet', 'preload', 'icon', 'apple-touch-icon', 'manifest'}:
                     urls.append(attrs.get('href', ''))
                 if attrs.get('data-averages'):
-                    urls += ['data/averages.json', 'data/seats.json']
+                    urls += [PREFIX + 'data/averages.json', PREFIX + 'data/seats.json']
         elif name.endswith('.mjs'):
             urls += re.findall(r"(?:from\s*|import\s*)['\"]([^'\"]+)['\"]", text)
         elif name.endswith('.css'):

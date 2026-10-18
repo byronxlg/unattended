@@ -223,3 +223,32 @@ uv run product/nz_election/tests/screenshots.py --site /tmp/sp-site --out /tmp/s
 No live response is a permissible fixture. The research memo's data-rights and
 release review remain necessary before live publication; this proof of concept
 does not establish permission to redistribute X content or validated NZ accuracy.
+
+## Feed home verification (H-a)
+
+The feed is `/`; poll history and the explorer are `/polls/`. Existing poll IDs,
+source IDs and coalition hashes resolve on `/polls/`. Navigation includes both routes.
+The static countdown uses the build timestamp in Pacific/Auckland. It cannot update
+while publication is frozen under s197; the publication guards remain in force.
+
+For a fresh worktree-local demonstration directory, run:
+
+```sh
+uv run product/nz_election/tests/prepare_home.py
+uv run product/nz_election/pipeline/build.py --data artifacts/nz-election/data --out site/nz-election --now 2026-10-17T01:00:00Z
+uv run product/nz_election/pipeline/verify.py home --data artifacts/nz-election/data --site site
+uv run product/nz_election/tests/screenshots.py
+```
+
+The preparation uses the captured coherent window ending 18 July and synthetic social
+examples dated 16 October. This is offline verification, not current polling or live
+social data. It does not impute Others. Use a fresh data directory for each preparation;
+repeat social collection deliberately encounters the credit-cap contract.
+
+The host screenshot contract is `PASS screenshots: 79 routes, 219 images`: 158 baseline,
+9 narrow, 33 design states, 13 populated map/detail, 4 home extras, 2 existing OG specimens.
+Inspect Home at 390 by 844 and 1280 by 800, Polls, Night, one electorate, and home-row
+keyboard focus. The fold limit remains 780 px and every visible target remains at least
+44 px. The jump list follows the seat strip, using supervisor decision 4 to limit hero
+height. Source actions are disclosed under the shared seat note; no source is removed.
+Per-route OG output and night/detail changes remain H-b.
