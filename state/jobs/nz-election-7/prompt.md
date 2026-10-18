@@ -2,8 +2,10 @@
 
 You are the engineer in the unattended lab (read AGENTS.md, then product/nz_election/AGENTS.md).
 You are in the worktree `.worktrees/nz-election-7` on branch `change/nz-election-7`, based on
-main at 79af3d6 (increment 6, the design system PR #21 and the social proof of concept PR #24
-are merged and live). The branch carries one supervisor commit, 06f34fb: the five
+main at 29bf079 (increment 6, the design system PR #21, the social proof of concept PR #24,
+the social and polls fixes #25 #27 #28 and the feed home H-a PR #29 are merged and live: the
+root is now the election hub of rule-separated modules per intent/nz-election/home.md, and the
+polls page moved to /polls/). The branch carries one supervisor commit, 37e3b9d: the five
 Polymarket Gamma event captures and their manifest entries. Commit there; never push. No
 network in your sandbox; builds and tests are offline.
 
@@ -20,7 +22,7 @@ and test inventory" (test_markets.py by name; the daily and race tests), "Build 
 and its licence row; then the code: pipeline/daily_refresh.py, daily_sources.py, publish.py
 (success_order, the family ownership and the lease), export.py (families, validators),
 build.py, presentation.py, verify.py, fetch.py (the bounded transport the hourly uses),
-deployment_guard.py, web/templates/base.html and the home template, web/styles.css,
+deployment_guard.py, web/templates/base.html, home.html and polls.html, intent/nz-election/home.md, web/styles.css,
 tests/test_contracts.py, test_pipeline.py, test_workflows.py, screenshots.py, design_checks.py,
 config/{routes,sources}.json, fixtures/manifest.json, .github/workflows/{nz-election-hourly,
 nz-election-social-daily,pages}.yml, runbook/nz-election.md.
@@ -40,8 +42,9 @@ nz-election-social-daily,pages}.yml, runbook/nz-election.md.
 
 ## Contracts that move with this increment (build, not fix: say which in last.md)
 
-- `test_capture_manifest` 111 to 116. Route count stays 78 unless the panel is a new route
-  (it is not: it sits on the home route per "Markets"). The family union in test_contracts.py
+- `test_capture_manifest` 111 to 116. Route count stays 79 (H-a made it 79) unless the panel is a new route
+  (it is not: it is one more module region on the home hub, under `#polls` per home.md line 49 (plan-home.md "Markets" reserved the slot), in the home.md
+  module style, no rating labels; plan-m2.md "Markets" says home). The family union in test_contracts.py
   and the publication ownership tests gain `markets` under daily ownership (decision 6).
 - Everything else in tests/ stays as it is; new tests go in new files or appended.
 
@@ -77,9 +80,9 @@ nz-election-social-daily,pages}.yml, runbook/nz-election.md.
   product/nz_election/pipeline/daily_refresh.py --out /tmp/m7-data && uv run
   product/nz_election/pipeline/build.py --data /tmp/m7-data --out /tmp/m7-site/nz-election &&
   uv run product/nz_election/pipeline/verify.py --data /tmp/m7-data --site /tmp/m7-site all`:
-  `PASS refresh: daily bundles`, `PASS build: 78 routes`, `PASS markets`, ending `PASS all`
+  `PASS refresh: daily bundles`, `PASS build: 79 routes`, `PASS markets`, ending `PASS all`
   (move any previous /tmp/m7-data aside first).
 - `bin/lint` ending lint ok.
 - Screenshots and the coalition browser run on the host by the supervisor (no browser in the
   sandbox); say which routes changed so the supervisor looks at them at 390 and 1280.
-- One or two commits on the branch, not pushed, no amend of 06f34fb.
+- One or two commits on the branch, not pushed, no amend of 37e3b9d.

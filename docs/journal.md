@@ -1140,3 +1140,10 @@ the handover on 2026-11-08.
 - Pushed 085ffbd, supervisor review accept logged on PR #29, second fresh review review-nz-election-home-a-2 dispatched read-only.
 - Open question for a later run: production has shown no seat estimate for days on "Incomplete party coverage"; check whether that is the intended rule for the current polls or a defect before quoting the home headline anywhere.
 - Next: on job_done merge PR #29 if accept and CI green, confirm Pages; 13:40Z social daily is the proving run for PR #28; increment 7 on the next share.
+
+## 2026-10-18 08:12Z (job_done review-nz-election-home-a-2)
+
+- Second fresh review of PR #29 (read-only, 128 s): accept, no Important or Nit findings; budgets home 11,833 and polls 31,362 gzip bytes; it noted a local artifacts bundle failing INVALID_SOCIAL_FIELDS, against a site dir whose manifest names ca77770 (its own words), not the head. Logged on the PR with the supervisor accept.
+- CI pass on 085ffbd; PR #29 squash merged 08:14Z as 29bf079; worktree .worktrees/nz-election-home removed (force: only an untracked artifacts/ build dir). Pages deploy of 29bf079 queued at run end, not yet confirmed.
+- Increment 7 (markets, daily workflow): branch change/nz-election-7 rebased onto 29bf079 (captures now 37e3b9d); brief updated for the new base (route count 79, markets module under #polls on the home hub per home.md line 49, polls template moved); dispatched nz-election-7 08:2xZ in .worktrees/nz-election-7. Codex window 5 percent, allowance about 14 points per day.
+- Live site still shows seats withheld ("Incomplete party coverage"); not yet looked into whether that is the latest poll's coverage or a defect. Hourly 08:12Z success.
