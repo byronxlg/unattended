@@ -178,13 +178,27 @@ def home_sentence(result):
 
 
 def seat_topline(result):
-    # This checkout has no reviewed coalition statements. Never infer membership.
-    rows = sorted(result['seats'].items(), key=lambda row: (-row[1], row[0]))
-    return ('<div class="topline" aria-describedby="source-seats"><p class="topline-note">'
-            'Bloc totals unavailable: coalition statements have not been supplied.</p>'
-            '<p class="bloc-neutral">' + '<br>'.join(f'{escape(label(p))}: {n} seats' for p, n in rows) +
-            '</p><p>On the current poll average; ' + str(result['assumed_majority']) +
-            ' needed for an assumed majority.</p></div>')
+    if not result or not result.get('seats'):
+        return ('<div class="topline" aria-describedby="source-seats"><p>'
+                'Seat totals are withheld until a complete, up-to-date poll average is available.</p></div>')
+    groups = config('seat-groups')
+    def sentence(group):
+        row = groups[group]
+        total = sum(result['seats'].get(party, 0) for party in row['parties'])
+        return f'<p class="bloc-{row["token"]}">{escape(row["label"])}: {total} seats</p>'
+    return ('<div class="topline" aria-describedby="source-seats source-grouping">' +
+            sentence('government') + '<p>on the current poll average, ' +
+            str(result['assumed_majority']) + ' needed</p>' + sentence('opposition') +
+            '</div><div class="source-note" id="source-grouping"><p>' + escape(groups['caption']) +
+            '</p><p class="source-actions">' + link(groups['source_url'], groups['source_label']) + '</p></div>')
+
+
+def ungrouped_seats(result):
+    groups = config('seat-groups')
+    members = set(groups['government']['parties']) | set(groups['opposition']['parties'])
+    rows = [f'{escape(label(party))}: {count} seats' for party, count in sorted(result['seats'].items()) if party not in members]
+    return ('<p class="bloc-neutral" aria-describedby="source-seats">Outside these groups: ' +
+            '; '.join(rows) + '.</p>') if rows else ''
 
 
 def strip(seats, note=''):
@@ -265,7 +279,7 @@ def seat_module(envs, built, presentation=None):
         status = next((r for r in envs.get('status', {}).get('data', []) if r['dataset'] == 'polls'), None)
         failed = f' The {compact_time(status["last_attempt_at"])} update failed.' if status and status.get('error_code') else ''
         state = '<div class="state"><p>No data yet. Polls are checked hourly.' + failed + ' <a href="https://github.com/byronxlg/unattended/actions">Update details</a>.</p></div>'
-        return state, render('seat-module', picture=f'<p><a href="{PREFIX}methods/">Read how seats are calculated.</a></p>', source=presentation['source'], thresholds='<p id="source-thresholds">Threshold watch not available: no published polls.</p>')
+        return state, render('seat-module', picture=seat_topline(None) + f'<p><a href="{PREFIX}methods/">Read how seats are calculated.</a></p>', source=presentation['source'], thresholds='<p id="source-thresholds">Threshold watch not available: no published polls.</p>')
     polls, average, seats = envs['polls']['data'], envs['averages']['data'][-1], envs['seats']['data']
     status = next(s for s in envs['status']['data'] if s['dataset'] == 'polls')
     checked = status['last_attempt_at'] if status['state'] == 'fresh' else status['last_success_at']
@@ -282,9 +296,9 @@ def seat_module(envs, built, presentation=None):
         first, end = min(a for a, b in dates), max(b for a, b in dates)
         date_line = (f'<p class="poll-dates" aria-describedby="source-seats">Polls <time datetime="{first}">{observation_label(first)}</time> '
                      f'to <time datetime="{end}">{observation_label(end)}</time>. <a href="{PREFIX}methods/">How seats are calculated</a>.</p>')
-        picture = seat_topline(presentation['result']) + strip(presentation['result'], presentation['source']) + date_line
+        picture = seat_topline(presentation['result']) + strip(presentation['result'], presentation['source']) + ungrouped_seats(presentation['result']) + date_line
     else:
-        picture = (f'<p aria-describedby="source-seats">Seat estimate unavailable. Polls to {observation_label(last)} are below.</p>'
+        picture = (seat_topline(None) + f'<p aria-describedby="source-seats">Seat estimate unavailable. Polls to {observation_label(last)} are below.</p>'
                    f'<p><a href="{PREFIX}methods/">Read how seats are calculated.</a></p>'
                    f'<details><summary>Why seats are unavailable</summary><p>{escape(seats["reason"] or "Update overdue.")}</p></details>')
     for tie in seats.get('unresolved_ties', []):

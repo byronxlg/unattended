@@ -81,10 +81,10 @@ def test_default_scenario_is_unselected(built_design):
     result = default_scenario(envs)
     assert result == coalitions.scenario(inputs, inputs['initial'])
     html = (site / 'index.html').read_text()
-    from product.nz_election.pipeline.build import seat_topline, label
+    from product.nz_election.pipeline.build import seat_topline
     assert seat_topline(result) in html
-    for party, seats in result['seats'].items():
-        assert f'{label(party)}: {seats} seats' in html
+    assert f'Government parties: {sum(result["seats"].get(p, 0) for p in ("nat", "act", "nzf"))} seats' in html
+    assert f'Opposition parties: {sum(result["seats"].get(p, 0) for p in ("lab", "grn", "tpm"))} seats' in html
 
 
 def test_built_routes_have_source_targets(built_design):
