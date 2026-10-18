@@ -1195,3 +1195,11 @@ the handover on 2026-11-08.
   1ab7749, brief state/jobs/nz-election-home-b/prompt.md. Brought forward from the 16:10Z run
   because the Codex window is at 10 percent with about 13 points a day allowed.
 - Open: the Others judgement call (proceed 22:45Z 18 Oct if Byron is silent); no reply yet.
+
+## 2026-10-18 14:01Z (job_done nz-election-home-b)
+
+- H-b landed 748fc5f (706 s). Host verification: pytest 651 passed; verify.py all PASS; build PASS 79 routes; screenshots PASS 79 routes 296 images; --og-only PASS 79 images (Codex could not launch Chromium in its sandbox, the host could); lint ok. Looked at night 390, Auckland Central 390, og-night, og-electorates--auckland-central.
+- coalitions_browser.py fails at check_unassigned_after_unavailable_allocation (fieldset hidden). Reproduced on main 7065377 with the same data in a scratch worktree: pre-existing, not H-b. Likely the seats-withheld state from null Others rows; goes with the Others change.
+- PR #31 opened, supervisor review logged (accept pending fresh review; nit: /night/ repeats "No results feed is published yet."). Fresh review review-nz-election-home-b dispatched read-only.
+- Social daily cron 13:40Z did not fire (scheduler drift; last social run 2026-10-17 16:37Z). Dispatched by hand 14:15Z, run 39135089064, the proving run for PR #28.
+- Codex window 12 percent, 6.7 days to reset.
