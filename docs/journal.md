@@ -1237,3 +1237,12 @@ the handover on 2026-11-08.
 - JUDGEMENT CALL sent 20:5xZ (board line, tg send): restyle now; the 538 probability topline waits for the labelled simulation POC instead of odds without a model; NZ First and TOP grey until a coalition statement places them. Rejected: probability language on the existing seat calculation. Deadline 09:00Z 19 Oct for the POC to reach the hero.
 - Dispatched nz-election-look-a (build) in .worktrees/nz-election-look on change/nz-election-look from 091c449, brief state/jobs/nz-election-look-a/prompt.md. Codex window 12 percent, allowance about 14 points per day.
 - Still open: the Others-as-remainder judgement call (deadline 22:45Z), with the coalitions_browser failure; it touches pipeline files, not the look, so it can run alongside if files stay disjoint.
+
+## 2026-10-18 21:14Z (job_done nz-election-look-a)
+
+- nz-election-look-a landed 28c8771 (brief fcf3612): Libre Franklin and JetBrains Mono self-hosted (OFL texts beside them), ink #222 on white, question headings, CSS budget 12 to 16 KB (14,557 B), first view home 55,494 B, polls 74,345 B. Codex: 568 passed, PASS all, PASS build 79 routes, lint ok; Chromium blocked in its sandbox.
+- Host: screenshot harness PASS 79 routes 296 images on 28c8771. coalitions_browser.py fails at check_unassigned_after_unavailable_allocation, same as on main (belongs to the Others change).
+- Supervisor review, request changes: the home hero shows "Bloc totals unavailable: coalition statements have not been supplied." to readers above seven grey party lines. Cause: look-538.md said a coalitions config records statements; none exists. Codex correctly invented nothing. Supervisor mistake, logged.
+- Fix: group by a sourced fact, the 2023 coalition agreements: Government (National, ACT, NZ First) coral, Opposition (Labour, Green, Te Pati Maori) blue, others grey; caption says it is not a 2026 commitment. Rejected: left/right blocs with NZ First grey (no source places anyone in a bloc), invented blocs.
+- JUDGEMENT CALL sent ~21:30Z (board line, tg send): the Government/Opposition grouping; merge after 09:00Z 19 Oct unless Byron says no.
+- Dispatched nz-election-look-a-fix-1 (build round, same thread) with state/jobs/nz-election-look-a/followup-1.md. Codex window 14 percent, allowance about 13 points per day.
