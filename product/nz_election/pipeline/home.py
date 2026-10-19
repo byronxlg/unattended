@@ -162,14 +162,22 @@ def hero(envs, built, presentation):
             f'. <a href="{PREFIX}methods/#home-seats">How it is made</a></p></div></section>')
 
 
+def party_order():
+    return [p['id'] for p in config('party-map')['parties'] if not p['aggregate']]
+
+
 def latest_polls(envs):
     from .build import table
     rows = sorted(envs.get('polls', {}).get('data', []), key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:3]
     if not rows:
         return '<p>' + unavailable(envs, 'polls') + '</p>'
-    return table('Latest national polls; party vote percent', ['Pollster / fieldwork ended', 'National', 'Labour', 'Green'],
-                 [[escape(p['pollster']) + '<br>' + observation_label(p['fieldwork_end']),
-                   *[display(p['shares'].get(party), p['scale']) for party in ('nat', 'lab', 'grn')]] for p in rows], source='source-polls')
+    wins = envs.get('seats', {}).get('data', {}).get('assumptions', {}).get('electorate_wins', {})
+    parties = [party for party in party_order() if wins.get(party, 0) > 0 or any(
+        p['shares'].get(party) is not None and p['shares'][party] >= 5 * p['scale'] for p in rows)]
+    names = {identity: name for name, identity in config('party-map')['pollsters'].items()}
+    return table('Latest national polls; party vote percent', ['Pollster / fieldwork ended'] + [label(p) for p in parties],
+                 [[escape(names.get(p['pollster'], p['pollster'])) + '<br>' + observation_label(p['fieldwork_end']),
+                   *[display(p['shares'].get(party), p['scale']) for party in parties]] for p in rows], source='source-polls')
 
 
 def trend_graphic(envs):
@@ -181,7 +189,7 @@ def trend_graphic(envs):
     selected = averages[-29::7]
     if averages[-1] not in selected:
         selected.append(averages[-1])
-    parties = ('nat', 'lab', 'grn', 'act', 'nzf', 'tpm')
+    parties = party_order()
     return table('Weekly snapshots of the 30-day average, percent', ['As at'] + [label(p) for p in parties],
                  [[observation_label(a['date'])] + [display(a['descriptive'].get(p, {}).get('value'), a['descriptive'].get(p, {}).get('scale', 100)) for p in parties] for a in selected], source='source-trend')
 
@@ -192,22 +200,22 @@ def thresholds(envs):
     if 'seats' not in envs:
         return '<p>Not available: no published threshold shares.</p>'
     rows = threshold_watch(envs['polls']['data'], envs['averages']['data'][-1], envs['seats']['data']['assumptions'])
-    return table('Parties near the threshold', ['Party', 'Share', 'Below 5%'],
-                 [[escape(label(r['party_id'])), display(r['value'], r['scale']), 'Electorate assumed' if r['electorate_qualifies'] else 'Needs 5%'] for r in rows], source='source-thresholds')
+    return table('Parties near the threshold', ['Party', 'Share', 'Qualification'],
+                 [[escape(label(r['party_id'])), display(r['value'], r['scale']), 'At or above 5%' if r['value'] is not None and r['scale'] and r['value'] >= 5 * r['scale'] else 'Electorate assumed' if r['electorate_qualifies'] else 'Needs 5%'] for r in rows], source='source-thresholds')
 
 
 def market_graphic(envs):
-    from .market_panel import leaders, label, yes
+    from .market_panel import leaders, question, yes
     from .presentation import market_price
     if 'markets' not in envs:
         return '<p>' + unavailable(envs, 'markets') + '</p>'
     rows = ''
     for event, row in leaders(envs['markets']['data']):
         if row:
-            rows += f'<tr data-market-id="{row["id"]}"><th scope="row">{escape(label(row))}{" (closed)" if row["closed"] else ""}</th><td>{market_price(yes(row)["price"])}</td></tr>'
+            rows += f'<tr data-market-id="{row["id"]}"><th scope="row">{escape(question(row))}{" (closed)" if row["closed"] else ""}</th><td>{market_price(yes(row)["price"])}</td></tr>'
         else:
             rows += '<tr><th scope="row">' + escape(event['family']) + '</th><td>No priced contracts</td></tr>'
-    return '<div class="scroll"><table aria-describedby="source-markets"><caption>Highest Yes price per event</caption><tbody>' + rows + '</tbody></table></div>'
+    return '<div class="scroll"><table aria-describedby="source-markets"><caption>Leading market choices: price for Yes</caption><tbody>' + rows + '</tbody></table></div>'
 
 
 def closest(envs):

@@ -38,6 +38,13 @@ def label(row):
     return ': '.join(match.groups()) + (' seats' if row['family'] == 'seat-bands' else '')
 
 
+def question(row):
+    # Keep the proposition and seat interval, removing only repeated election context.
+    return (row['question'].replace(' of New Zealand after the 2026 elections?', '?')
+            .replace(' of New Zealand?', '?')
+            .replace(' in the New Zealand House of Representatives in the 2026 New Zealand legislative election?', '?'))
+
+
 def panel(envs, built):
     env = envs.get('markets')
     status = next((r for r in envs.get('status', {}).get('data', []) if r['dataset'] == 'markets'), {})
