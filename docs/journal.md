@@ -1324,3 +1324,18 @@ the handover on 2026-11-08.
   state/jobs/nz-election-principles-fix-2/prompt.md: fragment links resolve in every state, a
   no-Chromium test over the design states shown failing on 59bb62b, harness check unchanged).
 - Codex window 23 percent, resets in 6.3 days.
+
+## 2026-10-19 00:11Z (job_done nz-election-principles-fix-2)
+
+- fix-2 9a8aa1d (home poll links resolve when polls are unpublished; regression shown failing on
+  59bb62b). Host: 696 passed, build PASS 79 routes. Host harness FAIL one step later:
+  HOME_ROW_KEYBOARD_FOCUS (screenshots.py:252): on the committed data closest() renders only the
+  unavailable paragraph and the redesign dropped main's ul.home-directory fallback, so no row link
+  exists to tab to. Not pushed.
+- nz-election-principles-fix-3 dispatched on the build thread (state/jobs/nz-election-principles/followup-3.md:
+  a row of route links in every state, no-Chromium test over design states shown failing on 9a8aa1d,
+  main's tests and screenshots.py unchanged).
+- What went wrong: three host-only harness failures in a row, one per round, because Chromium is
+  blocked in the Codex sandbox and each failure stops the harness at the first assertion. Next
+  brief of a UI change should ask for no-Chromium proxies of every harness assertion it touches.
+- Codex window 24 percent, resets in 6.3 days.
