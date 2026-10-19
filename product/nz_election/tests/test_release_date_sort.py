@@ -29,6 +29,7 @@ def test_release_date_boundaries(mapping, lag):
     assert (poll['fieldwork_start'], poll['fieldwork_end']) == ('2026-10-09', '2026-10-19')
     if lag:
         diagnostic, = result.diagnostics['date_exceptions']
+        assert diagnostic['kind'] == 'release-date'
         assert diagnostic['locator'] == poll['source_ref']
         assert diagnostic['visible'] == '9–19 Oct 2026'
         assert diagnostic['sort'] == sort

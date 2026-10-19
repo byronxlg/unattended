@@ -317,10 +317,11 @@ def _parse_polls(wikitext, revision, mapping, identities, position):
                         and exception['pollster'] == clean(cells[1][1])
                         and exception.get('source') and exception.get('reason')):
                     documented_exception = True
-                    result.diagnostics.setdefault('date_exceptions', []).append(dict(locator=locator, **exception))
+                    result.diagnostics.setdefault('date_exceptions', []).append(
+                        dict(exception, locator=locator, kind='documented-exception'))
             if sort is not None and sort != end and not documented_exception:
                 result.diagnostics.setdefault('date_exceptions', []).append(dict(
-                    locator=locator, visible=visible, sort=sort, pollster=clean(cells[1][1]),
+                    locator=locator, kind='release-date', visible=visible, sort=sort, pollster=clean(cells[1][1]),
                     source='https://en.wikipedia.org/w/index.php?oldid=' + str(revision),
                     reason=f'Sort date is within {MAX_RELEASE_LAG_DAYS} days after fieldwork; '
                            'release-date convention accepted, visible fieldwork dates retained.'))
