@@ -58,7 +58,11 @@ def test_built_note_sentences_and_contributing_dates(tmp_path, end_date, built, 
     validation = (site / 'methods/index.html').read_text()
     assert 'Calculation verified against captured final results.' in validation
     assert 'Final results <time datetime="2023-11-03">3 Nov 2023</time>.' in validation
-    assert 'Seats calculated by this site.' not in validation
+    assert 'Seats calculated by this site.' not in paragraph(validation, 'source-polls')
+    for identity, sentence, contributors, stem in cases:
+        note = paragraph(validation, identity)
+        assert unescape(note).endswith(sentence)
+        assert_dates(note, contributors, envs[stem]['fetched_at'])
 
 
 def test_no_contributing_polls_does_not_substitute_retrieval_date():

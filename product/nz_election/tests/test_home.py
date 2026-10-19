@@ -14,7 +14,7 @@ from product.nz_election.pipeline.refresh import refresh
 from product.nz_election.tests.design_checks import Document, provenance
 
 NOW = '2026-10-17T01:00:00Z'
-MODULES = ('seats', 'polls', 'electorates', 'directory', 'social', 'method')
+MODULES = ('seats', 'polls', 'trend', 'electorates', 'thresholds', 'markets', 'night', 'more')
 
 
 @pytest.fixture(scope='module')
@@ -45,7 +45,7 @@ def test_home_module_order(populated):
     positions = [html.index(f'<section id="{name}"') for name in MODULES]
     assert positions == sorted(positions)
     assert html.count('<h1') == 1 and 'Who is favoured to form the next government?' in html
-    assert 'coalitions.mjs' not in html and 'How have the polls moved?' not in html
+    assert 'coalitions.mjs' not in html and 'How have the polls moved?' in html
     provenance(html)
 
 
@@ -63,12 +63,25 @@ def test_poll_fragments_preserved(populated):
     provenance(html)
 
 
-def test_shared_seat_module_identical(populated):
-    _, site = populated
-    def module(route):
-        html = (site / route / 'index.html').read_text()
-        return html.split('<div class="seat-module">', 1)[1].split('</section>\n', 1)[0]
-    assert module('') == module('polls')
+def test_home_figures_have_complete_source_entries(populated):
+    from product.nz_election.tools.measure_home import measure
+    envs, site = populated
+    html = (site / 'index.html').read_text()
+    sources = (site / 'methods/index.html').read_text()
+    ids = {a['id'] for _, a in Document(sources).nodes if 'id' in a}
+    figures = [a for tag, a in Document(html).nodes if tag == 'figure']
+    assert len(figures) == 7
+    for figure in figures:
+        assert figure['id'] in ids
+        assert f'methods/#{figure["id"]}' in html
+    assert home_presentation(envs, NOW)['source'] in sources
+    assert 'id="source-thresholds"' in sources
+    for poll in envs['polls']['data']:
+        assert f'id="source-{poll["id"]}"' in sources
+        for url in poll['reference_urls']:
+            from html import escape
+            assert escape(url, quote=True) in sources
+    measure(site / 'index.html')
 
 
 def test_poll_figures_and_coverage(populated):
@@ -129,7 +142,8 @@ def test_no_inferred_incumbents(populated):
     envs, site = populated
     html = (site / 'index.html').read_text()
     assert 'incumbent' not in html.lower()
-    assert 'on the original boundaries' in html and 'Changed boundaries' in html
+    assert 'unchanged boundaries' in html and 'changed boundaries' in html
+    html = (site / 'methods/index.html').read_text()
     for _, _, row, _ in watch_rows(envs):
         for candidate in envs['candidates']['data']:
             if candidate['electorate_id'] == row['id']:
@@ -139,10 +153,10 @@ def test_no_inferred_incumbents(populated):
 
 def test_directory_all_71(populated):
     _, site = populated
-    html = (site / 'index.html').read_text().split('<section id="directory"')[1].split('</section>')[0]
-    assert len(re.findall(r'<li>', html)) == 71
+    html = (site / 'electorates/index.html').read_text()
+    assert len(re.findall(r'<li id="electorate-', html)) == 71
     assert all(PREFIX + 'electorates/' + r['slug'] + '/' in html for r in config('electorates'))
-    assert 'Boundary changed; 2023 holder not comparable' in html
+    assert 'boundary' in html.lower()
 
 
 def test_home_missing_families(populated):
@@ -155,11 +169,14 @@ def test_home_missing_families(populated):
             missing.pop('seats', None)
         html = page(missing, NOW, home_presentation(missing, NOW))
         provenance(html)
-        assert 'Not available' in html
+        if absent == 'social/daily':
+            assert 'Social proof of concept' in html and 'id="social"' not in html
+        else:
+            assert 'Not available' in html
     html = page({}, NOW, home_presentation({}, NOW))
     provenance(html)
     assert 'No data yet' in html and 'No seat estimate available yet' in html
-    assert len(re.findall(r'<li>', html)) == 71
+    assert 'Find your electorate' in html and len(re.findall(r'<li>', html)) == 5
 
 
 def test_home_navigation(populated):
@@ -167,9 +184,9 @@ def test_home_navigation(populated):
     for path in site.rglob('index.html'):
         html = path.read_text()
         nav = html.split('<header>')[1].split('</header>')[0]
-        assert nav.count(f'<a href="{PREFIX}"') == 2
-        assert nav.count(f'<a href="{PREFIX}polls/"') == 2
-        assert html.count('aria-current="page"') == (2 if path.parent == site or path.parent.name in {'polls', 'electorates', 'night', 'methods'} else 0)
+        assert nav.count(f'<a href="{PREFIX}"') == 1
+        assert nav.count(f'<a href="{PREFIX}polls/"') == 1
+        assert html.count('aria-current="page"') == (1 if path.parent == site or path.parent.name in {'polls', 'electorates', 'night', 'methods'} else 0)
         assert ('aria-label="Home sections"' in html) == (path == site / 'index.html')
 
 

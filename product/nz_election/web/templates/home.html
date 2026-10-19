@@ -1,13 +1,5 @@
-<nav class="section-links" aria-label="Home sections"><a href="#seats">Seats</a><a href="#polls">Polls</a>{{market_nav}}<a href="#electorates">Electorates</a><a href="#night">Night</a><a href="#directory">Directory</a><a href="#social">Social</a><a href="#method">Method</a></nav>
-<div class="home-hero"><p class="updated">Updated {{updated}}</p><h1>Who is favoured to form the next government?</h1><p class="dek">What the current poll average means in seats.</p></div>
+<nav class="section-links" aria-label="Home sections"><a href="#polls">Polls</a><a href="#trend">Trend</a><a href="#electorates">Electorates</a><a href="#thresholds">Threshold</a><a href="#markets">Markets</a><a href="#night">Night</a></nav>
+{{hero}}
 {{state}}
-<section id="seats" class="home-module">{{seats}}</section>
-<p class="poll-dates" aria-describedby="source-seats">{{sentence}}</p>
-<nav aria-label="Explore this election"><a href="#directory">Find your electorate</a><a href="{{prefix}}night/">Election night</a><a href="#method">How this works</a></nav>
-<section id="night" class="home-module"><h2>When is election night?</h2><p class="countdown" aria-describedby="source-election">{{countdown}}</p><div class="source-note" id="source-election"><p>Election date: Electoral Commission, 7 November 2026. Countdown and page updated {{updated}}.</p><p class="source-actions"><a href="https://vote.nz/">Electoral Commission</a><a href="{{prefix}}build-manifest.json">Build record</a></p></div></section>
-<section id="polls" class="home-module" aria-describedby="source-average"><h2>What are the latest polls?</h2>{{polls}}<p class="source-actions"><a href="{{prefix}}polls/">See all polls</a><a href="{{prefix}}methods/">How seats are calculated</a><a href="{{prefix}}polls/#explorer">Explore seat combinations</a></p></section>
-{{markets}}
-<section id="electorates" class="home-module" aria-describedby="source-watch"><h2>Which electorates are closest?</h2>{{watch}}{{watch_source}}</section>
-<section id="directory" class="home-module" aria-describedby="source-directory"><h2>Where is your electorate?</h2>{{directory}}{{directory_source}}</section>
-<section id="social" class="home-module" aria-describedby="source-social"><h2>What are people posting?</h2>{{social}}<a href="{{prefix}}social/poc/">Explore the proof of concept</a></section>
-<section id="method" class="home-module" aria-describedby="source-method"><h2>How does this site calculate seats?</h2><p>Each poll in the window has equal weight. Missing party observations stay missing; these averages describe polls, not a forecast.</p><p>Parties qualify with 5 percent of the party vote or an electorate win. Sainte-Laguë allocates their proportional seat entitlements.</p><p>Electorate wins and list capacity affect the final House. These calculations assume electorate seats and do not check list capacity. Poll-derived data is CC BY-SA 4.0. Electoral Commission data has no stated open licence.</p><a href="{{prefix}}methods/">Read the methods</a>{{method_source}}</section>
+{{modules}}
+<section id="more" class="home-module"><h2>More</h2><ul><li><a href="{{prefix}}social/poc/">Social proof of concept</a></li><li><a href="{{prefix}}{{coalition_route}}">Coalition statements and seat combinations</a></li><li><a href="{{prefix}}electorates/">Find your electorate</a></li><li><a href="{{prefix}}night/">Election timeline</a></li><li><a href="{{prefix}}methods/">Methods and full sources</a></li></ul></section>

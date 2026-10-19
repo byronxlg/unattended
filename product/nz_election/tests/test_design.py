@@ -81,10 +81,11 @@ def test_default_scenario_is_unselected(built_design):
     result = default_scenario(envs)
     assert result == coalitions.scenario(inputs, inputs['initial'])
     html = (site / 'index.html').read_text()
-    from product.nz_election.pipeline.build import seat_topline
-    assert seat_topline(result) in html
-    assert f'Government parties: {sum(result["seats"].get(p, 0) for p in ("nat", "act", "nzf"))} seats' in html
-    assert f'Opposition parties: {sum(result["seats"].get(p, 0) for p in ("lab", "grn", "tpm"))} seats' in html
+    from product.nz_election.pipeline.home import hero
+    from product.nz_election.pipeline.build import home_presentation
+    assert hero(envs, '2026-10-17T01:00:00Z', home_presentation(envs, '2026-10-17T01:00:00Z')) in html
+    assert f'Government {sum(result["seats"].get(p, 0) for p in ("nat", "act", "nzf"))} seats' in html
+    assert f'Opposition {sum(result["seats"].get(p, 0) for p in ("lab", "grn", "tpm"))} seats' in html
 
 
 def test_built_routes_have_source_targets(built_design):
@@ -126,7 +127,7 @@ def test_real_first_view_budget(built_design):
 
 def test_source_dates_and_identity(built_design):
     _, site = built_design
-    html = (site / 'index.html').read_text()
+    html = (site / 'methods/index.html').read_text()
     assert 'Fieldwork ended <time datetime=' in html
     assert 'Retrieved <time datetime=' in html and 'NZDT' in html
     assert 'Final results <time datetime="2023-11-03">' in (site / 'methods/index.html').read_text()
