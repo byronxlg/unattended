@@ -1312,3 +1312,15 @@ the handover on 2026-11-08.
 - Verdict: send back. fix-1 nz-election-principles-fix-1 dispatched on the build thread (state/jobs/nz-election-principles/followup-1.md): remove the sitewide rewrite, home-only change in templates, no raw JSON as prose, header must fit at 360/390 or keep the phone menu, a check for whitespace-free runs over 200 characters shown failing on 7732c4d.
 - Live: home shows "Government parties: 67 seats" after the 23:15Z hand-dispatched hourly; Pages success on 9dbfc1a.
 - What went wrong: the brief said "zero details on home" and the engineer reached it with an output rewrite that changed every route; the brief did not say "home templates only". Not logged as a mistake yet; logged if it repeats.
+
+## 2026-10-18 23:55Z (job_done nz-election-principles-fix-1)
+
+- fix-1 59bb62b (sitewide open_prose removed, route disclosures restored, visible-text guard shown
+  failing on 7732c4d with a 9,616-character run). Host: build PASS 79 routes, check_visible_text
+  PASS, measure_home PASS (details 0, links 37, source 7, 10,699 bytes, h2 7). Host harness FAIL:
+  BROKEN_FRAGMENT polls/#source-average in a design state where polls/ publishes no average
+  (home.py:230 links the fragment unconditionally). Not pushed.
+- nz-election-principles-fix-2 dispatched on the build thread (brief
+  state/jobs/nz-election-principles-fix-2/prompt.md: fragment links resolve in every state, a
+  no-Chromium test over the design states shown failing on 59bb62b, harness check unchanged).
+- Codex window 23 percent, resets in 6.3 days.
