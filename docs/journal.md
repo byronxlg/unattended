@@ -1456,3 +1456,9 @@ the handover on 2026-11-08.
 - Wrote state/jobs/nz-election-look-b/prompt.md (#40 items 1 and 3: absent means absent with a failing-then-passing build check, hero graphic, hex map, reference-weight charts, leader photos, display type, electorate page one screen). Dispatch after PR #41 merges and snapshots land, from main with both.
 - Codex window 41 percent, 6.1 days to reset, allowance about 10 points per day.
 - PR #41 CI green, squash merged as bbb494e, worktree removed. Fresh review P2 (stale warning on compact electorate footnote) accepted with reasoning on the PR, carried into the look-b brief.
+
+## 2026-10-19 05:25Z run (issue #40 comment)
+
+- Byron, issue #40 (Telegram 05:09Z), verbatim: "Pipelines are fine. Just not a limiting factor you know?" Operator relay amends item 2: pipelines are not discouraged; the absence of one must never be why data is missing; fetch once into a sourced snapshot and add a pipeline later if worth it.
+- Read against the running nz-election-snapshots brief: consistent (fetch once now, no new workflow in this job is scope, not a rule). No interruption, no re-brief. Pipelines for snapshot families go on the list for after look-b where a family changes before 7 November (candidates, enrolment).
+- nz-election-snapshots still running; no other action.
