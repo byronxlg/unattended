@@ -1420,3 +1420,9 @@ the handover on 2026-11-08.
 - nz-election-home-design 5cc640b (811 s): Codex 670 passed, verify all PASS, lint ok; Chromium denied in its sandbox.
 - Host: screenshots.py PASS 79 routes 296 images; full-page home looked at 1280 and 390 under the /unattended prefix. Direction right (charts per module, derived hero, 700 px column, one nav row, night in More). Four defects: chart SVG text scales with the viewBox (about 24 px at 1280, about 9 px at 390); threshold module is large text, not a graphic; latest polls are 21 rows in three panels (wanted one dot row per party); hero "majority of 3" reads as a 3-seat lead when the lead is 7.
 - Sent back, not PR'd: fix-1 nz-election-home-design-fix-1 dispatched on the build thread (followup-1.md, includes a Chromium glyph-size check that must fail on 5cc640b). Reversible single change, no judgement line. Codex window 35 percent, resets in 6.1 days.
+
+## 2026-10-19 03:50Z (job_done nz-election-home-design-fix-1)
+
+- fix-1 58a08dd (643 s): Codex 674 passed, verify all PASS, lint ok; Chromium denied in its sandbox, regression proof of the new check analytical only.
+- Host: screenshots.py on the 58a08dd build PASS 79 routes 296 images; the same harness on the preserved 5cc640b build fails HOME_CHART_TEXT_SIZE (chart labels 10.3 to 11.2 px at 360), so the check fails before and passes after in a real browser. Full-page home looked at 360, 390, 1280 under /unattended: all four follow-up items fixed (HTML labels at caption size, threshold bars with the 5% line, seven-row dot plot, hero "67 seats, 3 more than the 64 needed").
+- PR #39 opened, supervisor accept logged with two nits (overlapping pollster markers when close; thin Government sliver past the 64 line in the hero bar). Fresh design review review-nz-election-home-design dispatched read-only with the screenshots. Codex window 37 percent, resets in 6.1 days. No judgement call.
