@@ -1394,3 +1394,9 @@ the handover on 2026-11-08.
 - What went wrong: the supervisor sent Byron the #34 link at 01:14Z after code and harness reviews only; no review of the page as a design against the reference. From now, a UI round's fresh review is given the reference and the screenshots, not only the measures.
 - Codex window 31 percent, resets in 6.2 days.
 - Next: merge PR #37 on accept and green CI, dispatch nz-election-home-defects, then the design round brief for items 1 to 3.
+
+## 2026-10-19 02:13Z
+
+- Fresh review of PR #37 (review-nz-election-principles-routes, 92 s): request changes, one Important - electorate and polls source disclosures are now open source dumps; design principle 5 wants compact footnotes with full records on anchored Methods sections. Judgement: real, deferred to its own change (nz-election-provenance-methods) rather than a fifth fix round; the PR's principle 4 work had host harness PASS 79 routes 296 images and CI green. Alternative rejected: fix-4 on the same thread (four rounds already, different files from the queued work). Reasoning posted on the PR.
+- PR #37 squash merged as 4dbb18e under Byron's "Just merge freely" (2026-10-18 21:44Z); worktree removed.
+- Dispatched nz-election-home-defects (issue #34 operator review defects 5 to 9 and 11) in .worktrees/nz-election-home-defects from 4dbb18e. Codex window 32 percent, resets in 6.2 days.
