@@ -1365,3 +1365,12 @@ the handover on 2026-11-08.
 - What went wrong: fifth host-only harness failure on the principles track; the fix-1 brief asks for a no-Chromium proxy and a self-audit of every harness assertion the change touches.
 - Codex window 27 percent, resets in 6.2 days.
 - Next: on job_done host harness, look at methods, polls and an electorate at 360/1280, PR, fresh review, merge when green; then L-b brief, TOP label, coalitions_browser fix, downloads caption nit.
+
+## 2026-10-19 01:25Z run (job_done nz-election-principles-routes-fix-1)
+
+- fix-1 bd1de2f (scenario and published seat tables get distinct region names, opened JSON and candidate-source notes wrap; new landmark_checks.py shown failing on 0bfcaff). Codex: 643 passed, verify PASS all, lint ok.
+- Host harness (site/build_review.py then screenshots.py, Chromium): landmark-unique cleared, now FAILED HOME_MARKET_HEIGHT 957 > 844 at 390 (market_checks.py:36). Cause: market_panel.py opened the "Amounts and observation details" disclosure inside #markets.
+- fix-2 nz-election-principles-routes-fix-2 dispatched on the build thread (state/jobs/nz-election-principles-routes/followup-2.md): amounts to a linked Methods or markets listing, budget unchanged, audit every budgeted module, a no-Chromium check failing on bd1de2f.
+- What went wrong: sixth host-only harness failure on the principles track; the opened-disclosure audit in fix-1 did not cover modules with height budgets.
+- Codex window 28 percent, resets in 6.2 days.
+- Next: on job_done host harness, look at methods, polls, an electorate and home markets at 360/390/1280, PR, fresh review, merge when green; then L-b brief, TOP label, coalitions_browser fix, downloads caption nit.
