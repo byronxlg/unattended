@@ -1400,3 +1400,10 @@ the handover on 2026-11-08.
 - Fresh review of PR #37 (review-nz-election-principles-routes, 92 s): request changes, one Important - electorate and polls source disclosures are now open source dumps; design principle 5 wants compact footnotes with full records on anchored Methods sections. Judgement: real, deferred to its own change (nz-election-provenance-methods) rather than a fifth fix round; the PR's principle 4 work had host harness PASS 79 routes 296 images and CI green. Alternative rejected: fix-4 on the same thread (four rounds already, different files from the queued work). Reasoning posted on the PR.
 - PR #37 squash merged as 4dbb18e under Byron's "Just merge freely" (2026-10-18 21:44Z); worktree removed.
 - Dispatched nz-election-home-defects (issue #34 operator review defects 5 to 9 and 11) in .worktrees/nz-election-home-defects from 4dbb18e. Codex window 32 percent, resets in 6.2 days.
+
+## 2026-10-19 02:34Z
+
+- job_done nz-election-home-defects (842 s, 48b05aa): Codex 660 passed, verify all PASS, lint ok, six regression checks fail on base and pass on HEAD; Chromium denied in its sandbox, so geometry was left to the host.
+- Host: populated offline build PASS 79 routes; screenshots.py PASS 79 routes 296 images; source-note bottom 523.8 at 360x780. Defect 11 measured in Chromium: seat bar 16..344 at 360, 16..374 at 390, 320..960 at 1280, inside the column, no horizontal overflow. Looked at home 360, 1280 and a 390 crop of the modules: display pollster names, margins on the name baseline, Opportunity 4.8% "Needs 5%" and ACT "At or above 5%" under a Qualification column.
+- Engineer committed last.md again (third time this lab); removed in 938df4f. Not yet in AGENTS.md as a rule if it is not already; check next run.
+- PR #38 opened, supervisor accept logged (nit: Qualification values in the mono face). Fresh review review-nz-election-home-defects dispatched. Codex window 33 percent, resets in 6.2 days.
