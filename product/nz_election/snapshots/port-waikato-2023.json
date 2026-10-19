@@ -1,0 +1,108 @@
+{
+  "schema": "port-waikato-2023-v1",
+  "retrieved_at": "2026-10-19T05:12:18Z",
+  "records": [
+    {
+      "name": "Andrew Bayly",
+      "party": "National Party",
+      "votes": 14296,
+      "winner": true,
+      "electorate_slug": "port-waikato",
+      "election_date": "2023-11-25",
+      "source_url": "https://elections.nz/media-and-news/2023/port-waikato",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "party_id": "nat",
+      "margin": 11432,
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "name": "Casey Costello",
+      "party": "New Zealand First Party",
+      "votes": 2864,
+      "winner": false,
+      "electorate_slug": "port-waikato",
+      "election_date": "2023-11-25",
+      "source_url": "https://elections.nz/media-and-news/2023/port-waikato",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "party_id": "nzf",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "name": "Alf Metuakore Ngaro",
+      "party": "NewZeal",
+      "votes": 409,
+      "winner": false,
+      "electorate_slug": "port-waikato",
+      "election_date": "2023-11-25",
+      "source_url": "https://elections.nz/media-and-news/2023/port-waikato",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "name": "Anna Joy Rippon",
+      "party": "Animal Justice Party",
+      "votes": 297,
+      "winner": false,
+      "electorate_slug": "port-waikato",
+      "election_date": "2023-11-25",
+      "source_url": "https://elections.nz/media-and-news/2023/port-waikato",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "name": "Kim Turner",
+      "party": "New Zealand Loyal",
+      "votes": 237,
+      "winner": false,
+      "electorate_slug": "port-waikato",
+      "election_date": "2023-11-25",
+      "source_url": "https://elections.nz/media-and-news/2023/port-waikato",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "name": "Scotty Bright",
+      "party": "DemocracyNZ",
+      "votes": 225,
+      "winner": false,
+      "electorate_slug": "port-waikato",
+      "election_date": "2023-11-25",
+      "source_url": "https://elections.nz/media-and-news/2023/port-waikato",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "name": "Jill Annette Ovens",
+      "party": "Women’s Rights Party",
+      "votes": 188,
+      "winner": false,
+      "electorate_slug": "port-waikato",
+      "election_date": "2023-11-25",
+      "source_url": "https://elections.nz/media-and-news/2023/port-waikato",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "name": "Gordon John Dickson",
+      "party": "Independent",
+      "votes": 88,
+      "winner": false,
+      "electorate_slug": "port-waikato",
+      "election_date": "2023-11-25",
+      "source_url": "https://elections.nz/media-and-news/2023/port-waikato",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "name": "Vijay Sudhamalla",
+      "party": "Vision New Zealand",
+      "votes": 48,
+      "winner": false,
+      "electorate_slug": "port-waikato",
+      "election_date": "2023-11-25",
+      "source_url": "https://elections.nz/media-and-news/2023/port-waikato",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    }
+  ]
+}

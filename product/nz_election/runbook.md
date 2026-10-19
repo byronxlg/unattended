@@ -1,5 +1,41 @@
 # M1 refresh, publication and recovery
 
+## Hand-refreshed fact snapshots
+
+`snapshots/*.json` are committed research snapshots, not scheduled feeds. Load one
+offline with `pipeline.snapshots.load('leaders')` (or another filename stem).
+The envelope records its schema and UTC retrieval time; every record carries its
+own source URL, retrieval time and licence statement. Omitted fields are not claims
+of zero or false. Consumers must omit absent fields and empty modules.
+
+To refresh one, fetch its `source_url` again by hand (for a pinned Wikipedia revision,
+follow the article to its latest revision and record the new revision URL), check the dated source table
+or statement, update only the supported records and UTC retrieval times, then review
+the diff against the source. Wikipedia candidates exclude withdrawn/retiring sections.
+Join EC list ranks only after reviewing party and electorate identity and an exact,
+unique candidate-name match within that party's committed EC list; never use fuzzy
+matching or carry over an old Wikipedia rank. Parties outside `party-map.json` keep
+their source `party` label and omit `party_id`; they are not the `others` aggregate.
+Unknown MP status is omitted. Enrolment uses the electorate's own roll, not the
+general table's combined total including Māori-roll voters living in that area.
+Historical shares are decimal strings at the source's published precision; general
+election seats exclude later by-elections. `hexmap` uses square tiles with x east,
+y south and a separate Māori column; its original arrangement is informed by the
+committed Stats NZ geometry, not copied from a published cartogram.
+
+Photos must come from Commons or an official source with explicit CC0, CC BY,
+CC BY-SA, public-domain or NZ Crown reuse terms. Preserve the file-page URL,
+author, licence name and URL, and describe the crop/conversion. Retain share-alike
+terms on derivatives. Crop to a 320-pixel square, inspect the result, and keep each
+file below 40,000 bytes and all portraits below 2,000,000 bytes. Candidate portraits
+are limited to verified sitting electorate MPs. A public webpage alone does not
+license its photos. EC copyright is recorded as stated, not relabelled open data;
+news quotations are short attributed excerpts, not an assertion of an open licence.
+
+Run `uv run --with pytest pytest -q product/nz_election`, stage only the reviewed
+snapshot/code/image/runbook files, then run `bin/lint` and review the staged diff.
+Commit locally. This refresh procedure does not change publication workflows.
+
 Run `uv run product/nz_election/pipeline/refresh.py --fixtures --out artifacts/nz-election/data`.
 This verifies immutable captures and labels every output run `offline-verification`. It never fetches.
 The current capture contains missing Others observations: incomplete windows withhold seats.

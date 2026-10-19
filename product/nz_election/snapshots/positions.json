@@ -1,0 +1,76 @@
+{
+  "schema": "positions-v1",
+  "retrieved_at": "2026-10-19T05:16:26Z",
+  "records": [
+    {
+      "party_id": "nat",
+      "speaker": "Christopher Luxon",
+      "date": "2026-07-27",
+      "quote": "We wouldn’t be in business with people who want to increase taxes.",
+      "source_url": "https://newswire.co.nz/2026/07/luxon-rules-out-opportunity-party/",
+      "context": "Rules out a governing arrangement with Opportunity.",
+      "licence": "Copyright News Wire; no open licence stated. Short attributed quotation.",
+      "retrieved_at": "2026-10-19T05:16:26Z"
+    },
+    {
+      "party_id": "lab",
+      "speaker": "Chris Hipkins",
+      "date": "2026-08-10",
+      "quote": "Winston Peters has ruled us out. I'm happy to rule him out.",
+      "source_url": "https://www.1news.co.nz/2026/08/10/labour-rules-out-nz-first-hipkins-says-caucus-call-was-unanimous/",
+      "context": "Rules out working with New Zealand First.",
+      "licence": "Copyright TVNZ; no open licence stated. Short attributed quotation.",
+      "retrieved_at": "2026-10-19T05:16:26Z"
+    },
+    {
+      "party_id": "act",
+      "speaker": "David Seymour",
+      "date": "2026-06-29",
+      "quote": "That’s why our first mission must be to lock out Labour",
+      "source_url": "https://www.act.org.nz/news/seymour%E2%80%99s-speech",
+      "context": "Campaigns to keep Labour out of government.",
+      "licence": "Copyright ACT New Zealand; no open licence stated. Short attributed quotation.",
+      "retrieved_at": "2026-10-19T05:16:26Z"
+    },
+    {
+      "party_id": "opp",
+      "speaker": "Qiulae Wong",
+      "date": "2026-08-13",
+      "quote": "That gets us in the best position to be a strong and stable coalition partner to either Labour or National.",
+      "source_url": "https://www.1news.co.nz/2026/08/13/opportunity-party-leader-on-poll-surge-working-with-winston-peters/",
+      "context": "Open to working with Labour or National.",
+      "licence": "Copyright TVNZ; no open licence stated. Short attributed quotation.",
+      "retrieved_at": "2026-10-19T05:16:26Z"
+    },
+    {
+      "party_id": "tpm",
+      "speaker": "Debbie Ngarewa-Packer",
+      "date": "2026-08-16",
+      "quote": "You have the power to bring this government to its knees.",
+      "source_url": "https://tvnz-1-news-prod.cdn.arcpublishing.com/2026/08/16/te-pati-maori-reveals-election-strategy-as-campaign-launches-in-gisborne/",
+      "context": "Campaigns to replace the current government; this statement does not promise a particular coalition agreement.",
+      "licence": "Copyright TVNZ; no open licence stated. Short attributed quotation.",
+      "retrieved_at": "2026-10-19T05:16:26Z"
+    },
+    {
+      "party_id": "grn",
+      "speaker": "Marama Davidson",
+      "date": "2026-09-27",
+      "quote": "Those are live conversations that our members are talking about right now.",
+      "context": "Discussing a possible arrangement with National, while stressing the large policy gap and the role of party members.",
+      "source_url": "https://www.1news.co.nz/2026/09/27/greens-national-deal-a-conversation-but-gap-wide-davidson/",
+      "licence": "Copyright TVNZ; no open licence stated. Short attributed quotation.",
+      "retrieved_at": "2026-10-19T05:16:26Z"
+    },
+    {
+      "party_id": "nzf",
+      "speaker": "Winston Peters",
+      "date": "2026-04-22",
+      "quote": "No, we won’t do a deal with Labour",
+      "context": "Rules out Labour; statement reported by NZ Herald on 23 April 2026.",
+      "source_url": "https://www.nzherald.co.nz/nz/politics/election-2026-winston-peters-says-nz-first-wont-do-a-deal-with-labour-as-chris-hipkins-remains-non-committal-nicola-willis-unconvinced/RPUZCC2UWBBB3EELNI2SQGQTPY/",
+      "licence": "Copyright NZME; no open licence stated. Short attributed quotation.",
+      "retrieved_at": "2026-10-19T05:16:26Z"
+    }
+  ]
+}
