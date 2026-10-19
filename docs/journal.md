@@ -1446,3 +1446,13 @@ the handover on 2026-11-08.
 - Pages deploy of 4a36c80 success, site 200. Link sent to Byron for #34 feedback (board line, tg send).
 - Dispatched nz-election-provenance-methods (PR #37 review item: per-record source dumps on electorate pages and polls/ move to anchored Methods sections, one footnote line per module) in .worktrees/nz-election-provenance-methods on change/nz-election-provenance-methods from 4a36c80; brief state/jobs/nz-election-provenance-methods/prompt.md.
 - Codex window 39 percent, 6.1 days to reset, allowance about 10 points per day.
+
+## 2026-10-19 05:04Z run (job_done provenance-methods, issue #40)
+
+- Byron, issue #40 (Telegram 04:46Z, 04:47Z), verbatim: "It still looks no where near as good as the reference. Also be aware that you have codex so don't need to make pipelines for absolutely everything sometimes you could just ask codex to go get the data to make it more interesting" / "Also there is a real problem with it saying data not available. In that case just don't show it. I want this to look great. Do better". Operator evidence: 469 "Wikipedia: Not available" lines and kin across 74 of 77 pages; nelson electorate page 10,252 px at 1280.
+- Taken as an instruction, not a judgement call: incremental measure rounds stop; next round is visual, judged side by side with the 538 page.
+- nz-election-provenance-methods 7224985 (Codex: 676 passed, verify all PASS, lint ok, new provenance check fails on base); aligned with #40 item 1 (provenance blocks leave electorate pages). Pushed, PR #41 opened, host harness run, fresh review review-nz-election-provenance-methods dispatched.
+- Dispatched nz-election-snapshots (#40 item 2: Codex fetches static facts once into sourced snapshot files: leaders with licensed photos, 2026 candidates, enrolment, Port Waikato 2023 by-election, 1996 to 2023 history, hex map layout, coalition positions; loader and tests; no templates touched) in .worktrees/nz-election-snapshots on change/nz-election-snapshots from 339780a.
+- Wrote state/jobs/nz-election-look-b/prompt.md (#40 items 1 and 3: absent means absent with a failing-then-passing build check, hero graphic, hex map, reference-weight charts, leader photos, display type, electorate page one screen). Dispatch after PR #41 merges and snapshots land, from main with both.
+- Codex window 41 percent, 6.1 days to reset, allowance about 10 points per day.
+- PR #41 CI green, squash merged as bbb494e, worktree removed. Fresh review P2 (stale warning on compact electorate footnote) accepted with reasoning on the PR, carried into the look-b brief.
