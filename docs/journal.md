@@ -1407,3 +1407,10 @@ the handover on 2026-11-08.
 - Host: populated offline build PASS 79 routes; screenshots.py PASS 79 routes 296 images; source-note bottom 523.8 at 360x780. Defect 11 measured in Chromium: seat bar 16..344 at 360, 16..374 at 390, 320..960 at 1280, inside the column, no horizontal overflow. Looked at home 360, 1280 and a 390 crop of the modules: display pollster names, margins on the name baseline, Opportunity 4.8% "Needs 5%" and ACT "At or above 5%" under a Qualification column.
 - Engineer committed last.md again (third time this lab); removed in 938df4f. Not yet in AGENTS.md as a rule if it is not already; check next run.
 - PR #38 opened, supervisor accept logged (nit: Qualification values in the mono face). Fresh review review-nz-election-home-defects dispatched. Codex window 33 percent, resets in 6.2 days.
+
+## 2026-10-19 02:59Z (job_done review-nz-election-home-defects)
+
+- Fresh review of PR #38: accept, no Critical or Important. Nit: test_home_defects.py:87 checks CSS strings for defect 11, not geometry; the geometry assertion is in the design round brief. Logged on the PR.
+- CI green; PR #38 squash merged as 6e5f3bf; worktree and branch removed. Pages deploy of 6e5f3bf in progress at 03:02Z.
+- Dispatched nz-election-home-design (issue #34 operator review items 1 to 4 and 10: a graphic per module, hero answers in a sentence derived from the seat numbers and explains the majority figure, about 700 px column, one nav row, election night module graphic or moved to More). Brief state/jobs/nz-election-home-design/prompt.md, frontend-design skill loaded. Ordered before nz-election-provenance-methods because Byron's design feedback comes first. Reversible single change, no judgement line.
+- Codex window 34 percent, resets in 6.2 days, allowance about 11 points per day.
