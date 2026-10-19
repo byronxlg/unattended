@@ -9,8 +9,8 @@ def test_populated_routes_have_bounded_visible_text(populated):
     _, site = populated
     assert check_site(site) == 79
     downloads = (site / 'downloads/index.html').read_text()
-    assert '<details><summary>Full manifest record (stored UTC)</summary>' in downloads
-    assert '<pre>' in downloads and '{"bytes":' not in VisibleText(downloads).text
+    assert '<div><p><strong>Full manifest record (stored UTC)</strong></p>' in downloads
+    assert '<pre>' in downloads and '"bytes":' in VisibleText(downloads).text
 
 
 @pytest.mark.parametrize('wrapper', ['<p>{}</p>', '<details open><summary>Record</summary>{}</details>',

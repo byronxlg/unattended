@@ -127,7 +127,7 @@ def test_71_pages_and_missing_data(tmp_path):
     old['field_sources']['candidate_status'] = 'Missing candidate capture.'
     html = detail(central, missing)
     assert 'No candidate baseline. Missing candidate capture.' in html
-    assert '<summary>No 2023 candidate results for this electorate</summary>' in html
+    assert '<p><strong>No 2023 candidate results for this electorate</strong></p>' in html
     assert 'Auckland Central (2023)' in html and 'party votes' in html
     row = next(r for r in config('electorates') if r['slug'] == 'te-tai-tonga')
     html = detail(row, {})

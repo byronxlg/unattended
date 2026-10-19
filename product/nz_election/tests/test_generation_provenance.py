@@ -47,7 +47,7 @@ def test_download_retrieval_summary_is_auckland_and_records_stay_utc(tmp_path):
     envs = export.validate_bundle(data)
     for entry in envs['manifest']['data']:
         row = html.split(f'data-file="{entry["path"]}"')[1].split('</tr>')[0]
-        summary, raw_record = row.split('<details>', 1)
+        summary, raw_record = row.split('<div><p><strong>Full manifest record (stored UTC)</strong></p>', 1)
         assert '<dt>Retrieved (Pacific/Auckland)</dt>' in summary
         assert 'Retrieved (UTC)' not in summary
         if entry['fetched_at']:
@@ -64,5 +64,5 @@ def test_download_retrieval_summary_is_auckland_and_records_stay_utc(tmp_path):
     for utc, expected in [('2026-07-01T01:00:00Z', '1:00 pm, Wednesday 1 July 2026 NZST'),
                           ('2026-10-16T12:49:36Z', '1:49 am, Saturday 17 October 2026 NZDT')]:
         envs['manifest']['data'][0]['fetched_at'] = utc
-        summary = downloads(envs, None).split('<details>', 1)[0]
+        summary = downloads(envs, None).split('<div><p><strong>Full manifest record (stored UTC)</strong></p>', 1)[0]
         assert expected in summary and utc not in summary

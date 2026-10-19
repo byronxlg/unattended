@@ -265,11 +265,11 @@ def sources(envs, built, presentation):
     from .market_panel import panel
     from .build import polls_page, explorer
     _, seats = seat_module(envs, built, presentation)
-    marker = '<details><summary>Threshold watch and legend</summary>'
+    marker = '<div><p><strong>Threshold watch and legend</strong></p>'
     seat_body, found, threshold_body = seats.partition(marker)
     if found:
         seat_body += '</div>'
-        threshold_body = threshold_body.rsplit('</details>', 1)[0]
+        threshold_body = threshold_body.rsplit('</div>', 2)[0]
     else:
         threshold_body = '<p>Not available: no published threshold shares.</p>'
     selected = poll_inputs(presentation['selected'])

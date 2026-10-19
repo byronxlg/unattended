@@ -77,7 +77,7 @@ export function scenario(data,state) {
 }
 
 const htmlEscape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'}[c]));
-export function stripHTML(result, labels) {
+export function stripHTML(result, labels, caption='Theoretical seats and overhang') {
   // Keep the historical grouping in config/seat-groups.json; DOM parity checks both renderers.
   const government=['nat','act','nzf'], opposition=['lab','grn','tpm'];
   const grouped=[...government,...opposition];
@@ -124,16 +124,16 @@ export function stripHTML(result, labels) {
     `<span class="majority" style="left:${percent(result.assumed_majority)}%"></span></div>`+
     '<div class="lanes">'+lanes+'</div>'+`<p class="majority-label">${result.assumed_majority} for a majority</p>`+
     '<figcaption class="strip-note">Calculated seats; list capacity not checked.</figcaption></figure>'+
-    '<details class="seat-data"><summary>Seat table and assumptions</summary>'+
+    '<div class="seat-data"><p><strong>Seat table and assumptions</strong></p>'+
     `<p aria-describedby="source-seats">Seats needed for a majority: <strong>${result.assumed_majority}</strong>, `+
     `assuming sufficient list candidates in a House of ${result.assumed_house}.</p>`+
-    '<div class="scroll " tabindex="0" role="region" aria-label="Theoretical seats and overhang">'+
-    '<table aria-describedby="source-seats"><caption>Theoretical seats and overhang</caption><thead><tr>'+
+    `<div class="scroll " tabindex="0" role="region" aria-label="${htmlEscape(caption)}">`+
+    `<table aria-describedby="source-seats"><caption>${htmlEscape(caption)}</caption><thead><tr>`+
     ['Party','Base seats','Overhang','Seats'].map(h=>`<th scope="col">${h}</th>`).join('')+
-    '</tr></thead><tbody>'+rows+'</tbody></table></div></details>';
+    '</tr></thead><tbody>'+rows+'</tbody></table></div></div>';
 }
 function picture(root,result,labels) {
-  root.innerHTML=stripHTML(result,labels);
+  root.innerHTML=stripHTML(result,labels,'Scenario seats and overhang');
 }
 async function start(root) {
   const note=root.querySelector('[data-note]'), controls=root.querySelector('fieldset');
