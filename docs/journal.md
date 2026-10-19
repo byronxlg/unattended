@@ -1355,3 +1355,13 @@ the handover on 2026-11-08.
 - Dispatched nz-election-principles-routes (build, .worktrees/nz-election-principles-routes, change/nz-election-principles-routes from c6d8ff3): open every non-table disclosure on other routes, with a check shown failing on c6d8ff3.
 - Codex window 26 percent, 6.2 days to reset, about 12 points per day allowance.
 - What went wrong: the principles change took three fix rounds after the first build, all caught by the host harness rather than by Codex's own run; the brief for the first build did not say to run the host harness with the /unattended prefix.
+
+## 2026-10-19 01:12Z run (job_done nz-election-principles-routes)
+
+- principles-routes 0bfcaff (principle 4 on every route: prose, source and record disclosures opened; only the party-count table stays a disclosure on methods and social/poc; disclosure_checks.py shown failing on c6d8ff3 with PROSE_DISCLOSURE downloads/index.html:24). Codex: 638 passed, verify PASS all, lint ok; screenshots not run (Chromium sandbox-blocked).
+- Host harness on the rebuilt populated site FAILED: AXE_VIOLATIONS landmark-unique, two role=region "Theoretical seats and overhang" (static build.py:252 table and the coalitions.mjs client copy), visible together now that the seat-data disclosure is open.
+- fix-1 nz-election-principles-routes-fix-1 dispatched on the build thread (state/jobs/nz-election-principles-routes/followup-1.md): one visible seat table or distinct names, audit for other harness failures the opened sections expose (overflow at 360 on opened JSON records, small targets), a no-Chromium duplicate-region-label check failing on 0bfcaff.
+- Pages for c6d8ff3 confirmed (5de2ac1 deploy success, live home 200 with 0 details). Link sent to Byron for #34 feedback (board line, tg send).
+- What went wrong: fifth host-only harness failure on the principles track; the fix-1 brief asks for a no-Chromium proxy and a self-audit of every harness assertion the change touches.
+- Codex window 27 percent, resets in 6.2 days.
+- Next: on job_done host harness, look at methods, polls and an electorate at 360/1280, PR, fresh review, merge when green; then L-b brief, TOP label, coalitions_browser fix, downloads caption nit.
