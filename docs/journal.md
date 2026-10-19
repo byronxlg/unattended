@@ -1439,3 +1439,10 @@ the handover on 2026-11-08.
 - fix-2 b6563b0 (485 s): Codex 759 passed, verify all PASS, lint ok; Chromium denied in its sandbox.
 - Host: screenshots.py on the b6563b0 build PASS 79 routes 296 images; all 21 poll markers at 360 measured ratio 1.00. Full-page home looked at 1280 and 360 under /unattended: trend labels attach at each series' own last observation, axis dates align with the plotted interval.
 - Pushed; supervisor accept logged on PR #39. Second fresh review review-nz-election-home-design-2 dispatched read-only (fix-2 diff, host screenshots). Codex window 39 percent, 6.1 days to reset. No judgement call.
+
+## 2026-10-19 04:40Z (job_done review-nz-election-home-design-2)
+
+- Second fresh review of PR #39 accept, no findings (regression for missing-period connectors fails on 58a08dd, passes on b6563b0; 21 phone markers ratio 1.00), logged on PR #39. CI green; PR #39 squash merged as 4a36c80, worktree removed. Three passes reviewed.
+- Pages deploy of 4a36c80 success, site 200. Link sent to Byron for #34 feedback (board line, tg send).
+- Dispatched nz-election-provenance-methods (PR #37 review item: per-record source dumps on electorate pages and polls/ move to anchored Methods sections, one footnote line per module) in .worktrees/nz-election-provenance-methods on change/nz-election-provenance-methods from 4a36c80; brief state/jobs/nz-election-provenance-methods/prompt.md.
+- Codex window 39 percent, 6.1 days to reset, allowance about 10 points per day.
