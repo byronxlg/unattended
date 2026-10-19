@@ -219,6 +219,13 @@ def closest(envs):
                  [[f'<a href="{PREFIX}electorates/{r["slug"]}/">{escape(r["name"])}</a>', f'{margin:,} votes'] for margin, _, r, _ in rows], source='source-electorates') + '</div>'
 
 
+def directory_links(envs):
+    if all(f in envs for f in ('baseline-2023', 'candidates')) and watch_rows(envs):
+        return ''
+    return (f'<ul class="home-directory"><li><a href="{PREFIX}electorates/">'
+            'Browse all electorates</a></li></ul>')
+
+
 def page(envs, built, presentation):
     state, _ = seat_module(envs, built, presentation)
     if envs.get('seats', {}).get('data', {}).get('unresolved_ties'):
