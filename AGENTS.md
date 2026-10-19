@@ -43,4 +43,6 @@ work; Byron is not here. Finish the task in the prompt, nothing more.
 the prompt points at them. `product/` will hold the NZ election web app from phase 4. `bin/` is lab tooling (bash and Python).
 Tests: `uv run --with pytest pytest -q`. Lint: `bin/lint`.
 
+Your job report goes in the worktree as `last.md` but is never committed: do not `git add` it.
+
 Product rules: see `product/nz_election/AGENTS.md`.
