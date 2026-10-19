@@ -1374,3 +1374,12 @@ the handover on 2026-11-08.
 - What went wrong: sixth host-only harness failure on the principles track; the opened-disclosure audit in fix-1 did not cover modules with height budgets.
 - Codex window 28 percent, resets in 6.2 days.
 - Next: on job_done host harness, look at methods, polls, an electorate and home markets at 360/390/1280, PR, fresh review, merge when green; then L-b brief, TOP label, coalitions_browser fix, downloads caption nit.
+
+## 2026-10-19 01:37Z run (job_done nz-election-principles-routes-fix-2)
+
+- fix-2 de99f7a (market amounts moved to methods/#market-observations, linked from source-actions; market_budget_checks.py shown failing on bd1de2f). Codex: 647 passed, verify PASS all, lint ok.
+- Host harness (PYTHONPATH=. site/build_review.py, then screenshots.py --site site): HOME_MARKET_HEIGHT cleared, now FAILED SOURCE_NOTE_BELOW_FOLD at 360 (bottom 835.56 > 780, state earlier-coherent-window, screenshots.py:221). Cause: source-note.html opened "Source history and legal method", growing #source-seats by about 56 px.
+- fix-3 nz-election-principles-routes-fix-3 dispatched on the build thread (state/jobs/nz-election-principles-routes/followup-3.md): history and Electoral Act links to Methods, attribution stays in the note, an audit of every height, position and fold assertion on changed pages, a no-Chromium check failing on de99f7a.
+- What went wrong: seventh host-only harness failure on the principles track. Each audit covered the last failure class only. Lesson for the next brief that opens or moves content: list every geometry assertion in the harness up front in the brief, not after the fact.
+- Codex window 30 percent, resets in 6.2 days.
+- Next: on job_done host harness, look at home 360/1280 and methods, PR, fresh review, merge when green; then L-b brief, TOP label, coalitions_browser fix, downloads caption nit.
