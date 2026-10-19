@@ -130,8 +130,10 @@ $(git log --oneline -8)"
          "Bash(curl -s:*)" "Bash(codex login status)" "Bash(/Users/byron/repos/management/bin/tg:*)" \
          "Read" "Write" "Edit" "Glob" "Grep" "Agent" "WebFetch" "WebSearch" "Skill")
   MODEL_ARGS=(); [ "$SUP_MODEL" != default ] && MODEL_ARGS=(--model "$SUP_MODEL")
-  ( exec claude -p "$CONTEXT" "${MODEL_ARGS[@]}" --output-format stream-json --verbose --max-budget-usd "$SUP_BUDGET_USD" \
-      --allowedTools "${TOOLS[@]}" > "$OUT" 2> "$ERR" ) &
+  # bash 3.2 under set -u: an empty array needs the +-guard or the expansion aborts the subshell (05:50Z-23:30Z 2026-10-19,
+  # 104 supervisor runs dead before claude started). The subshell's own stderr goes to ERR so such a failure is recorded.
+  ( exec claude -p "$CONTEXT" ${MODEL_ARGS[@]+"${MODEL_ARGS[@]}"} --output-format stream-json --verbose --max-budget-usd "$SUP_BUDGET_USD" \
+      --allowedTools "${TOOLS[@]}" > "$OUT" ) 2> "$ERR" &
   CPID=$!; echo "$CPID $(ts)" > "$PIDF"
   waited=0
   while kill -0 "$CPID" 2>/dev/null; do
@@ -143,6 +145,9 @@ $(git log --oneline -8)"
   if [ "$SUP_RC" != "0" ] && grep -qiE "usage limit|rate limit|session limit|limit reached|reached your .{0,40}limit|out of extra usage|\b429\b" "$OUT" "$ERR" 2>/dev/null; then
     mk="$STATE/model.limited"; [ "$SUP_MODEL" != default ] && mk="$STATE/model.limited.$SUP_MODEL"
     touch "$mk"; SUP_ERR="${SUP_ERR:+$SUP_ERR; }usage limit seen on $SUP_MODEL, backing off that model 60 min"
+  fi
+  if [ "$SUP_RC" != "0" ] && [ -z "$SUP_ERR" ] && ! grep -q '"type":"result"' "$OUT" 2>/dev/null; then
+    SUP_ERR="rc $SUP_RC, no result: $(tail -c 300 "$ERR" 2>/dev/null | tr '\n' ' ')"
   fi
   [ -n "$LATEST" ] && echo "$LATEST" > "$STATE/issues.seen"
 fi
