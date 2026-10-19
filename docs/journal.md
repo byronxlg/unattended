@@ -1414,3 +1414,9 @@ the handover on 2026-11-08.
 - CI green; PR #38 squash merged as 6e5f3bf; worktree and branch removed. Pages deploy of 6e5f3bf in progress at 03:02Z.
 - Dispatched nz-election-home-design (issue #34 operator review items 1 to 4 and 10: a graphic per module, hero answers in a sentence derived from the seat numbers and explains the majority figure, about 700 px column, one nav row, election night module graphic or moved to More). Brief state/jobs/nz-election-home-design/prompt.md, frontend-design skill loaded. Ordered before nz-election-provenance-methods because Byron's design feedback comes first. Reversible single change, no judgement line.
 - Codex window 34 percent, resets in 6.2 days, allowance about 11 points per day.
+
+## 2026-10-19 03:21Z (job_done nz-election-home-design)
+
+- nz-election-home-design 5cc640b (811 s): Codex 670 passed, verify all PASS, lint ok; Chromium denied in its sandbox.
+- Host: screenshots.py PASS 79 routes 296 images; full-page home looked at 1280 and 390 under the /unattended prefix. Direction right (charts per module, derived hero, 700 px column, one nav row, night in More). Four defects: chart SVG text scales with the viewBox (about 24 px at 1280, about 9 px at 390); threshold module is large text, not a graphic; latest polls are 21 rows in three panels (wanted one dot row per party); hero "majority of 3" reads as a 3-seat lead when the lead is 7.
+- Sent back, not PR'd: fix-1 nz-election-home-design-fix-1 dispatched on the build thread (followup-1.md, includes a Chromium glyph-size check that must fail on 5cc640b). Reversible single change, no judgement line. Codex window 35 percent, resets in 6.1 days.
