@@ -232,6 +232,8 @@ def verify_social(envs, root):
     site = build(data, root / 'social-site', built=now)
     from product.nz_election.pipeline.disclosure_checks import check_site as check_disclosures
     check_disclosures(site)
+    from product.nz_election.pipeline.landmark_checks import check_site as check_landmarks
+    check_landmarks(site)
     html = (site / 'social/poc/index.html').read_text()
     require('Proof of concept' in html and '@' not in html and '<svg' in html, 'social page present')
     require('under 5' in html and 'Withheld:' in html, 'social small-cell labels')
@@ -269,6 +271,8 @@ def verify_home_routes(envs, root):
         check_site(site, export.validate_bundle(source) if source.exists() else {})
         from product.nz_election.pipeline.disclosure_checks import check_site as check_disclosures
         check_disclosures(site)
+        from product.nz_election.pipeline.landmark_checks import check_site as check_landmarks
+        check_landmarks(site)
 
 
 def verify_markets(envs, root):
@@ -323,6 +327,8 @@ def main():
         if args.site:
             from product.nz_election.pipeline.disclosure_checks import check_site as check_disclosures
             print(f'PASS disclosures: {check_disclosures(product)} non-home routes')
+            from product.nz_election.pipeline.landmark_checks import check_site as check_landmarks
+            print(f'PASS landmarks: {check_landmarks(product)} routes including client-rendered tables')
         if args.site and args.check in {'home-routes', 'all'}:
             from product.nz_election.pipeline.route_checks import check_site
             check_site(product, export.validate_bundle(product / 'data') if (product / 'data').exists() else {})

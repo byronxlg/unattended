@@ -63,7 +63,7 @@ def detail(row, envs, built=None):
         candidates += '<li><strong>' + escape(c['name']) + '</strong><p>' + escape(c['party_id']) + '</p>'
         candidates += '<small aria-describedby="source-candidates">List rank: ' + (str(c['list_rank']) if c['list_rank'] is not None else 'Not available') + '. ' + escape(c['join_status']) + '.</small>'
         candidates += '<small>Wikipedia: ' + (link(c['wikipedia_url'], 'Candidate article') if c['wikipedia_url'] else 'Not available') + '. Wikidata: ' + escape(c['wikidata_id'] or 'Not available') + '.</small>'
-        candidates += '<div><p><strong>Candidate sources</strong></p>'
+        candidates += '<div class="candidate-sources"><p><strong>Candidate sources</strong></p>'
         for field in ('name', 'party_id'):
             for ref in c['field_sources'][field]:
                 src = next(s for s in envs['candidates']['source'] if s['id'] == ref['source_id'])
