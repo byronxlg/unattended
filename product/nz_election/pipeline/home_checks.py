@@ -3,7 +3,7 @@ from .build import config, PREFIX
 from .home import watch_rows
 from product.nz_election.tests.design_checks import Document, provenance
 
-MODULES = ('seats', 'polls', 'trend', 'electorates', 'thresholds', 'markets', 'night', 'more')
+MODULES = ('seats', 'polls', 'trend', 'electorates', 'thresholds', 'markets', 'more')
 
 
 def check_site(site, envs):
@@ -14,6 +14,8 @@ def check_site(site, envs):
     provenance(polls)
     positions = [home.index(f'<section id="{name}"') for name in MODULES]
     require(positions == sorted(positions), 'home module order')
+    more = home.split('<section id="more"')[1].split('</section>')[0]
+    require(f'href="{PREFIX}night/"' in more, 'election night in More')
     require(home.count('<h1') == 1 and 'Who is favoured to form the next government?' in home, 'home heading')
     require('coalitions.mjs' not in home and 'How have the polls moved?' in home, 'home trend without interactive explorer')
     ids = {a['id'] for _, a in Document(polls).nodes if 'id' in a}
@@ -47,4 +49,4 @@ def check_site(site, envs):
         html = path.read_text()
         nav = html.split('<header>')[1].split('</header>')[0]
         require(nav.count(f'<a href="{PREFIX}"') == 1 and nav.count(f'<a href="{PREFIX}polls/"') == 1, 'visible route navigation')
-        require(('aria-label="Home sections"' in html) == (path == site / 'index.html'), 'home-only sections')
+        require('aria-label="Home sections"' not in html, 'single route navigation')
