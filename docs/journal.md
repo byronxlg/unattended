@@ -1462,3 +1462,10 @@ the handover on 2026-11-08.
 - Byron, issue #40 (Telegram 05:09Z), verbatim: "Pipelines are fine. Just not a limiting factor you know?" Operator relay amends item 2: pipelines are not discouraged; the absence of one must never be why data is missing; fetch once into a sourced snapshot and add a pipeline later if worth it.
 - Read against the running nz-election-snapshots brief: consistent (fetch once now, no new workflow in this job is scope, not a rule). No interruption, no re-brief. Pipelines for snapshot families go on the list for after look-b where a family changes before 7 November (candidates, enrolment).
 - nz-election-snapshots still running; no other action.
+
+## 2026-10-19 05:36Z
+
+- job_done nz-election-snapshots (issue #40, Codex fetches static facts). 59a980c, 1242 s. Seven snapshots: leaders 10, candidates-2026 469, enrolment 46, port-waikato-2023 9, history 66 (1999 to 2023), hexmap 71, positions 7; nine WebP portraits 98,262 bytes; stdlib loader; 54 offline tests; runbook refresh section. Gaps omitted, not invented: 1996 (scanned PDF), 25 enrolment rows (access errors), 137 list ranks without exact EC name match, Kapa-Kingi portrait (too small).
+- Supervisor: rebased on 05b311b, snapshot tests 54 passed, lint ok; Commons API licence check for Luxon, Swarbrick, Ngarewa-Packer matched. Open question: 2023 National party vote share recorded 38.08, EC figure recalled as 38.06; passed to the fresh review.
+- PR #42 opened, supervisor accept logged, fresh review review-nz-election-snapshots dispatched read-only.
+- Codex window 45 percent at 05:27Z, 6.0 days to reset, allowance about 9 points per day.
