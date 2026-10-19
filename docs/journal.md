@@ -1433,3 +1433,9 @@ the handover on 2026-11-08.
 - Judgement: all three to one fix round (same file, small; an honesty defect in a chart is worth a round even though live data has every party current today). Logged on PR #39.
 - Dispatched nz-election-home-design-fix-2 on the build thread (followup-2.md): labels at the series' own last point or a distinct out-of-area connector, stale endpoints dated, a test failing on 58a08dd, markers aspect ratio 0.9 to 1.1 at 360, dates aligned to plotted points.
 - Codex window 37 percent, 6.1 days to reset.
+
+## 2026-10-19 04:20Z (job_done nz-election-home-design-fix-2)
+
+- fix-2 b6563b0 (485 s): Codex 759 passed, verify all PASS, lint ok; Chromium denied in its sandbox.
+- Host: screenshots.py on the b6563b0 build PASS 79 routes 296 images; all 21 poll markers at 360 measured ratio 1.00. Full-page home looked at 1280 and 360 under /unattended: trend labels attach at each series' own last observation, axis dates align with the plotted interval.
+- Pushed; supervisor accept logged on PR #39. Second fresh review review-nz-election-home-design-2 dispatched read-only (fix-2 diff, host screenshots). Codex window 39 percent, 6.1 days to reset. No judgement call.
