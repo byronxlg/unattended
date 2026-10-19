@@ -1,0 +1,174 @@
+{
+  "schema": "leaders-v1",
+  "retrieved_at": "2026-10-19T05:12:18Z",
+  "records": [
+    {
+      "name": "Christopher Luxon",
+      "party_id": "nat",
+      "role": "Leader",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380849095",
+      "licence": "CC BY-SA 4.0",
+      "electorate_slug": "botany",
+      "retrieved_at": "2026-10-19T05:12:18Z",
+      "photo": {
+        "path": "web/people/christopher-luxon.webp",
+        "source_url": "https://commons.wikimedia.org/wiki/File:LUXON,_Christopher_-_Botany_(cropped).png",
+        "author": "New Zealand National Party",
+        "licence": "CC BY-SA 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "changes": "Square crop, resized to 320 pixels and converted to WebP."
+      }
+    },
+    {
+      "name": "Chris Hipkins",
+      "party_id": "lab",
+      "role": "Leader",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380849095",
+      "licence": "CC BY-SA 4.0",
+      "electorate_slug": "remutaka",
+      "retrieved_at": "2026-10-19T05:12:18Z",
+      "photo": {
+        "path": "web/people/chris-hipkins.webp",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Chris_Hipkins_NZ_Labour_(2).jpg",
+        "author": "New Zealand Labour Party",
+        "licence": "CC BY-SA 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "changes": "Square crop, resized to 320 pixels and converted to WebP."
+      }
+    },
+    {
+      "name": "Marama Davidson",
+      "party_id": "grn",
+      "role": "Co-leader",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380849095",
+      "licence": "CC BY-SA 4.0",
+      "retrieved_at": "2026-10-19T05:12:18Z",
+      "photo": {
+        "path": "web/people/marama-davidson.webp",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Marama_Davidson_2_(cropped).jpg",
+        "author": "Naomi Madeiros",
+        "licence": "CC BY-SA 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "changes": "Square crop, resized to 320 pixels and converted to WebP."
+      }
+    },
+    {
+      "name": "Chlöe Swarbrick",
+      "party_id": "grn",
+      "role": "Co-leader",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380849095",
+      "licence": "CC BY-SA 4.0",
+      "electorate_slug": "auckland-central",
+      "retrieved_at": "2026-10-19T05:12:18Z",
+      "photo": {
+        "path": "web/people/chloe-swarbrick.webp",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Chl%C3%B6e_Swarbrick_headshot.jpg",
+        "author": "R100gsrider",
+        "licence": "CC BY-SA 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "changes": "Square crop, resized to 320 pixels and converted to WebP."
+      }
+    },
+    {
+      "name": "David Seymour",
+      "party_id": "act",
+      "role": "Leader",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380849095",
+      "licence": "CC BY-SA 4.0",
+      "electorate_slug": "epsom",
+      "retrieved_at": "2026-10-19T05:12:18Z",
+      "photo": {
+        "path": "web/people/david-seymour.webp",
+        "source_url": "https://commons.wikimedia.org/wiki/File:David_Seymour_2023_(cropped)_(cropped).jpg",
+        "author": "Doug Mountain",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "changes": "Square crop, resized to 320 pixels and converted to WebP."
+      }
+    },
+    {
+      "name": "Winston Peters",
+      "party_id": "nzf",
+      "role": "Leader",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380849095",
+      "licence": "CC BY-SA 4.0",
+      "retrieved_at": "2026-10-19T05:12:18Z",
+      "photo": {
+        "path": "web/people/winston-peters.webp",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Winston_Peters_2024_US_Deputy_Secretary_visit_(further_crop).jpg",
+        "author": "US Embassy from New Zealand",
+        "licence": "Public domain",
+        "licence_url": "https://commons.wikimedia.org/wiki/Template:PD-USGov",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "changes": "Square crop, resized to 320 pixels and converted to WebP."
+      }
+    },
+    {
+      "name": "Debbie Ngarewa-Packer",
+      "party_id": "tpm",
+      "role": "Co-leader",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380849095",
+      "licence": "CC BY-SA 4.0",
+      "electorate_slug": "te-tai-hauauru",
+      "retrieved_at": "2026-10-19T05:12:18Z",
+      "photo": {
+        "path": "web/people/debbie-ngarewa-packer.webp",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Debbie_Ngarewa-Packer_August_2025.jpg",
+        "author": "Ministry of Foreign Affairs of Japan",
+        "licence": "CC BY 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by/4.0",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "changes": "Square crop, resized to 320 pixels and converted to WebP."
+      }
+    },
+    {
+      "name": "Rawiri Waititi",
+      "party_id": "tpm",
+      "role": "Co-leader",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380849095",
+      "licence": "CC BY-SA 4.0",
+      "electorate_slug": "waiariki",
+      "retrieved_at": "2026-10-19T05:12:18Z",
+      "photo": {
+        "path": "web/people/rawiri-waititi.webp",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Rawiri_Waititi_August_2025.jpg",
+        "author": "Ministry of Foreign Affairs of Japan",
+        "licence": "CC BY 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by/4.0",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "changes": "Square crop, resized to 320 pixels and converted to WebP."
+      }
+    },
+    {
+      "name": "Qiulae Wong",
+      "party_id": "opp",
+      "role": "Leader",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380849095",
+      "licence": "CC BY-SA 4.0",
+      "retrieved_at": "2026-10-19T05:12:18Z",
+      "photo": {
+        "path": "web/people/qiulae-wong.webp",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Qiulae_portrait_1_(cropped).jpg",
+        "author": "The Opportunity Party",
+        "licence": "CC BY 4.0",
+        "licence_url": "https://creativecommons.org/licenses/by/4.0",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "changes": "Square crop, resized to 320 pixels and converted to WebP."
+      }
+    },
+    {
+      "name": "Mariameno Kapa-Kingi",
+      "party": "Te Tai Tokerau Party",
+      "role": "Leader",
+      "electorate_slug": "te-tai-tokerau",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380849095",
+      "retrieved_at": "2026-10-19T05:12:18Z",
+      "licence": "CC BY-SA 4.0"
+    }
+  ]
+}

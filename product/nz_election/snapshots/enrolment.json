@@ -1,0 +1,420 @@
+{
+  "schema": "enrolment-v1",
+  "retrieved_at": "2026-10-19T05:12:18Z",
+  "records": [
+    {
+      "electorate_slug": "auckland-central",
+      "enrolled": 49409,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Auckland+Central",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "banks-peninsula",
+      "enrolled": 61384,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Banks+Peninsula",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "botany",
+      "enrolled": 52737,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Botany",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "christchurch-central",
+      "enrolled": 52357,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Christchurch+Central",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "christchurch-east",
+      "enrolled": 55739,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Christchurch+East",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "coromandel",
+      "enrolled": 55287,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Coromandel",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "east-coast-bays",
+      "enrolled": 50247,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=East+Coast+Bays",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "epsom",
+      "enrolled": 55364,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Epsom",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "hamilton-west",
+      "enrolled": 50589,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Hamilton+West",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "hutt-south",
+      "enrolled": 56969,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Hutt+South",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "ilam",
+      "enrolled": 53283,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Ilam",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "invercargill",
+      "enrolled": 47833,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Invercargill",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "kaikoura",
+      "enrolled": 50323,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Kaik%C5%8Dura",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "kaipara-ki-mahurangi",
+      "enrolled": 52143,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Kaipara+ki+Mahurangi",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "mangere",
+      "enrolled": 48355,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=M%C4%81ngere",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "manurewa",
+      "enrolled": 48153,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Manurewa",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "maungakiekie",
+      "enrolled": 54166,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Maungakiekie",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "napier",
+      "enrolled": 50732,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Napier",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "nelson",
+      "enrolled": 52694,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Nelson",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "new-plymouth",
+      "enrolled": 53129,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=New+Plymouth",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "north-shore",
+      "enrolled": 53249,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=North+Shore",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "northland",
+      "enrolled": 53915,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Northland",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "papakura",
+      "enrolled": 47713,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Papakura",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "rangitata",
+      "enrolled": 49278,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Rangitata",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "remutaka",
+      "enrolled": 54974,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Remutaka",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "rotorua",
+      "enrolled": 47158,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Rotorua",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "selwyn",
+      "enrolled": 52582,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Selwyn",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "southland",
+      "enrolled": 48086,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Southland",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "taieri",
+      "enrolled": 51763,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Taieri",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "tamaki",
+      "enrolled": 55125,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=T%C4%81maki",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "taranaki-king-country",
+      "enrolled": 51335,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Taranaki-King+Country",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "upper-harbour",
+      "enrolled": 50641,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Upper+Harbour",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "waikato",
+      "enrolled": 52557,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Waikato",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "waimakariri",
+      "enrolled": 59498,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Waimakariri",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "wairarapa",
+      "enrolled": 56139,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Wairarapa",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "waitaki",
+      "enrolled": 53447,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Waitaki",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "west-coast-tasman",
+      "enrolled": 51040,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=West+Coast-Tasman",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "whanganui",
+      "enrolled": 52172,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Whanganui",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "wigram",
+      "enrolled": 51638,
+      "as_at": "2026-09-30",
+      "roll": "general",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-general-electorate?name=Wigram",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "hauraki-waikato",
+      "enrolled": 44285,
+      "as_at": "2026-09-30",
+      "roll": "maori",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-maori-electorate?name=Hauraki-Waikato",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "ikaroa-rawhiti",
+      "enrolled": 45833,
+      "as_at": "2026-09-30",
+      "roll": "maori",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-maori-electorate?name=Ikaroa-R%C4%81whiti",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "tamaki-makaurau",
+      "enrolled": 46654,
+      "as_at": "2026-09-30",
+      "roll": "maori",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-maori-electorate?name=T%C4%81maki+Makaurau",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "te-tai-hauauru",
+      "enrolled": 43306,
+      "as_at": "2026-08-31",
+      "roll": "maori",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-maori-electorate?name=Te+Tai+Hau%C4%81uru",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "te-tai-tokerau",
+      "enrolled": 45594,
+      "as_at": "2026-08-31",
+      "roll": "maori",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-maori-electorate?name=Te+Tai+Tokerau",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "te-tai-tonga",
+      "enrolled": 42527,
+      "as_at": "2026-09-30",
+      "roll": "maori",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-maori-electorate?name=Te+Tai+Tonga",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    },
+    {
+      "electorate_slug": "waiariki",
+      "enrolled": 46424,
+      "as_at": "2026-09-30",
+      "roll": "maori",
+      "source_url": "https://elections.nz/stats-and-research/enrolment-statistics/enrolment-by-maori-electorate?name=Waiariki",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-19T05:12:18Z"
+    }
+  ]
+}
