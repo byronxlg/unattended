@@ -63,3 +63,12 @@ page height at 1280, and the pages you looked at.
 The compact electorate footnote (pipeline/electorate_pages.py:33-35) dropped the stale and refresh-failed
 warning. Keep freshness honest without placeholder text: a module whose family is overdue or failed shows
 its as-of date ("Data to 18 October") in its one footnote line; the warning detail lives on methods/.
+
+## Base (added 05:55Z 19 Oct)
+
+This worktree branches from change/nz-election-snapshots at c737231 (PR #42, not yet merged) so the
+visual round runs alongside its licence fix. Use the snapshot files as they are; do not edit
+`pipeline/snapshots.py` or the snapshot JSON (fix-1 owns them). The supervisor rebases onto main after
+PR #42 merges. Name, before you start, the harness checks your routes must pass (SMALL_TARGET,
+landmark-unique, HOME_ROW_KEYBOARD_FOCUS, SOURCE_NOTE_BELOW_FOLD, PAGE_OVERFLOW, chart-text) and run
+the host harness yourself before reporting done.

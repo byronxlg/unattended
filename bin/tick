@@ -76,8 +76,17 @@ if [ ${#REASONS[@]} -eq 0 ]; then
   log "nothing to do (jobs running: $RUNNING_JOBS)"
 elif [ $DRY -eq 1 ]; then
   log "dry: would run supervisor for ${REASONS[*]}"
-elif [ -n "$(find "$STATE/model.limited" -mmin -60 2>/dev/null)" ]; then
-  SUP_ERR="skipped: usage limit marker under 60 min old"; log "$SUP_ERR (${REASONS[*]})"
+else
+  # Model fallback (issue #43): the first model without a limit marker under 60 min old runs.
+  SUP_MODEL=""
+  for m in default opus sonnet; do
+    mk="$STATE/model.limited"; [ "$m" != default ] && mk="$STATE/model.limited.$m"
+    if [ -z "$(find "$mk" -mmin -60 2>/dev/null)" ]; then SUP_MODEL="$m"; break; fi
+  done
+fi
+if [ ${#REASONS[@]} -eq 0 ] || [ $DRY -eq 1 ]; then :
+elif [ -z "$SUP_MODEL" ]; then
+  SUP_ERR="skipped: usage limit markers under 60 min old on every model"; log "$SUP_ERR (${REASONS[*]})"
 else
   SUP_RAN=1; touch "$STATE/supervisor.last"
   LEDGER_TAIL=$(tail -5 "$STATE/ledger.jsonl" 2>/dev/null | cut -c1-600)
@@ -120,7 +129,8 @@ $(git log --oneline -8)"
          "Bash(mkdir:*)" "Bash(cp:*)" "Bash(mv:*)" "Bash(touch:*)" "Bash(diff:*)" "Bash(sed -n:*)" "Bash(sort:*)" "Bash(uniq:*)" \
          "Bash(curl -s:*)" "Bash(codex login status)" "Bash(/Users/byron/repos/management/bin/tg:*)" \
          "Read" "Write" "Edit" "Glob" "Grep" "Agent" "WebFetch" "WebSearch" "Skill")
-  ( exec claude -p "$CONTEXT" --output-format stream-json --verbose --max-budget-usd "$SUP_BUDGET_USD" \
+  MODEL_ARGS=(); [ "$SUP_MODEL" != default ] && MODEL_ARGS=(--model "$SUP_MODEL")
+  ( exec claude -p "$CONTEXT" "${MODEL_ARGS[@]}" --output-format stream-json --verbose --max-budget-usd "$SUP_BUDGET_USD" \
       --allowedTools "${TOOLS[@]}" > "$OUT" 2> "$ERR" ) &
   CPID=$!; echo "$CPID $(ts)" > "$PIDF"
   waited=0
@@ -130,8 +140,9 @@ $(git log --oneline -8)"
   done
   wait "$CPID" 2>/dev/null; SUP_RC=$?; rm -f "$PIDF"
   # Only a failed run can have hit the limit; a summary that merely mentions rate limits (the ledger field) must not back the loop off.
-  if [ "$SUP_RC" != "0" ] && grep -qiE "usage limit|rate limit|session limit|limit reached|out of extra usage" "$OUT" "$ERR" 2>/dev/null; then
-    touch "$STATE/model.limited"; SUP_ERR="${SUP_ERR:+$SUP_ERR; }usage limit seen, backing off 60 min"
+  if [ "$SUP_RC" != "0" ] && grep -qiE "usage limit|rate limit|session limit|limit reached|reached your .{0,40}limit|out of extra usage|\b429\b" "$OUT" "$ERR" 2>/dev/null; then
+    mk="$STATE/model.limited"; [ "$SUP_MODEL" != default ] && mk="$STATE/model.limited.$SUP_MODEL"
+    touch "$mk"; SUP_ERR="${SUP_ERR:+$SUP_ERR; }usage limit seen on $SUP_MODEL, backing off that model 60 min"
   fi
   [ -n "$LATEST" ] && echo "$LATEST" > "$STATE/issues.seen"
 fi

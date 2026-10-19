@@ -1469,3 +1469,12 @@ the handover on 2026-11-08.
 - Supervisor: rebased on 05b311b, snapshot tests 54 passed, lint ok; Commons API licence check for Luxon, Swarbrick, Ngarewa-Packer matched. Open question: 2023 National party vote share recorded 38.08, EC figure recalled as 38.06; passed to the fresh review.
 - PR #42 opened, supervisor accept logged, fresh review review-nz-election-snapshots dispatched read-only.
 - Codex window 45 percent at 05:27Z, 6.0 days to reset, allowance about 9 points per day.
+
+## 2026-10-19 05:48Z run (job_done review-nz-election-snapshots, issue #43)
+
+- Issue #43 (operator relaying Byron, Telegram 05:25Z): "Can you tell me why unattended seems to be progressing quite slowly?" Diagnosis: 10.5 h idle with an empty plan, 6.5 h Claude limit not detected by bin/tick ("You've reached your Fable limit"), serial one-job pipeline with 13 of 21 builds fix rounds.
+- Acted: bin/tick limit regex broadened (reached your ... limit, 429) and per-model fallback default/opus/sonnet with a 60 min marker each (.gitignore state/model.limited*); bash -n ok, not yet exercised. prompts/supervisor.md step 4: two jobs when files are disjoint, stack on an open PR branch allowed, write the next increment when the plan is empty, name harness checks in UI briefs. Reply on #43.
+- Fresh review of PR #42 request changes, one Important (record licence accepts any text); accepted, logged on the PR, nz-election-snapshots-fix-1 dispatched on the build thread.
+- nz-election-look-b dispatched in parallel in .worktrees/nz-election-look-b on change/nz-election-look-b from change/nz-election-snapshots c737231 (brief amended: snapshot files read-only, harness checks named). Rebase onto main after #42 merges. Judgement: stacking on an unmerged branch, reversible, no line to Byron.
+- Codex window 46 percent, 6.0 days to reset.
+- Next: on fix-1 job_done host-verify (pytest, lint, negative tests), second fresh review, merge #42; on look-b job_done rebase onto main, host harness, side by side with 538 at 1280 and 390, PR, fresh design review, merge, link to Byron.
