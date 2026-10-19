@@ -226,8 +226,11 @@ def page(envs, built, presentation):
     if any(env.get('run_url') == 'offline-verification' for env in envs.values()):
         state += '<p class="fixture-note">Offline verification: historical or synthetic data, not live data.</p>'
     date = updated(envs, 'polls', built)
+    # polls_page omits both sections when the polls family is unpublished.
+    trend_route = 'polls/#source-average' if 'polls' in envs else 'polls/'
+    coalition_route = 'polls/#coalition-explorer' if 'polls' in envs else 'polls/'
     modules = module('polls', 'What are the latest polls?', 'Latest national observations; missing party shares are not zero.', latest_polls(envs), 'Wikipedia contributors', date, 'polls/#polls', 'See all polls')
-    modules += module('trend', 'How have the polls moved?', 'Equal-weight 30-day averages describe polls, not a forecast; coverage differs by party.', trend_graphic(envs), 'Wikipedia contributors', date, 'polls/#source-average', 'See all averages')
+    modules += module('trend', 'How have the polls moved?', 'Equal-weight 30-day averages describe polls, not a forecast; coverage differs by party.', trend_graphic(envs), 'Wikipedia contributors', date, trend_route, 'See all averages')
     modules += module('electorates', 'Which electorates are closest?', 'The six smallest 2023 margins on unchanged boundaries, including East Cape; changed boundaries and tied winners are excluded.', closest(envs), 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', 'See all electorates')
     modules += module('thresholds', 'Which parties are near the 5 percent threshold?', 'An electorate win can qualify a party below 5%; 2023 electorate seats are assumed.', thresholds(envs), 'Wikipedia contributors', date, 'polls/#source-thresholds', 'See all threshold assumptions')
     market_date = updated(envs, 'markets', built)
@@ -240,7 +243,7 @@ def page(envs, built, presentation):
         market_dek += ' Observations are more than 36 hours old.'
     modules += module('markets', 'What do prediction markets say?', market_dek, market_graphic(envs), 'Polymarket', market_date, 'methods/#home-markets', 'See all market details')
     modules += module('night', 'When is election night?', 'New Zealand votes on 7 November 2026.', '<p class="countdown">' + escape(election_countdown(built)) + '</p>', 'Electoral Commission', 'Updated ' + compact_time(built), 'night/', 'See all election night information')
-    return render('home', prefix=PREFIX, hero=hero(envs, built, presentation), state=state, modules=modules)
+    return render('home', prefix=PREFIX, hero=hero(envs, built, presentation), state=state, modules=modules, coalition_route=coalition_route)
 
 
 def poll_inputs(polls):
