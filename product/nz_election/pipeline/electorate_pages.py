@@ -23,10 +23,16 @@ def publisher(source):
     return host
 
 
-def source(envs, stem, built=None):
+def source(envs, stem, built=None, *, full=False):
     env = envs.get(stem)
-    if not env:
+    if not env or not env['source']:
         return f'<div class="source-note" id="source-{stem}"><p>Not available: no validated data bundle.</p><p class="source-actions"><a href="{PREFIX}downloads/">Sources and availability</a></p></div>'
+    if not full:
+        credits = '; '.join(dict.fromkeys(link(entry['url'], publisher(entry)) + ': ' + escape(entry['licence']) for entry in env['source']))
+        fetched = max(entry['fetched_at'] for entry in env['source'])
+        return (f'<div class="source-note home-footnote" id="source-{stem}"><p class="source-actions">'
+                + credits + f'. Retrieved <time datetime="{fetched}">{compact_time(fetched)}</time>. '
+                + f'<a href="{PREFIX}methods/#records-{stem}">Sources and method</a></p></div>')
     result = '<div role="note" class="source-note" id="source-' + stem + '">'
     for entry in env['source']:
         result += '<p class="source-actions">From ' + link(entry['url'], publisher(entry)) + ' <span>' + escape(entry['licence']) + '</span></p>'
@@ -58,23 +64,11 @@ def detail(row, envs, built=None):
     official = [c for c in data('candidates') if c['electorate_id'] == row['id']]
     official.sort(key=lambda c: (c['party_id'], c['name'], c['id']))
     candidates = '<ul class="candidate-list" aria-describedby="source-candidates">'
-    reviews = {c['id']: c for c in data('candidate-review')}
     for c in official:
         candidates += '<li><strong>' + escape(c['name']) + '</strong><p>' + escape(c['party_id']) + '</p>'
         candidates += '<small aria-describedby="source-candidates">List rank: ' + (str(c['list_rank']) if c['list_rank'] is not None else 'Not available') + '. ' + escape(c['join_status']) + '.</small>'
         candidates += '<small>Wikipedia: ' + (link(c['wikipedia_url'], 'Candidate article') if c['wikipedia_url'] else 'Not available') + '. Wikidata: ' + escape(c['wikidata_id'] or 'Not available') + '.</small>'
-        candidates += '<div class="candidate-sources"><p><strong>Candidate sources</strong></p>'
-        for field in ('name', 'party_id'):
-            for ref in c['field_sources'][field]:
-                src = next(s for s in envs['candidates']['source'] if s['id'] == ref['source_id'])
-                candidates += '<p>' + link(src['url'], publisher(src)) + ': ' + escape(ref['locator']) + ' (' + escape(field) + ')</p>'
-        for identity in c['conflict_ids']:
-            conflict = reviews[identity]
-            candidates += '<p>Unresolved: ' + escape(conflict['field']) + '</p><ul>'
-            for claim in conflict['claims']:
-                candidates += '<li>' + escape(str(claim['value'])) + ': ' + escape(claim['source_id'] + ' / ' + claim['locator']) + '</li>'
-            candidates += '</ul>'
-        candidates += '</div></li>'
+        candidates += '</li>'
     candidates += '</ul>'
     if not official:
         candidates = '<p>Official candidates not available for this electorate.</p>'
@@ -128,3 +122,35 @@ def detail(row, envs, built=None):
                   baseline=baseline, baseline_source=source(envs, 'baseline-2023', built),
                   enrolment=enrolment, enrolment_source=source(envs, 'enrolment', built),
                   polls=polls, poll_source=source(envs, 'electorate-polls', built))
+
+
+def candidate_records(envs):
+    result = ''
+    reviews = {c['id']: c for c in envs.get('candidate-review', {}).get('data', [])}
+    for c in envs.get('candidates', {}).get('data', []):
+        result += '<div class="candidate-sources"><h3>' + escape(c['name']) + '</h3>'
+        for field in ('name', 'party_id'):
+            for ref in c['field_sources'][field]:
+                src = next(s for s in envs['candidates']['source'] if s['id'] == ref['source_id'])
+                result += '<dl><dt>' + ('Candidate name' if field == 'name' else 'Party') + '</dt><dd>' + link(src['url'], publisher(src)) + '</dd><dt>Record location</dt><dd>' + escape(ref['locator']) + '</dd></dl>'
+        for identity in c['conflict_ids']:
+            conflict = reviews[identity]
+            result += '<p>Unresolved: ' + escape(conflict['field']) + '</p><ul>'
+            for claim in conflict['claims']:
+                result += '<li>' + escape(str(claim['value'])) + ': ' + escape(claim['source_id'] + ' / ' + claim['locator']) + '</li>'
+            result += '</ul>'
+        result += '</div>'
+    return result
+
+
+def records(envs, built):
+    result = ''
+    for stem, title in (('electorates', 'Electorate boundaries'), ('candidates', 'Candidate records'),
+                        ('baseline-2023', '2023 electorate results'), ('enrolment', 'Enrolment'),
+                        ('electorate-polls', 'Local polls')):
+        result += f'<section id="records-{stem}"><h2>{title}</h2>'
+        result += source(envs, stem, built, full=True)
+        if stem == 'candidates':
+            result += candidate_records(envs)
+        result += '</section>'
+    return result
