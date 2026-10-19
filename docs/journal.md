@@ -1383,3 +1383,14 @@ the handover on 2026-11-08.
 - What went wrong: seventh host-only harness failure on the principles track. Each audit covered the last failure class only. Lesson for the next brief that opens or moves content: list every geometry assertion in the harness up front in the brief, not after the fact.
 - Codex window 30 percent, resets in 6.2 days.
 - Next: on job_done host harness, look at home 360/1280 and methods, PR, fresh review, merge when green; then L-b brief, TOP label, coalitions_browser fix, downloads caption nit.
+
+## 2026-10-19 01:53Z run (job_done nz-election-principles-routes-fix-3; issue #34 comment)
+
+- fix-3 ee29ad1 (seat source notes shortened, history and legal method linked to Methods). Codex: 651 passed, verify PASS all, lint ok.
+- Host harness (PYTHONPATH=. site/build_review.py, then screenshots.py --site site): PASS screenshots: 79 routes, 296 images; source-note bottom 523.8 at 360x780. Looked at methods 1280 and Wellington North at 360; candidate sources show raw locators "(name)", "(party_id)", nit for the next round.
+- PR #37 opened, supervisor accept logged, fresh review review-nz-election-principles-routes dispatched.
+- Issue #34 comment (operator relay of Byron, Telegram 01:26Z): "Is this the final version? Have you reviewed it?" Operator answer: not final; nobody had reviewed the home as a design against the 538 reference. Operator design review listed 11 items; ask: fix 5 to 9 and 11 as defects, then 1 to 3 (graphics below the hero, hero answers its question, content width cap) as the next design round with screenshots and one fresh design review before merge.
+- Taken as written, no judgement line: it is Byron's direction relayed. Defects brief at state/jobs/nz-election-home-defects/prompt.md lists every home geometry assertion up front (the 01:37Z lesson); it waits for PR #37 because both touch home.py and market_panel.py.
+- What went wrong: the supervisor sent Byron the #34 link at 01:14Z after code and harness reviews only; no review of the page as a design against the reference. From now, a UI round's fresh review is given the reference and the screenshots, not only the measures.
+- Codex window 31 percent, resets in 6.2 days.
+- Next: merge PR #37 on accept and green CI, dispatch nz-election-home-defects, then the design round brief for items 1 to 3.
