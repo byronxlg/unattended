@@ -9,6 +9,8 @@ import re
 from .models import ParseDrift, ParseResult, DriftReport
 
 LIMIT = 2 * 1024 * 1024
+# Allow publication within a week of fieldwork without accepting arbitrary date drift.
+MAX_RELEASE_LAG_DAYS = 7
 
 
 def attributes(text):
@@ -184,7 +186,7 @@ MONTHS = {m: i for i, m in enumerate(('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'), 1)}
 
 
-def dates(value, attrs, *, allow_sort_mismatch=False):
+def dates(value, attrs):
     if not isinstance(value, str) or not isinstance(attrs, str):
         raise ParseDrift("invalid_dates")
     value = clean(value)
@@ -200,11 +202,12 @@ def dates(value, attrs, *, allow_sort_mismatch=False):
     sort = attributes(attrs).get('data-sort-value')
     if sort is not None:
         try:
-            if date.fromisoformat(sort).isoformat() != sort:
+            sort_date = date.fromisoformat(sort)
+            if sort_date.isoformat() != sort:
                 raise ValueError
         except ValueError:
             raise ParseDrift('invalid_dates', value + ' / ' + sort) from None
-    if start > end or (sort is not None and sort != end.isoformat() and not allow_sort_mismatch):
+    if start > end or (sort is not None and not 0 <= (sort_date - end).days <= MAX_RELEASE_LAG_DAYS):
         raise ParseDrift("invalid_dates", value + ' / ' + (sort if sort else ''))
     return start.isoformat(), end.isoformat()
 
@@ -306,15 +309,21 @@ def _parse_polls(wikitext, revision, mapping, identities, position):
                 continue
             date_attrs = cells[0][0]
             sort = attributes(date_attrs).get('data-sort-value')
-            allow_sort_mismatch = False
+            start, end = dates(cells[0][1], date_attrs)
+            documented_exception = False
             for exception in mapping.get('date_exceptions', []):
                 if (exception['visible'] == visible
                         and sort and exception['sort'] == sort
                         and exception['pollster'] == clean(cells[1][1])
                         and exception.get('source') and exception.get('reason')):
-                    allow_sort_mismatch = True
+                    documented_exception = True
                     result.diagnostics.setdefault('date_exceptions', []).append(dict(locator=locator, **exception))
-            start, end = dates(cells[0][1], date_attrs, allow_sort_mismatch=allow_sort_mismatch)
+            if sort is not None and sort != end and not documented_exception:
+                result.diagnostics.setdefault('date_exceptions', []).append(dict(
+                    locator=locator, visible=visible, sort=sort, pollster=clean(cells[1][1]),
+                    source='https://en.wikipedia.org/w/index.php?oldid=' + str(revision),
+                    reason=f'Sort date is within {MAX_RELEASE_LAG_DAYS} days after fieldwork; '
+                           'release-date convention accepted, visible fieldwork dates retained.'))
             if end[:4] != '2026':
                 raise ParseDrift("invalid_dates", locator)
             label = clean(cells[1][1])
