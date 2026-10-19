@@ -69,6 +69,6 @@ def panel(envs, built):
                 actions += link('https://polymarket.com/event/' + event['slug'], rules_name)
                 amounts += '<p>' + escape(name) + ': volume ' + market_money(row['volume']) + '; liquidity ' + market_money(row['liquidity']) + '. Observed ' + escape(row['observed_at']) + '.</p>'
             body += '</tbody></table></figure>'
-        amounts = '<details><summary>Amounts and observation details</summary>' + amounts + '<p>' + escape(status.get('message') or env['run_url']) + '</p></details>'
+        amounts = '<div><p><strong>Amounts and observation details</strong></p>' + amounts + '<p>' + escape(status.get('message') or env['run_url']) + '</p></div>'
     note = '<div class="source-note" id="source-markets" role="note"><p>' + ATTRIBUTION + '</p><p class="source-actions">' + actions + '</p>' + amounts + '</div>'
     return body + note + '</section>'

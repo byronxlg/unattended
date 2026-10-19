@@ -100,7 +100,7 @@ def page(envs, built):
         rows.append((escape(p), *(count(v) for v in totals)))
     attitude = ('<section><h2>Attitude toward each party</h2><figure aria-describedby="source-social-attitude"><svg class="social-chart" role="img" aria-label="Attitude distributions" aria-describedby="source-social-attitude" viewBox="0 0 355 220">' + ''.join(bars) +
                 '</svg><figcaption>Left to right: strongly negative, negative, neutral, positive, strongly positive. Estimated tone among sampled X authors, not voters. Sarcasm, quotations and missing context can change classification.</figcaption></figure>' + source.replace('id="source-social"', 'id="source-social-attitude"') +
-                '<details><summary>Attitude counts</summary>' + table('Ordered attitude classes', ('Party', *ATTITUDES), rows, source='source-social-attitude') + '</details></section>')
+                '<div><p><strong>Attitude counts</strong></p>' + table('Ordered attitude classes', ('Party', *ATTITUDES), rows, source='source-social-attitude') + '</div></section>')
     topics = table('Topics in this sample', ('Topic', 'Posts'), [(escape(t), count(sum(r['topic_counts'][t] for r in records))) for t in TOPICS], source='source-social')
     concentration = max(r['sample']['top_author_share_ppm'] for r in records)
     models = ', '.join(sorted({m for r in records for m in r['model_versions']})) or 'No eligible classifications'

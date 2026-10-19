@@ -86,10 +86,10 @@ def source_note(env=None, identity='source-polls', inputs='polls.json', *,
         return (f'<div role="note" class="source-note" id="{identity}"><p>From '
                 'Electoral Commission. '
                 f'Final results <time datetime="2023-11-03">3 Nov 2023</time>. Retrieved <time datetime="{captured}">{compact_time(captured)}</time>. Copyright Electoral Commission; no open licence stated. '
-                f'</p><p class="source-actions"><a href="https://electionresults.govt.nz/electionresults_2023/">Electoral Commission</a><a href="{PREFIX}downloads/">Downloads</a></p><details><summary>Calculation and producing run</summary>'
+                f'</p><p class="source-actions"><a href="https://electionresults.govt.nz/electionresults_2023/">Electoral Commission</a><a href="{PREFIX}downloads/">Downloads</a></p><div><p><strong>Calculation and producing run</strong></p>'
                 '<p>Calculation verified against captured final results.</p>'
                 f'<p class="source-actions"><a href="{PREFIX}validation-2023.json">Official validation inputs</a>'
-                f'<a href="{PREFIX}build-manifest.json">Build and run record</a></p></details></div>')
+                f'<a href="{PREFIX}build-manifest.json">Build and run record</a></p></div></div>')
     sources = env['source'] if env else source_entries()[0]
     p = next(s for s in sources if s['id'] == 'P')
     run = env['run_url'] if env else None
@@ -107,8 +107,8 @@ def source_note(env=None, identity='source-polls', inputs='polls.json', *,
                   inputs=PREFIX + (inputs if inputs == 'validation-2023.json' else 'data/' + inputs), prefix=PREFIX,
                   dates=dates, run=producing, calculation=escape(calculation))
     if compact:
-        result = result.replace('<p class="source-actions">', '<details><summary>Sources, inputs and method</summary><p class="source-actions">', 1)
-        result = result.replace('<details><summary>Source history and legal method</summary>', '', 1)
+        result = result.replace('<p class="source-actions">', '<div><p><strong>Sources, inputs and method</strong></p><p class="source-actions">', 1)
+        result = result.replace('<div><p><strong>Source history and legal method</strong></p>', '', 1)
     return result
 
 
@@ -313,7 +313,7 @@ def seat_module(envs, built, presentation=None):
     else:
         picture = (seat_topline(None) + f'<p aria-describedby="source-seats">Seat estimate unavailable. Polls to {observation_label(last)} are below.</p>'
                    f'<p><a href="{PREFIX}methods/">Read how seats are calculated.</a></p>'
-                   f'<details><summary>Why seats are unavailable</summary><p>{escape(seats["reason"] or "Update overdue.")}</p></details>')
+                   f'<div><p><strong>Why seats are unavailable</strong></p><p>{escape(seats["reason"] or "Update overdue.")}</p></div>')
     for tie in seats.get('unresolved_ties', []):
         names = [label(p) for p in tie.get('candidates', [])]
         if names:
@@ -371,7 +371,7 @@ def polls_page(envs, built, presentation=None):
                         *[display(poll['shares'].get(p), poll['scale']) for p in parties], refs])
     details += '<h2>How have the polls moved?</h2>' + table('All national 2026 observations in the source revision; scroll for all parties',
                                             ['Pollster', 'Fieldwork', 'Sample'] + [label(p) for p in parties] + ['Reports'], history, source='source-history')
-    details += source_note(envs['polls'], 'source-history', 'polls.json') + '<details><summary>Individual poll sources and fieldwork dates</summary>' + ''.join(row_notes) + '</details>'
+    details += source_note(envs['polls'], 'source-history', 'polls.json') + '<div><p><strong>Individual poll sources and fieldwork dates</strong></p>' + ''.join(row_notes) + '</div>'
     details += f'<p><a href="{PREFIX}data/averages.json">Daily average series and exact inputs</a></p>'
     return render('polls', state=state, picture=picture,
                   explorer=explorer(envs, not presentation['stale']), details=details)
@@ -442,9 +442,9 @@ def downloads(envs, data_sha):
                 ('Producing run', producing), ('Immutable download', immutable)]
             metadata = '<dl class="download-fields">' + ''.join(
                 f'<dt>{key}</dt><dd>{value}</dd>' for key, value in fields) + '</dl>'
-            metadata += ('<details><summary>Full manifest record (stored UTC)</summary>'
+            metadata += ('<div><p><strong>Full manifest record (stored UTC)</strong></p>'
                          '<dl><dt>Retrieved (UTC)</dt><dd>' + escape(entry['fetched_at'] or 'Not available') +
-                         '</dd></dl><pre>' + escape(export.canonical(entry)) + '</pre></details>')
+                         '</dd></dl><pre>' + escape(json.dumps(entry, ensure_ascii=False, sort_keys=True, indent=2)) + '</pre></div>')
             records.append(f'<tr data-file="{escape(name)}"><th scope="row"><a href="{PREFIX}data/{escape(name)}">{escape(name)}</a></th><td>{metadata}</td></tr>')
         catalogue = '<table class="download-catalogue" aria-describedby="source-polls"><caption>Published data inventory</caption><tbody>' + ''.join(records) + '</tbody></table>'
         catalogue += f'<p><a href="{PREFIX}data/LICENCES.md">Licences and CSV format</a></p>'

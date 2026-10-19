@@ -35,7 +35,7 @@ def source(envs, stem, built=None):
     result += f'<a href="{PREFIX}data/{stem}.json">Download data and field sources</a>'
     if env['run_url'] != 'offline-verification':
         result += link(env['run_url'], 'Producing run')
-    result += '</p><details><summary>Source history and producing run</summary>'
+    result += '</p><div><p><strong>Source history and producing run</strong></p>'
     for entry in env['source']:
         if entry['history_url']:
             result += '<p class="source-actions">' + link(entry['history_url'], publisher(entry) + ': contributor history') + '</p>'
@@ -48,8 +48,8 @@ def source(envs, stem, built=None):
         band = f'<p class="state">Update overdue. Last checked {compact_time(status["last_success_at"])}. Showing previous data. <a href="{PREFIX}downloads/">Update details</a>.</p>'
         if status.get('error_code'):
             band = f'<p class="state">The {compact_time(status["last_attempt_at"])} update failed; showing previous data from {compact_time(status["last_success_at"])}. <a href="{PREFIX}downloads/">Update details</a>.</p>'
-        result = result.replace('<details>', band + '<details>', 1)
-    return result + '</details></div>'
+        result = result.replace('<div>', band + '<div>', 1)
+    return result + '</div></div>'
 
 
 def detail(row, envs, built=None):
@@ -63,7 +63,7 @@ def detail(row, envs, built=None):
         candidates += '<li><strong>' + escape(c['name']) + '</strong><p>' + escape(c['party_id']) + '</p>'
         candidates += '<small aria-describedby="source-candidates">List rank: ' + (str(c['list_rank']) if c['list_rank'] is not None else 'Not available') + '. ' + escape(c['join_status']) + '.</small>'
         candidates += '<small>Wikipedia: ' + (link(c['wikipedia_url'], 'Candidate article') if c['wikipedia_url'] else 'Not available') + '. Wikidata: ' + escape(c['wikidata_id'] or 'Not available') + '.</small>'
-        candidates += '<details><summary>Candidate sources</summary>'
+        candidates += '<div><p><strong>Candidate sources</strong></p>'
         for field in ('name', 'party_id'):
             for ref in c['field_sources'][field]:
                 src = next(s for s in envs['candidates']['source'] if s['id'] == ref['source_id'])
@@ -74,7 +74,7 @@ def detail(row, envs, built=None):
             for claim in conflict['claims']:
                 candidates += '<li>' + escape(str(claim['value'])) + ': ' + escape(claim['source_id'] + ' / ' + claim['locator']) + '</li>'
             candidates += '</ul>'
-        candidates += '</details></li>'
+        candidates += '</div></li>'
     candidates += '</ul>'
     if not official:
         candidates = '<p>Official candidates not available for this electorate.</p>'
@@ -89,7 +89,7 @@ def detail(row, envs, built=None):
         baseline += table(old['old_name'] + ': party votes', ['Party', 'Votes'],
                           [[escape(v['name']), f'{v["votes"]:,}'] for v in old['party_votes']], source='source-baseline-2023')
         if old['candidate_votes'] is None:
-            baseline += '<details class="missing"><summary>No 2023 candidate results for this electorate</summary><p>No candidate baseline. ' + escape(old['field_sources']['candidate_status']) + '</p></details>'
+            baseline += '<div class="missing"><p><strong>No 2023 candidate results for this electorate</strong></p><p>No candidate baseline. ' + escape(old['field_sources']['candidate_status']) + '</p></div>'
         else:
             baseline += table(old['old_name'] + ': candidate votes', ['Candidate', 'Party', 'Votes'],
                               [[escape(v['name']), escape(v['party']), f'{v["votes"]:,}'] for v in old['candidate_votes']], source='source-baseline-2023')

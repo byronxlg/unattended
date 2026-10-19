@@ -230,6 +230,8 @@ def verify_social(envs, root):
             raise ValueError('VERIFY_FAILED: social identifier accepted')
     require(frozen('2026-11-06T11:00:00Z') and not frozen('2026-11-07T06:00:00Z'), 'social freeze boundary')
     site = build(data, root / 'social-site', built=now)
+    from product.nz_election.pipeline.disclosure_checks import check_site as check_disclosures
+    check_disclosures(site)
     html = (site / 'social/poc/index.html').read_text()
     require('Proof of concept' in html and '@' not in html and '<svg' in html, 'social page present')
     require('under 5' in html and 'Withheld:' in html, 'social small-cell labels')
@@ -265,6 +267,8 @@ def verify_home_routes(envs, root):
     for source, name in ((data, 'populated'), (root / 'absent-routes', 'empty')):
         site = build(source, root / ('routes-' + name), built='2026-10-17T01:00:00Z')
         check_site(site, export.validate_bundle(source) if source.exists() else {})
+        from product.nz_election.pipeline.disclosure_checks import check_site as check_disclosures
+        check_disclosures(site)
 
 
 def verify_markets(envs, root):
@@ -316,6 +320,9 @@ def main():
         if args.site and args.check in {'home', 'all'}:
             from product.nz_election.pipeline.home_checks import check_site
             check_site(product, export.validate_bundle(product / 'data') if (product / 'data').exists() else {})
+        if args.site:
+            from product.nz_election.pipeline.disclosure_checks import check_site as check_disclosures
+            print(f'PASS disclosures: {check_disclosures(product)} non-home routes')
         if args.site and args.check in {'home-routes', 'all'}:
             from product.nz_election.pipeline.route_checks import check_site
             check_site(product, export.validate_bundle(product / 'data') if (product / 'data').exists() else {})

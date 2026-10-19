@@ -19,7 +19,7 @@ def test_client_server_strip_dom_and_accessibility_parity(extra):
     module = Path(__file__).resolve().parents[1] / 'web/coalitions.mjs'
     script = "import {stripHTML} from " + json.dumps(module.as_uri()) + ";import fs from 'node:fs';const x=JSON.parse(fs.readFileSync(0,'utf8'));process.stdout.write(stripHTML(x.seats,x.labels));"
     actual = subprocess.run(['node', '--input-type=module', '-e', script], input=json.dumps(dict(seats=seats, labels=labels)), text=True, capture_output=True, check=True)
-    # Exact markup includes all text, ARIA names, styles, table cells and disclosure.
+    # Exact markup includes all text, ARIA names, styles, table cells and open seat section.
     assert actual.stdout == strip(seats)
 
 
@@ -32,7 +32,7 @@ def test_empty_thirty_day_window_builds(tmp_path):
     html = (site / 'polls/index.html').read_text()
     assert 'No seat estimate available yet.' in html and 'class="strip"' not in html
     assert 'How have the polls moved?' in html
-    visible = html.split('<summary>Why seats are unavailable')[0]
+    visible = html.split('<p><strong>Why seats are unavailable')[0]
     assert 'Read how seats are calculated.</a>' in visible
     assert json.loads((site / 'home-presentation.json').read_text())['result'] is None
 
@@ -67,7 +67,7 @@ def test_source_publishers_and_licences_visible_per_entry():
     for entry in entries:
         entry.update(fetched_at='2026-10-17T01:00:00Z', history_url=None)
     html = source({'electorates': dict(source=entries, run_url='offline-verification')}, 'electorates')
-    visible = html.split('<details>')[0]
+    visible = html.split('<div><p><strong>Source history and producing run')[0]
     for entry, name in zip(entries, ['Stats NZ', 'Representation Commission', 'Wikipedia contributors']):
         assert f'href="{entry["url"]}">{name}</a>' in visible
         assert entry['licence'] in visible

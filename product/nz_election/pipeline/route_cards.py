@@ -58,7 +58,7 @@ def card(route, envs, home, built):
     if route['path'] == '':
         title = description
         source_id = 'source-seats'
-        picture = strip(home['result']).split('<details class="seat-data">')[0] if home['result'] else ''
+        picture = strip(home['result']).split('<div class="seat-data">')[0] if home['result'] else ''
         source = home['source']
     elif route['path'] == 'polls/' and envs.get('averages'):
         source_id = 'source-average'
