@@ -1346,3 +1346,12 @@ the handover on 2026-11-08.
 - Pushed change/nz-election-principles, PR #36 opened, supervisor accept with the caption nit logged; fresh review review-nz-election-principles dispatched (read-only) against design-principles.md and the screenshots.
 - Principles took four Codex rounds (build plus three fixes), each caught by the host harness that Codex cannot run (Chromium sandbox-blocked). Codex window 26 percent, 6.3 days to reset.
 - Next: on the review, merge PR #36 if accept and CI green, confirm Pages; then L-b brief, TOP label, coalitions_browser fix.
+
+## 2026-10-19 01:01Z (job_done review-nz-election-principles)
+
+- Fresh review of PR #36 (review-nz-election-principles, 123 s): request changes, two Important. (1) Methods, polls and electorate routes keep non-table `<details>`, which principle 4 forbids off the home. (2) Harness and tests changed against b0f3b3f (phone-menu check replaced, checks moved home to Methods, a title assertion dropped).
+- Verdict: item 2 accepted with reasoning on the PR (header fits at 360 so the phone menu went, as the brief allowed; the replacement no-JS nav check plus new HEADER_OVERFLOW and HEADER_TARGET_BOUNDS make the set stronger; moves follow principle 4). Item 1 is right but outside the briefed scope (fix-1 narrowed it to the home after the sitewide rewrite broke downloads/); deferred to its own change. Byron 2026-10-18 21:44Z "Just merge freely" stands.
+- CI green; PR #36 squash merged as c6d8ff3; worktree removed; hourly dispatched by hand (run 39183456614).
+- Dispatched nz-election-principles-routes (build, .worktrees/nz-election-principles-routes, change/nz-election-principles-routes from c6d8ff3): open every non-table disclosure on other routes, with a check shown failing on c6d8ff3.
+- Codex window 26 percent, 6.2 days to reset, about 12 points per day allowance.
+- What went wrong: the principles change took three fix rounds after the first build, all caught by the host harness rather than by Codex's own run; the brief for the first build did not say to run the host harness with the /unattended prefix.
