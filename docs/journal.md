@@ -1339,3 +1339,10 @@ the handover on 2026-11-08.
   blocked in the Codex sandbox and each failure stops the harness at the first assertion. Next
   brief of a UI change should ask for no-Chromium proxies of every harness assertion it touches.
 - Codex window 24 percent, resets in 6.3 days.
+
+## 2026-10-19 00:38Z run (job_done nz-election-principles-fix-3)
+
+- fix-3 215baf9 (home directory link when watch rows are unavailable). Host: build PASS 79 routes; screenshots.py PASS 79 routes 296 images (HOME_ROW_KEYBOARD_FOCUS fixed); pytest 715 passed; lint ok. Looked at home 390 and 1280 (Government 67 / Opposition 58, no collapsibles) and downloads 360 (no overflow; caption wraps one word per line, nit).
+- Pushed change/nz-election-principles, PR #36 opened, supervisor accept with the caption nit logged; fresh review review-nz-election-principles dispatched (read-only) against design-principles.md and the screenshots.
+- Principles took four Codex rounds (build plus three fixes), each caught by the host harness that Codex cannot run (Chromium sandbox-blocked). Codex window 26 percent, 6.3 days to reset.
+- Next: on the review, merge PR #36 if accept and CI green, confirm Pages; then L-b brief, TOP label, coalitions_browser fix.
