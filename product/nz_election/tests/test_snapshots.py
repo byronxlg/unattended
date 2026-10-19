@@ -110,6 +110,14 @@ def test_reject_record_without_provenance(monkeypatch, tmp_path, field):
         s.load('leaders')
 
 
+@pytest.mark.parametrize('name', ['leaders', 'positions'])
+def test_reject_unknown_record_licence(monkeypatch, tmp_path, name):
+    edit_snapshot(monkeypatch, tmp_path, name,
+                  lambda d: d['records'][0].update(licence='nonsense'))
+    with pytest.raises(ValueError, match=rf'{name}\.json: record 1:.*licence'):
+        s.load(name)
+
+
 @pytest.mark.parametrize('field', ['source_url', 'author', 'licence', 'licence_url', 'retrieved_at'])
 def test_reject_photo_without_attribution(monkeypatch, tmp_path, field):
     edit_snapshot(monkeypatch, tmp_path, 'leaders', lambda d: d['records'][0]['photo'].pop(field))

@@ -13,6 +13,14 @@ NAMES = frozenset({'leaders', 'candidates-2026', 'enrolment', 'port-waikato-2023
 BANNED = re.compile(r'\b(?:not available|unavailable|pending|missing)\b', re.I)
 PHOTO_LICENCES = frozenset({'CC0', 'CC BY 4.0', 'CC BY-SA 4.0', 'CC BY 3.0',
                             'CC BY-SA 3.0', 'Public domain', 'NZ Crown copyright'})
+RECORD_LICENCES = PHOTO_LICENCES | frozenset({
+    'CC BY 4.0 (Stats NZ)',
+    'Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.',
+    'Copyright ACT New Zealand; no open licence stated. Short attributed quotation.',
+    'Copyright NZME; no open licence stated. Short attributed quotation.',
+    'Copyright News Wire; no open licence stated. Short attributed quotation.',
+    'Copyright TVNZ; no open licence stated. Short attributed quotation.',
+})
 
 
 def _require(condition, message):
@@ -101,13 +109,14 @@ def load(name):
         'hexmap': ('electorate_slug', 'x', 'y', 'group', 'method'),
         'positions': ('party_id', 'quote', 'date', 'speaker'),
     }[name]
-    for row in rows:
+    for record_number, row in enumerate(rows, 1):
         _require(isinstance(row, dict) and all(k in row for k in required),
                  'Record lacks required fields')
         _require(all(v is not None for v in row.values()), 'Omit unsourced fields')
         _require(_url(row.get('source_url')), 'Record requires source_url')
         _timestamp(row.get('retrieved_at'))
-        _require(_text(row.get('licence')), 'Record requires licence')
+        _require(_text(row.get('licence')) and row['licence'] in RECORD_LICENCES,
+                 f'{path.name}: record {record_number}: Unknown record licence')
         if name == 'leaders':
             _require('party_id' in row or _text(row.get('party')), 'Leader requires party identity')
         for key in ('name', 'party', 'role', 'method', 'speaker', 'quote'):
