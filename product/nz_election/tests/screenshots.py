@@ -63,6 +63,14 @@ def check_page(page, url, site, origin):
     from product.nz_election.pipeline.scripts import validate_scripts
     assert validate_scripts(page.content())
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'PAGE_OVERFLOW: ' + url
+    if page.locator('.home-hero .strip').count() and page.viewport_size['width'] in (360, 390, 1280):
+        assert page.locator('.home-hero .strip').evaluate("""e=>{
+          const bar=e.getBoundingClientRect(), main=document.querySelector('main');
+          const column=main.getBoundingClientRect(), css=getComputedStyle(main);
+          return bar.left>=column.left+parseFloat(css.paddingLeft)-0.5 &&
+                 bar.right<=column.right-parseFloat(css.paddingRight)+0.5;
+        }"""), 'HOME_SEAT_BAR_BOUNDS'
+
     assert max(map(len, page.locator('body').inner_text().split()), default=0) <= 200, 'VISIBLE_TEXT_RUN: ' + url
     if page.viewport_size['width'] in (360, 390):
         assert page.locator('header').evaluate('e=>e.scrollWidth<=e.clientWidth'), 'HEADER_OVERFLOW'

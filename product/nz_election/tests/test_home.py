@@ -14,7 +14,7 @@ from product.nz_election.pipeline.refresh import refresh
 from product.nz_election.tests.design_checks import Document, provenance
 
 NOW = '2026-10-17T01:00:00Z'
-MODULES = ('seats', 'polls', 'trend', 'electorates', 'thresholds', 'markets', 'night', 'more')
+MODULES = ('seats', 'polls', 'trend', 'electorates', 'thresholds', 'markets', 'more')
 
 
 @pytest.fixture(scope='module')
@@ -44,6 +44,8 @@ def test_home_module_order(populated):
     html = (site / 'index.html').read_text()
     positions = [html.index(f'<section id="{name}"') for name in MODULES]
     assert positions == sorted(positions)
+    more = html.split('<section id="more"')[1].split('</section>')[0]
+    assert f'href="{PREFIX}night/"' in more
     assert html.count('<h1') == 1 and 'Who is favoured to form the next government?' in html
     assert 'coalitions.mjs' not in html and 'How have the polls moved?' in html
     provenance(html)
@@ -70,7 +72,7 @@ def test_home_figures_have_complete_source_entries(populated):
     sources = (site / 'methods/index.html').read_text()
     ids = {a['id'] for _, a in Document(sources).nodes if 'id' in a}
     figures = [a for tag, a in Document(html).nodes if tag == 'figure']
-    assert len(figures) == 7
+    assert len(figures) == 6
     for figure in figures:
         assert figure['id'] in ids
         assert f'methods/#{figure["id"]}' in html
@@ -187,7 +189,7 @@ def test_home_navigation(populated):
         assert nav.count(f'<a href="{PREFIX}"') == 1
         assert nav.count(f'<a href="{PREFIX}polls/"') == 1
         assert html.count('aria-current="page"') == (1 if path.parent == site or path.parent.name in {'polls', 'electorates', 'night', 'methods'} else 0)
-        assert ('aria-label="Home sections"' in html) == (path == site / 'index.html')
+        assert 'aria-label="Home sections"' not in html
 
 
 def test_home_html_css_budget(populated, tmp_path):

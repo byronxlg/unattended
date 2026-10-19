@@ -5,7 +5,8 @@ from html import escape
 from .build import (PREFIX, config, render, label, source_note, seat_module,
                     observation_label, compact_time, link, derivation_note)
 from .average import display
-from .presentation import election_countdown, overdue
+from .presentation import overdue
+from .home_charts import svg, fallback, poll_chart, trend_chart
 
 
 def unavailable(envs, family):
@@ -141,7 +142,13 @@ def hero(envs, built, presentation):
     if result:
         groups = config('seat-groups')
         totals = [(key, sum(result['seats'].get(p, 0) for p in groups[key]['parties'])) for key in ('government', 'opposition')]
-        content = '<div class="topline">' + ''.join(
+        difference = totals[0][1] - result['assumed_majority']
+        answer = ('exactly enough seats to govern' if difference == 0 else
+                  f'a majority of {difference}' if difference > 0 else f'a shortfall of {-difference} seats')
+        content = f'<p class="seat-answer">On the current poll average, the governing parties would have {answer}.</p>'
+        content += (f'<p class="seat-dek">{result["assumed_majority"]} seats are needed in the assumed '
+                    f'{result["assumed_house"]}-seat House, including {result["overhang"]} overhang seats.</p>')
+        content += '<div class="topline">' + ''.join(
             f'<p class="bloc-{groups[key]["token"]}">{key.title()} {n} seats</p>' for key, n in totals)
         content += f'<p>{result["assumed_majority"]} needed</p></div>'
         total = result['assumed_house']
@@ -175,9 +182,9 @@ def latest_polls(envs):
     parties = [party for party in party_order() if wins.get(party, 0) > 0 or any(
         p['shares'].get(party) is not None and p['shares'][party] >= 5 * p['scale'] for p in rows)]
     names = {identity: name for name, identity in config('party-map')['pollsters'].items()}
-    return table('Latest national polls; party vote percent', ['Pollster / fieldwork ended'] + [label(p) for p in parties],
+    return poll_chart(rows, parties, names) + fallback(table('Latest national polls; party vote percent', ['Pollster / fieldwork ended'] + [label(p) for p in parties],
                  [[escape(names.get(p['pollster'], p['pollster'])) + '<br>' + observation_label(p['fieldwork_end']),
-                   *[display(p['shares'].get(party), p['scale']) for party in parties]] for p in rows], source='source-polls')
+                   *[display(p['shares'].get(party), p['scale']) for party in parties]] for p in rows], source='source-polls'))
 
 
 def trend_graphic(envs):
@@ -190,8 +197,10 @@ def trend_graphic(envs):
     if averages[-1] not in selected:
         selected.append(averages[-1])
     parties = party_order()
-    return table('Weekly snapshots of the 30-day average, percent', ['As at'] + [label(p) for p in parties],
-                 [[observation_label(a['date'])] + [display(a['descriptive'].get(p, {}).get('value'), a['descriptive'].get(p, {}).get('scale', 100)) for p in parties] for a in selected], source='source-trend')
+    wins = envs.get('seats', {}).get('data', {}).get('assumptions', {}).get('electorate_wins', {})
+    plotted = [p for p in parties if wins.get(p, 0) or any(a['descriptive'].get(p, {}).get('value') is not None and a['descriptive'][p]['value'] >= 5*a['descriptive'][p]['scale'] for a in selected)]
+    return trend_chart(selected, plotted) + fallback(table('Weekly snapshots of the 30-day average, percent', ['As at'] + [label(p) for p in parties],
+                 [[observation_label(a['date'])] + [display(a['descriptive'].get(p, {}).get('value'), a['descriptive'].get(p, {}).get('scale', 100)) for p in parties] for a in selected], source='source-trend'))
 
 
 def thresholds(envs):
@@ -200,8 +209,13 @@ def thresholds(envs):
     if 'seats' not in envs:
         return '<p>Not available: no published threshold shares.</p>'
     rows = threshold_watch(envs['polls']['data'], envs['averages']['data'][-1], envs['seats']['data']['assumptions'])
-    return table('Parties near the threshold', ['Party', 'Share', 'Qualification'],
-                 [[escape(label(r['party_id'])), display(r['value'], r['scale']), 'At or above 5%' if r['value'] is not None and r['scale'] and r['value'] >= 5 * r['scale'] else 'Electorate assumed' if r['electorate_qualifies'] else 'Needs 5%'] for r in rows], source='source-thresholds')
+    marks = ''
+    for i, r in enumerate(rows):
+        value = display(r['value'], r['scale'])
+        status = 'At or above 5%' if r['value'] is not None and r['value'] >= 5*r['scale'] else 'Electorate assumed' if r['electorate_qualifies'] else 'Needs 5%'
+        marks += f'<text x="0" y="{i*46+16}">{escape(label(r["party_id"]))}: {value}</text><text x="0" y="{i*46+34}">{status}</text>'
+    return svg('thresholds', 'Parties near the threshold and their qualification', marks, len(rows)*46) + fallback(table('Parties near the threshold', ['Party', 'Share', 'Qualification'],
+                 [[escape(label(r['party_id'])), display(r['value'], r['scale']), 'At or above 5%' if r['value'] is not None and r['scale'] and r['value'] >= 5 * r['scale'] else 'Electorate assumed' if r['electorate_qualifies'] else 'Needs 5%'] for r in rows], source='source-thresholds'))
 
 
 def market_graphic(envs):
@@ -210,12 +224,20 @@ def market_graphic(envs):
     if 'markets' not in envs:
         return '<p>' + unavailable(envs, 'markets') + '</p>'
     rows = ''
+    summary = '<ul class="market-summary" aria-label="Leading market choices: price for Yes">'
     for event, row in leaders(envs['markets']['data']):
         if row:
+            width = Decimal(yes(row)['price'])*350
+            price = market_price(yes(row)['price'])
+            graphic = svg('markets', 'Yes price: ' + price,
+                f'<path d="M0 5H350" stroke="var(--rule)"/><path d="M0 5H{width:.1f}" stroke="var(--grey)" stroke-width="6"/>', 12)
+            summary += (f'<li>{escape(question(row))}{" (closed)" if row["closed"] else ""} '
+                        f'<strong class="numeric">{price}</strong>{graphic}</li>')
             rows += f'<tr data-market-id="{row["id"]}"><th scope="row">{escape(question(row))}{" (closed)" if row["closed"] else ""}</th><td>{market_price(yes(row)["price"])}</td></tr>'
         else:
+            summary += '<li>' + escape(event['family']) + ': No priced contracts</li>'
             rows += '<tr><th scope="row">' + escape(event['family']) + '</th><td>No priced contracts</td></tr>'
-    return '<div class="scroll"><table aria-describedby="source-markets"><caption>Leading market choices: price for Yes</caption><tbody>' + rows + '</tbody></table></div>'
+    return summary + '</ul>' + fallback('<div class="scroll"><table aria-describedby="source-markets"><caption>Leading market choices: price for Yes</caption><tbody>' + rows + '</tbody></table></div>')
 
 
 def closest(envs):
@@ -223,8 +245,17 @@ def closest(envs):
     if any(f not in envs for f in ('baseline-2023', 'candidates')):
         return '<p>' + ' '.join(unavailable(envs, f) for f in ('baseline-2023', 'candidates') if f not in envs) + '</p>'
     rows = watch_rows(envs)
-    return '<div class="watch-rows">' + table('2023 winning margins on comparable boundaries', ['Electorate', 'Margin'],
-                 [[f'<a href="{PREFIX}electorates/{r["slug"]}/">{escape(r["name"])}</a>', f'{margin:,} votes'] for margin, _, r, _ in rows], source='source-electorates') + '</div>'
+    maximum = max((m for m, _, _, _ in rows), default=1)
+    content = '<div class="watch-rows">'
+    for margin, _, r, _ in rows:
+        width = Decimal(margin)*130/maximum
+        marks = (f'<rect x="0" y="9" width="{width:.1f}" height="12" fill="var(--grey)"/>'
+                 f'<text class="numeric" x="{width+5:.1f}" y="20">{margin:,}</text>')
+        content += (f'<div class="margin-row"><a href="{PREFIX}electorates/{r["slug"]}/">{escape(r["name"])}</a>'
+                    + svg('electorates', f'{r["name"]}: {margin:,} votes', marks, 30).replace('0 0 350', '0 0 200') + '</div>')
+    return content + '</div>' + fallback(table('2023 winning margins on comparable boundaries', ['Electorate', 'Margin'],
+                 [[escape(r['name']), f'{margin:,} votes'] for margin, _, r, _ in rows], source='source-electorates'))
+
 
 
 def directory_links(envs):
@@ -257,7 +288,6 @@ def page(envs, built, presentation):
     if market_env and overdue(min(r['observed_at'] for r in market_env['data']), built, 'daily'):
         market_dek += ' Observations are more than 36 hours old.'
     modules += module('markets', 'What do prediction markets say?', market_dek, market_graphic(envs), 'Polymarket', market_date, 'methods/#home-markets', 'See all market details')
-    modules += module('night', 'When is election night?', 'New Zealand votes on 7 November 2026.', '<p class="countdown">' + escape(election_countdown(built)) + '</p>', 'Electoral Commission', 'Updated ' + compact_time(built), 'night/', 'See all election night information')
     return render('home', prefix=PREFIX, hero=hero(envs, built, presentation), state=state, modules=modules, coalition_route=coalition_route)
 
 
