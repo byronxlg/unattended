@@ -80,7 +80,7 @@ def table(caption, headings, records, css='', source=None):
 
 
 def source_note(env=None, identity='source-polls', inputs='polls.json', *,
-                calculation='Polls parsed by this site.', contributing_polls=None, compact=False):
+                calculation='Polls parsed by this site.', contributing_polls=None):
     if inputs == 'validation-2023.json':
         captured = max(s['fetched_at'] for s in (env['source'] if env else source_entries()[1]))
         return (f'<div role="note" class="source-note" id="{identity}"><p>From '
@@ -103,12 +103,9 @@ def source_note(env=None, identity='source-polls', inputs='polls.json', *,
             dates += f' Fieldwork ended <time datetime="{end}">{observation_label(end)}</time>.'
         fetched = env['fetched_at']
         dates += f' Retrieved <time datetime="{fetched}">{compact_time(fetched)}</time>.'
-    result = render('source-note', id=identity, revision=safe_url(p['url']) or '#', history=safe_url(p['history_url']) or '#',
+    result = render('source-note', id=identity, revision=safe_url(p['url']) or '#',
                   inputs=PREFIX + (inputs if inputs == 'validation-2023.json' else 'data/' + inputs), prefix=PREFIX,
                   dates=dates, run=producing, calculation=escape(calculation))
-    if compact:
-        result = result.replace('<p class="source-actions">', '<div><p><strong>Sources, inputs and method</strong></p><p class="source-actions">', 1)
-        result = result.replace('<div><p><strong>Source history and legal method</strong></p>', '', 1)
     return result
 
 
@@ -168,7 +165,7 @@ def home_presentation(envs, built):
     return dict(result=result, selected=selected, stale=stale,
                 title=home_sentence(result), source=source_note(provenance, 'source-seats',
                     'seats.json' if result else 'polls.json' if polls else 'validation-2023.json',
-                    calculation='Seats calculated by this site.' if result else 'Seats withheld; see the headline.', compact=True) +
+                    calculation='Seats calculated by this site.' if result else 'Seats withheld; see the headline.') +
                     (derivation_note(average[-1]) if result else ''))
 
 
@@ -415,7 +412,9 @@ def methods_page(stage, built, sha, run_url, envs=None):
         f'Others {display(p["shares"]["others"], p["scale"])} derived as 100 minus the named parties.</li>'
         for p in affected_rows) + '</ul>' if affected_rows else '<p>No affected polls in the published data.</p>'
     listing += '</section>'
-    return render('methods', derivations=listing, affected=escape(', '.join(pollsters) or 'None in the published data'), votes=f'{sum(official["input"]["partyVotes"].values()):,}',
+    poll_sources = (envs or {}).get('polls', {}).get('source', source_entries()[0])
+    history = next(s['history_url'] for s in poll_sources if s['id'] == 'P')
+    return render('methods', history=safe_url(history) or '#', derivations=listing, affected=escape(', '.join(pollsters) or 'None in the published data'), votes=f'{sum(official["input"]["partyVotes"].values()):,}',
                   table=table('Official 2023 entitlement and occupied seats', ['Party', 'Votes', 'Entitlement', 'Electorates', 'Seats'], records, source='source-polls'),
                   prefix=PREFIX, source=source_note(env, inputs='validation-2023.json'))
 

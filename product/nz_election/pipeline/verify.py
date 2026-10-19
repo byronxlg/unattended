@@ -275,6 +275,8 @@ def verify_home_routes(envs, root):
         check_landmarks(site)
         from product.nz_election.pipeline.market_budget_checks import check_site as check_market_budgets
         check_market_budgets(site)
+        from product.nz_election.pipeline.source_budget_checks import check_site as check_source_budgets
+        check_source_budgets(site)
 
 
 def verify_markets(envs, root):
@@ -335,6 +337,8 @@ def main():
             print(f'PASS landmarks: {check_landmarks(product)} routes including client-rendered tables')
             from product.nz_election.pipeline.market_budget_checks import check_site as check_market_budgets
             print(f'PASS market budgets: {check_market_budgets(product)} routes')
+            from product.nz_election.pipeline.source_budget_checks import check_site as check_source_budgets
+            print(f'PASS source-note budgets: {check_source_budgets(product)}')
         if args.site and args.check in {'home-routes', 'all'}:
             from product.nz_election.pipeline.route_checks import check_site
             check_site(product, export.validate_bundle(product / 'data') if (product / 'data').exists() else {})
