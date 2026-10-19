@@ -34,6 +34,7 @@ def poll_chart(rows, parties, names):
     body = ''
     for party in parties:
         marks = '<path d="M8 24H342" stroke="var(--rule)" stroke-width="0.5"/>'
+        symbols = ''
         for i, poll in reversed(list(enumerate(rows))):
             value = poll['shares'].get(party)
             if value is None:
@@ -43,12 +44,15 @@ def poll_chart(rows, parties, names):
             y = [18, 26, 34][i]
             fill = colour(party)
             if i == 0:
-                marks += f'<ellipse cx="{x:.1f}" cy="{y}" rx="5" ry="5" fill="{fill}"/>'
+                symbol = f'<circle cx="5" cy="5" r="5" fill="{fill}"/>'
             elif i == 1:
-                marks += f'<rect x="{x-4:.1f}" y="{y-4}" width="8" height="8" fill="var(--paper)" stroke="{fill}" stroke-width="2"/>'
+                symbol = f'<rect x="1" y="1" width="8" height="8" fill="var(--paper)" stroke="{fill}"/>'
             else:
-                marks += f'<path d="M{x:.1f} {y-4}l4 8h-8Z" fill="{fill}"/>'
-        body += '<div class="chart-row">' + text(label(party)) + svg('polls', label(party) + ' poll shares', marks, 48) + '</div>'
+                symbol = f'<path d="M5 1l4 8H1Z" fill="{fill}"/>'
+            symbols += (f'<svg class="poll-marker" viewBox="0 0 10 10" aria-hidden="true" aria-describedby="source-polls" '
+                        f'style="left:{x*100/350:.6f}%;top:{y}px">{symbol}</svg>')
+        body += ('<div class="chart-row">' + text(label(party)) + '<div class="trend-plot">'
+                 + svg('polls', label(party) + ' poll shares', marks, 48) + symbols + '</div></div>')
     ticks = '<div class="chart-axis">' + ''.join(text(f'{n}%', 'numeric', f'left:{Decimal(n)*100/maximum:.1f}%') for n in range(0, maximum+1, 10)) + '</div>'
     return legend + body + '<div class="chart-row"><span></span>' + ticks + '</div>'
 
@@ -90,18 +94,25 @@ def trend_chart(averages, parties):
             x = Decimal((date.fromisoformat(a['date'])-start).days)*330/days
             py = y(value)
             path += f'{"L" if active else "M"}{x:.1f} {py:.1f}'
-            active, last = True, (x, py, display(d['value'], d['scale']))
+            active, last = True, (x, py, display(d['value'], d['scale']), a['date'])
         marks += f'<path d="{path}" fill="none" stroke="{colour(party)}" stroke-width="2"/>'
         if last:
             ends.append((last[1], party, last))
-    previous, labels = Decimal(-20), ''
-    for py, party, (x, _, value) in sorted(ends):
+    previous, labels, stale_labels = Decimal(-20), '', ''
+    for py, party, (x, _, value, observed) in sorted(ends):
+        if observed != averages[-1]['date']:
+            stamp = date.fromisoformat(observed)
+            stale_labels += text(f'{label(party)} {value} ({stamp.day} {stamp:%b})', 'trend-stale',
+                f'position:absolute;left:{x*100/350:.6f}%;top:{py-20:.1f}px;transform:translateY(-100%);max-width:132px')
+            continue
         position = max(py, previous+22)
         previous = position
         marks += f'<path d="M{x:.1f} {py:.1f}L350 {position:.1f}" stroke="{colour(party)}" fill="none"/>'
         labels += text(label(party) + ' ' + value, '', f'top:{position-8:.1f}px')
     height = max(290, int(previous)+25)
+    first_date, last_date = (date.fromisoformat(a['date']) for a in (averages[0], averages[-1]))
     return (text('Party vote percent; dashed line: 5%', 'chart-status') + f'<div class="trend-layout" style="height:{height}px"><div class="trend-labels">' + axis + '</div>'
-            + svg('trend', 'Party averages over time, percent; dashed line marks 5 percent', marks, height)
-            + '<div class="trend-labels">' + labels + '</div></div><div class="chart-dates">'
-            + text(averages[0]['date'], 'numeric') + text(averages[-1]['date'], 'numeric') + '</div>')
+            + '<div class="trend-plot">' + svg('trend', 'Party averages over time, percent; dashed line marks 5 percent', marks, height) + stale_labels + '</div>'
+            + '<div class="trend-labels">' + labels + '</div></div><div class="chart-dates"><span></span><div class="trend-labels">'
+            + text(f'{first_date.day} {first_date:%b}', 'numeric', 'left:0')
+            + text(f'{last_date.day} {last_date:%b}', 'numeric', 'right:5.714286%') + '</div></div>')

@@ -13,7 +13,7 @@ from product.nz_election.tests.test_home import populated, NOW  # noqa: F401
 def test_named_modules_have_accessible_svg(populated, name):
     _, site = populated
     section = (site / 'index.html').read_text().split(f'<section id="{name}"')[1].split('</section>')[0]
-    charts = [attrs for tag, attrs in Document(section).nodes if tag == 'svg']
+    charts = [attrs for tag, attrs in Document(section).nodes if tag == 'svg' and attrs.get('aria-hidden') != 'true']
     assert charts and all(a.get('role') == 'img' and a.get('aria-label') and a.get('aria-describedby') for a in charts)
     assert 'class="chart-data"' in section
 
@@ -68,3 +68,31 @@ def test_chart_type_gate_rejects_previous_scaling(width):
     with pytest.raises(AssertionError, match='HOME_CHART_TEXT_SIZE'):
         assert_chart_text_sizes([dict(text='party', pixels=12*scale), dict(text='value', pixels=11*scale)], 16)
     assert_chart_text_sizes([dict(text='party', pixels=14), dict(text='value', pixels=13), dict(text='status', pixels=12)], 16)
+
+
+def test_trend_stops_at_last_observation(populated):
+    from datetime import date, timedelta
+    import re
+    from product.nz_election.pipeline.home import trend_graphic
+    from product.nz_election.pipeline.home_charts import colour
+    envs, _ = populated
+    envs = deepcopy(envs)
+    averages = envs['averages']['data']
+    cutoff = date.fromisoformat(averages[-1]['date']) - timedelta(days=14)
+    for average in averages:
+        if date.fromisoformat(average['date']) > cutoff:
+            average['descriptive']['nat']['value'] = None
+    selected = averages[-29::7]
+    if averages[-1] not in selected:
+        selected.append(averages[-1])
+    last = next(a for a in reversed(selected) if a['descriptive']['nat']['value'] is not None)
+    start, end = map(date.fromisoformat, [selected[0]['date'], selected[-1]['date']])
+    last_date = date.fromisoformat(last['date'])
+    last_x = 330 * (last_date-start).days / (end-start).days
+    html = trend_graphic(envs)
+    paths = [a['d'] for tag, a in Document(html).nodes if tag == 'path' and a.get('stroke') == colour('nat')]
+    assert paths
+    for path in paths:
+        coordinates = re.findall(r'[ML]([\d.]+) [\d.]+', path)
+        assert coordinates and all(float(x) <= last_x + 0.05 for x in coordinates), path
+    assert re.search(r'National [^<]+\(' + re.escape(f'{last_date.day} {last_date:%b}') + r'\)', html)

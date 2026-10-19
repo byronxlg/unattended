@@ -70,6 +70,23 @@ def chart_type_check(page):
     return samples
 
 
+def home_mark_geometry(page):
+    markers = page.locator('.poll-marker > *').evaluate_all("""els=>els.map(e=>{
+      const r=e.getBoundingClientRect();return {width:r.width,height:r.height,ratio:r.width/r.height};
+    })""")
+    if page.locator('#polls .home-chart').count():
+        assert markers and all(0.9 <= m['ratio'] <= 1.1 for m in markers), 'HOME_POLL_MARKER_SHAPE: ' + str(markers)
+    if page.locator('#trend .home-chart').count():
+        offsets = page.locator('#trend').evaluate("""e=>{
+          const plot=e.querySelector('.home-chart').getBoundingClientRect();
+          const dates=e.querySelectorAll('.chart-dates .chart-label');
+          return [dates[0].getBoundingClientRect().left-plot.left,
+                  dates[1].getBoundingClientRect().right-(plot.left+plot.width*330/350)];
+        }""")
+        assert all(abs(offset) <= 0.5 for offset in offsets), 'HOME_TREND_DATE_POSITION: ' + str(offsets)
+    return markers
+
+
 def check_page(page, url, site, origin):
     errors = []
     page.on('pageerror', lambda error: errors.append(str(error)))
@@ -89,6 +106,7 @@ def check_page(page, url, site, origin):
         }"""), 'HOME_SEAT_BAR_BOUNDS'
         if page.locator('.home-chart').count():
             chart_type_check(page)
+            home_mark_geometry(page)
 
     assert max(map(len, page.locator('body').inner_text().split()), default=0) <= 200, 'VISIBLE_TEXT_RUN: ' + url
     if page.viewport_size['width'] in (360, 390):
@@ -377,7 +395,8 @@ def main():
                     assert plain.locator('.desktop-nav').is_visible(), 'NO_JS_NAVIGATION_FAILED'
                     manifest.append(dict(route=PREFIX + 'nz-election/' + path, viewport=dict(width=width, height=height),
                                          path=name, sha256=hashlib.sha256(target.read_bytes()).hexdigest(),
-                                         code_sha=build['code_sha'], data_sha=build['data_sha'], browser_version=browser.version, source_note_bottom=bottom))
+                                         code_sha=build['code_sha'], data_sha=build['data_sha'], browser_version=browser.version, source_note_bottom=bottom,
+                                         poll_markers_360=home_mark_geometry(page) if path == '' and width == 360 else None))
                     if path == 'electorates/' and width == 390:
                         name_all = 'all-electorate-names-390.png'
                         page.locator('.electorate-directory').screenshot(path=str(args.out / name_all))
