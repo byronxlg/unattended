@@ -67,11 +67,13 @@ def test_conflicts_preserved(field):
     assert claim in row['field_sources']['reviewed_claims'][field]
     if field in {'name', 'party_id'}:
         assert row['field_sources'][field] == official_sources
-    from product.nz_election.pipeline.electorate_pages import detail
+    from product.nz_election.pipeline.electorate_pages import detail, candidate_records
     electorate = next(r for r in config('electorates') if r['id'] == row['electorate_id'])
     env = dict(data=[row], source=c.load()[1], run_url='offline-verification')
     html = detail(electorate, {'candidates': env, 'candidate-review': {'data': conflicts}})
-    assert 'Unresolved' in html and claim['locator'] in html and agreement['locator'] in html
+    assert 'Unresolved' in html and claim['locator'] not in html and agreement['locator'] not in html
+    records = candidate_records({'candidates': env, 'candidate-review': {'data': conflicts}})
+    assert 'Unresolved' in records and claim['locator'] in records and agreement['locator'] in records
 
 
 def test_list_capacity_requires_complete_review():

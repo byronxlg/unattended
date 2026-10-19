@@ -333,7 +333,7 @@ def seat_module(envs, built, presentation=None):
                          thresholds=render('threshold-watch', content=thresholds))
 
 
-def polls_page(envs, built, presentation=None):
+def polls_page(envs, built, presentation=None, *, full_sources=False):
     presentation = presentation if presentation is not None else home_presentation(envs, built)
     state, picture = seat_module(envs, built, presentation)
     if 'polls' not in envs:
@@ -358,18 +358,32 @@ def polls_page(envs, built, presentation=None):
     for poll in sorted(polls, key=lambda p: (p['fieldwork_end'], p['id']), reverse=True):
         poll = derive_others(poll, parties)
         identity = 'source-' + poll['id']
-        refs = f'<a href="#{identity}">Source and dates</a>'
+        refs = f'<a href="{PREFIX}methods/#{identity}">Source and dates</a>'
         if 'derivation' in poll:
             refs += ' Others derived: 100 minus named shares (0 to 10 points).'
         row_notes.append(f'<div class="source-note" id="{identity}"><p>{escape(poll["pollster"])}. Fieldwork ended <time datetime="{poll["fieldwork_end"]}">{observation_label(poll["fieldwork_end"])}</time>.</p><p class="source-actions">' + ' '.join(link(url, 'Original report') for url in poll['reference_urls']) + f' <a href="#source-history">Revision, retrieval, licence and data run</a></p></div>')
-        history.append([f'<span id="{escape(poll["id"])}" aria-describedby="{identity}">{escape(poll["pollster"])}</span>',
+        history.append([f'<span id="{escape(poll["id"])}" aria-describedby="source-history">{escape(poll["pollster"])}</span>',
                         escape(poll['fieldwork_start'] + ' to ' + poll['fieldwork_end']),
                         'Not reported' if poll['sample'] is None else str(poll['sample']),
                         *[display(poll['shares'].get(p), poll['scale']) for p in parties], refs])
     details += '<h2>How have the polls moved?</h2>' + table('All national 2026 observations in the source revision; scroll for all parties',
                                             ['Pollster', 'Fieldwork', 'Sample'] + [label(p) for p in parties] + ['Reports'], history, source='source-history')
-    details += source_note(envs['polls'], 'source-history', 'polls.json') + '<div><p><strong>Individual poll sources and fieldwork dates</strong></p>' + ''.join(row_notes) + '</div>'
+    if full_sources:
+        details += source_note(envs['polls'], 'source-history', 'polls.json').rstrip()[:-6] + '<div><p><strong>Individual poll sources and fieldwork dates</strong></p>' + ''.join(row_notes) + '</div></div>'
+    else:
+        note = source_note(envs['polls'], 'source-history', 'polls.json').split('</p>', 1)[0]
+        aliases = ''.join(f'<span id="source-{escape(p["id"], quote=True)}"></span>' for p in polls)
+        details += note.replace('class="source-note"', 'class="source-note home-footnote route-note"') + '</p><p class="source-actions">' + aliases + f'<a href="{PREFIX}methods/#source-history">Sources and method</a></p></div>'
+
     details += f'<p><a href="{PREFIX}data/averages.json">Daily average series and exact inputs</a></p>'
+    if not full_sources:
+        def compact(match):
+            identity, paragraph = match.group(1), match.group(2)
+            return (f'<div class="source-note home-footnote route-note" id="{identity}"><p>{paragraph}</p>'
+                    f'<p class="source-actions"><a href="{PREFIX}methods/#{identity}">Sources and method</a></p></div>')
+        pattern = r'<div[^>]*class="source-note"[^>]*id="(source-(?:average|thresholds))"[^>]*>\s*<p>(.*?)</p>.*?</div>'
+        picture = re.sub(pattern, compact, picture, flags=re.S)
+        details = re.sub(pattern, compact, details, flags=re.S)
     return render('polls', state=state, picture=picture,
                   explorer=explorer(envs, not presentation['stale']), details=details)
 
@@ -513,7 +527,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
         (stage / 'home-presentation.json').write_text(export.canonical(home) + '\n')
         methods = methods_page(stage, built, sha, run_url, envs)
         from product.nz_election.pipeline.home import sources, directory_links
-        methods = sources(envs, built, home) + methods
+        from product.nz_election.pipeline.electorate_pages import records
+        methods = sources(envs, built, home) + records(envs, built) + methods
         manifest = export.envelope(dict(id='build', source_ref=[], observed_at=built, code_sha=sha,
                          data_sha=data_sha if envs else None, build_run_url=run_url, built_at=built,
                          data_available='polls' in envs), [], run_url, sha)

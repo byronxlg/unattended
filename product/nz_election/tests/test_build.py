@@ -68,7 +68,11 @@ def test_source_html_escaped(tmp_path):
         rows[0]['pollster'] = '<script>alert(1)</script>'
         rows[0]['reference_urls'] = ['javascript:alert(1)', 'https://example.invalid/?q="<bad>']
     rewrite(path, inject)
-    html = (build(path, tmp_path / 'output') / 'polls/index.html').read_text()
+    site = build(path, tmp_path / 'output')
+    html = (site / 'polls/index.html').read_text()
+    assert '<script>' not in html and '&lt;script&gt;' in html
+    assert 'href="javascript:' not in html
+    html = (site / 'methods/index.html').read_text()
     assert '<script>' not in html and '&lt;script&gt;' in html
     assert 'href="javascript:' not in html and '&quot;&lt;bad&gt;' in html
 
