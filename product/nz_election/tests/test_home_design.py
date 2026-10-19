@@ -25,7 +25,7 @@ def test_hero_answers_from_allocator(populated, difference, answer):
     result = presentation['result']
     result.update(seats={'nat': 67+difference}, assumed_house=133, assumed_majority=67, overhang=13)
     html = hero(envs, NOW, presentation)
-    assert 'On the current poll average, the governing parties would have ' + f'{67+difference} seats, ' + answer + '.' in html
+    assert 'Governing parties: ' + f'{67+difference} seats, ' + answer + '.' in html
     assert '67 seats are needed' in html and '133-seat House' in html and '13 overhang seats' in html
 
 

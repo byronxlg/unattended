@@ -16,13 +16,13 @@ def test_original_names_and_successor_comparisons():
     row = next(r for r in config('electorates') if r['slug'] == 'wellington-north')
     html = detail(row, {})
     assert row['boundary_note'] in html
-    assert 'not been moved or added together' in html
     env = dict(data=rows['baseline-2023'], source=[], run_url='offline-verification')
     html = detail(row, {'baseline-2023': env})
     for old in rows['baseline-2023']:
         if old['old_electorate_id'] in row['baseline_ids']:
             assert old['old_name'] + ' (2023)' in html
-    assert 'Comparison unresolved' in detail(dict(row, baseline_ids=[], mapping_status='unresolved'), {})
+    assert 'class="local-margin"' not in detail(dict(row, baseline_ids=[], mapping_status='unresolved'), {})
+    assert 'not been moved or added together' in html
 
 
 def test_no_total_double_count():
@@ -126,13 +126,14 @@ def test_71_pages_and_missing_data(tmp_path):
     old['candidate_votes'] = None
     old['field_sources']['candidate_status'] = 'Missing candidate capture.'
     html = detail(central, missing)
-    assert 'No candidate baseline. Missing candidate capture.' in html
-    assert '<p><strong>No 2023 candidate results for this electorate</strong></p>' in html
+    assert 'candidate votes' not in html and 'class="local-margin"' not in html
+    from product.nz_election.tools.check_visible_text import check_absent_text
+    check_absent_text(html)
     assert 'Auckland Central (2023)' in html and 'party votes' in html
     row = next(r for r in config('electorates') if r['slug'] == 'te-tai-tonga')
     html = detail(row, {})
-    assert 'Official candidates not available' in html and 'Map not available' in html
-    assert 'no dated electorate enrolment observation' in html
+    assert 'Standing in 2026' in html and 'class="tile-map"' in html
+    check_absent_text(html)
 
 
 def test_new_csv_and_dates(tmp_path):

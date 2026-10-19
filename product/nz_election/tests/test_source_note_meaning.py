@@ -42,6 +42,9 @@ def test_built_note_sentences_and_contributing_dates(tmp_path, end_date, built, 
          selected if available else polls, 'polls'),
     ]
     for identity, sentence, contributors, stem in cases:
+        if not available and identity in {'source-seats', 'source-thresholds'}:
+            assert f'id="{identity}"' in html
+            continue
         note = paragraph(html, identity)
         assert unescape(note).endswith(sentence)
         assert_dates(note, contributors, envs[stem]['fetched_at'])
@@ -52,7 +55,7 @@ def test_built_note_sentences_and_contributing_dates(tmp_path, end_date, built, 
         later = max(p['fieldwork_end'] for p in polls)
         assert later > max(p['fieldwork_end'] for p in selected)
         for identity in ('source-average', 'source-thresholds'):
-            assert f'Fieldwork ended <time datetime="{later}">' not in paragraph(html, identity)
+            assert f'Fieldwork ended <time datetime="{later}">' not in paragraph(html if available or identity == 'source-average' else (site / 'methods/index.html').read_text(), identity)
     downloads = (site / 'downloads/index.html').read_text()
     assert unescape(paragraph(downloads, 'source-polls')).endswith('Polls parsed by this site.')
     validation = (site / 'methods/index.html').read_text()

@@ -36,9 +36,14 @@ def check_site(site, envs):
     checked = 0
     for page in sorted((site / 'electorates').glob('*/index.html')):
         doc = Records(page.read_text())
-        note = next(n for n in doc.elements if n['attrs'].get('id') == 'source-candidates')
-        target = PREFIX + 'methods/#records-candidates'
+        note = next(n for n in doc.elements if n['attrs'].get('id') == 'source-candidates-2026')
+        target = PREFIX + 'methods/#home-candidates-2026'
         assert any(n['attrs'].get('href') == target for n in note['children']), 'PROVENANCE_LOCATION: candidate footnote'
+        from .snapshot_views import load
+        snapshot = anchors['home-candidates-2026']
+        for candidate in load('candidates-2026'):
+            assert candidate['name'] in snapshot['text'], 'PROVENANCE_LOCATION: snapshot identity'
+            assert any(n['attrs'].get('href') == candidate['source_url'] for n in snapshot['children']), 'PROVENANCE_LOCATION: snapshot source'
         records = anchors['records-candidates']['text']
         for row in envs['candidates']['data']:
             for field in ('name', 'party_id'):

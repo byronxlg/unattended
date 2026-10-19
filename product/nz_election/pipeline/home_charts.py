@@ -95,7 +95,7 @@ def trend_chart(averages, parties):
             py = y(value)
             path += f'{"L" if active else "M"}{x:.1f} {py:.1f}'
             active, last = True, (x, py, display(d['value'], d['scale']), a['date'])
-        marks += f'<path d="{path}" fill="none" stroke="{colour(party)}" stroke-width="2"/>'
+        marks += f'<path d="{path}" fill="none" stroke="{colour(party)}" stroke-width="3.5" vector-effect="non-scaling-stroke"/>'
         if last:
             ends.append((last[1], party, last))
     previous, labels, stale_labels = Decimal(-20), '', ''

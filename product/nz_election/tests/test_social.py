@@ -178,15 +178,15 @@ def test_build_present_absent_stale_no_identifiers(tmp_path):
     html = (site / 'social/poc/index.html').read_text()
     assert 'Proof of concept: what X says about the parties' in html
     assert '240 posts sampled from X over 1 days' in html
-    assert 'under 5' in html and 'Withheld:' in html and '@' not in html
+    assert 'under 5' in html and 'Withheld:' not in html and '@' not in html
     assert 'Posts sampled and classified by this site; counts only' in html
     assert all(b'fiction-author' not in p.read_bytes() and b'Fictional civic' not in p.read_bytes() for p in out.rglob('*') if p.is_file())
     envs = export.validate_bundle(out)
     stale = page(envs, '2026-10-18T23:00:00Z')
-    assert 'unavailable' in stale and '<svg' not in stale and 'Proof of concept. 240 posts sampled from X; 2026-10-16 to 2026-10-16.' in stale
+    assert 'unavailable' not in stale and '<svg' not in stale
     absent = build(tmp_path / 'absent', tmp_path / 'absent-site', built=NOW)
     html = (absent / 'social/poc/index.html').read_text()
-    assert 'unavailable' in html and '<svg' not in html
+    assert 'unavailable' not in html and '<svg' not in html
 
 
 def test_social_publish_retains_other_families_and_ledger(tmp_path):

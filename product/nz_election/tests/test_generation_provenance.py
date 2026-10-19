@@ -48,13 +48,13 @@ def test_download_retrieval_summary_is_auckland_and_records_stay_utc(tmp_path):
     for entry in envs['manifest']['data']:
         row = html.split(f'data-file="{entry["path"]}"')[1].split('</tr>')[0]
         summary, raw_record = row.split('<div><p><strong>Full manifest record (stored UTC)</strong></p>', 1)
-        assert '<dt>Retrieved (Pacific/Auckland)</dt>' in summary
         assert 'Retrieved (UTC)' not in summary
         if entry['fetched_at']:
+            assert '<dt>Retrieved (Pacific/Auckland)</dt>' in summary
             assert local_time(entry['fetched_at']) in summary
             assert entry['fetched_at'] not in summary
         else:
-            assert '<dt>Retrieved (Pacific/Auckland)</dt><dd>Not available</dd>' in summary
+            assert '<dt>Retrieved (Pacific/Auckland)</dt>' not in summary
         for key in ('observation_start', 'observation_end'):
             if entry[key] and 'T' in entry[key]:
                 assert f'<time datetime="{entry[key]}">{local_time(entry[key])}</time>' in summary

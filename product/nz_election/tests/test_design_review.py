@@ -30,10 +30,10 @@ def test_empty_thirty_day_window_builds(tmp_path):
     assert envs['polls']['data'] and not envs['averages']['data'][-1]['poll_ids']
     site = build(data, tmp_path / 'output', built='2026-12-01T01:00:00Z')
     html = (site / 'polls/index.html').read_text()
-    assert 'No seat estimate available yet.' in html and 'class="strip"' not in html
+    assert 'class="strip"' not in html and 'No seat estimate' not in html
     assert 'How have the polls moved?' in html
     visible = html.split('<p><strong>Why seats are unavailable')[0]
-    assert 'Read how seats are calculated.</a>' in visible
+    assert 'id="source-seats"' in visible and 'Read how seats are calculated.</a>' in (site / 'methods/index.html').read_text()
     assert json.loads((site / 'home-presentation.json').read_text())['result'] is None
 
 
@@ -55,8 +55,8 @@ def test_page_and_card_share_availability_and_selected_provenance(tmp_path):
             latest = max(p['fieldwork_end'] for p in stored['selected'])
             assert f'datetime="{latest}"' in stored['source']
         else:
-            assert 'methods/#home-seats' in html and 'No seat estimate available yet.' in html
-    assert 'Read how seats are calculated.</a>' in polls_page({}, '2026-10-17T01:00:00Z')
+            assert 'id="home-seats"' not in html and 'id="seats"' in html
+    assert 'class="strip"' not in polls_page({}, '2026-10-17T01:00:00Z')
 
 
 def test_source_publishers_and_licences_visible_per_entry():
@@ -66,7 +66,7 @@ def test_source_publishers_and_licences_visible_per_entry():
                dict(id='wikipedia/candidates-2026.wikitext', url='https://en.wikipedia.org/w/api.php', licence='CC BY-SA 4.0 (Wikipedia contributors)')]
     for entry in entries:
         entry.update(fetched_at='2026-10-17T01:00:00Z', history_url=None)
-    html = source({'electorates': dict(source=entries, run_url='offline-verification')}, 'electorates')
+    html = source({'electorates': dict(source=entries, run_url='offline-verification')}, 'electorates', full=True)
     visible = html.split('<div><p><strong>Source history and producing run')[0]
     for entry, name in zip(entries, ['Stats NZ', 'Representation Commission', 'Wikipedia contributors']):
         assert f'href="{entry["url"]}">{name}</a>' in visible
