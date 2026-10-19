@@ -1426,3 +1426,10 @@ the handover on 2026-11-08.
 - fix-1 58a08dd (643 s): Codex 674 passed, verify all PASS, lint ok; Chromium denied in its sandbox, regression proof of the new check analytical only.
 - Host: screenshots.py on the 58a08dd build PASS 79 routes 296 images; the same harness on the preserved 5cc640b build fails HOME_CHART_TEXT_SIZE (chart labels 10.3 to 11.2 px at 360), so the check fails before and passes after in a real browser. Full-page home looked at 360, 390, 1280 under /unattended: all four follow-up items fixed (HTML labels at caption size, threshold bars with the 5% line, seven-row dot plot, hero "67 seats, 3 more than the 64 needed").
 - PR #39 opened, supervisor accept logged with two nits (overlapping pollster markers when close; thin Government sliver past the 64 line in the hero bar). Fresh design review review-nz-election-home-design dispatched read-only with the screenshots. Codex window 37 percent, resets in 6.1 days. No judgement call.
+
+## 2026-10-19 04:09Z (job_done review-nz-election-home-design)
+
+- Fresh design review of PR #39 (128 s): request changes. Important: home_charts.py:101 trend label connectors draw an indistinguishable line from a series' last observation to the right edge, labelled with its old value, implying data across a missing period. Nits: pollster markers distorted by non-uniform SVG scaling at phone widths; trend dates span the module rather than the plotted interval. Reviewer confirmed hero totals, majority and overhang derived, accessible values and provenance kept, no harness check loosened.
+- Judgement: all three to one fix round (same file, small; an honesty defect in a chart is worth a round even though live data has every party current today). Logged on PR #39.
+- Dispatched nz-election-home-design-fix-2 on the build thread (followup-2.md): labels at the series' own last point or a distinct out-of-area connector, stale endpoints dated, a test failing on 58a08dd, markers aspect ratio 0.9 to 1.1 at 360, dates aligned to plotted points.
+- Codex window 37 percent, 6.1 days to reset.
