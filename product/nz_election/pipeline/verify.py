@@ -273,6 +273,8 @@ def verify_home_routes(envs, root):
         check_disclosures(site)
         from product.nz_election.pipeline.landmark_checks import check_site as check_landmarks
         check_landmarks(site)
+        from product.nz_election.pipeline.market_budget_checks import check_site as check_market_budgets
+        check_market_budgets(site)
 
 
 def verify_markets(envs, root):
@@ -285,6 +287,8 @@ def verify_markets(envs, root):
     export.validate_envelope(current['markets'], 'markets')
     require({r['family'] for r in payloads['markets']} == FAMILIES, 'three market families')
     html = panel(current, '2026-10-20T01:00:00Z')
+    from product.nz_election.pipeline.market_budget_checks import check_markup
+    check_markup(html)
     provenance(html)
     require(html.count('<table') == 3 and ATTRIBUTION in html and ' USD' in html, 'market contracts and terms')
     require('Update overdue' in html and 'Source observations are more than 36 hours old' in html, 'market stale states')
@@ -329,6 +333,8 @@ def main():
             print(f'PASS disclosures: {check_disclosures(product)} non-home routes')
             from product.nz_election.pipeline.landmark_checks import check_site as check_landmarks
             print(f'PASS landmarks: {check_landmarks(product)} routes including client-rendered tables')
+            from product.nz_election.pipeline.market_budget_checks import check_site as check_market_budgets
+            print(f'PASS market budgets: {check_market_budgets(product)} routes')
         if args.site and args.check in {'home-routes', 'all'}:
             from product.nz_election.pipeline.route_checks import check_site
             check_site(product, export.validate_bundle(product / 'data') if (product / 'data').exists() else {})
