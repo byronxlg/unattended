@@ -59,16 +59,19 @@ def source(envs, stem, built=None, *, full=False):
 
 
 def detail(row, envs, built=None):
-    from .snapshot_views import result, map_graphic, footnote, photo, photo_credit, load
+    from .snapshot_views import result, map_graphic, footnote, photo, photo_credit, load, winner_name
     from .home_charts import colour
     from .build import label
     held = result(row, envs)
     intro = ''
     if held:
-        intro = (f'<p>2023 winner in {escape(held["baseline_name"])}</p><p class="holder">{escape(held["name"])} <span>{escape(held["party"])}</span></p>'
+        intro = (f'<p>2023 winner in {escape(held["baseline_name"])}</p><p class="holder">{escape(winner_name(row, held))} <span>{escape(held["party"])}</span></p>'
                  f'<p class="local-margin"><strong>{held["margin"]:,}</strong> vote majority in 2023'
                  + (' by-election' if row['slug'] == 'port-waikato' else '') + '</p>')
-    intro += '<p class="boundary-note">' + escape(row['boundary_note']) + '</p>'
+    boundary = row['boundary_note']
+    if boundary == 'All these electorates remain unchanged from their 2020 boundaries and names.':
+        boundary = row['name'] + "'s boundaries and name are unchanged from 2020."
+    intro += '<p class="boundary-note">' + escape(boundary) + '</p>'
     candidates = ''
     for c in load('candidates-2026'):
         if c['electorate_slug'] != row['slug']:
@@ -143,6 +146,14 @@ def records(envs, built):
                         ('electorate-polls', 'Local polls')):
         result += f'<section id="records-{stem}"><h2>{title}</h2>'
         result += source(envs, stem, built, full=True)
+        if stem == 'baseline-2023':
+            winners = [[escape(r['old_name']), escape(c['name']), escape(c['party']), str(c['votes'])]
+                       for r in envs.get(stem, {}).get('data', [])
+                       for c in sorted(r.get('candidate_votes') or [], key=lambda c: -c['votes'])[:1]]
+            if winners:
+                result += table('Original Electoral Commission winner records',
+                                ['Electorate', 'Candidate', 'Party', 'Votes'], winners,
+                                source='source-baseline-2023')
         if stem == 'candidates':
             result += candidate_records(envs)
         result += '</section>'

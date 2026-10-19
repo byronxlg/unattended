@@ -38,6 +38,18 @@ def result(row, envs):
                 margin=winner['votes']-ranked[1]['votes'])
 
 
+def winner_name(row, held):
+    # Use the explicit incumbent flag and seat/party IDs, never fuzzy name joins.
+    incumbents = [c for c in load('candidates-2026')
+                  if c['electorate_slug'] == row['slug']
+                  and c.get('party_id') == held['party_id']
+                  and c.get('sitting_electorate_mp')]
+    if len(incumbents) == 1:
+        return incumbents[0]['name']
+    surname, comma, given = held['name'].partition(',')
+    return (given.strip() + ' ' + surname.strip()).title() if comma else surname.title()
+
+
 def footnote(name, date='19 October 2026'):
     return (f'<div class="source-note home-footnote" id="source-{name}"><p class="source-actions">'
             f'Data to {date}. <a href="{PREFIX}methods/#home-{name}">Sources and method</a></p></div>')
@@ -77,7 +89,7 @@ def map_graphic(envs, selected=None):
         held = result(row, envs)
         fill = colour(held['party_id']) if held else 'var(--grey)'
         opacity = min(1, .45 + held['margin']/16000) if held else .25
-        description = (f'{held["baseline_name"]} (2023): {held["party"]}, {held["margin"]:,} votes' if held else 'Boundary correspondence in Methods')
+        description = (f'{held["baseline_name"]} (2023): {held["party"]}, majority of {held["margin"]:,} votes' if held else 'Boundary correspondence in Methods')
         title = row['name'] + ': ' + description
         rect = (f'<rect x="{c["x"]*26+2}" y="{c["y"]*26+2}" width="22" height="22" '
                 f'fill="{fill}" fill-opacity="{opacity:.2f}"'
@@ -87,7 +99,7 @@ def map_graphic(envs, selected=None):
         else:
             marks += f'<a href="{PREFIX}electorates/{row["slug"]}/" aria-label="{escape(title)}"><title>{escape(title)}</title>{rect}</a>'
         records.append([escape(row['name']), escape(held['party']) if held else '', f'{held["margin"]:,}' if held else ''])
-    graphic = (f'<svg class="tile-map" viewBox="0 0 {width} {height}" role="img" aria-label="2023 holders on original boundaries; schematic 2025 locations" aria-describedby="source-map">{marks}</svg>')
+    graphic = (f'<svg class="tile-map" viewBox="0 0 {width} {height}" role="{"img" if selected else "group"}" aria-label="2023 holders on original boundaries; schematic 2025 locations" aria-describedby="source-map">{marks}</svg>')
     if selected:
         return graphic
     legend = '<div class="map-key">' + ''.join(f'<span><i style="background:{colour(p)}"></i>{escape(label(p))}</span>' for p in ['nat','lab','grn','act','tpm']) + '</div>'

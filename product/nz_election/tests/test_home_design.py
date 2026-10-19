@@ -14,7 +14,7 @@ def test_named_modules_have_accessible_svg(populated, name):
     _, site = populated
     section = (site / 'index.html').read_text().split(f'<section id="{name}"')[1].split('</section>')[0]
     charts = [attrs for tag, attrs in Document(section).nodes if tag == 'svg' and attrs.get('aria-hidden') != 'true']
-    assert charts and all(a.get('role') == 'img' and a.get('aria-label') and a.get('aria-describedby') for a in charts)
+    assert charts and all(a.get('role') == ('group' if a.get('class') == 'tile-map' else 'img') and a.get('aria-label') and a.get('aria-describedby') for a in charts)
     assert 'class="chart-data"' in section
 
 

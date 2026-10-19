@@ -27,6 +27,8 @@ def rendered_page(site, html):
 
 
 def check_page(html):
+    from product.nz_election.pipeline.image_role_checks import check_page as check_image_roles
+    check_image_roles(html)
     provenance(html)
     regions = [a for _, a in Document(html).nodes if a.get('role') == 'region']
     names = Counter(a.get('aria-label') for a in regions)
