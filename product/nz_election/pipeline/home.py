@@ -6,7 +6,7 @@ from .build import (PREFIX, config, render, label, source_note, seat_module,
                     observation_label, compact_time, link, derivation_note)
 from .average import display
 from .presentation import overdue
-from .home_charts import svg, fallback, poll_chart, trend_chart
+from .home_charts import svg, fallback, poll_chart, trend_chart, threshold_chart, text
 
 
 def unavailable(envs, family):
@@ -144,8 +144,8 @@ def hero(envs, built, presentation):
         totals = [(key, sum(result['seats'].get(p, 0) for p in groups[key]['parties'])) for key in ('government', 'opposition')]
         difference = totals[0][1] - result['assumed_majority']
         answer = ('exactly enough seats to govern' if difference == 0 else
-                  f'a majority of {difference}' if difference > 0 else f'a shortfall of {-difference} seats')
-        content = f'<p class="seat-answer">On the current poll average, the governing parties would have {answer}.</p>'
+                  f'{difference} more than the {result["assumed_majority"]} needed' if difference > 0 else f'{-difference} short of the {result["assumed_majority"]} needed')
+        content = f'<p class="seat-answer">On the current poll average, the governing parties would have {totals[0][1]} seats, {answer}.</p>'
         content += (f'<p class="seat-dek">{result["assumed_majority"]} seats are needed in the assumed '
                     f'{result["assumed_house"]}-seat House, including {result["overhang"]} overhang seats.</p>')
         content += '<div class="topline">' + ''.join(
@@ -209,12 +209,7 @@ def thresholds(envs):
     if 'seats' not in envs:
         return '<p>Not available: no published threshold shares.</p>'
     rows = threshold_watch(envs['polls']['data'], envs['averages']['data'][-1], envs['seats']['data']['assumptions'])
-    marks = ''
-    for i, r in enumerate(rows):
-        value = display(r['value'], r['scale'])
-        status = 'At or above 5%' if r['value'] is not None and r['value'] >= 5*r['scale'] else 'Electorate assumed' if r['electorate_qualifies'] else 'Needs 5%'
-        marks += f'<text x="0" y="{i*46+16}">{escape(label(r["party_id"]))}: {value}</text><text x="0" y="{i*46+34}">{status}</text>'
-    return svg('thresholds', 'Parties near the threshold and their qualification', marks, len(rows)*46) + fallback(table('Parties near the threshold', ['Party', 'Share', 'Qualification'],
+    return threshold_chart(rows) + fallback(table('Parties near the threshold', ['Party', 'Share', 'Qualification'],
                  [[escape(label(r['party_id'])), display(r['value'], r['scale']), 'At or above 5%' if r['value'] is not None and r['scale'] and r['value'] >= 5 * r['scale'] else 'Electorate assumed' if r['electorate_qualifies'] else 'Needs 5%'] for r in rows], source='source-thresholds'))
 
 
@@ -249,10 +244,11 @@ def closest(envs):
     content = '<div class="watch-rows">'
     for margin, _, r, _ in rows:
         width = Decimal(margin)*130/maximum
-        marks = (f'<rect x="0" y="9" width="{width:.1f}" height="12" fill="var(--grey)"/>'
-                 f'<text class="numeric" x="{width+5:.1f}" y="20">{margin:,}</text>')
+        marks = f'<rect x="0" y="9" width="{width:.1f}" height="12" fill="var(--grey)"/>'
         content += (f'<div class="margin-row"><a href="{PREFIX}electorates/{r["slug"]}/">{escape(r["name"])}</a>'
-                    + svg('electorates', f'{r["name"]}: {margin:,} votes', marks, 30).replace('0 0 350', '0 0 200') + '</div>')
+                    + '<div style="position:relative;padding-right:48px">'
+                    + svg('electorates', f'{r["name"]}: {margin:,} votes', marks, 30).replace('0 0 350', '0 0 130')
+                    + text(f'{margin:,}', 'numeric', f'position:absolute;top:5px;left:calc((100% - 48px)*{Decimal(margin)/maximum:.6f} + 4px)') + '</div></div>')
     return content + '</div>' + fallback(table('2023 winning margins on comparable boundaries', ['Electorate', 'Margin'],
                  [[escape(r['name']), f'{margin:,} votes'] for margin, _, r, _ in rows], source='source-electorates'))
 

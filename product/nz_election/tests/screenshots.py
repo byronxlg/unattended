@@ -53,6 +53,23 @@ CONTRAST = '''() => [...document.querySelectorAll('body *')].filter(el =>
   })'''
 
 
+def assert_chart_text_sizes(samples, body_size):
+    assert samples, 'HOME_CHART_TEXT_SIZE: no chart labels measured'
+    bad = [s for s in samples if not 12 <= s['pixels'] <= body_size]
+    assert not bad, 'HOME_CHART_TEXT_SIZE: ' + str(bad)
+
+
+def chart_type_check(page):
+    samples = page.locator('.home-module svg text,.home-module .chart-label,.margin-row a,.market-summary .numeric').evaluate_all("""els=>els.map(e=>{
+      const font=parseFloat(getComputedStyle(e).fontSize);
+      const matrix=e instanceof SVGTextElement ? e.getScreenCTM() : null;
+      return {text:e.textContent,pixels:font*(matrix ? Math.hypot(matrix.c,matrix.d) : 1)};
+    })""")
+    body_size = page.locator('body').evaluate('e=>parseFloat(getComputedStyle(e).fontSize)')
+    assert_chart_text_sizes(samples, body_size)
+    return samples
+
+
 def check_page(page, url, site, origin):
     errors = []
     page.on('pageerror', lambda error: errors.append(str(error)))
@@ -70,6 +87,8 @@ def check_page(page, url, site, origin):
           return bar.left>=column.left+parseFloat(css.paddingLeft)-0.5 &&
                  bar.right<=column.right-parseFloat(css.paddingRight)+0.5;
         }"""), 'HOME_SEAT_BAR_BOUNDS'
+        if page.locator('.home-chart').count():
+            chart_type_check(page)
 
     assert max(map(len, page.locator('body').inner_text().split()), default=0) <= 200, 'VISIBLE_TEXT_RUN: ' + url
     if page.viewport_size['width'] in (360, 390):
