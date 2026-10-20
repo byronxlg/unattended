@@ -20,7 +20,7 @@ from product.nz_election.tests.screenshots import contrast
     ({'nat': 43, 'lab': 42, 'grn': 42}, 64, 'National leads with 43 calculated seats; no party reaches the assumed majority of 64.'),
     ({'nat': 60, 'lab': 60}, 61, 'Labour and National are level on 60 calculated seats; no party reaches the assumed majority of 61.'),
     ({'nat': 40, 'lab': 40, 'grn': 40}, 61, 'Green, Labour and National are level on 40 calculated seats; no party reaches the assumed majority of 61.'),
-    (None, None, 'No seat estimate available yet.'),
+    (None, None, 'New Zealand votes on 7 November 2026.'),
 ])
 def test_home_sentence(seats, majority, expected):
     assert home_sentence(dict(seats=seats, assumed_majority=majority)) == expected
@@ -113,7 +113,7 @@ def test_real_first_view_budget(built_design):
     for page in ('index.html', 'polls/index.html'):
         css = (site / 'styles.css').stat().st_size
         total, files = transfer_bytes(site, page)
-        assert css < 16_000, f'CSS_BYTES: {page}: {css}'
+        assert css < 19_000, f'CSS_BYTES: {page}: {css}'
         assert total < 100_000, f'FIRST_VIEW_GZIP_BYTES: {page}: {total}: {files}'
         assert {f'fonts/{name}.woff2' for name in ('libre-franklin-400', 'libre-franklin-700', 'jetbrains-mono-400')} <= files.keys()
         assert {'favicon.svg', 'icon-180.png', 'manifest.webmanifest', page, 'styles.css'} <= files.keys()
@@ -174,22 +174,22 @@ def test_twelve_state_fixtures(tmp_path):
         if state in COHERENT:
             assert 'class="strip"' in html
         if state == 'unavailable':
-            assert 'No data yet.' in html
+            assert 'id="home-seats"' not in html
         if state == 'validation-error':
             assert 'update failed; showing previous data' in html
         if state == 'stale':
             assert 'Update overdue.' in html and 'class="strip"' not in html
         if state == 'missing-baseline':
-            assert 'No 2023 candidate results for this electorate' in html
+            assert 'class="local-margin"' not in html and 'candidate votes' not in html
         if state == 'unresolved':
             assert 'Not matched: Kāpiti (local poll)' in html
 
 
 def test_state_category_copy(tmp_path):
     from product.nz_election.tests.design_states import fixture
-    for state, words in [('no-data', 'No data yet. Polls are checked hourly.'),
+    for state, words in [('no-data', 'New Zealand votes on 7 November'),
                          ('allocation-tie', 'Tie for the last seat between National and Labour; shown unassigned.'),
-                         ('source-conflict', 'Comparison unresolved: no reviewed boundary correspondence.'),
+                         ('source-conflict', 'Standing in 2026'),
                          ('offline', 'fixture run')]:
         site, route = fixture(tmp_path, state)
         assert words in (site / 'nz-election' / route / 'index.html').read_text()

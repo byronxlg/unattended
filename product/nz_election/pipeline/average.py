@@ -146,6 +146,6 @@ def threshold_watch(polls, average, assumptions):
 
 def display(value, scale):
     if not scale or value is None:
-        return 'Not reported'
+        return ''
     tenths = (20 * value + scale) // (2 * scale)
     return f'{tenths // 10}.{tenths % 10}%'

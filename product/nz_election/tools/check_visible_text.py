@@ -7,6 +7,10 @@ import argparse
 from html.parser import HTMLParser
 from pathlib import Path
 import re
+import sys
+
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 VOID = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
 BLOCK = {'address', 'article', 'aside', 'blockquote', 'br', 'caption', 'dd', 'div', 'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'header', 'hr', 'li', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'summary', 'table', 'td', 'th', 'tr', 'ul'}
@@ -53,11 +57,42 @@ class VisibleText(HTMLParser):
         return ''.join(self.parts)
 
 
+BANNED = re.compile(r'\b(?:not\s+available|unavailable|pending|withheld|missing|not\s+supplied|not\s+reported)\b', re.I)
+
+
+def check_absent_text(html, name='page'):
+    from product.nz_election.pipeline.content_checks import check_empty_headings
+    check_empty_headings(html)
+    # Include collapsed tables and image alternatives, not only the first viewport.
+    class PublicText(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.parts = []
+            self.skip = 0
+        def handle_starttag(self, tag, attrs):
+            if tag in {'script', 'style'}:
+                self.skip += 1
+            self.parts += [v for k, v in attrs if k in {'alt', 'aria-label', 'content'} and v]
+        def handle_endtag(self, tag):
+            if tag in {'script', 'style'}:
+                self.skip -= 1
+        def handle_data(self, data):
+            if not self.skip:
+                self.parts.append(data)
+    parser = PublicText()
+    parser.feed(html)
+    match = BANNED.search(' '.join(parser.parts))
+    if match:
+        raise ValueError(f'ABSENT_TEXT: {name}: {match[0]}')
+
+
 def check_site(site):
     paths = sorted(Path(site).rglob('index.html'))
     if not paths:
         raise ValueError('VISIBLE_TEXT_NO_ROUTES')
-    for path in paths:
+    for path in sorted(Path(site).rglob('*.html')):
+        if path.relative_to(site).parts[0] != 'methods' and path.relative_to(site).as_posix() != 'og/methods.html':
+            check_absent_text(path.read_text(), str(path.relative_to(site)))
         runs = re.findall(r'\S+', VisibleText(path.read_text()).text)
         longest = max(map(len, runs), default=0)
         if longest > 200:
@@ -73,4 +108,4 @@ if __name__ == '__main__':
         count = check_site(args.site)
     except ValueError as error:
         raise SystemExit('FAIL ' + str(error)) from error
-    print(f'PASS visible text: {count} routes, no whitespace-free run over 200 characters')
+    print(f'PASS visible text: {count} routes, no whitespace-free run over 200 characters; absent-text gate passed')

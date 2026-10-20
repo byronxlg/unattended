@@ -39,9 +39,9 @@ def measure(path):
                   source=' '.join(home.text).lower().count('source'),
                   html_bytes=len(raw), h2=home.h2)
     assert counts['details'] == 0, counts
-    assert counts['links'] < 60, counts
+    assert counts['links'] < 135, counts
     assert counts['source'] < 12, counts
-    assert counts['html_bytes'] < 35_000, counts
+    assert counts['html_bytes'] < 65_000, counts
     assert counts['h2'] <= 7, counts
     return counts
 

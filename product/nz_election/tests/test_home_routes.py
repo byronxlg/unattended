@@ -24,9 +24,9 @@ def test_route_cards_and_detail_order(populated):
         if card['route'].startswith('electorates/') and card['route'] != 'electorates/':
             assert card['description'].startswith(card['title'].split(':')[0])
     east = next(c for c in cards if c['key'] == 'electorates--east-cape')
-    assert 'Held by ' in east['title'] and 'on the original boundaries' in east['description']
+    assert 'National Party' in east['title'] and '3,199 vote majority in East Coast in 2023' in east['description']
     changed = next(c for c in cards if c['key'] == 'electorates--wellington-north')
-    assert 'Boundary changed; 2023 holder not comparable.' in changed['description']
+    assert 'vote majority in Wellington Central in 2023' in changed['description']
 
 
 @pytest.mark.parametrize('instant,text', [('2026-11-06T10:59:59Z', '1 day until election day'), ('2026-11-06T11:00:00Z', 'Election day'), ('2026-11-07T11:00:00Z', 'Results')])
@@ -43,7 +43,7 @@ def test_night_transition_without_bypassing_freeze(instant, text):
 def test_empty_route_cards(tmp_path):
     site = build(tmp_path / 'absent', tmp_path / 'site/nz-election', built='2026-10-17T01:00:00Z')
     check_site(site, {})
-    assert 'Held-by information not available' in (site / 'electorates/east-cape/index.html').read_text()
+    assert 'class="local-margin"' not in (site / 'electorates/east-cape/index.html').read_text()
 
 
 @pytest.mark.parametrize('damage', ['metadata', 'manifest', 'order', 'source'])

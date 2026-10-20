@@ -71,7 +71,7 @@ def test_conflicts_preserved(field):
     electorate = next(r for r in config('electorates') if r['id'] == row['electorate_id'])
     env = dict(data=[row], source=c.load()[1], run_url='offline-verification')
     html = detail(electorate, {'candidates': env, 'candidate-review': {'data': conflicts}})
-    assert 'Unresolved' in html and claim['locator'] not in html and agreement['locator'] not in html
+    assert 'methods/#home-candidates-2026' in html and claim['locator'] not in html and agreement['locator'] not in html
     records = candidate_records({'candidates': env, 'candidate-review': {'data': conflicts}})
     assert 'Unresolved' in records and claim['locator'] in records and agreement['locator'] in records
 

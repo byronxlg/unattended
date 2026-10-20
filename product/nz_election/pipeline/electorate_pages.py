@@ -2,9 +2,8 @@
 from .presentation import overdue
 from decimal import Decimal
 from html import escape
-from . import geography
 from urllib.parse import urlsplit
-from .build import PREFIX, render, link, table, observation_label, compact_time
+from .build import PREFIX, link, table, observation_label, compact_time
 
 
 def publisher(source):
@@ -26,12 +25,13 @@ def publisher(source):
 def source(envs, stem, built=None, *, full=False):
     env = envs.get(stem)
     if not env or not env['source']:
-        return f'<div class="source-note" id="source-{stem}"><p>Not available: no validated data bundle.</p><p class="source-actions"><a href="{PREFIX}downloads/">Sources and availability</a></p></div>'
+        return (f'<div class="source-note" id="source-{stem}"><p>No validated data bundle.</p><p class="source-actions"><a href="{PREFIX}downloads/">Downloads</a></p></div>' if full else f'<span id="source-{stem}"></span>')
     if not full:
-        credits = '; '.join(dict.fromkeys(link(entry['url'], publisher(entry)) + ': ' + escape(entry['licence']) for entry in env['source']))
-        fetched = max(entry['fetched_at'] for entry in env['source'])
+        family = 'geography' if stem == 'electorates' else stem
+        status = next((s for s in envs.get('status', {}).get('data', []) if s['dataset'] == family), {})
+        fetched = status.get('last_success_at') or max(entry['fetched_at'] for entry in env['source'])
         return (f'<div class="source-note home-footnote" id="source-{stem}"><p class="source-actions">'
-                + credits + f'. Retrieved <time datetime="{fetched}">{compact_time(fetched)}</time>. '
+                + f'Data to {compact_time(fetched)}. '
                 + f'<a href="{PREFIX}methods/#records-{stem}">Sources and method</a></p></div>')
     result = '<div role="note" class="source-note" id="source-' + stem + '">'
     for entry in env['source']:
@@ -59,69 +59,67 @@ def source(envs, stem, built=None, *, full=False):
 
 
 def detail(row, envs, built=None):
-    def data(stem):
-        return envs.get(stem, {}).get('data', [])
-    official = [c for c in data('candidates') if c['electorate_id'] == row['id']]
-    official.sort(key=lambda c: (c['party_id'], c['name'], c['id']))
-    candidates = '<ul class="candidate-list" aria-describedby="source-candidates">'
-    for c in official:
-        candidates += '<li><strong>' + escape(c['name']) + '</strong><p>' + escape(c['party_id']) + '</p>'
-        candidates += '<small aria-describedby="source-candidates">List rank: ' + (str(c['list_rank']) if c['list_rank'] is not None else 'Not available') + '. ' + escape(c['join_status']) + '.</small>'
-        candidates += '<small>Wikipedia: ' + (link(c['wikipedia_url'], 'Candidate article') if c['wikipedia_url'] else 'Not available') + '. Wikidata: ' + escape(c['wikidata_id'] or 'Not available') + '.</small>'
-        candidates += '</li>'
-    candidates += '</ul>'
-    if not official:
-        candidates = '<p>Official candidates not available for this electorate.</p>'
+    from .snapshot_views import result, map_graphic, footnote, photo, photo_credit, load, winner_name
+    from .home_charts import colour
+    from .build import label
+    held = result(row, envs)
+    intro = ''
+    if held:
+        intro = (f'<p>2023 winner in {escape(held["baseline_name"])}</p><p class="holder">{escape(winner_name(row, held))} <span>{escape(held["party"])}</span></p>'
+                 f'<p class="local-margin"><strong>{held["margin"]:,}</strong> vote majority in 2023'
+                 + (' by-election' if row['slug'] == 'port-waikato' else '') + '</p>')
+    boundary = row['boundary_note']
+    if row['mapping_status'] == 'unchanged':
+        boundary = row['name'] + "'s boundaries and name are unchanged from 2020."
+    intro += '<p class="boundary-note">' + escape(boundary) + '</p>'
+    candidates = ''
+    for c in load('candidates-2026'):
+        if c['electorate_slug'] != row['slug']:
+            continue
+        candidates += (f'<li style="--party:{colour(c.get("party_id"))}"><div class="candidate-photo">{photo(c, credit=False)}</div><div><strong>'
+                       + escape(c['name']) + '</strong><p>' + escape(label(c['party_id']) if c.get('party_id') else c['party'])
+                       + (' / List ' + str(c['list_rank']) if c.get('list_rank') else '') + '</p>' + photo_credit(c) + '</div></li>')
+    candidates = ('<section><h2 id="candidates-title">Standing in 2026</h2><ul class="candidate-list" aria-describedby="source-candidates-2026">'
+                  + candidates + '</ul>' + footnote('candidates-2026') + '</section>') if candidates else '<span id="candidates-title"></span>'
+    intro += footnote('port-waikato') if row['slug'] == 'port-waikato' else source(envs, 'baseline-2023', built)
+    outline = '<figure aria-describedby="source-map">' + map_graphic(envs, row['slug']) + '<figcaption>Highlighted: ' + escape(row['name']) + '</figcaption>' + footnote('map') + '</figure>'
+    if not envs.get('baseline-2023', {}).get('data'):
+        outline = ''
+    content = '<div class="electorate-top"><div>' + intro + candidates + '</div>' + outline + '</div>'
     baseline = ''
-    old_rows = {r['old_electorate_id']: r for r in data('baseline-2023')}
-    for identity in row['baseline_ids']:
-        old = old_rows.get(identity)
-        if not old:
-            baseline += '<p>No candidate baseline or party baseline available for original electorate ' + str(identity) + '.</p>'
+    for old in envs.get('baseline-2023', {}).get('data', []):
+        if old['old_electorate_id'] not in row['baseline_ids']:
             continue
-        baseline += '<section><h3>' + escape(old['old_name']) + ' (2023)</h3><p aria-describedby="source-baseline-2023">Election: ' + f'<time datetime="{old["election_date"]}">{observation_label(old["election_date"])}</time>' + '. Final results as at ' + f'<time datetime="{old["result_as_of"]}">{observation_label(old["result_as_of"])}</time>' + '.</p>'
-        baseline += table(old['old_name'] + ': party votes', ['Party', 'Votes'],
-                          [[escape(v['name']), f'{v["votes"]:,}'] for v in old['party_votes']], source='source-baseline-2023')
-        if old['candidate_votes'] is None:
-            baseline += '<div class="missing"><p><strong>No 2023 candidate results for this electorate</strong></p><p>No candidate baseline. ' + escape(old['field_sources']['candidate_status']) + '</p></div>'
-        else:
+        votes = load('port-waikato-2023') if row['slug'] == 'port-waikato' else old.get('candidate_votes')
+        if votes or old['party_votes']:
+            baseline += '<h3>' + escape(old['old_name']) + ' (2023)</h3>'
+        if votes:
             baseline += table(old['old_name'] + ': candidate votes', ['Candidate', 'Party', 'Votes'],
-                              [[escape(v['name']), escape(v['party']), f'{v["votes"]:,}'] for v in old['candidate_votes']], source='source-baseline-2023')
-        baseline += '</section>'
-    if not row['baseline_ids'] or row['mapping_status'] == 'unresolved':
-        baseline = '<p>Comparison unresolved: no reviewed boundary correspondence.</p>'
-    roll = next((r for r in data('enrolment') if r['electorate_id'] == row['id']), None)
-    enrolment = '<p>Not available: no dated electorate enrolment observation.</p>'
+                              [[escape(v['name']), escape(v['party']), f'{v["votes"]:,}'] for v in sorted(votes, key=lambda v: -v['votes'])], source='source-port-waikato' if row['slug'] == 'port-waikato' else 'source-baseline-2023')
+        if old['party_votes']:
+            baseline += table(old['old_name'] + ': party votes', ['Party', 'Votes'], [[escape(v['name']), f'{v["votes"]:,}'] for v in old['party_votes']], source='source-baseline-2023')
+    if baseline:
+        content += '<section class="original-results"><h2>2023 results on the original boundaries</h2><p>These votes have not been moved or added together to fit the 2025 boundaries.</p><details><summary>See the vote counts</summary>' + baseline + '</details>' + (source(envs, 'baseline-2023', built) if row['slug'] == 'port-waikato' else '') + '</section>'
+    roll = next((r for r in load('enrolment') if r['electorate_slug'] == row['slug']), None)
     if roll:
-        enrolment = '<p aria-describedby="source-enrolment">Enrolment at ' + f'<time datetime="{roll["as_of"]}">{escape(observation_label(roll["as_of"]))}</time>' + '.</p><p>' + escape(roll['roll_basis'] or 'Roll basis not available.') + '</p>'
-        enrolment += '<p aria-describedby="source-enrolment">Enrolled: ' + (f'{roll["enrolled"]:,}' if roll['enrolled'] is not None else 'Not available') + '. Eligible: ' + (f'{roll["eligible"]:,}' if roll['eligible'] is not None else 'Not available') + '.</p>'
-    polls = ''
-    poll_captions = {}
-    for poll in data('electorate-polls'):
-        if poll['electorate_id'] != row['id']:
-            continue
-        heading = poll['pollster'] + ': ' + ('Party vote' if poll['measure'] == 'party_vote' else 'Candidate vote')
-        caption = heading + ', ' + poll['boundary_basis']['fieldwork_label'] + ': reported local shares'
-        poll_captions[caption] = poll_captions.get(caption, 0) + 1
-        if poll_captions[caption] > 1:
-            caption += f' (report {poll_captions[caption]})'
-        polls += '<section class="local-poll"><h3>' + escape(heading) + '</h3>'
-        polls += '<p aria-describedby="source-electorate-polls">Fieldwork: ' + escape(poll['boundary_basis']['fieldwork_label']) + '. Sample: ' + str(poll['sample'] or 'Not reported') + '.</p>'
-        polls += table(caption, ['Party or candidate', 'Share'],
-                       [[escape(name), ('Not reported' if share['value'] is None else ('About ' if share['approximate'] else '') + str(Decimal(share['value']) / poll['scale']) + '%')]
-                        for name, share in poll['shares'].items()], source='source-electorate-polls')
-        polls += '<p>' + escape(poll['boundary_basis']['basis']) + '.</p>'
-        polls += ' '.join(link(url, 'Original report') for url in poll['reference_urls']) + '</section>'
-    if not polls:
-        polls = '<p>No mapped local polls in the captured source. This is not a forecast.</p>'
-    collections = {k: envs[k + '-2025'] for k in geography.KINDS if k + '-2025' in envs}
-    from .home import electorate_summary
-    return render('electorate', historical=escape(electorate_summary(row, envs)[1]), prefix=PREFIX, boundary=escape(row['boundary_note']),
-                  outline=geography.svg(collections, [row], row['id']).replace('<svg ', '<svg aria-describedby="source-electorates" '), geography_source=source(envs, 'electorates', built),
-                  candidates=candidates, candidate_source=source(envs, 'candidates', built),
-                  baseline=baseline, baseline_source=source(envs, 'baseline-2023', built),
-                  enrolment=enrolment, enrolment_source=source(envs, 'enrolment', built),
-                  polls=polls, poll_source=source(envs, 'electorate-polls', built))
+        content += '<section><h2>Enrolment</h2><p aria-describedby="source-enrolment-snapshot">' + f'{roll["enrolled"]:,} enrolled at {observation_label(roll["as_at"])}.</p>' + footnote('enrolment-snapshot') + '</section>'
+    polls = [p for p in envs.get('electorate-polls', {}).get('data', []) if p['electorate_id'] == row['id']]
+    if polls:
+        captions = {}
+        content += '<section><h2>Local polls</h2>'
+        for poll in polls:
+            caption = poll['pollster'] + ': ' + poll['boundary_basis']['fieldwork_label'] + ' / ' + ('Party vote' if poll['measure'] == 'party_vote' else 'Candidate vote')
+            captions[caption] = captions.get(caption, 0) + 1
+            if captions[caption] > 1:
+                caption += f' (report {captions[caption]})'
+            content += table(caption, ['Party or candidate', 'Share'],
+                             [[escape(n), ('About ' if v['approximate'] else '') + str(Decimal(v['value'])/poll['scale']) + '%'] for n,v in poll['shares'].items() if v['value'] is not None], source='source-electorate-polls')
+        content += source(envs, 'electorate-polls', built) + '</section>'
+    # Keep legacy fragments without displaying empty modules.
+    for stem in ['electorates', 'candidates', 'baseline-2023', 'enrolment', 'electorate-polls']:
+        if f'id="source-{stem}"' not in content:
+            content += f'<span id="source-{stem}"></span>'
+    return content
 
 
 def candidate_records(envs):
@@ -150,6 +148,14 @@ def records(envs, built):
                         ('electorate-polls', 'Local polls')):
         result += f'<section id="records-{stem}"><h2>{title}</h2>'
         result += source(envs, stem, built, full=True)
+        if stem == 'baseline-2023':
+            winners = [[escape(r['old_name']), escape(c['name']), escape(c['party']), str(c['votes'])]
+                       for r in envs.get(stem, {}).get('data', [])
+                       for c in sorted(r.get('candidate_votes') or [], key=lambda c: -c['votes'])[:1]]
+            if winners:
+                result += table('Original Electoral Commission winner records',
+                                ['Electorate', 'Candidate', 'Party', 'Votes'], winners,
+                                source='source-baseline-2023')
         if stem == 'candidates':
             result += candidate_records(envs)
         result += '</section>'

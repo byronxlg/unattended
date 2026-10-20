@@ -13,7 +13,7 @@ def count(n):
 
 def notice(records):
     if not records:
-        return '<p class="state">Proof of concept. Sample size unavailable; date range unavailable. No published sample.</p>'
+        return ''
     n = sum(r['sample']['eligible'] for r in records)
     start, end = min(r['day'] for r in records), max(r['day'] for r in records)
     return f'<p class="state">Proof of concept. {count(n)} posts sampled from X; {start} to {end}. Not a measure of voter support.</p>'
@@ -46,7 +46,7 @@ def primary_chart(envs):
     intro = f'<p class="numeric" aria-describedby="source-social">{count(n)} posts sampled from X over {len(records)} days, {dates}, one page per hour, not a complete count.</p>'
     intro += fixture_notice(records)
     if status.get('error_code'):
-        intro += '<p class="state">' + escape(status['message']) + '</p>'
+        intro += '<p class="state">Data to ' + escape(latest) + '.</p>'
     counts = {p: sum(r['party_counts'][p] for r in records) for p in PARTIES}
     colours = {v['label']: v['colour'] for v in config('party-colours').values()}
     colours['Green'] = config('party-colours')['grn']['colour']
@@ -54,7 +54,7 @@ def primary_chart(envs):
     bars, rows = [], []
     for i, p in enumerate(PARTIES):
         value = counts[p]
-        share = f'{Decimal(value)*100/max(n, 1):.1f}%' if value >= 20 else 'Share withheld: fewer than 20 posts'
+        share = f'{Decimal(value)*100/max(n, 1):.1f}%' if value >= 20 else ''
         width = Decimal(value)*160/max(n, 1) if value >= 5 else 0
         y = i * 25 + 2
         bars.append(f'<text x="0" y="{y+16}">{escape(p)}</text><rect x="125" y="{y}" width="{width}" height="18" fill="{colours.get(p, "var(--surface)" )}"/><text x="295" y="{y+16}">{count(value)}</text>')
@@ -72,9 +72,10 @@ def page(envs, built):
     latest = max((r['day'] for r in records), default=None)
     now = datetime.fromisoformat(built.replace('Z', '+00:00'))
     if not latest or now - datetime.combine(datetime.fromisoformat(latest).date() + timedelta(days=1), time(), NZ) > timedelta(hours=36):
-        message = 'X proof of concept unavailable: no sample is available yet.' if not latest else 'X proof of concept unavailable: the last sampled day is more than 36 hours old.'
-        source = sample_source(records, min(r['day'] for r in records) + ' to ' + latest) if records else ''
-        return notice(records) + fixture_notice(records) + source + '<p class="state" id="social-method">' + message + '</p>'
+        if not records:
+            return '<span id="social-method"></span>'
+        source = sample_source(records, min(r['day'] for r in records) + ' to ' + latest)
+        return notice(records) + fixture_notice(records) + source + '<span id="social-method"></span>'
     intro, primary, source = primary_chart(envs)
     n = sum(r['sample']['eligible'] for r in records)
     fills = ('var(--ink)', 'var(--grey)', 'var(--surface)', 'var(--rule)', 'var(--paper)')
@@ -82,11 +83,9 @@ def page(envs, built):
     for i, p in enumerate(PARTIES[:7]):
         values = [r['attitude'][p] for r in records]
         withheld = any(v['withheld'] for v in values)
-        bars.append(f'<text x="0" y="{i*31+20}">{escape(p)}</text>')
         if withheld:
-            bars.append(f'<text x="125" y="{i*31+20}">Withheld: daily sample below 30</text>')
-            rows.append((escape(p), 'Withheld: fewer than 30 evaluable posts in a day', '', '', '', ''))
             continue
+        bars.append(f'<text x="0" y="{i*31+20}">{escape(p)}</text>')
         totals = [sum(v['counts'][j] for v in values) for j in range(5)]
         # Small cells have no geometry from which to recover their exact values.
         if any(0 < v < 5 for v in totals):
@@ -99,8 +98,10 @@ def page(envs, built):
                 x += width
         rows.append((escape(p), *(count(v) for v in totals)))
     attitude = ('<section><h2>Attitude toward each party</h2><figure aria-describedby="source-social-attitude"><svg class="social-chart" role="img" aria-label="Attitude distributions" aria-describedby="source-social-attitude" viewBox="0 0 355 220">' + ''.join(bars) +
-                '</svg><figcaption>Left to right: strongly negative, negative, neutral, positive, strongly positive. Estimated tone among sampled X authors, not voters. Sarcasm, quotations and missing context can change classification.</figcaption></figure>' + source.replace('id="source-social"', 'id="source-social-attitude"') +
+                '</svg><figcaption>Left to right: strongly negative, negative, neutral, positive, strongly positive. Estimated tone among sampled X authors, not voters. Sarcasm, quotations and limited context can change classification.</figcaption></figure>' + source.replace('id="source-social"', 'id="source-social-attitude"') +
                 '<div><p><strong>Attitude counts</strong></p>' + table('Ordered attitude classes', ('Party', *ATTITUDES), rows, source='source-social-attitude') + '</div></section>')
+    if not rows:
+        attitude = ''
     topics = table('Topics in this sample', ('Topic', 'Posts'), [(escape(t), count(sum(r['topic_counts'][t] for r in records))) for t in TOPICS], source='source-social')
     concentration = max(r['sample']['top_author_share_ppm'] for r in records)
     models = ', '.join(sorted({m for r in records for m in r['model_versions']})) or 'No eligible classifications'
@@ -117,7 +118,7 @@ def page(envs, built):
                'Attitudes require evaluability of at least 0.8 and one named primary party; other, multiple and unclear subjects have no attitude row. '
                'Each post counts once; author influence is not equalised. Official accounts are not separated in this pilot. No voter affiliation is inferred.</p>'
                f'<p>Jev System One: {escape(models)}. Question text version nz-politics-poc-1. Classification is unvalidated on NZ text. '
-               'Counts under 5 are shown as under 5; party percentages below 20 posts are withheld. Attitude rows require at least 30 evaluable posts per party per day. '
+               'Counts under 5 are shown as under 5; party percentages require at least 20 posts. Attitude rows require at least 30 evaluable posts per party per day. '
                'The distribution uses the most likely ordered class, not a rounded expected score. Aggregate probability sums remain in the inputs; individual answers and posts are discarded.</p>'
                '<p>X terms apply; no CC licence is asserted for X data. This sample does not measure platform totals, voter support or a representative population. '
                'The pilot has no bot detector. Collection has a 7,800-credit daily cap. Publication freezes on 7 November 2026 until 19:00 NZDT.</p></section>')

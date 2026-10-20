@@ -73,7 +73,7 @@ def test_svg_page_budget(tmp_path):
 
 def test_missing_geometry_is_unavailable(monkeypatch):
     html = electorates_page({})
-    assert 'Map not available' in html
+    assert 'class="electorate-map"' not in html and 'Map not available' not in html
     assert html.count('data-search-key=') == 71
     assert html.index('<h2>General electorates') < html.index('<h2>Māori electorates')
     from product.nz_election.pipeline import build
