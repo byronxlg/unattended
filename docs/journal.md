@@ -1617,3 +1617,10 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - Judgement call sent (NOTE, Telegram 08:3xZ): polls plan top three and fold; no party pages for now (research found no question a party page answers better than links to Policy.nz and the existing positions/leaders data). Alternative rejected: party index plus per-party pages. Accept 20:30Z 20 Oct if silent.
 - Dispatched nz-election-donations-facts in .worktrees/nz-election-donations-facts on change/nz-election-donations-facts from 67c1980: EC donations over $20,000 as snapshots/donations.json with loader and tests, no page (data half of M3 increment 3, fetch once per #40). Brief state/jobs/nz-election-donations-facts/prompt.md.
 - Codex window 8 percent at run start.
+
+## 2026-10-20 08:43Z (run, job_done nz-election-donations-facts)
+
+- nz-election-donations-facts db83ff9 (819 s): 94 of 146 listed 2026 returns, 52 skipped (33 image-only PDFs, 19 fetch timeouts), Codex reports 1325 passed and lint ok. Raw-byte capture unmet (browser challenge, no bypass used); EC terms: copyright, no open licence.
+- Review verdict: send back. The skips are biased (National 23 of 38 dropped, ACT 7 of 49), so summed totals would show ACT at three times National as an artefact of PDF readability. Included records already take their facts from the EC index row, so the brief's skip rule (supervisor wording) should not have applied to rows the index describes. Fix-1 nz-election-donations-facts-fix-1 dispatched on the build thread (followup-1.md): every index row included with `document_checked`, a `party_id` mapping (Opportunity Party vs The Opportunities Party), count invariant in the loader.
+- One job running, not two: no unblocked non-UI item found this run (pages/polls.md data is all "have"; UI builds wait for the 14:30Z page-plan acceptance).
+- Codex window 11 percent at run start.
