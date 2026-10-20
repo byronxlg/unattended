@@ -1,15 +1,16 @@
 """Offline, hand-reviewed facts. This module never acquires source data."""
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 import json
 from pathlib import Path
 import re
 from urllib.parse import urlsplit
+from zoneinfo import ZoneInfo
 
 PRODUCT = Path(__file__).resolve().parents[1]
 SNAPSHOTS = PRODUCT / 'snapshots'
 NAMES = frozenset({'leaders', 'candidates-2026', 'enrolment', 'port-waikato-2023',
-                   'history', 'hexmap', 'positions'})
+                   'history', 'hexmap', 'positions', 'voting'})
 BANNED = re.compile(r'\b(?:not available|unavailable|pending|missing)\b', re.I)
 PHOTO_LICENCES = frozenset({'CC0', 'CC BY 4.0', 'CC BY-SA 4.0', 'CC BY 3.0',
                             'CC BY-SA 3.0', 'Public domain', 'NZ Crown copyright'})
@@ -85,6 +86,8 @@ def load(name):
     Invalid envelopes, records, identifiers and photo metadata raise ValueError.
     """
     _require(isinstance(name, str) and name in NAMES, 'Unknown snapshot name')
+    if name == 'voting':
+        return load_voting()
     path = SNAPSHOTS / (name + '.json')
     _require(not path.is_symlink(), 'Snapshot must not be a symlink')
     raw = path.read_text(encoding='utf-8')
@@ -176,4 +179,107 @@ def load(name):
         _require(sum(r['winner'] for r in rows) == 1 and ranked[0]['winner']
                  and ranked[0].get('margin') == ranked[0]['votes'] - ranked[1]['votes'] > 0,
                  'Invalid winner or margin')
+    return rows
+
+
+def _ec_source(value):
+    if not _url(value):
+        return False
+    parsed = urlsplit(value)
+    return (parsed.scheme == 'https'
+            and any(parsed.hostname == domain or parsed.hostname.endswith('.' + domain)
+                    for domain in ('vote.nz', 'elections.nz')))
+
+
+def _voting_timestamp(value):
+    try:
+        _timestamp(value)
+    except ValueError:
+        raise ValueError('voting_retrieved_at: expected a valid UTC timestamp') from None
+
+
+def load_voting():
+    """Load the offline EC snapshot, preserving source precision.
+
+    Date records are ordered by NZ calendar date. Optional ``at`` gives an
+    EC-published time in Pacific/Auckland; end-of-day midnight is represented
+    as 00:00 on the following day. A date alone never implies opening hours.
+    Actions reference dated records via deadline_ids, sharing their provenance.
+    """
+    path = SNAPSHOTS / 'voting.json'
+    _require(not path.is_symlink(), 'voting_schema: symlink')
+    try:
+        data = json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        raise ValueError('voting_schema: unreadable JSON snapshot') from None
+    _require(isinstance(data, dict) and data.get('schema') == 'voting-v1'
+             and data.get('timezone') == 'Pacific/Auckland', 'voting_schema: envelope')
+    _voting_timestamp(data.get('retrieved_at'))
+    rows = data.get('records')
+    _require(isinstance(rows, list) and bool(rows), 'voting_schema: records')
+    seen, dates, actions = set(), {}, []
+    previous = previous_instant = None
+    for row in rows:
+        _require(isinstance(row, dict), 'voting_record: expected object')
+        identity = row.get('id')
+        _require(_text(identity) and re.fullmatch(r'[a-z][a-z0-9-]*', identity)
+                 and identity not in seen, 'voting_record: invalid or duplicate id')
+        seen.add(identity)
+        _require('source_url' in row, 'voting_source_missing: source_url required')
+        _require(_ec_source(row['source_url']), 'voting_source_invalid: expected EC URL')
+        _voting_timestamp(row.get('retrieved_at'))
+        _require(_text(row.get('licence')) and row['licence'] in RECORD_LICENCES,
+                 'voting_licence: unknown licence')
+        _require(_text(row.get('summary')) and '\n' not in row['summary']
+                 and not BANNED.search(json.dumps(row)), 'voting_record: summary')
+        kind = row.get('kind')
+        _require(isinstance(kind, str) and kind in {'date', 'action', 'terms'},
+                 'voting_record: kind')
+        if kind == 'date':
+            try:
+                _date(row.get('date'))
+            except ValueError:
+                raise ValueError('voting_date_invalid: expected calendar date') from None
+            day = date.fromisoformat(row['date'])
+            _require(day.year == 2026, 'voting_date_invalid: expected 2026')
+            _require(previous is None or previous <= day, 'voting_date_order: dates reordered')
+            previous = day
+            dates[identity] = day
+            local = datetime(day.year, day.month, day.day, tzinfo=ZoneInfo('Pacific/Auckland'))
+            if 'at' in row:
+                value = row['at']
+                _require(isinstance(value, str) and re.fullmatch(
+                    r'\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\+(?:0[0-9]|1[0-4]):[0-5][0-9]', value),
+                    'voting_date_invalid: expected NZ timestamp')
+                try:
+                    instant = datetime.fromisoformat(value)
+                except ValueError:
+                    raise ValueError('voting_date_invalid: invalid time') from None
+                local = instant.astimezone(ZoneInfo('Pacific/Auckland'))
+                _require(instant.utcoffset() == local.utcoffset()
+                         and (local.date() == day or
+                              (local.date() == day + timedelta(days=1)
+                               and local.hour == local.minute == local.second == 0)),
+                         'voting_date_invalid: time must match NZ date or end-of-day midnight')
+            _require(previous_instant is None or previous_instant <= local,
+                     'voting_date_order: times reordered')
+            previous_instant = local
+        elif kind == 'action':
+            _require(_ec_source(row.get('url')), 'voting_source_invalid: action URL')
+            refs = row.get('deadline_ids', [])
+            _require(isinstance(refs, list) and all(_text(ref) for ref in refs),
+                     'voting_deadline: expected date references')
+            actions.append(refs)
+        else:
+            _require(_text(row.get('copyright_notice')) and _text(row.get('terms_note')),
+                     'voting_licence: terms required')
+        _require(all(v is not None for v in row.values()), 'voting_record: omit unsourced fields')
+    # Keep the chronology meaningful even if an editor re-sorts incorrect dates.
+    milestones = [dates[key] for key in (
+        'overseas-opens', 'enrolment-closes', 'advance-opens', 'advance-closes',
+        's197-cutoff', 'election-day') if key in dates]
+    _require(milestones == sorted(milestones), 'voting_date_order: milestone order')
+    _require(bool(dates), 'voting_date_invalid: no dates')
+    for refs in actions:
+        _require(all(ref in dates for ref in refs), 'voting_deadline: unknown date')
     return rows
