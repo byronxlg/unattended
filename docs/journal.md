@@ -1579,3 +1579,26 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - Dispatch of nz-election-m3-night refused by `bin/codex-run` exit 3 (reader-first gate): the data-only brief mentions screenshots in its prohibitions and named no page plan. Decision: do not reword the brief to slip under the gate; add `Page plan: intent/nz-election/pages/night.md` and dispatch after that plan is accepted (14:30Z if Byron is silent). Alternatives rejected: editing the gate (weakens a check Byron asked for), rewording the brief (wording around it).
 - Dispatched nz-election-vote-facts 07:06Z (build, .worktrees/nz-election-vote-facts, change/nz-election-vote-facts from 189e256): the vote page's data, EC key dates and official links fetched once into `snapshots/voting.json` with a validating loader and tests, no page. Codex window 65 percent, 5.0 days left, about 7 points per day.
 - Runs since 03:20Z: hourly success 04:51Z and 06:23Z, CI and blog green.
+
+## 2026-10-20 07:15Z (job_done nz-election-vote-facts)
+
+- vote-facts eda2d3b: Codex 935 passed; host 125 passed on the snapshot tests, lint ok. Ten EC-sourced dates, nine official links, EC terms (no open licence, automated extraction restricted) handled by storing summaries and links only. Stray last.md removed before push. PR #53 opened, supervisor accept logged with one nit (advance-closes cites a third-party-promoter page). Fresh review review-nz-election-vote-facts dispatched.
+- Second job so two run: nz-election-electorate-facts (build, .worktrees/nz-election-electorate-facts from d55b42e): data half of pages/electorate.md, EC candidate reconciliation and a simplified Stats NZ 2025 boundary snapshot, no page code, so the reader-first gate does not apply. Codex window 1 percent after the weekly reset, about 14 points per day.
+
+## 2026-10-20 07:27Z (job_done review-nz-election-vote-facts)
+
+- Fresh review of PR #53 (vote-facts): request changes, one Important: an `at` with offset `+12:60` loads because Python normalises it to +13:00 and the loader returns the raw string (snapshots.py:251). All five EC dates matched source wording; 20 records on EC domains. Review logged on the PR.
+- Supervisor agreed; fix-1 nz-election-vote-facts-fix-1 dispatched on the build thread (validate +HH:MM text before parsing, regression for voting_date_invalid). nz-election-electorate-facts still running. Codex window 2 percent.
+
+## 2026-10-20 07:38Z (job_done nz-election-electorate-facts, nz-election-vote-facts-fix-1)
+
+- vote-facts fix-1 9731f12: offset text validated before parsing, six regression cases; host ran the snapshot and voting tests (136 passed); Codex reports 941 passed, lint ok, regressions fail without the bounds. Pushed to PR #53, supervisor accept logged, second fresh review review-nz-election-vote-facts-2 dispatched.
+- electorate-facts f28be8e: Stats NZ 2025 boundaries (71 features, CC BY 4.0, 316,359 bytes, locator only), EC candidate reconciliation against the 9 October release (469 electorate candidates, 443 list entries), 60 name and 2 affiliation corrections with evidence, 50 optional ranks still omitted; EC data has no open licence, facts only stored. Pushed, PR #54 opened, supervisor accept logged, fresh review review-nz-election-electorate-facts dispatched.
+- No build dispatched: the remaining work (m3-night, vote/ page) waits on the page plans' 14:30Z acceptance. Codex window 5 percent.
+
+## 2026-10-20 07:50Z (job_done review-nz-election-electorate-facts)
+
+- PR #54 electorate-facts fresh review: request changes, one Important (snapshots.py:161 accepts "", null, [], {}, numbers as correction values). Checks it did pass: eight name and two affiliation corrections match the EC, 71 boundary features, licence recorded, no fuzzy joins, main's tests untouched. Logged on the PR; fix-1 nz-election-electorate-facts-fix-1 dispatched on the build thread (validate before and after by field, rejection tests).
+- PR #53 second fresh review review-nz-election-vote-facts-2 died at 67 s: "Selected model is at capacity" (rc 1). Re-dispatched unchanged as review-nz-election-vote-facts-3. PR #53 CI green on 9731f12; PR #54 CI pending.
+- Both PRs touch snapshots.py (lines 251 and 161); expect a rebase on whichever merges second.
+- Codex window 6 percent.
