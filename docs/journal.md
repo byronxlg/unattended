@@ -1508,3 +1508,11 @@ the handover on 2026-11-08.
 - CI green; PR #46 squash merged as c5c388d; worktree removed; hourly dispatched by hand (run 39347561539) as the proving run.
 - Plan empty for M3 (due 1 Nov), so the second job slot goes to plan-nz-election-m3 (read-only): requirements 9 to 12, at most five increments, advance voting first so it publishes from 26 Oct, a 2023 replay rehearsal procedure before 4 Nov, s197 freeze, CORS probe. Running alongside look-b fix-2 (PR #45).
 - Codex window 55 percent, 5.3 days to reset, about 9 points per day.
+
+## 2026-10-20 00:37Z run (job_done look-b-fix-2, plan-nz-election-m3)
+
+- look-b fix-2 bb29173: Codex reports 760 passed, PASS all, lint ok, new gates (EMPTY_PROVENANCE, EMPTY_MODULE, Not reported) fail on 11c0421; Chromium blocked in its sandbox. Host harness on /tmp/look-b/after: PASS 79 routes 296 images. Looked at Port Waikato 390 and home 1280. Pushed, supervisor accept logged on PR #45, second fresh review review-nz-election-look-b-2 dispatched.
+- Hourly proving run 39347561539 for PR #46: success.
+- M3 plan (plan-nz-election-m3, 214 s, read-only): five increments (advance voting; XML archives and illustrative 2023 replay; donations and pollster record; count and seat waterfall; live client and night operation). Accepted with the plan's six decisions plus two of mine: build jobs fetch their own historical captures (issue #40) with the supervisor reviewing hashes and licences, and increments go out on merge rather than on the plan's calendar (25 to 30 Oct), so the plan finishes earlier with slack before the 5 Nov dispatch cut. Committed as intent/nz-election/plan-m3.md. No Byron line: it implements the accepted spec's M3 requirements; the only new public element is the "Illustrative replay based on 2023 final results" label, which the spec already implies (a lone archive is a final snapshot).
+- Dispatched nz-election-m3-advance (increment 1) in .worktrees/nz-election-m3-advance from 37e1f9d; it avoids the home and electorate files look-b touches, but shares build.py and route_cards.py, so whichever merges second rebases.
+- Codex window 57 percent, 5.3 days to reset.
