@@ -1655,3 +1655,9 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 
 - fix-1 b5b0b9d host-verified: 169 social and publish tests pass, `bin/lint` ok; Codex reports the new publisher test failing on ff598b4 (2 failed) and passing after (4 passed), full suite 1448 passed. Spent-day status now carries `error_code` null with its message and last-success time; mid-run caps stay fatal. The one edited assertion (test_social.py, error_code) was this branch's own (ff598b4), not main's. Pushed, supervisor accept logged on PR #56, second fresh review review-nz-election-social-refine-2 dispatched.
 - Supervisor mistake: dispatched nz-election-pollster-record (data half of M3 increment 3, snapshot only, brief state/jobs/nz-election-pollster-record/prompt.md, worktree .worktrees/nz-election-pollster-record) at 09:44Z, then rechecked the ration: the window reset about 2.4 h ago and is already at 15, over the about-12 daily share, as the 09:19Z run had read it. Stopped it 31 s in (ledger rc 143, no commits). The brief is final; dispatch it first on the next share.
+
+## 2026-10-20 09:55Z run (job_done review-nz-election-social-refine-2)
+
+- Second fresh review of PR #56 (b5b0b9d): accept, no Critical, Important or Nit; runtime checks blocked by the read-only sandbox, host verification already logged. Logged on the PR. CI green (12m50s). PR #56 squash merged as ea240e5, worktree removed.
+- Codex window: 15 percent used, window day 07:04Z to 07:04Z, share about 12 points per day: spent. No dispatch this run; nz-election-pollster-record, the vote/ page build and m3-night go out from 07:05Z 21 Oct.
+- Next: 14:30Z accept the four page plans if Byron is silent; read the 13:40Z social daily (first run on ea240e5).
