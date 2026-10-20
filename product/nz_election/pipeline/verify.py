@@ -216,9 +216,12 @@ def verify_social(envs, root):
     require(sum(r['reserved'] for r in ledger) == 7560 and sum(r['spent'] for r in ledger) == 3600,
             'social credit accounting')
     original = (data / 'social/daily.json').read_bytes()
+    credits = {suffix: (data / ('social/credits.' + suffix)).read_bytes() for suffix in ('json', 'csv')}
     require(refresh_social(data, '2026-10-16', now=now, fixture=True,
-                           send=fixture_send(), sleep=lambda _: None) == 'SOCIAL_CREDIT_CAP', 'social rerun cap')
+                           send=fixture_send(), sleep=lambda _: None) == 'budget-spent', 'social rerun cap')
     require((data / 'social/daily.json').read_bytes() == original, 'social last-good retention')
+    require(all((data / ('social/credits.' + suffix)).read_bytes() == content for suffix, content in credits.items()),
+            'social spent-day ledger unchanged')
     for field in ('post_id', 'handle'):
         malformed = deepcopy(current['social/daily'])
         malformed['data'][0]['sample'][field] = 'fictional-private-value'
