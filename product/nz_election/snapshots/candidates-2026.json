@@ -1,6 +1,6 @@
 {
   "schema": "candidates-2026-v1",
-  "retrieved_at": "2026-10-19T05:12:18Z",
+  "retrieved_at": "2026-10-20T07:23:08Z",
   "records": [
     {
       "name": "Johan Chang",
@@ -116,13 +116,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Leslie Sales",
+      "name": "SALES, Lesley Margaret",
       "party": "New Zealand Loyal",
       "electorate_slug": "banks-peninsula",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Banks_Peninsula",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Banks_Peninsula",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "John Stringer",
@@ -150,13 +158,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Amy Turner",
+      "name": "TURNER, AmyLorraine",
       "party": "Conservative Party NZ",
       "electorate_slug": "banks-peninsula",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Banks_Peninsula",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Banks_Peninsula",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Vanessa Weenink",
@@ -173,14 +189,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Zachary Wellman",
+      "name": "WELLMAN, Zac",
       "party": "ACT New Zealand",
       "electorate_slug": "banks-peninsula",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Banks_Peninsula",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "act",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Banks_Peninsula",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Ali Dahche",
@@ -196,14 +220,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Neru Leavasa",
+      "name": "LEAVASA, Anae Neru",
       "party": "New Zealand Labour Party",
       "electorate_slug": "botany",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Botany",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "lab",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Botany",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Christopher Luxon",
@@ -229,14 +261,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Craig Stobo",
+      "name": "STOBO, Craig H.",
       "party": "New Zealand First",
       "electorate_slug": "botany",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Botany",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nzf",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Botany",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Blair Anderson",
@@ -251,14 +291,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Mark Arneil",
+      "name": "ARNEIL, Mark Russell",
       "party": "New Zealand First",
       "electorate_slug": "christchurch-central",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Christchurch_Central",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nzf",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Christchurch_Central",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Greg Byrnes",
@@ -273,14 +321,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Kahurangi Carter",
+      "name": "CARTER, Kahu",
       "party": "Green Party of Aotearoa New Zealand",
       "electorate_slug": "christchurch-central",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Christchurch_Central",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "grn",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": true
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": true,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Christchurch_Central",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "George Hampton",
@@ -327,14 +383,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Dale Stephens",
+      "name": "STEPHENS, Dale Aotea",
       "party": "New Zealand National Party",
       "electorate_slug": "christchurch-central",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Christchurch_Central",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nat",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Christchurch_Central",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Teresa Butler",
@@ -350,13 +414,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "David Cajar-Mueller",
+      "name": "MUELLER-CAJAR, David",
       "party": "NZ Outdoors & Freedom Party",
       "electorate_slug": "christchurch-east",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Christchurch_East",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Christchurch_East",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Alexandra Davids",
@@ -372,15 +444,24 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Reuben Davidson",
+      "name": "DAVIDSON, Reuben John",
       "party": "New Zealand Labour Party",
       "electorate_slug": "christchurch-east",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Christchurch_East",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "lab",
       "sitting_mp": true,
       "sitting_electorate_mp": true,
-      "retrieved_at": "2026-10-19T05:12:18Z"
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Christchurch_East",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp",
+          "sitting_electorate_mp"
+        ]
+      }
     },
     {
       "name": "Ethan Gullery",
@@ -466,14 +547,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Vincent Anderson",
+      "name": "ANDERSEN, Vincent",
       "party": "New Zealand First",
       "electorate_slug": "coromandel",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Coromandel",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nzf",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Coromandel",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Glen Bennett",
@@ -599,14 +688,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Francisco Hernandez",
+      "name": "HERNANDEZ, Francisco Bagkus",
       "party": "Green Party of Aotearoa New Zealand",
       "electorate_slug": "dunedin",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Dunedin",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "grn",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": true
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": true,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Dunedin",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Adrian McDermott",
@@ -643,13 +740,21 @@
       "sitting_mp": false
     },
     {
-      "name": "Gordon Dickson",
+      "name": "DICKSON, Gordon John",
       "party": "Independent",
       "electorate_slug": "east-cape",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#East_Cape",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#East_Cape",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Darrin Hawkes",
@@ -665,15 +770,24 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Dana Kirkpatrick",
+      "name": "KIRKPATRICK, Dana Margot",
       "party": "New Zealand National Party",
       "electorate_slug": "east-cape",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#East_Cape",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nat",
       "sitting_mp": true,
       "sitting_electorate_mp": true,
-      "retrieved_at": "2026-10-19T05:12:18Z"
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#East_Cape",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp",
+          "sitting_electorate_mp"
+        ]
+      }
     },
     {
       "name": "Jo Luxton",
@@ -753,14 +867,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Sam Mills",
+      "name": "MILLS, Samuel",
       "party": "ACT New Zealand",
       "electorate_slug": "east-coast-bays",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#East_Coast_Bays",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "act",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#East_Coast_Bays",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Erica Stanford",
@@ -916,13 +1038,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Robert McNeil",
+      "name": "McNEIL, Rob",
       "party": "Animal Justice Party Aotearoa New Zealand",
       "electorate_slug": "glendene",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Glendene",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Glendene",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Alfred Ngaro",
@@ -960,15 +1090,24 @@
       "sitting_mp": false
     },
     {
-      "name": "Carmel Sepuloni",
+      "name": "SEPULONI, Carmel Jean",
       "party": "New Zealand Labour Party",
       "electorate_slug": "glendene",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Glendene",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "lab",
       "sitting_mp": true,
       "sitting_electorate_mp": true,
-      "retrieved_at": "2026-10-19T05:12:18Z"
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Glendene",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp",
+          "sitting_electorate_mp"
+        ]
+      }
     },
     {
       "name": "Yasmine Serhan",
@@ -1089,15 +1228,24 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Tama Potaka",
+      "name": "POTAKA, Tama William",
       "party": "New Zealand National Party",
       "electorate_slug": "hamilton-west",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Hamilton_West",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nat",
       "sitting_mp": true,
       "sitting_electorate_mp": true,
-      "retrieved_at": "2026-10-19T05:12:18Z"
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Hamilton_West",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp",
+          "sitting_electorate_mp"
+        ]
+      }
     },
     {
       "name": "Blair Smith",
@@ -1228,14 +1376,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "David Wilson",
+      "name": "WILSON, David Ashley",
       "party": "New Zealand First",
       "electorate_slug": "henderson",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Henderson",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nzf",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": true
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": true,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Henderson",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Almo Wong",
@@ -1331,14 +1487,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Benjamin Wylie-van Eerd",
+      "name": "WYLIE-VAN EERD, Ben",
       "party": "The Opportunity Party",
       "electorate_slug": "hutt-south",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Hutt_South",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "opp",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Hutt_South",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Hamish Campbell",
@@ -1502,23 +1666,39 @@
       "sitting_mp": false
     },
     {
-      "name": "Matthew Flight",
+      "name": "FLIGHT, Matt",
       "party": "New Zealand Labour Party",
       "electorate_slug": "kaikoura",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Kaikōura",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "lab",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Kaikōura",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
-      "name": "Oliver Hill Hughes",
+      "name": "HILL-HUGHES, Oliver John",
       "party": "Independent",
       "electorate_slug": "kaikoura",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Kaikōura",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Kaikōura",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Ted Howard",
@@ -1643,14 +1823,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Jo Swinburn",
+      "name": "SWINBURN, Jolyon",
       "party": "New Zealand Labour Party",
       "electorate_slug": "kaipara-ki-mahurangi",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Kaipara_ki_Mahurangi",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "lab",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Kaipara_ki_Mahurangi",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Ivan Wagstaff",
@@ -1711,14 +1899,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Chee-Khiang Sng",
+      "name": "SNG, Chee Khiang (CK)",
       "party": "The Opportunity Party",
       "electorate_slug": "kapiti",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Kapiti",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "opp",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Kapiti",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Michael Walker",
@@ -1964,14 +2160,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Esther Tofilau-Tevaga",
+      "name": "TOFILAU TEVAGA, Esther",
       "party": "New Zealand First",
       "electorate_slug": "manurewa",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Manurewa",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nzf",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Manurewa",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Arena Williams",
@@ -2102,14 +2306,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Ricardo Menéndez March",
+      "name": "MENENDEZ MARCH, Ricardo",
       "party": "Green Party of Aotearoa New Zealand",
       "electorate_slug": "mt-albert",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Mount_Albert",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "grn",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": true
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": true,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Mount_Albert",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Alex Price",
@@ -2217,14 +2429,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Pualele Westhead",
+      "name": "WESTHEAD, Pualele Joan",
       "party": "Green Party of Aotearoa New Zealand",
       "electorate_slug": "mt-maunganui",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Mount_Maunganui",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "grn",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Mount_Maunganui",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Greer Young",
@@ -2304,24 +2524,40 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Michael Wood",
+      "name": "WOOD, Michael Philip",
       "party": "New Zealand Labour Party",
       "electorate_slug": "mt-roskill",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Mount_Roskill",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "lab",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Mount_Roskill",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
-      "name": "Roy Boonen",
+      "name": "BOONEN, Roy Peter",
       "party": "Green Party of Aotearoa New Zealand",
       "electorate_slug": "napier",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Napier",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "grn",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Napier",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Alex Hedley",
@@ -2487,12 +2723,20 @@
     },
     {
       "name": "Rusty Kane",
-      "party": "Independent Taranaki",
+      "party": "Independent",
       "electorate_slug": "new-plymouth",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#New_Plymouth",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#New_Plymouth",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Sarah Lucas",
@@ -2752,42 +2996,75 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Jeff Lye",
+      "name": "LYE, Jeffrey",
       "party": "Aotearoa Legalise Cannabis Party",
       "electorate_slug": "northland",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Northland",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Northland",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
-      "name": "Doug Lyell",
+      "name": "LYELL, Douglas Robert",
       "party": "Conservative Party NZ",
       "electorate_slug": "northland",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Northland",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Northland",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
-      "name": "Grant McCallum",
+      "name": "McCALLUM, Grant Lewis",
       "party": "New Zealand National Party",
       "electorate_slug": "northland",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Northland",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nat",
       "sitting_mp": true,
       "sitting_electorate_mp": true,
-      "retrieved_at": "2026-10-19T05:12:18Z"
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Northland",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp",
+          "sitting_electorate_mp"
+        ]
+      }
     },
     {
       "name": "Richard McIntosh",
-      "party": "Build the Nation",
+      "party": "Independent",
       "electorate_slug": "northland",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Northland",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Northland",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Pete Verhoeven",
@@ -2895,13 +3172,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "James Robb",
+      "name": "ROBB, James Gordon",
       "party": "Independent",
       "electorate_slug": "otahuhu",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Ōtāhuhu",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Ōtāhuhu",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Jenny Salesa",
@@ -2918,14 +3203,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Te Whatanui Skipwith",
+      "name": "SKIPWITH, Te Whatanui Leka",
       "party": "Green Party of Aotearoa New Zealand",
       "electorate_slug": "otahuhu",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Ōtāhuhu",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "grn",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Ōtāhuhu",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Simeon Brown",
@@ -2955,14 +3248,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Campbell Matthews",
+      "name": "MATTHEWS, Campbell Henry",
       "party": "New Zealand Labour Party",
       "electorate_slug": "pakuranga",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Pakuranga",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "lab",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Pakuranga",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Parmjeet Parmar",
@@ -3003,14 +3304,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Netra Ghimire",
+      "name": "GHIMIRE, Netra Prasad",
       "party": "The Opportunity Party",
       "electorate_slug": "palmerston-north",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Palmerston_North",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "opp",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Palmerston_North",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Joshua Moss",
@@ -3052,14 +3361,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Emma Chatterton",
+      "name": "CHATTERTON, Emma May",
       "party": "New Zealand National Party",
       "electorate_slug": "papakura",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Papakura",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nat",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Papakura",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Angela Dalton",
@@ -3136,14 +3453,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Sarah Jane Lochead-Macmillan",
+      "name": "LOCHEAD-MACMILLAN, Sarah",
       "party": "ACT New Zealand",
       "electorate_slug": "port-waikato",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Port_Waikato",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "act",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Port_Waikato",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Carl Morgan",
@@ -3211,13 +3536,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Kevin McCraken",
+      "name": "McCRACKEN, Kevin",
       "party": "NZ Outdoors & Freedom Party",
       "electorate_slug": "rangitata",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Rangitata",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Rangitata",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "James Meager",
@@ -3350,13 +3683,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Jason Smith",
+      "name": "SMITH, Jason Michael",
       "party": "New Zealand Loyal",
       "electorate_slug": "rangitikei",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Rangitīkei",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Rangitīkei",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Victor Edward Dench",
@@ -3865,14 +4206,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Donald Mackenzie-Mayo",
+      "name": "MACKENZIE MAYO, Donald",
       "party": "Green Party of Aotearoa New Zealand",
       "electorate_slug": "tamaki",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Tāmaki",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "grn",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Tāmaki",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Mahesh Muralidhar",
@@ -3916,15 +4265,24 @@
       "sitting_mp": false
     },
     {
-      "name": "Barbara Kuriger",
+      "name": "KURIGER, Barbara Joan",
       "party": "New Zealand National Party",
       "electorate_slug": "taranaki-king-country",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Taranaki-King_Country",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nat",
       "sitting_mp": true,
       "sitting_electorate_mp": true,
-      "retrieved_at": "2026-10-19T05:12:18Z"
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Taranaki-King_Country",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp",
+          "sitting_electorate_mp"
+        ]
+      }
     },
     {
       "name": "Phil McCabe",
@@ -4011,15 +4369,24 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Louise Upston",
+      "name": "UPSTON, Louise Claire",
       "party": "New Zealand National Party",
       "electorate_slug": "taupo",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Taupō",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nat",
       "sitting_mp": true,
       "sitting_electorate_mp": true,
-      "retrieved_at": "2026-10-19T05:12:18Z"
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Taupō",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp",
+          "sitting_electorate_mp"
+        ]
+      }
     },
     {
       "name": "Gordon Wilson",
@@ -4131,23 +4498,39 @@
       "sitting_mp": false
     },
     {
-      "name": "Mark Longworth",
+      "name": "LONGWORTH, Mark Norman",
       "party": "Green Party of Aotearoa New Zealand",
       "electorate_slug": "tukituki",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Tukituki",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "grn",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Tukituki",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
-      "name": "Romana Manz Manning",
+      "name": "MANNING, Romana (Marnz)",
       "party": "Aotearoa Legalise Cannabis Party",
       "electorate_slug": "tukituki",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Tukituki",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Tukituki",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Taine Randell",
@@ -4182,13 +4565,21 @@
       "sitting_mp": false
     },
     {
-      "name": "Allister Tosh",
+      "name": "TOSH, Allister David",
       "party": "Independent",
       "electorate_slug": "tukituki",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Tukituki",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Tukituki",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Rachel Ward",
@@ -4306,14 +4697,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Robbie Cookson",
+      "name": "COOKSON, Robert John",
       "party": "New Zealand First",
       "electorate_slug": "waikato",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Waikato",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nzf",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Waikato",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Ash Parmar",
@@ -4476,13 +4875,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Jared Gardner",
+      "name": "GARDNER, Jared Warren",
       "party": "Te Pāti Hira",
       "electorate_slug": "wairarapa",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Wairarapa",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Wairarapa",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Ron Mark",
@@ -4610,15 +5017,24 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Miles Anderson",
+      "name": "ANDERSON, Miles John",
       "party": "New Zealand National Party",
       "electorate_slug": "waitaki",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Waitaki",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nat",
       "sitting_mp": true,
       "sitting_electorate_mp": true,
-      "retrieved_at": "2026-10-19T05:12:18Z"
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Waitaki",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp",
+          "sitting_electorate_mp"
+        ]
+      }
     },
     {
       "name": "Sean Beamish",
@@ -4857,13 +5273,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Josh Harford",
+      "name": "HARFORD, Joshua",
       "party": "Alliance Party",
       "electorate_slug": "wellington-north",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Wellington_North",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Wellington_North",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Tamatha Paul",
@@ -4906,14 +5330,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Andrew Beaumont",
+      "name": "BEAUMONT, Andrew Charles",
       "party": "Green Party of Aotearoa New Zealand",
       "electorate_slug": "west-coast-tasman",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#West_Coast-Tasman",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "grn",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#West_Coast-Tasman",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Jamie Cleine",
@@ -4929,13 +5361,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Sara Dyatlova–Murphy",
+      "name": "DYATLOVA-MURPHY, Sara",
       "party": "Alliance Party",
       "electorate_slug": "west-coast-tasman",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#West_Coast-Tasman",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#West_Coast-Tasman",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Sue Grey",
@@ -4950,13 +5390,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Alex Hislop",
+      "name": "HISLOP, Alexander",
       "party": "New Zealand Loyal",
       "electorate_slug": "west-coast-tasman",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#West_Coast-Tasman",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#West_Coast-Tasman",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Janelle Hocking",
@@ -4985,23 +5433,39 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Richard Osmaston",
+      "name": "OSMASTON, Richard Francis",
       "party": "Money Free Party",
       "electorate_slug": "west-coast-tasman",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#West_Coast-Tasman",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#West_Coast-Tasman",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
-      "name": "Rory Paterson",
+      "name": "PATERSON, Rory William",
       "party": "New Zealand Labour Party",
       "electorate_slug": "west-coast-tasman",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#West_Coast-Tasman",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "lab",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#West_Coast-Tasman",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Kevin Rooke",
@@ -5084,13 +5548,21 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Brenton Faithfull",
+      "name": "FAITHFULL, Brenton Bruce",
       "party": "New Zealand Loyal",
       "electorate_slug": "whangaparaoa",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Whangaparāoa",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Whangaparāoa",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Mark Mitchell",
@@ -5107,14 +5579,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Estefania Muller-Pallarès",
+      "name": "MULLER PALLARÈS, Estefania",
       "party": "New Zealand Labour Party",
       "electorate_slug": "whangaparaoa",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Whangaparāoa",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "lab",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Whangaparāoa",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Helena Roza",
@@ -5151,14 +5631,22 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Lloyd Budd",
+      "name": "BUDD, Lloyd Sam",
       "party": "New Zealand National Party",
       "electorate_slug": "whangarei",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Whangārei",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "nat",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Whangārei",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Daryl Warren Clotworthy",
@@ -5571,23 +6059,39 @@
       "list_rank_licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated."
     },
     {
-      "name": "Tania Henare",
+      "name": "HENARE, Tania Lee",
       "party": "Aotearoa Legalise Cannabis Party",
       "electorate_slug": "te-tai-tonga",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Te_Tai_Tonga",
-      "licence": "CC BY-SA 4.0",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Te_Tai_Tonga",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
-      "name": "Lisa Marie Murch",
+      "name": "MURCH, Lisa",
       "party": "Te Pāti Māori",
       "electorate_slug": "te-tai-tonga",
-      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Te_Tai_Tonga",
-      "licence": "CC BY-SA 4.0",
+      "source_url": "https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.xlsx",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
       "party_id": "tpm",
-      "retrieved_at": "2026-10-19T05:12:18Z",
-      "sitting_mp": false
+      "retrieved_at": "2026-10-20T07:23:08Z",
+      "sitting_mp": false,
+      "retained_fields_source": {
+        "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380178146#Te_Tai_Tonga",
+        "retrieved_at": "2026-10-19T05:12:18Z",
+        "licence": "CC BY-SA 4.0",
+        "fields": [
+          "sitting_mp"
+        ]
+      }
     },
     {
       "name": "Mananui Ramsden",

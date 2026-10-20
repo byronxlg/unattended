@@ -2,6 +2,7 @@
 from datetime import date, datetime
 from decimal import Decimal
 import json
+import math
 from pathlib import Path
 import re
 from urllib.parse import urlsplit
@@ -9,7 +10,9 @@ from urllib.parse import urlsplit
 PRODUCT = Path(__file__).resolve().parents[1]
 SNAPSHOTS = PRODUCT / 'snapshots'
 NAMES = frozenset({'leaders', 'candidates-2026', 'enrolment', 'port-waikato-2023',
-                   'history', 'hexmap', 'positions'})
+                   'history', 'hexmap', 'positions', 'boundaries-2025',
+                   'candidate-reconciliation-2026'})
+BOUNDARY_BYTE_LIMIT = 400_000
 BANNED = re.compile(r'\b(?:not available|unavailable|pending|missing)\b', re.I)
 PHOTO_LICENCES = frozenset({'CC0', 'CC BY 4.0', 'CC BY-SA 4.0', 'CC BY 3.0',
                             'CC BY-SA 3.0', 'Public domain', 'NZ Crown copyright'})
@@ -76,6 +79,106 @@ def _photo(photo):
     _require(0 < path.stat().st_size < 40_000, 'Photo exceeds byte budget')
 
 
+def _boundaries(data):
+    """Validate locator geometry and its exact registry join, returning feature records."""
+    _require(data.get('type') == 'FeatureCollection', 'Expected FeatureCollection')
+    _require(data.get('licence') == 'CC BY 4.0 (Stats NZ)', 'Invalid boundary licence')
+    _require(data.get('licence_url') == 'https://creativecommons.org/licenses/by/4.0/',
+             'Invalid boundary licence URL')
+    _require(_text(data.get('method')), 'Boundary requires simplification method')
+    sources = data.get('sources')
+    _require(isinstance(sources, list) and len(sources) == 2, 'Boundary requires sources')
+    for source in sources:
+        _require(isinstance(source, dict) and _url(source.get('source_url')),
+                 'Boundary requires source_url')
+        _timestamp(source.get('retrieved_at'))
+        _require(source.get('licence') == data['licence'], 'Invalid source licence')
+        _require(isinstance(source.get('sha256'), str) and bool(re.fullmatch(
+            r'[a-f0-9]{64}', source['sha256'])), 'Invalid source digest')
+    source_urls = {source['source_url'] for source in sources}
+    _require(len(source_urls) == 2, 'Duplicate boundary source')
+    registry = {r['id']: r for r in json.loads(
+        (PRODUCT / 'config/electorates.json').read_text())}
+    features = data.get('features')
+    _require(isinstance(features, list) and features, 'Boundary requires features')
+    rows, seen = [], set()
+    for feature in features:
+        _require(isinstance(feature, dict) and feature.get('type') == 'Feature',
+                 'Invalid boundary feature')
+        identity = feature.get('id')
+        _require(isinstance(identity, str) and identity in registry, 'Unknown electorate id')
+        _require(identity not in seen, 'Duplicate boundary electorate')
+        seen.add(identity)
+        row = feature.get('properties')
+        _require(isinstance(row, dict), 'Boundary requires properties')
+        for field, expected in [('electorate_slug', 'slug'), ('name', 'name'),
+                                ('group', 'kind'), ('stats_id', 'stats_id')]:
+            _require(row.get(field) == registry[identity][expected],
+                     'Boundary electorate identity mismatch')
+        _require(_url(row.get('source_url')) and row['source_url'] in source_urls,
+                 'Boundary requires source_url')
+        _require(row.get('licence') == data['licence'], 'Invalid boundary record licence')
+        _timestamp(row.get('retrieved_at'))
+        geometry = feature.get('geometry')
+        _require(isinstance(geometry, dict), 'Invalid boundary geometry')
+        kind = geometry.get('type')
+        _require(kind in ('Polygon', 'MultiPolygon'), 'Invalid boundary geometry type')
+        coordinates = geometry.get('coordinates')
+        _require(isinstance(coordinates, list) and coordinates, 'Invalid boundary coordinates')
+        polygons = [coordinates] if kind == 'Polygon' else coordinates
+        for polygon in polygons:
+            _require(isinstance(polygon, list) and polygon, 'Invalid boundary polygon')
+            for ring in polygon:
+                _require(isinstance(ring, list) and len(ring) >= 4, 'Invalid boundary ring')
+                for point in ring:
+                    _require(isinstance(point, list) and len(point) == 2,
+                             'Invalid boundary point')
+                    for value, limit in zip(point, (180, 90)):
+                        _require(type(value) in (int, float) and -limit <= value <= limit
+                                 and math.isfinite(value) and value == round(value, 4),
+                                 'Invalid boundary coordinate')
+                _require(ring[0] == ring[-1] and len({tuple(p) for p in ring}) >= 3,
+                         'Invalid boundary ring closure')
+        rows.append({**row, 'electorate_id': identity, 'geometry': geometry})
+    _require(seen == set(registry), 'Boundaries must cover every electorate')
+    return rows
+
+
+def _reconciliation(row, electorate):
+    _require(row.get('electorate_id') == electorate['id'], 'Unknown electorate id')
+    _require(_url(row.get('party_list_source_url')), 'Reconciliation requires party list source')
+    identities = set()
+    for category in ('matched', 'added_by_ec', 'absent_from_ec', 'corrections'):
+        items = row[category]
+        _require(isinstance(items, list), 'Invalid reconciliation category')
+        for item in items:
+            _require(isinstance(item, dict), 'Invalid reconciliation entry')
+            if category == 'corrections':
+                _require(item.get('field') in ('name', 'party', 'list_rank'),
+                         'Invalid correction field')
+                _require(all(_text(item.get(k)) for k in ('snapshot_name', 'reason'))
+                         and _url(item.get('source_url')), 'Correction requires evidence')
+                _require('before' in item and 'after' in item
+                         and item['before'] != item['after'], 'Invalid correction')
+            elif category == 'absent_from_ec':
+                _require(_text(item.get('name')) and _text(item.get('party')),
+                         'Invalid absent candidate')
+            else:
+                _require(all(_text(item.get(k)) for k in (
+                    'snapshot_name', 'snapshot_party', 'ec_name', 'party')),
+                    'Invalid reconciled candidate')
+                _require(_integer(item.get('ec_row'), 2), 'Invalid EC row')
+                identity = (item['party'], item['ec_name'])
+                _require(identity not in identities, 'Duplicate reconciled candidate')
+                identities.add(identity)
+                for key in ('list_rank', 'snapshot_list_rank'):
+                    if key in item:
+                        _require(_integer(item[key], 1), 'Invalid reconciliation list rank')
+                if 'snapshot_list_rank' in item:
+                    _require(item.get('list_rank') == item['snapshot_list_rank'],
+                             'Unresolved list rank correction')
+
+
 def load(name):
     """Return validated record dictionaries for one allowlisted snapshot stem.
 
@@ -87,12 +190,23 @@ def load(name):
     _require(isinstance(name, str) and name in NAMES, 'Unknown snapshot name')
     path = SNAPSHOTS / (name + '.json')
     _require(not path.is_symlink(), 'Snapshot must not be a symlink')
+    if name == 'boundaries-2025':
+        _require(path.stat().st_size < BOUNDARY_BYTE_LIMIT, 'Boundary exceeds byte budget')
     raw = path.read_text(encoding='utf-8')
     _require(not BANNED.search(raw), 'Snapshot contains a banned phrase')
     data = json.loads(raw)
     _require(isinstance(data, dict) and data.get('schema') == name + '-v1',
              'Invalid snapshot schema')
     _timestamp(data.get('retrieved_at'))
+    if name == 'boundaries-2025':
+        return _boundaries(data)
+    if name == 'candidate-reconciliation-2026':
+        for field in ('source_url', 'party_list_source_url'):
+            _require(_url(data.get(field)), 'Reconciliation requires ' + field)
+        _require(_text(data.get('method')), 'Reconciliation requires method')
+        for field in ('compared_snapshot_sha256', 'electorate_release_sha256'):
+            _require(isinstance(data.get(field), str) and bool(re.fullmatch(
+                r'[a-f0-9]{64}', data[field])), 'Invalid reconciliation source digest')
     rows = data.get('records')
     _require(isinstance(rows, list), 'Records must be an array')
     electorates = {r['slug']: r for r in json.loads(
@@ -108,6 +222,9 @@ def load(name):
         'history': ('year', 'party', 'party_vote_share', 'seats'),
         'hexmap': ('electorate_slug', 'x', 'y', 'group', 'method'),
         'positions': ('party_id', 'quote', 'date', 'speaker'),
+        'candidate-reconciliation-2026': (
+            'electorate_slug', 'electorate_id', 'matched', 'added_by_ec',
+            'absent_from_ec', 'corrections', 'party_list_source_url'),
     }[name]
     for record_number, row in enumerate(rows, 1):
         _require(isinstance(row, dict) and all(k in row for k in required),
@@ -154,6 +271,11 @@ def load(name):
             _require(0 <= Decimal(share) <= 100, 'Invalid vote share')
         if name == 'positions':
             _require(len(row['quote'].split()) < 30, 'Quote is too long')
+        if name == 'candidate-reconciliation-2026':
+            _require(row['licence'] ==
+                     'Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.',
+                     'Invalid reconciliation licence')
+            _reconciliation(row, electorates[row['electorate_slug']])
         if name in {'enrolment', 'hexmap'}:
             kind = row['roll' if name == 'enrolment' else 'group']
             _require(kind == electorates[row['electorate_slug']]['kind'], 'Wrong electorate group')
@@ -163,12 +285,14 @@ def load(name):
             cells.add(cell)
         identity = (row.get('electorate_slug'), row.get('party_id'), row.get('party'),
                     row.get('name'), row.get('year'))
-        if name in {'hexmap', 'enrolment'}:
+        if name in {'hexmap', 'enrolment', 'candidate-reconciliation-2026'}:
             identity = row['electorate_slug']
         _require(identity not in seen, 'Duplicate record')
         seen.add(identity)
     if name == 'hexmap':
         _require(seen == set(electorates), 'Tile layout must cover every electorate')
+    if name == 'candidate-reconciliation-2026':
+        _require(seen == set(electorates), 'Reconciliation must cover every electorate')
     if name == 'port-waikato-2023':
         _require(len(rows) >= 2 and all(r['electorate_slug'] == 'port-waikato'
                  and r['election_date'] == '2023-11-25' for r in rows), 'Invalid by-election')
