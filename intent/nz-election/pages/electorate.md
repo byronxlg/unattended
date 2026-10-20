@@ -22,6 +22,12 @@ Search arrivals for "<electorate> candidates", local shares and home referrals b
 4. 2023 result on its then boundaries (winner, margin), labelled when boundaries changed.
 5. On the night: leader, margin, reporting status.
 
+## Graphics
+
+1. Candidates - race card per candidate: party colour bar, name large, party, list rank, incumbent tag - reference: https://www.nbcnews.com/politics/2026-elections/midterms ("Senate battlegrounds" race cards) - keeps: card anatomy, party colour as the first read - changes: initials or party mark, no headshots without a licence.
+2. Where it is - a locator map of the electorate on the NZ outline at card size - reference: https://web.archive.org/web/20250305135954/https://projects.fivethirtyeight.com/2024-election-forecast/ (state map) - keeps: one strong shape, no chrome - changes: boundary geometry fetched once.
+4. 2023 result - horizontal bars of candidate vote share in party colours with the margin annotated - reference: https://web.archive.org/web/20250305135954/https://projects.fivethirtyeight.com/2024-election-forecast/ ("What are the closest races?" margin bars) - keeps: thick bars, direct labels - changes: labelled as 2023 boundaries where they changed.
+
 ## Data, worked back
 
 1. Have: `snapshots/candidates-2026.json` (CC BY-SA 4.0); fetch once a reconciliation against the EC candidate release.

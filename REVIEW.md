@@ -14,8 +14,10 @@ Codex review (second opinion, cannot approve). Three passes, in this order:
 4. Design (any change touching `product/*/web`): first the question test from the page plan
    (`intent/<slug>/pages/<page>.md`): from the 390x844 screenshot alone, write down the answer to
    each of the top three questions as read off the page; a question not answerable in five
-   seconds, or anything above the fold that answers no ranked question, is Important. A UI change
-   with no accepted page plan is Important. Then judged on the phone and desktop screenshots
+   seconds, or anything above the fold that answers no ranked question, is Important. Then the
+   graphic test: each graphic beside the reference graphic its plan names, same width; one that
+   reads weaker (thinner marks, no direct labels, no annotation, smaller share of the screen,
+   library defaults) is Important. A UI change with no accepted page plan is Important. Then judged on the phone and desktop screenshots
    against `intent/<slug>/design.md`: hierarchy (the five-second test on
    the home page), legibility at 360 px, contrast and colour never the only encoding, macrons
    rendering, touch targets, loading, empty, stale and error states present, provenance chip on
