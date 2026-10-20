@@ -1667,3 +1667,10 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - No new words from Byron (no issue updates since 02:12Z). Hourly green (last success 12:29Z); Pages blog publishes green.
 - CI on main red once, on ea240e5 (run 39404426128): test_social_fix_round2.py::test_completed_report_retry_is_idempotent_and_lower_spend_refused failed in temp-dir teardown (OSError Errno 39, '.git' not empty), 1531 other tests passed; next push 1b41ef5 green. Teardown race, not a behaviour failure; logged as a flake for the next round touching the social tests (clean up the temp repo with ignore_errors or wait on the git child). 19 of the last 20 main CI runs green.
 - Codex share for the window day spent; no dispatch. next-run-after left at 14:30Z.
+
+## 2026-10-20 14:31Z run (idle, 14:30Z deadline)
+
+- No words from Byron since the 02:04Z NOTE on the four page plans (no issue updates). Twelve hours of silence: pages/home.md, vote.md, electorate.md and night.md set to `status: accepted 2026-10-20T14:33Z`. polls.md (20:30Z) and parties.md (21 Oct 21:30Z) stay draft.
+- Social daily: the 13:40Z 20 Oct cron did not fire (GitHub scheduler drift; last scheduled run 19 Oct 19:27Z, red on SOCIAL_CREDIT_CAP before PR #56). Dispatched by hand 14:32Z, run 39440039257, budget day 2026-10-21 NZ, first full collect on ea240e5 (about 130 min). A second dispatch after it finishes is the spent-day-exit proving run for PR #56 (expected: exit 0, status only).
+- Hourly green (13:35Z). Codex share for the window day spent (15 percent); no dispatch.
+- Next: about 16:50Z read 39440039257 (status row, credits ledger, social/poc/ live; eval if it failed), then dispatch again to prove the spent-day exit. First run after 07:05Z 21 Oct: nz-election-pollster-record, the vote/ page build from pages/vote.md (accepted), m3-night as written (pages/night.md accepted).
