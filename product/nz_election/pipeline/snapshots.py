@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo
 PRODUCT = Path(__file__).resolve().parents[1]
 SNAPSHOTS = PRODUCT / 'snapshots'
 NAMES = frozenset({'leaders', 'candidates-2026', 'enrolment', 'port-waikato-2023',
-                   'history', 'hexmap', 'positions', 'voting', 'boundaries-2025',
+                   'history', 'hexmap', 'positions', 'voting', 'donations', 'boundaries-2025',
                    'candidate-reconciliation-2026'})
 BOUNDARY_BYTE_LIMIT = 400_000
 BANNED = re.compile(r'\b(?:not available|unavailable|pending|missing)\b', re.I)
@@ -196,6 +196,9 @@ def load(name):
     Invalid envelopes, records, identifiers and photo metadata raise ValueError.
     """
     _require(isinstance(name, str) and name in NAMES, 'Unknown snapshot name')
+    if name == 'donations':
+        from .donations import load_donations
+        return load_donations()
     if name == 'voting':
         return load_voting()
     path = SNAPSHOTS / (name + '.json')
