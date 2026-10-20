@@ -70,7 +70,8 @@ bounded run (45 min, hard kill), so finish cleanly: commit, push, write state, s
    untouched. Reviews in both directions are logged in the PR so the metrics can read them.
 4. Fewer than two jobs running (issue #43: 17 of 30 h idle): pick the next task from the plan (or the
    phase's next artifact); when the plan is empty, write the next increment from the open asks and the
-   milestone due, and dispatch it that run, never idle-wait. Run two jobs when files are disjoint (a
+   milestone due (`intent/nz-election/schedule.md`, dated to 14 Nov), and dispatch it that run, never
+   idle-wait. Run two jobs when files are disjoint (a
    branch may stack on an open PR's branch). Name the harness checks a UI brief must pass. Write
    `state/jobs/<id>/prompt.md` as a brief to a peer: goal, files to read first, constraints,
    definition of done with the exact verification command and its expected output. Dispatch
