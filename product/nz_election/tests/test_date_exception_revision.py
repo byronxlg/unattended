@@ -1,12 +1,28 @@
 """Row-scoped exceptions retain validation and operational failure details."""
 from copy import deepcopy
+from datetime import date, timedelta
 import json
 
 import pytest
 
 from product.nz_election.pipeline import export, refresh
 from product.nz_election.pipeline.models import ParseDrift
-from product.nz_election.pipeline.poll_parser import dates, parse_polls
+from product.nz_election.pipeline.poll_parser import MAX_RELEASE_LAG_DAYS, dates, parse_polls
+
+
+def assert_release_date_fallback(wikitext, mapping):
+    result = parse_polls(wikitext, '9999999999', mapping, {})
+    row, = [p for p in result.polls if p['pollster'] == 'verian'
+            and p['fieldwork_end'] == '2026-08-11']
+    assert row['fieldwork_start'] == '2026-08-08'
+    diagnostic, = [d for d in result.diagnostics['date_exceptions']
+                   if d['locator'] == row['source_ref']]
+    assert diagnostic['kind'] == 'release-date'
+    assert diagnostic['visible'] == '8\u201311 Aug 2026'
+    assert diagnostic['sort'] == '2026-08-12'
+    assert diagnostic['pollster'] == '1 News\u2013Verian'
+    assert diagnostic['source'] == 'https://en.wikipedia.org/w/index.php?oldid=9999999999'
+    assert 'visible fieldwork dates retained' in diagnostic['reason']
 
 
 @pytest.mark.parametrize('revision', ['1380524613', '1380694545', '9999999999'])
@@ -25,13 +41,21 @@ def test_exception_survives_revision(wikitext, mapping, revision):
     ('pollster', 'Roy Morgan'), ('source', ''), ('reason', ''),
 ])
 def test_exception_requires_documented_exact_row(wikitext, mapping, field, value):
+    original = parse_polls(wikitext, '9999999999', mapping, {})
+    assert original.diagnostics['date_exceptions'][0]['kind'] == 'documented-exception'
     mapping = deepcopy(mapping)
     mapping['date_exceptions'][0][field] = value
-    with pytest.raises(ParseDrift) as error:
-        parse_polls(wikitext, '9999999999', mapping, {})
-    assert error.value.code == 'parse_drift'
-    assert error.value.reason == 'invalid_dates'
-    assert error.value.locator == '8\u201311 Aug 2026 / 2026-08-12'
+    assert_release_date_fallback(wikitext, mapping)
+    outside_bound = (date(2026, 8, 11) + timedelta(days=MAX_RELEASE_LAG_DAYS + 1)).isoformat()
+    for invalid_sort in (outside_bound, '2026-08-07'):
+        changed = wikitext.replace('data-sort-value="2026-08-12"', f'data-sort-value="{invalid_sort}"')
+        assert changed != wikitext
+        with pytest.raises(ParseDrift) as error:
+            parse_polls(changed, '9999999999', mapping, {})
+        assert error.value.code == 'parse_drift'
+        assert error.value.reason == 'invalid_dates'
+        assert error.value.locator == '8\u201311 Aug 2026 / ' + invalid_sort
+        assert error.value.public_locator == 'table:15/row:19'
 
 
 @pytest.mark.parametrize('bad', ['', 'null', '[]', '12.5', '9' * 100, 'not-a-date', '2026-02-30'])
@@ -119,6 +143,9 @@ def test_public_drift_has_only_structural_locator(
         wikitext += '<ref name ' + marker + '="bad"/>'
     else:
         mapping['date_exceptions'] = []
+        assert_release_date_fallback(wikitext, mapping)
+        outside_bound = (date(2026, 8, 11) + timedelta(days=MAX_RELEASE_LAG_DAYS + 1)).isoformat()
+        wikitext = wikitext.replace('data-sort-value="2026-08-12"', f'data-sort-value="{outside_bound}"')
 
     def parse(*args):
         return parse_polls(wikitext, '9999999999', mapping, {})
@@ -126,6 +153,10 @@ def test_public_drift_has_only_structural_locator(
     with pytest.raises(ParseDrift, match=reason) as failure:
         parse()
     assert failure.value.public_locator == locator
+    if case == 'incident':
+        assert failure.value.code == 'parse_drift'
+        assert failure.value.reason == 'invalid_dates'
+        assert failure.value.locator == '8\u201311 Aug 2026 / ' + outside_bound
     if case != 'incident':
         assert marker in str(failure.value)
 
