@@ -520,11 +520,13 @@ def output_path(out):
     return resolved
 
 
-def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
+def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, historical_advance=False):
     data, out = Path(data), output_path(out)
     if data_sha and not re.fullmatch('[0-9a-f]{40}', data_sha):
         raise ValueError('INVALID_DATA_SHA')
     envs = export.validate_bundle(data) if data.exists() else {}
+    if not historical_advance and any(r['date'][:4] != '2026' for r in envs.get('advance-voting', {}).get('data', [])):
+        raise ValueError('HISTORICAL_ADVANCE_REQUIRES_VERIFICATION')
     built = export.timestamp(utc_now() if built is None else built, 'build.built_at')
     from product.nz_election.pipeline.deployment_guard import require_publication_allowed
     require_publication_allowed(built)
@@ -546,13 +548,12 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
         from product.nz_election.pipeline.home import sources, directory_links
         from product.nz_election.pipeline.electorate_pages import records
         from product.nz_election.pipeline.snapshot_views import sources as snapshot_sources
-        methods = sources(envs, built, home) + records(envs, built) + snapshot_sources(envs) + methods
+        from product.nz_election.pipeline.campaign_page import source as advance_source
+        methods = sources(envs, built, home) + records(envs, built) + snapshot_sources(envs) + advance_source(envs, historical_advance) + methods
         manifest = export.envelope(dict(id='build', source_ref=[], observed_at=built, code_sha=sha,
                          data_sha=data_sha if envs else None, build_run_url=run_url, built_at=built,
                          data_available='polls' in envs), [], run_url, sha)
         export.pair(stage, 'build-manifest', manifest)
-        descriptions = {
-            'campaign/': 'This page will bring together advance voting and disclosed donations, with source dates and limits. It is planned for 1 November; no campaign totals are available here yet.'}
         routes = config('routes')
         if len(routes) != 8 or {r['path'] for r in routes} != {'', 'polls/', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
             raise ValueError('INVALID_ROUTES')
@@ -574,6 +575,11 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
                 body = page(envs, built, home)
             elif slug == 'polls/':
                 body = polls_page(envs, built, home)
+            elif slug == 'campaign/':
+                from product.nz_election.pipeline.campaign_page import page
+                body = page(envs, built, historical_advance)
+                from product.nz_election.pipeline.m3_checks import check_markup
+                check_markup(body, envs, historical_advance)
             elif slug == 'night/':
                 body = night(built)
             elif slug == 'electorates/':
@@ -590,7 +596,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
             elif slug == 'downloads/':
                 body = downloads(envs, data_sha)
             else:
-                body = render('placeholder', description=descriptions[slug])
+                raise ValueError('UNHANDLED_ROUTE: ' + slug)
             target = stage / slug
             target.mkdir(parents=True, exist_ok=True)
             title = ('New Zealand votes on 7 November 2026' if slug == '' else
@@ -628,9 +634,10 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--data-sha')
     parser.add_argument('--now')
+    parser.add_argument('--historical-advance', action='store_true', help='Label historical advance verification')
     args = parser.parse_args()
     build(args.data, args.out, built=args.now, data_sha=args.data_sha or os.environ.get('NZ_DATA_SHA') or None,
-          sha=os.environ.get('NZ_CODE_SHA'))
+          sha=os.environ.get('NZ_CODE_SHA'), historical_advance=args.historical_advance)
     print('PASS build: 79 routes')
 
 

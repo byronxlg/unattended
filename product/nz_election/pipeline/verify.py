@@ -300,13 +300,38 @@ def verify_markets(envs, root):
     require(all(r['observed_at'] in html and 'https://polymarket.com/event/' + e['slug'] in html for e, r in leaders(payloads['markets']) if r), 'market observation and rules')
 
 
+def verify_advance(envs, root):
+    from product.nz_election.pipeline import advance
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.pipeline.m3_checks import check_site
+    daily = advance.normalize([('2023-10-02', 10), ('2023-10-03', 20)], kind='daily', start='2023-10-02')
+    require(daily[-1]['cumulative'] == 30, 'daily is not cumulative')
+    gap = advance.normalize([('2023-10-02', 10), ('2023-10-04', 20)], kind='daily', start='2023-10-02')
+    require(gap[-1]['cumulative'] is None and len(gap) == 2, 'missing day is not zero')
+    gap = advance.normalize([('2023-10-02', 10), ('2023-10-04', 20)], kind='cumulative', start='2023-10-02')
+    require(gap[-1]['daily'] is None and gap[-1]['cumulative'] == 20, 'retain supplied cumulative across gap')
+    data = root / 'advance-data'
+    daily_refresh(data, historical_advance=True)
+    current = export.validate_bundle(data)
+    require(current['advance-voting']['data'][-1]['cumulative'] == 1640204, 'captured 2023 total')
+    site = build(data, root / 'advance-site', historical_advance=True)
+    check_site(site, current)
+    empty = build(root / 'advance-absent', root / 'advance-empty')
+    check_site(empty, {})
+    before = {ext: (data / ('advance-voting' + ext)).read_bytes() for ext in ('.json', '.csv')}
+    def fail():
+        raise ValueError('CAPTURE_HASH_MISMATCH')
+    daily_refresh(data, loaders={'advance': fail})
+    require(all((data / ('advance-voting' + ext)).read_bytes() == raw for ext, raw in before.items()), 'advance last-good bytes')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets'])
+    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets', 'advance'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     args = parser.parse_args()
-    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets}
+    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets, 'advance': verify_advance}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
@@ -329,6 +354,9 @@ def main():
             print(f'PASS visible text: {check_visible_text(product)} routes, no whitespace-free run over 200 characters')
             if (product / 'data').exists():
                 export.validate_bundle(product / 'data')
+        if args.site and args.check in {'advance', 'all'}:
+            from product.nz_election.pipeline.m3_checks import check_site as check_m3
+            check_m3(product, export.validate_bundle(product / 'data') if (product / 'data').exists() else {})
         if args.site and args.check in {'home', 'all'}:
             from product.nz_election.pipeline.home_checks import check_site
             check_site(product, export.validate_bundle(product / 'data') if (product / 'data').exists() else {})

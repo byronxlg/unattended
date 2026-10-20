@@ -333,6 +333,68 @@ def extra_images(browser, site, origin, out, og_only=False):
     return results
 
 
+ADVANCE_STATES = ('populated', 'missing-day', 'retained', 'absent')
+ADVANCE_SIZES = ((360, 780), (390, 844), (1280, 800))
+
+
+def advance_images(browser, out):
+    from copy import deepcopy
+    from product.nz_election.pipeline import advance, export
+    from product.nz_election.pipeline.build import build
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.pipeline.m3_checks import check_site
+    results = []
+    with tempfile.TemporaryDirectory(prefix='nz-advance-states-') as tmp:
+        root = Path(tmp)
+        original = advance.load(historical=True)
+        for state in ADVANCE_STATES:
+            payload = deepcopy(original)
+            if state == 'missing-day':
+                rows = payload[0]['advance-voting']
+                del rows[4]
+                derived = advance.normalize([(r['date'], r['daily']) for r in rows], kind='daily', start=rows[0]['span_start'])
+                for row, values in zip(rows, derived):
+                    row.update(values)
+            data = root / (state + '-data')
+            daily_refresh(data, loaders={'advance': lambda: None if state == 'absent' else payload})
+            if state == 'retained':
+                def fail():
+                    raise ValueError('CONTROLLED_CAPTURE_FAILURE')
+                daily_refresh(data, loaders={'advance': fail})
+            site = root / state
+            build(data, site / 'nz-election', historical_advance=True)
+            check_site(site / 'nz-election', export.validate_bundle(data))
+            server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(site)))
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            origin = 'http://127.0.0.1:' + str(server.server_port)
+            try:
+                for width, height in ADVANCE_SIZES:
+                    context = browser.new_context(viewport={'width': width, 'height': height}, reduced_motion='reduce')
+                    context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
+                    page = context.new_page()
+                    url = origin + PREFIX + 'nz-election/campaign/'
+                    text = check_page(page, url, site, origin)
+                    plain = browser.new_context(viewport={'width': width, 'height': height}, java_script_enabled=False)
+                    plain.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
+                    nojs = plain.new_page()
+                    nojs.goto(url, wait_until='networkidle')
+                    assert static_text(nojs) == text, 'ADVANCE_NO_JS'
+                    assert page.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")
+                    filename = f'advance-{state}-{width}x{height}.png'
+                    page.screenshot(path=str(out / filename), full_page=True)
+                    results.append(dict(state='advance-' + state, viewport=dict(width=width, height=height), path=filename,
+                                        sha256=hashlib.sha256((out / filename).read_bytes()).hexdigest()))
+                    plain.close()
+                    context.close()
+            finally:
+                server.shutdown()
+                server.server_close()
+    assert {(r['state'], r['viewport']['width']) for r in results} == {
+        ('advance-' + state, width) for state in ADVANCE_STATES for width, _ in ADVANCE_SIZES}
+    return results
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--site', type=Path, default=Path('site'))
@@ -457,7 +519,7 @@ def main():
                     page.close()
                 nojs.close()
                 context.close()
-            additional = ([] if args.og_only else state_images(browser, args.out) + map_images) + extra_images(browser, site, origin, args.out, args.og_only)
+            additional = ([] if args.og_only else state_images(browser, args.out) + map_images + advance_images(browser, args.out)) + extra_images(browser, site, origin, args.out, args.og_only)
             browser.close()
         if not args.og_only:
             for width in (390, 1280):
@@ -465,7 +527,7 @@ def main():
                 assert len(captured) == len(set(captured)) == expected_count
                 assert set(captured) == {PREFIX + 'nz-election/' + r['path'] for r in routes}
         if not args.og_only and has_geography and has_baseline:
-            assert len(manifest) + len(additional) == 296, 'IMAGE_INVENTORY'
+            assert len(manifest) + len(additional) == 296 + len(ADVANCE_STATES) * len(ADVANCE_SIZES), 'IMAGE_INVENTORY'
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()

@@ -138,7 +138,7 @@ def test_71_pages_and_missing_data(tmp_path):
 
 def test_new_csv_and_dates(tmp_path):
     from product.nz_election.pipeline.daily_refresh import daily_refresh
-    daily_refresh(tmp_path / 'data')
+    daily_refresh(tmp_path / 'data', historical_advance=True)
     envs = export.validate_bundle(tmp_path / 'data')
     for stem in export.NEW_FIELDS:
         assert (tmp_path / 'data' / (stem + '.csv')).read_bytes() == export.csv_bytes(envs[stem])

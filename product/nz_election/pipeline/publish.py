@@ -31,7 +31,7 @@ def status_of(envs, family='polls'):
 
 def success_order(envs, family='polls'):
     if family != 'polls':
-        env = envs.get('electorates' if family == 'geography' else 'social/daily' if family == 'social' else family, {})
+        env = envs.get('electorates' if family == 'geography' else 'social/daily' if family == 'social' else 'advance-voting' if family == 'advance' else family, {})
         return (env.get('fetched_at') or '', env.get('generated_at', ''))
     if 'polls' not in envs:
         return ('', '')
@@ -85,7 +85,7 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
             all_older = True
             for dataset in datasets:
                 proposed = status_of(incoming, dataset)
-                stem = 'electorates' if dataset == 'geography' else 'social/daily' if dataset == 'social' else dataset
+                stem = 'electorates' if dataset == 'geography' else 'social/daily' if dataset == 'social' else 'advance-voting' if dataset == 'advance' else dataset
                 owned = {s + ext for s in export.FAMILIES[dataset] for ext in ('.json', '.csv')}
                 previous = status_of(current, dataset)
                 if dataset == 'social':
@@ -163,7 +163,7 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                 merged = dict(previous if keep_status else proposed)
                 last_good = previous if keep_data else proposed
                 merged.update(last_success_at=last_good['last_success_at'], last_good_run_url=last_good['last_good_run_url'])
-                if merged['error_code'] is not None:
+                if merged['error_code'] is not None or (dataset == 'advance' and merged['state'] == 'unavailable'):
                     merged['state'] = 'stale' if merged['last_success_at'] else 'unavailable'
                 statuses = [s for s in statuses if s['dataset'] != dataset] + [merged]
                 metadata = current['status'] if keep_status else incoming['status']
