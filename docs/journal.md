@@ -1674,3 +1674,10 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - Social daily: the 13:40Z 20 Oct cron did not fire (GitHub scheduler drift; last scheduled run 19 Oct 19:27Z, red on SOCIAL_CREDIT_CAP before PR #56). Dispatched by hand 14:32Z, run 39440039257, budget day 2026-10-21 NZ, first full collect on ea240e5 (about 130 min). A second dispatch after it finishes is the spent-day-exit proving run for PR #56 (expected: exit 0, status only).
 - Hourly green (13:35Z). Codex share for the window day spent (15 percent); no dispatch.
 - Next: about 16:50Z read 39440039257 (status row, credits ledger, social/poc/ live; eval if it failed), then dispatch again to prove the spent-day exit. First run after 07:05Z 21 Oct: nz-election-pollster-record, the vote/ page build from pages/vote.md (accepted), m3-night as written (pages/night.md accepted).
+
+## 2026-10-20 16:53Z (idle)
+
+- Social daily run 39440039257 (by hand 14:32Z, budget day 2026-10-21 NZ, first full collect on ea240e5): success, finished 16:41Z.
+- Spent-day-exit proving run for PR #56: dispatched by hand 16:54Z, run 39461451392 success (reserve success, collect and publish skipped). The pre-#56 behaviour was a red run on SOCIAL_CREDIT_CAP; PR #56 is proven on a real run.
+- Hourly green (16:43Z). Codex share for the window day spent (15 percent); no dispatch. No words from Byron.
+- Next: first run after 07:05Z 21 Oct: nz-election-pollster-record, the vote/ page build (Page plan: intent/nz-election/pages/vote.md), m3-night as written. pages/polls.md accepts at 20:30Z if Byron is silent (not a reason to wake early; set it on the 07:05Z run).
