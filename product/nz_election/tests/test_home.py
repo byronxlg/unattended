@@ -72,7 +72,7 @@ def test_home_figures_have_complete_source_entries(populated):
     sources = (site / 'methods/index.html').read_text()
     ids = {a['id'] for _, a in Document(sources).nodes if 'id' in a}
     figures = [a for tag, a in Document(html).nodes if tag == 'figure']
-    assert len(figures) == 6
+    assert len(figures) == 7
     for figure in figures:
         assert figure['id'] in ids
         assert f'methods/#{figure["id"]}' in html
@@ -171,14 +171,16 @@ def test_home_missing_families(populated):
             missing.pop('seats', None)
         html = page(missing, NOW, home_presentation(missing, NOW))
         provenance(html)
+        from product.nz_election.tools.check_visible_text import check_absent_text
+        check_absent_text(html)
         if absent == 'social/daily':
-            assert 'Social proof of concept' in html and 'id="social"' not in html
-        else:
-            assert 'Not available' in html
+            assert 'Social proof of concept' not in html
+        if absent == 'polls':
+            assert '<section id="polls"' not in html and 'id="home-seats"' not in html
     html = page({}, NOW, home_presentation({}, NOW))
     provenance(html)
-    assert 'No data yet' in html and 'No seat estimate available yet' in html
-    assert 'Find your electorate' in html and len(re.findall(r'<li>', html)) == 5
+    check_absent_text(html)
+    assert 'Find your electorate' in html and 'id="home-seats"' not in html
 
 
 def test_home_navigation(populated):
@@ -208,7 +210,7 @@ def test_home_social_retains_dated_aggregate(tmp_path):
     assert '<svg' in html and '16 October 2026' in html and '240 posts' in html
     assert 'Update overdue' in html and 'synthetic examples' in html
     assert PREFIX + 'social/poc/#social-method' in html
-    assert 'under 5' in html and 'Share withheld: fewer than 20 posts' in html
+    assert 'under 5' in html and 'Share withheld' not in html
     assert '<svg' not in poc(envs, '2026-10-20T01:00:00Z')
     provenance(html)
 

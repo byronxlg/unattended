@@ -3,7 +3,6 @@ import json
 from html import escape
 from .build import config, home_presentation, PREFIX
 from .route_cards import route_key, summary, ORIGIN, night, card as render_card
-from .home import electorate_summary
 from product.nz_election.tests.design_checks import Document, provenance
 
 
@@ -42,9 +41,14 @@ def check_site(site, envs):
             require(night(built) in html, 'night countdown, availability and publication freeze')
         if path.startswith('electorates/') and path != 'electorates/':
             row = next(r for r in envs.get('electorates', {}).get('data', config('electorates')) if path == 'electorates/' + r['slug'] + '/')
-            historical = escape(electorate_summary(row, envs)[1])
-            positions = [html.index('id="candidates-title"'), html.index(historical, html.index('<main')), html.index('class="boundary-note"'), html.index('class="original-results"')]
-            require(positions == sorted(positions), 'candidate-first detail')
+            require('id="candidates-title"' in html and 'class="electorate-top"' in html, 'electorate overview and candidate anchor')
+            if envs.get('baseline-2023', {}).get('data'):
+                require('class="tile-map"' in html and 'id="source-map"' in html
+                        and 'class="chart-data"' in html and 'class="map-key"' in html,
+                        'electorate map, exact values, legend and provenance')
+            else:
+                require('class="tile-map"' not in html, 'absent nationwide result map omitted')
+            require('id="source-baseline-2023"' in html, 'baseline fragment preserved')
             require('incumbent' not in html.lower(), 'no inferred incumbents')
 
 

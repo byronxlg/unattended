@@ -83,5 +83,7 @@ def test_reader_copy_and_withheld_topline(tmp_path, state):
                 assert html.index('class="strip"') < html.index('id="source-seats"')
                 assert 'methods/#home-seats' in html
         else:
-            assert ('Seat totals are withheld until a complete, up-to-date poll average is available.' if route else 'No seat estimate available yet.') in html
+            assert 'class="strip"' not in html and 'Seat totals are withheld' not in html
+            from product.nz_election.tools.check_visible_text import check_absent_text
+            check_absent_text(html)
             assert 'Government parties:' not in html and 'Opposition parties:' not in html

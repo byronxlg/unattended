@@ -2,7 +2,7 @@
 from html import escape
 from fractions import Fraction
 from .build import PREFIX, config, render, strip, label, source_note, compact_time, link, derivation_note
-from .home import electorate_summary, note
+from .home import note
 from .average import display
 from .presentation import election_countdown
 
@@ -41,7 +41,9 @@ def summary(route, envs, home, built):
     }.get(path)
     if path.startswith('electorates/') and path != 'electorates/':
         row = next(r for r in envs.get('electorates', {}).get('data', config('electorates')) if path == 'electorates/' + r['slug'] + '/')
-        description = row['name'] + ': ' + electorate_summary(row, envs)[1]
+        from .snapshot_views import result
+        held = result(row, envs)
+        description = row['name'] + ': ' + (f'{held["party"]}, {held["margin"]:,} vote majority in {held["baseline_name"]} in 2023 on the original boundaries.' if held else '2026 candidates and electorate boundaries.')
         title = description
     if path == 'polls/' and envs.get('averages', {}).get('data'):
         values = envs['averages']['data'][-1]['descriptive']
@@ -59,7 +61,7 @@ def card(route, envs, home, built):
         title = description
         source_id = 'source-seats'
         picture = strip(home['result']).split('<div class="seat-data">')[0] if home['result'] else ''
-        source = home['source']
+        source = home['source'] if home['result'] else note('source-seats', 'Election information and calculation method.', f'<a href="{PREFIX}methods/#home-seats">Sources and method</a>')
     elif route['path'] == 'polls/' and envs.get('averages'):
         source_id = 'source-average'
         title = description

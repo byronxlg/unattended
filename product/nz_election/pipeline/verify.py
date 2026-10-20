@@ -79,7 +79,7 @@ def verify_pipeline(envs, root):
     status = refresh(root / 'unavailable', now='2026-10-17T02:00:00Z', parse=fail)
     require(status['state'] == 'unavailable' and status['last_success_at'] is None, 'first failure')
     out = build(root / 'absent', root / 'empty-site')
-    require('No data yet' in (out / 'index.html').read_text(), 'no data build')
+    require('id="home-seats"' not in (out / 'index.html').read_text(), 'no data build omits seat module')
     deployed = (out / 'index.html').read_bytes()
     broken = root / 'broken'
     shutil.copytree(bundle, broken)
@@ -140,8 +140,8 @@ def verify_coalitions(envs, root):
     require(vacancy['vacancies'] > 0 and vacancy['occupiedHouse'] == 120 + vacancy['overhang'] - vacancy['vacancies'], 'list vacancies')
     page = build(root / 'data', root / 'coalition-site') / 'polls/index.html'
     html = page.read_text()
-    require('<fieldset hidden disabled>' in html and 'data-note' in html and 'source-seats' in html,
-            'static fallback and provenance')
+    require('<fieldset hidden disabled>' not in html and 'id="coalition-explorer"' in html and 'source-seats' in html,
+            'stale explorer omitted with fragments preserved')
     require('Seats needed for a majority' in strip(seats), 'static majority retained')
 
 
@@ -193,9 +193,9 @@ def verify_electorates(envs, root):
     old = next(r for r in missing['baseline-2023']['data'] if r['old_electorate_id'] == 1)
     old['candidate_votes'] = None
     old['field_sources']['candidate_status'] = 'Missing candidate capture.'
-    require('No candidate baseline. Missing candidate capture.' in detail(central, missing), 'controlled missing baseline')
+    require('class="local-margin"' not in detail(central, missing), 'absent baseline omitted')
     row = next(r for r in config('electorates') if r['slug'] == 'te-tai-tonga')
-    require('Official candidates not available' in detail(row, {}), 'controlled missing data')
+    require('Standing in 2026' in detail(row, {}) and 'Not available' not in detail(row, {}), 'snapshot candidates without pipeline data')
 
 
 
@@ -236,11 +236,11 @@ def verify_social(envs, root):
     check_landmarks(site)
     html = (site / 'social/poc/index.html').read_text()
     require('Proof of concept' in html and '@' not in html and '<svg' in html, 'social page present')
-    require('under 5' in html and 'Withheld:' in html, 'social small-cell labels')
+    require('under 5' in html and 'Withheld:' not in html, 'social small-cell suppression without placeholders')
     require('<svg' not in page(current, '2026-10-19T03:00:00Z'), 'social stale page withheld')
     absent = build(root / 'social-absent', root / 'social-empty-site', built=now)
     html = (absent / 'social/poc/index.html').read_text()
-    require('unavailable' in html and '<svg' not in html, 'social absent page')
+    require('unavailable' not in html and '<svg' not in html, 'social absent page')
 
 
 def verify_home(envs, root):
@@ -269,6 +269,8 @@ def verify_home_routes(envs, root):
     for source, name in ((data, 'populated'), (root / 'absent-routes', 'empty')):
         site = build(source, root / ('routes-' + name), built='2026-10-17T01:00:00Z')
         check_site(site, export.validate_bundle(source) if source.exists() else {})
+        from product.nz_election.tools.check_visible_text import check_site as visible_check
+        visible_check(site)
         from product.nz_election.pipeline.disclosure_checks import check_site as check_disclosures
         check_disclosures(site)
         from product.nz_election.pipeline.landmark_checks import check_site as check_landmarks

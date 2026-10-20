@@ -49,7 +49,7 @@ def test_trend_dates_and_rounding():
     assert result[0]['shares'] is None
     assert result[1]['window_start'] == '2026-09-18'
     assert display(225, 100) == '2.3%'
-    assert display(None, 0) == 'Not reported'
+    assert display(None, 0) == ''
 
 
 def test_threshold_membership():

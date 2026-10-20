@@ -87,8 +87,8 @@ def test_threshold_uses_only_average_ids_including_missing_coverage(tmp_path):
     envs['averages']['data'] = [avg]
     envs['seats']['data'] = project(avg)
     html = polls_page(envs, '2026-10-17T01:00:00Z')
-    watch = html.split('<h2>Which parties are near the 5 percent threshold?</h2>')[1].split('id="source-thresholds"')[0]
-    assert 'Opportunity' not in watch and 'missing in' not in watch
+    assert '<h2>Which parties are near the 5 percent threshold?</h2>' not in html
+    assert 'id="source-thresholds"' in html
     polls[0]['shares']['opp'], polls[1]['shares']['opp'] = 6, 9
     avg = trend(polls, ['2026-10-17'], review=review)[0]
     watched = threshold_watch(polls, avg, {'electorate_wins': {}})
@@ -170,11 +170,14 @@ def test_downloads_render_each_manifest_record_and_run(tmp_path):
     entries = export.validate_bundle(data)['manifest']['data']
     for entry in entries:
         row = html.split(f'data-file="{entry["path"]}"')[1].split('</tr>')[0]
-        for label in ('Size', 'SHA-256', 'Licence', 'Rows', 'Observation start', 'Observation end', 'Retrieved (UTC)', 'Producing run'):
+        for label in ('Rows', 'Retrieved (UTC)', 'Producing run'):
             assert '<dt>' + label + '</dt>' in row
+        assert ('<dt>Licence</dt>' in row) is bool(entry['licences'])
         assert json.loads(unescape(row.split('<pre>')[1].split('</pre>')[0])) == entry
         for key in ('sha256', 'bytes', 'observation_start', 'observation_end', 'fetched_at'):
-            assert str(entry[key]) in unescape(row) if entry[key] is not None else 'Not available' in row
+            assert str(entry[key]) in unescape(row) if entry[key] is not None else 'Not available' not in row
+        for key, label in [('observation_start', 'Observation start'), ('observation_end', 'Observation end'), ('bytes', 'Size'), ('sha256', 'SHA-256')]:
+            assert ('<dt>' + label + '</dt>' in row) is (entry[key] is not None)
     envs = export.validate_bundle(data)
     for entry in envs['manifest']['data']:
         entry['producing_run_url'] = 'https://github.com/example/repo/actions/runs/123'

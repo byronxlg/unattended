@@ -14,7 +14,7 @@ def test_named_modules_have_accessible_svg(populated, name):
     _, site = populated
     section = (site / 'index.html').read_text().split(f'<section id="{name}"')[1].split('</section>')[0]
     charts = [attrs for tag, attrs in Document(section).nodes if tag == 'svg' and attrs.get('aria-hidden') != 'true']
-    assert charts and all(a.get('role') == 'img' and a.get('aria-label') and a.get('aria-describedby') for a in charts)
+    assert charts and all(a.get('role') == ('group' if a.get('class') == 'tile-map' else 'img') and a.get('aria-label') and a.get('aria-describedby') for a in charts)
     assert 'class="chart-data"' in section
 
 
@@ -25,7 +25,7 @@ def test_hero_answers_from_allocator(populated, difference, answer):
     result = presentation['result']
     result.update(seats={'nat': 67+difference}, assumed_house=133, assumed_majority=67, overhang=13)
     html = hero(envs, NOW, presentation)
-    assert 'On the current poll average, the governing parties would have ' + f'{67+difference} seats, ' + answer + '.' in html
+    assert 'Governing parties: ' + f'{67+difference} seats, ' + answer + '.' in html
     assert '67 seats are needed' in html and '133-seat House' in html and '13 overhang seats' in html
 
 

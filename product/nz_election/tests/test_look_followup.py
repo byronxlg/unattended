@@ -95,7 +95,7 @@ def test_social_notice_for_populated_empty_and_stale(tmp_path):
     for built in (NOW, '2026-10-19T01:00:00Z'):
         html = page(envs, built)
         assert '<p class="state">Proof of concept. 240 posts sampled from X; 2026-10-16 to 2026-10-16.' in html
-    assert '<p class="state">Proof of concept. Sample size unavailable; date range unavailable.' in page({}, NOW)
+    assert 'Sample size' not in page({}, NOW) and '<svg' not in page({}, NOW)
 
 
 def test_v1_bundle_remains_readable_and_refreshes_to_v2(tmp_path):

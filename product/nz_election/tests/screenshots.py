@@ -154,7 +154,9 @@ def check_page(page, url, site, origin):
     levels = page.locator('main h1,main h2,main h3,main h4').evaluate_all('els=>els.map(e=>Number(e.tagName[1]))')
     assert all(b <= a + 1 for a, b in zip(levels, levels[1:])), 'HEADING_OUTLINE'
     for strip in page.locator('.strip').all():
-        assert strip.evaluate('e=>e.getBoundingClientRect().height') == (72 if page.viewport_size['width'] < 800 else 120), 'STRIP_HEIGHT'
+        hero = strip.evaluate('e=>Boolean(e.closest(".home-hero"))')
+        expected = (120 if page.viewport_size['width'] < 800 else 144) if hero else (72 if page.viewport_size['width'] < 800 else 120)
+        assert strip.evaluate('e=>e.getBoundingClientRect().height') == expected, 'STRIP_HEIGHT'
         assert strip.locator('.segment').evaluate_all('els=>els.every(e=>!e.textContent.trim() && getComputedStyle(e).borderTopWidth==="1px")'), 'FILL_LABEL_OR_OUTLINE'
     for lanes in page.locator('.lanes').all():
         assert lanes.evaluate('e=>e.getBoundingClientRect().height') <= (42 if page.viewport_size['width'] < 800 else 21), 'LABEL_HEIGHT'
@@ -211,13 +213,13 @@ def state_images(browser, out):
                     if state == 'changed-inputs':
                         expect(page.locator('[data-warning]')).to_contain_text('This link uses different poll inputs.')
                     if state == 'missing-baseline':
-                        assert 'No 2023 candidate results for this electorate' in page.locator('main').inner_text()
+                        assert page.locator('.local-margin').count() == 0
                     if state == 'unresolved':
                         assert 'Not matched: Kāpiti (local poll)' in page.locator('main').inner_text()
                     if state == 'allocation-tie':
                         assert 'Tie for the last seat between National and Labour; shown unassigned.' in page.locator('main').inner_text()
                     if state == 'source-conflict':
-                        assert 'Comparison unresolved' in page.locator('main').inner_text()
+                        assert page.locator('.local-margin').count() == 0
                     if state == 'offline':
                         assert 'fixture run' in page.locator('main').inner_text()
                     if state == 'validation-error':
@@ -261,6 +263,9 @@ def legend_check(page):
 
 
 def fold_check(page):
+    if not page.locator('.home-hero .strip,.seat-figure').count():
+        return None
+    assert page.locator('#source-seats.source-note').count() == 1, 'SOURCE_NOTE_REQUIRED'
     bottom = page.locator('#source-seats').evaluate('e=>e.getBoundingClientRect().bottom + scrollY')
     height = min(780, page.viewport_size['height'])
     assert bottom <= height, f'SOURCE_NOTE_BELOW_FOLD: {page.viewport_size["width"]}px bottom={bottom:.2f}px viewport={height}px'
@@ -447,7 +452,10 @@ def main():
                     bottom = fold_check(page) if path == '' and width in (360, 390) else None
                     name = (path.strip('/').replace('/', '--') or 'home') + f'-{width}x{height}.png'
                     target = args.out / name
-                    page.screenshot(path=str(target))
+                    page_height = page.evaluate('document.documentElement.scrollHeight')
+                    if path == 'electorates/nelson/' and width == 1280:
+                        assert page_height < 2500, f'NELSON_PAGE_HEIGHT: {page_height}'
+                    page.screenshot(path=str(target), full_page=path == 'electorates/nelson/')
                     if path == '' and width in (390, 1280) and page.locator('#markets').count():
                         page.locator('#markets').screenshot(path=str(args.out / f'markets-module-{width}.png'))
                         (args.out / f'markets-module-{width}.json').write_text(json.dumps(page.locator('#markets').bounding_box()))
@@ -457,7 +465,7 @@ def main():
                     assert plain.locator('.desktop-nav').is_visible(), 'NO_JS_NAVIGATION_FAILED'
                     manifest.append(dict(route=PREFIX + 'nz-election/' + path, viewport=dict(width=width, height=height),
                                          path=name, sha256=hashlib.sha256(target.read_bytes()).hexdigest(),
-                                         code_sha=build['code_sha'], data_sha=build['data_sha'], browser_version=browser.version, source_note_bottom=bottom,
+                                         code_sha=build['code_sha'], data_sha=build['data_sha'], page_height=page_height, browser_version=browser.version, source_note_bottom=bottom,
                                          poll_markers_360=home_mark_geometry(page) if path == '' and width == 360 else None))
                     if path == 'electorates/' and width == 390:
                         name_all = 'all-electorate-names-390.png'
@@ -467,7 +475,7 @@ def main():
                         assert plain.locator('.electorate-directory li[id^="electorate-"]').count() == 71
                         assert page.locator('.electorate-map').count() == int(has_geography), 'MAP_PRESENCE'
                         if not has_geography:
-                            assert 'Map not available' in text
+                            assert page.locator('.electorate-map').count() == 0
                         page.locator('#electorate-search').fill('TAMAKI')
                         assert page.locator('[data-search-key]:visible').count() >= 1
                         page.locator('#electorate-search').fill('')
@@ -490,14 +498,17 @@ def main():
                                                sha256=hashlib.sha256((args.out / state_name).read_bytes()).hexdigest()))
                     if path == 'electorates/wellington-north/':
                         if has_baseline:
-                            assert 'Wellington Central (2023)' in text
+                            page.locator('.original-results summary').click()
+                            assert 'Wellington Central (2023)' in page.locator('main').inner_text()
+                            page.locator('.original-results summary').click()
                         else:
-                            assert 'No candidate baseline or party baseline available' in text
+                            assert page.locator('.original-results').count() == 0
                     if path == 'electorates/te-tai-tonga/':
                         from product.nz_election.pipeline.electorate_pages import detail
                         row = next(r for r in registry if r['slug'] == 'te-tai-tonga')
                         page.locator('main').evaluate('(el,html)=>el.innerHTML=html', '<h1>Te Tai Tonga</h1><p>Controlled missing-data verification.</p>' + detail(row, {}))
-                        assert 'Official candidates not available' in page.locator('main').inner_text()
+                        assert 'Standing in 2026' in page.locator('main').inner_text()
+                        assert page.locator('.local-margin').count() == 0
                         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
                         state_name = f'electorate-missing-data-{width}x{height}.png'
                         page.screenshot(path=str(args.out / state_name), full_page=True)

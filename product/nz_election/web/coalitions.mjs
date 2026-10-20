@@ -162,7 +162,7 @@ async function start(root) {
     const draw=()=>{
       const r=scenario(data,state);
       root.querySelector('[data-unassigned]').textContent=`${r.unassigned_electorates} electorate seats unassigned. 2023 electorate seats assumed; 2026 has different boundaries.`;
-      if (!r.seats) { live.textContent='Seats are unavailable: no eligible party or an allocation tie needing a recorded lot result.'; output.replaceChildren(); return; }
+      if (!r.seats) { live.textContent=''; output.replaceChildren(); return; }
       live.textContent=`Selected parties: ${r.selected_total} seats. Seats needed for a majority: ${r.assumed_majority}, assuming sufficient list candidates in a House of ${r.assumed_house}.`;
       picture(output,r,labels);
     };
@@ -198,7 +198,7 @@ async function start(root) {
     root.querySelector('[data-results]').hidden=false;
     note.textContent='Choose parties to compare their seats. This is not a prediction of who will form a government.';
   } catch {
-    note.textContent='The explorer is unavailable because complete matching inputs could not be loaded. The published information above remains available.';
+    root.hidden=true;
   }
 }
 if (typeof document!=='undefined') {

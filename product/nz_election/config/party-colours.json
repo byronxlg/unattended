@@ -70,15 +70,15 @@
     "review_date": "2026-10-17"
   },
   "tpm": {
-    "colour": "#D12C38",
-    "secondary": null,
+    "colour": "#333333",
+    "secondary": "#D12C38",
     "label": "Te Pāti Māori",
     "evidence": {
       "path": "fixtures/party-identity/tpm.html",
       "locator": "line 7287: svg.homepage-social-media-buttons fill=\"#D12C38\" inside the party's Follow links",
       "kind": "inline SVG presentation attribute",
       "sampled_at": "2026-10-16T18:20:00Z",
-      "note": "Direct visible-page evidence, weaker than a declared token. M1 placeholder was #B2001A."
+      "note": "Direct visible-page evidence, weaker than a declared token. M1 placeholder was #B2001A. Editorial display override (issue #40 follow-up): charcoal #333333 distinguishes Te Pāti Māori from Labour in maps and charts; captured red retained as secondary. Charcoal is not claimed as a sampled brand token."
     },
     "reviewer": "supervisor (Claude), unattended lab",
     "review_date": "2026-10-17"

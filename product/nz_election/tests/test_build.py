@@ -45,7 +45,7 @@ def test_registered_routes_and_prefix(tmp_path):
 def test_no_data_first_build(tmp_path):
     out = build(tmp_path / 'absent', tmp_path / 'output')
     html = (out / 'index.html').read_text()
-    assert 'No data yet' in html and 'Polls are checked hourly.' in html
+    assert 'id="home-seats"' not in html and '<section id="polls"' not in html
     assert 'class="strip"' not in html
     assert '2,851,211' in (out / 'methods/index.html').read_text()
     assert json.loads((out / 'build-manifest.json').read_text())['data']['data_sha'] is None
@@ -58,8 +58,10 @@ def test_incomplete_vector_withholds_seats(tmp_path):
     rewrite(path, remove)
     out = build(path, tmp_path / 'output')
     html = (out / 'polls/index.html').read_text()
-    assert 'Incomplete party coverage' in html and 'class="strip"' not in html
-    assert 'Missing observations' in html and 'How have the polls moved?' in html
+    assert 'class="strip"' not in html
+    assert 'Incomplete party coverage' in (out / 'methods/index.html').read_text()
+    assert 'Missing observations' not in html and 'How have the polls moved?' in html
+    assert 'Missing observations' in (out / 'methods/index.html').read_text()
 
 
 def test_source_html_escaped(tmp_path):

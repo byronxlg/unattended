@@ -42,7 +42,8 @@ def check_markup(html):
 
 
 def check_site(site):
-    results = {'index.html': check_markup((site / 'index.html').read_text())}
+    html = (site / 'index.html').read_text()
+    results = {'index.html': check_markup(html)} if 'id="home-seats"' in html else {}
     polls = (site / 'polls/index.html').read_text()
     # The harness's earlier-coherent-window fixture renders the seat hero on polls/.
     if 'class="seat-figure"' in polls:

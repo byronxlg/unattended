@@ -131,6 +131,8 @@ def updated(envs, family, built):
 
 
 def module(name, heading, dek, graphic, publisher, date, route, action):
+    if not graphic:
+        return f'<span id="{name}"></span>'
     return (f'<section id="{name}" class="home-module"><h2>{heading}</h2><p class="dek">{dek}</p>'
             f'<figure id="home-{name}" aria-describedby="source-{name}">{graphic}</figure>'
             f'<p><a href="{PREFIX}{route}">{action}</a></p>' + footnote(name, publisher, date) + '</section>')
@@ -138,6 +140,8 @@ def module(name, heading, dek, graphic, publisher, date, route, action):
 
 def hero(envs, built, presentation):
     result = presentation['result']
+    if not result:
+        return '<section class="home-hero"><h1>New Zealand votes on 7 November</h1></section><span id="seats"></span><span id="source-seats"></span>'
     content = '<p>No seat estimate available yet.</p>'
     if result:
         groups = config('seat-groups')
@@ -145,7 +149,7 @@ def hero(envs, built, presentation):
         difference = totals[0][1] - result['assumed_majority']
         answer = ('exactly enough seats to govern' if difference == 0 else
                   f'{difference} more than the {result["assumed_majority"]} needed' if difference > 0 else f'{-difference} short of the {result["assumed_majority"]} needed')
-        content = f'<p class="seat-answer">On the current poll average, the governing parties would have {totals[0][1]} seats, {answer}.</p>'
+        content = f'<p class="seat-answer">Governing parties: {totals[0][1]} seats, {answer}.</p>'
         content += (f'<p class="seat-dek">{result["assumed_majority"]} seats are needed in the assumed '
                     f'{result["assumed_house"]}-seat House, including {result["overhang"]} overhang seats.</p>')
         content += '<div class="topline">' + ''.join(
@@ -184,7 +188,7 @@ def latest_polls(envs):
     names = {identity: name for name, identity in config('party-map')['pollsters'].items()}
     return poll_chart(rows, parties, names) + fallback(table('Latest national polls; party vote percent', ['Pollster / fieldwork ended'] + [label(p) for p in parties],
                  [[escape(names.get(p['pollster'], p['pollster'])) + '<br>' + observation_label(p['fieldwork_end']),
-                   *[display(p['shares'].get(party), p['scale']) for party in parties]] for p in rows], source='source-polls'))
+                   *[display(p['shares'][party], p['scale']) if p['shares'].get(party) is not None else '' for party in parties]] for p in rows], source='source-polls'))
 
 
 def trend_graphic(envs):
@@ -200,7 +204,7 @@ def trend_graphic(envs):
     wins = envs.get('seats', {}).get('data', {}).get('assumptions', {}).get('electorate_wins', {})
     plotted = [p for p in parties if wins.get(p, 0) or any(a['descriptive'].get(p, {}).get('value') is not None and a['descriptive'][p]['value'] >= 5*a['descriptive'][p]['scale'] for a in selected)]
     return trend_chart(selected, plotted) + fallback(table('Weekly snapshots of the 30-day average, percent', ['As at'] + [label(p) for p in parties],
-                 [[observation_label(a['date'])] + [display(a['descriptive'].get(p, {}).get('value'), a['descriptive'].get(p, {}).get('scale', 100)) for p in parties] for a in selected], source='source-trend'))
+                 [[observation_label(a['date'])] + [display(a['descriptive'][p]['value'], a['descriptive'][p]['scale']) if a['descriptive'].get(p, {}).get('value') is not None else '' for p in parties] for a in selected], source='source-trend'))
 
 
 def thresholds(envs):
@@ -209,6 +213,9 @@ def thresholds(envs):
     if 'seats' not in envs:
         return '<p>Not available: no published threshold shares.</p>'
     rows = threshold_watch(envs['polls']['data'], envs['averages']['data'][-1], envs['seats']['data']['assumptions'])
+    rows = [r for r in rows if r['value'] is not None]
+    if not rows:
+        return ''
     return threshold_chart(rows) + fallback(table('Parties near the threshold', ['Party', 'Share', 'Qualification'],
                  [[escape(label(r['party_id'])), display(r['value'], r['scale']), 'At or above 5%' if r['value'] is not None and r['scale'] and r['value'] >= 5 * r['scale'] else 'Electorate assumed' if r['electorate_qualifies'] else 'Needs 5%'] for r in rows], source='source-thresholds'))
 
@@ -237,14 +244,16 @@ def market_graphic(envs):
 
 def closest(envs):
     from .build import table
-    if any(f not in envs for f in ('baseline-2023', 'candidates')):
-        return '<p>' + ' '.join(unavailable(envs, f) for f in ('baseline-2023', 'candidates') if f not in envs) + '</p>'
+    from .snapshot_views import result as held_result
+    from .home_charts import colour
+    if 'baseline-2023' not in envs:
+        return ''
     rows = watch_rows(envs)
     maximum = max((m for m, _, _, _ in rows), default=1)
     content = '<div class="watch-rows">'
     for margin, _, r, _ in rows:
         width = Decimal(margin)*130/maximum
-        marks = f'<rect x="0" y="9" width="{width:.1f}" height="12" fill="var(--grey)"/>'
+        marks = f'<rect x="0" y="9" width="{width:.1f}" height="12" fill="{colour((held_result(r, envs) or {}).get('party_id'))}"/>'
         content += (f'<div class="margin-row"><a href="{PREFIX}electorates/{r["slug"]}/">{escape(r["name"])}</a>'
                     + '<div style="position:relative;padding-right:48px">'
                     + svg('electorates', f'{r["name"]}: {margin:,} votes', marks, 30).replace('0 0 350', '0 0 130')
@@ -262,7 +271,10 @@ def directory_links(envs):
 
 
 def page(envs, built, presentation):
+    from .snapshot_views import map_graphic, people, footnote as snapshot_note
     state, _ = seat_module(envs, built, presentation)
+    if 'polls' not in envs:
+        state = ''
     if envs.get('seats', {}).get('data', {}).get('unresolved_ties'):
         state += '<p>Allocation tie: seats remain unassigned; see the calculation.</p>'
     if any(env.get('run_url') == 'offline-verification' for env in envs.values()):
@@ -270,11 +282,18 @@ def page(envs, built, presentation):
     date = updated(envs, 'polls', built)
     # polls_page omits both sections when the polls family is unpublished.
     trend_route = 'polls/#source-average' if 'polls' in envs else 'polls/'
-    coalition_route = 'polls/#coalition-explorer' if 'polls' in envs else 'polls/'
-    modules = module('polls', 'What are the latest polls?', 'Latest national observations; missing party shares are not zero.', latest_polls(envs), 'Wikipedia contributors', date, 'polls/#polls', 'See all polls')
+    coalition_route = 'methods/#home-positions'
+    modules = module('polls', 'What are the latest polls?', 'The latest national party-vote polls.', latest_polls(envs), 'Wikipedia contributors', date, 'polls/#polls', 'See all polls')
+    if not envs.get('polls', {}).get('data'):
+        modules = '<span id="polls"></span>'
     modules += module('trend', 'How have the polls moved?', 'Equal-weight 30-day averages describe polls, not a forecast; coverage differs by party.', trend_graphic(envs), 'Wikipedia contributors', date, trend_route, 'See all averages')
-    modules += module('electorates', 'Which electorates are closest?', 'The six smallest 2023 margins on unchanged boundaries, including East Cape; changed boundaries and tied winners are excluded.', closest(envs), 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', 'See all electorates')
+    if not envs.get('averages', {}).get('data'):
+        modules = modules.split('<section id="trend"')[0] + '<span id="trend"></span>'
+    modules += module('electorates', 'Who holds your electorate?', 'Explore the 2023 winners and margins on original boundaries; boundaries differ for 2026.', map_graphic(envs) + snapshot_note('map') + ('<h3>Closest on unchanged boundaries</h3>' + closest(envs) if watch_rows(envs) else ''), 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', 'See all electorates')
+    modules += '<section class="home-module" id="leaders"><h2>Who is leading the parties?</h2><figure id="home-leaders" aria-describedby="source-leaders">' + people() + '</figure>' + snapshot_note('leaders') + '</section>'
     modules += module('thresholds', 'Which parties are near the 5 percent threshold?', 'An electorate win can qualify a party below 5%; 2023 electorate seats are assumed.', thresholds(envs), 'Wikipedia contributors', date, 'polls/#source-thresholds', 'See all threshold assumptions')
+    if 'seats' not in envs:
+        modules = modules.split('<section id="thresholds"')[0] + '<span id="thresholds"></span>'
     market_date = updated(envs, 'markets', built)
     market_dek = 'Market prices are not a forecast; government membership contracts are independent.'
     market_env = envs.get('markets')
@@ -284,7 +303,9 @@ def page(envs, built, presentation):
     if market_env and overdue(min(r['observed_at'] for r in market_env['data']), built, 'daily'):
         market_dek += ' Observations are more than 36 hours old.'
     modules += module('markets', 'What do prediction markets say?', market_dek, market_graphic(envs), 'Polymarket', market_date, 'methods/#home-markets', 'See all market details')
-    return render('home', prefix=PREFIX, hero=hero(envs, built, presentation), state=state, modules=modules, coalition_route=coalition_route)
+    if not envs.get('markets', {}).get('data'):
+        modules = modules.split('<section id="markets"')[0] + '<span id="markets"></span>'
+    return render('home', prefix=PREFIX, hero=hero(envs, built, presentation), state=state, modules=modules, coalition_route=coalition_route, social_link=(f'<li><a href="{PREFIX}social/poc/">Social proof of concept</a></li>' if envs.get('social/daily', {}).get('data') else ''))
 
 
 def poll_inputs(polls):
