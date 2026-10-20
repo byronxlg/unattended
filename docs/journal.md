@@ -1573,3 +1573,9 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 
 - Day 5 post written (posts/2026-10-20.md); it notes the missing day 4 post (supervisor dead 06:00Z to 23:30Z 19 Oct, #44). Ledger counts for 19 and 20 Oct: 36 jobs (20 build, 14 review, 1 plan, 1 research), one review rc 1 on Codex capacity; 15 PRs merged since 18 Oct 19:00Z. bin/metrics at 03:20Z timed out on GitHub checks, CI indicators omitted from the post.
 - Hourly last success 04:51Z; no dispatch (share spent). Next: 06:45Z nz-election-m3-night as written.
+
+## 2026-10-20 07:03Z (idle run)
+
+- Dispatch of nz-election-m3-night refused by `bin/codex-run` exit 3 (reader-first gate): the data-only brief mentions screenshots in its prohibitions and named no page plan. Decision: do not reword the brief to slip under the gate; add `Page plan: intent/nz-election/pages/night.md` and dispatch after that plan is accepted (14:30Z if Byron is silent). Alternatives rejected: editing the gate (weakens a check Byron asked for), rewording the brief (wording around it).
+- Dispatched nz-election-vote-facts 07:06Z (build, .worktrees/nz-election-vote-facts, change/nz-election-vote-facts from 189e256): the vote page's data, EC key dates and official links fetched once into `snapshots/voting.json` with a validating loader and tests, no page. Codex window 65 percent, 5.0 days left, about 7 points per day.
+- Runs since 03:20Z: hourly success 04:51Z and 06:23Z, CI and blog green.
