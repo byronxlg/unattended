@@ -465,13 +465,15 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
         ledger = old.get('social/credits', {}).get('data', [])
         prior = next((r for r in old.get('status', {}).get('data', []) if r['dataset'] == 'social'), {})
         budget_day = datetime.fromisoformat(now.replace('Z', '+00:00')).astimezone(NZ).date().isoformat()
+        budget_spent = not reservation and CAP - sum(r['reserved'] for r in ledger if r['day'] == budget_day) < RESERVATION
         if reservation:
             run = next((r for r in ledger if r['id'] == reservation), None)
             if not run or run['closed'] or run['requests'] or run['day'] != budget_day:
                 raise ValueError('SOCIAL_INVALID_RESERVATION')
         else:
             run = dict(id='run-' + os.urandom(12).hex(), source_ref=[], observed_at=now, day=budget_day, reserved=0, spent=0, cap=CAP, requests=0, allocation=0, closed=False)
-            ledger.append(run)
+            if not budget_spent:
+                ledger.append(run)
         sha = code_sha()
         error, record = None, None
         def save():
@@ -479,13 +481,18 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                 stage = Path(tmp) / 'data'
                 shutil.copytree(out, stage) if out.exists() else stage.mkdir()
                 env = lambda data: export.envelope(data, [], run_url, sha, inputs={'questions': export.digest(export.canonical(QUESTIONS).encode())}, method=QUESTION_VERSION, generated=now)
-                export.pair(stage, 'social/credits', env(ledger))
+                if not budget_spent:
+                    export.pair(stage, 'social/credits', env(ledger))
                 if record is not None:
                     records = [r for r in old.get('social/daily', {}).get('data', []) if r['day'] != day] + [record]
                     export.pair(stage, 'social/daily', env(sorted(records, key=lambda r: r['day'])))
                 success = now if record is not None else prior.get('last_success_at')
-                last_day = max((r['day'] for r in old.get('social/daily', {}).get('data', [])), default='no previous data')
-                message = ('Collection limit reached; showing data through ' + last_day) if error == 'SOCIAL_CREDIT_CAP' else ('Offline verification; synthetic data, not live data.' if fixture else 'Time-stratified X sample; not a complete count.') if record else 'Previous data retained; collection pending or unavailable.'
+                last_day = max((r['day'] for r in old.get('social/daily', {}).get('data', [])), default=None)
+                if error == 'SOCIAL_CREDIT_CAP':
+                    message = "Day's collection cap was already spent; " if budget_spent else 'Collection limit reached; '
+                    message += ('showing data through ' + last_day) if last_day else 'no earlier sample is published.'
+                else:
+                    message = ('Offline verification; synthetic data, not live data.' if fixture else 'Time-stratified X sample; not a complete count.') if record else 'Previous data retained; collection pending or unavailable.'
                 status = dict(id='status-social', source_ref=[], observed_at=now, dataset='social', state=('stale' if error or record is None else 'fresh') if success else 'unavailable', last_attempt_at=now, last_success_at=success, last_good_run_url=run_url if record else prior.get('last_good_run_url'), error_code=error, message=message)
                 statuses = [r for r in old.get('status', {}).get('data', []) if r['dataset'] != 'social'] + [status]
                 export.pair(stage, 'status', export.envelope(statuses, [], run_url, sha))
@@ -495,8 +502,12 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                 replace_directory(stage, out)
         diagnostic = dict(window=None, attempt=None, http_status=None, code=None)
         try:
-            if reserve:
+            if reserve or budget_spent:
                 hourly_queries(day, diagnostic)
+                if budget_spent:
+                    error = 'SOCIAL_CREDIT_CAP'
+                    save()
+                    return 'budget-spent'
             else:
                 posts, provenance, limited = collect(day, ledger, run, key=x_key, send=send, sleep=sleep, now=clock_now or (lambda: now), checkpoint=save, diagnostic=diagnostic)
                 if limited:
@@ -563,7 +574,7 @@ def main():
             f.write('validated=true\n')
             if result.startswith('run-'):
                 f.write('reservation=' + result + '\n')
-    if result not in {'ok', 'frozen'} and not result.startswith('run-'):
+    if result not in {'ok', 'frozen', 'budget-spent'} and not result.startswith('run-'):
         raise SystemExit('FAIL social: ' + result)
     print('PASS social')
 

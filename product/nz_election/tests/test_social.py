@@ -118,10 +118,10 @@ def test_cap_status_and_last_good_retained(tmp_path):
     out = tmp_path / 'data'
     assert fixture(out) == 'ok'
     old = (out / 'social/daily.json').read_bytes()
-    assert fixture(out) == 'SOCIAL_CREDIT_CAP'
+    assert fixture(out) == 'budget-spent'
     envs = export.validate_bundle(out)
     status = next(r for r in envs['status']['data'] if r['dataset'] == 'social')
-    assert status['message'] == 'Collection limit reached; showing data through 2026-10-16'
+    assert status['message'] == "Day's collection cap was already spent; showing data through 2026-10-16"
     assert (out / 'social/daily.json').read_bytes() == old
     assert sum(r['reserved'] for r in envs['social/credits']['data']) == 7560
 
@@ -130,7 +130,7 @@ def test_durable_reservation_and_single_use(tmp_path):
     out = tmp_path / 'data'
     reservation = fixture(out, reserve=True)
     assert reservation.startswith('run-')
-    assert fixture(out) == 'SOCIAL_CREDIT_CAP'
+    assert fixture(out) == 'budget-spent'
     assert fixture(out, reservation=reservation) == 'ok'
     with pytest.raises(ValueError, match='SOCIAL_INVALID_RESERVATION'):
         fixture(out, reservation=reservation)
@@ -202,3 +202,68 @@ def test_social_publish_retains_other_families_and_ledger(tmp_path):
     envs = export.validate_bundle(target / DATA)
     assert envs['social/credits']['data'][0]['closed']
     assert envs['social/daily']['data'][0]['sample']['eligible'] == 240
+
+
+@pytest.mark.parametrize('reserve', [False, True])
+@pytest.mark.parametrize('published', [False, True])
+def test_spent_day_cli_exits_zero_without_transport_or_ledger_changes(tmp_path, monkeypatch, capsys, reserve, published):
+    out = tmp_path / 'data'
+    fixture(out, reserve=not published)
+    unchanged = {p: p.read_bytes() for p in (out / 'social').iterdir()}
+    output = tmp_path / 'github-output'
+    monkeypatch.setenv('GITHUB_OUTPUT', str(output))
+    monkeypatch.setattr(social, 'transport', lambda *a: pytest.fail('spent day must not send'))
+    monkeypatch.setattr(social.sys, 'argv', ['social', '--out', str(out), '--day', DAY, '--now', NOW] + (['--reserve'] if reserve else []))
+    social.main()
+    assert capsys.readouterr().out == 'PASS social\n'
+    assert output.read_text() == 'validated=true\n'
+    assert {p: p.read_bytes() for p in (out / 'social').iterdir()} == unchanged
+    status = next(r for r in export.validate_bundle(out)['status']['data'] if r['dataset'] == 'social')
+    assert status['error_code'] == 'SOCIAL_CREDIT_CAP'
+    assert status['state'] == ('stale' if published else 'unavailable')
+    assert status['message'] == "Day's collection cap was already spent; " + ('showing data through 2026-10-16' if published else 'no earlier sample is published.')
+
+
+@pytest.mark.parametrize('published', [False, True])
+@pytest.mark.parametrize('reserved', [False, True])
+def test_mid_run_cap_stays_fatal_and_retains_sample(tmp_path, monkeypatch, published, reserved):
+    out = tmp_path / 'data'
+    if published:
+        fixture(out)
+    old = (out / 'social/daily.json').read_bytes() if published else None
+    now = '2026-10-18T03:00:00Z'
+    reservation = social.refresh_social(out, DAY, now=now, reserve=True) if reserved else None
+    calls = []
+    def send(method, *args):
+        assert method == 'GET'
+        calls.append(method)
+        return (503, b'') if len(calls) == 1 else (200, b'{"tweets":[],"has_next_page":false}')
+    monkeypatch.setattr(social, 'transport', send)
+    monkeypatch.setattr(social.clock, 'sleep', lambda _: None)
+    monkeypatch.setattr(social.sys, 'argv', ['social', '--out', str(out), '--day', DAY, '--now', now] + (['--reservation', reservation] if reserved else []))
+    with pytest.raises(SystemExit, match='^FAIL social: SOCIAL_CREDIT_CAP$'):
+        social.main()
+    assert len(calls) == 24
+    envs = export.validate_bundle(out)
+    run = next(r for r in envs['social/credits']['data'] if r['day'] == '2026-10-18')
+    assert (run['reserved'], run['spent'], run['requests'], run['closed']) == (7560, 660, 24, True)
+    status = next(r for r in envs['status']['data'] if r['dataset'] == 'social')
+    assert status['error_code'] == 'SOCIAL_CREDIT_CAP'
+    assert status['message'] == 'Collection limit reached; ' + ('showing data through 2026-10-16' if published else 'no earlier sample is published.')
+    if published:
+        assert (out / 'social/daily.json').read_bytes() == old
+    else:
+        assert not (out / 'social/daily.json').exists()
+
+
+@pytest.mark.parametrize('reserve', [False, True])
+def test_spent_day_does_not_hide_query_failure(tmp_path, monkeypatch, capsys, reserve):
+    out = tmp_path / 'data'
+    fixture(out, reserve=True)
+    credits = (out / 'social/credits.json').read_bytes()
+    monkeypatch.setattr(social, 'QUERY', 'x' * 513)
+    result = social.refresh_social(out, DAY, now=NOW, reserve=reserve,
+                                   send=lambda *a: pytest.fail('invalid query must not send'))
+    assert result == 'SOCIAL_UPSTREAM_FAILED'
+    assert capsys.readouterr().err == 'social diagnostic: SOCIAL_QUERY_TOO_LONG http_status=None window_index=0 attempt=1\n'
+    assert (out / 'social/credits.json').read_bytes() == credits
