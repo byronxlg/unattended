@@ -1,6 +1,6 @@
 # polls: page plan
 
-status: draft
+status: accepted 2026-10-20T23:00Z
 route: `/unattended/nz-election/polls/`
 research job: `state/jobs/research-nz-election-page-questions-2/last.md`
 
