@@ -25,6 +25,8 @@ work; Byron is not here. Finish the task in the prompt, nothing more.
 
 ## Design (any change with a UI)
 
+- The brief names a page plan (`intent/<slug>/pages/<page>.md`): read it first. Build the answers
+  in its question order; nothing goes on the page that answers no question in it.
 - Mobile first; the hero is what the reader came for, not a headline about the app. One
   memorable element per page, everything else quiet. Visual structure encodes information
   (no decorative numbering, dividers or eyebrow labels). Sentence case, plain voter words.

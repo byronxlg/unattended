@@ -15,7 +15,8 @@ Order inside a milestone is the supervisor's call; two jobs at a time when files
 
 | Due (NZ) | Milestone | Done when |
 |---|---|---|
-| Thu 22 Oct | Look: #40 closed | PR #45 merged, absent data never rendered (build check), hero graphic, electorate map, reference-weight charts, side-by-side review against 538 logged, link to Byron |
+| Wed 21 Oct | Page plans: home, vote, electorate | reader-question research job per page, `pages/<page>.md` committed and lint-clean, top questions sent to Byron ("Reader first, then UI" in `prompts/supervisor.md`); vote first if advance and overseas voting help is still missing (`audiences.md` page plan) |
+| Sat 24 Oct | Look: #40 closed | moved from Thu 22 Oct by the reader-first gate (Byron, Telegram 2026-10-20 01:41Z); remaining look work rebuilt from the accepted page plans, question test logged in the PR; PR #45 merged, absent data never rendered (build check), hero graphic, electorate map, reference-weight charts, side-by-side review against 538 logged, link to Byron |
 | Sun 25 Oct | M2 accepted | plan-m2 "M2 deployment acceptance" ticked: daily and hourly proven on real runs, screenshots on phone and desktop accepted |
 | Mon 26 Oct | Advance voting (req 11) | daily capture of the EC advance-voting count runs from the first published day; chart shows only days that exist |
 | Fri 30 Oct | M3 night client (req 9, 10) | `verify.py night` and `verify.py waterfall` PASS; replay of the demo and 2017/2020/2023 archives on `/night/`; live-feed probe from the deployed origin recorded (CORS/WAF), dated fallback if it fails |

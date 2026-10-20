@@ -4,6 +4,9 @@ One directory per change, named by slug: `intent.md` (Plan stage, written by the
 `spec.md` (Design stage, written by the agent and accepted by the product owner), `plan.md`
 (Build stage, from plan mode, checklist of steps kept in sync with the implementation). The git
 history of these files is the Plan and Design indicators in `docs/metrics.md`.
+A page with a UI also has `pages/<page>.md`, a page plan from `page-plan-template.md` that works
+back from the reader's questions to the data, accepted before any UI build for it (Byron,
+Telegram 2026-10-20 01:41Z).
 
 ## Phase 1 research briefs (restarted 2026-10-16 after Byron's steer, issue #7)
 
