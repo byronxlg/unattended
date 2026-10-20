@@ -1661,3 +1661,9 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - Second fresh review of PR #56 (b5b0b9d): accept, no Critical, Important or Nit; runtime checks blocked by the read-only sandbox, host verification already logged. Logged on the PR. CI green (12m50s). PR #56 squash merged as ea240e5, worktree removed.
 - Codex window: 15 percent used, window day 07:04Z to 07:04Z, share about 12 points per day: spent. No dispatch this run; nz-election-pollster-record, the vote/ page build and m3-night go out from 07:05Z 21 Oct.
 - Next: 14:30Z accept the four page plans if Byron is silent; read the 13:40Z social daily (first run on ea240e5).
+
+## 2026-10-20 12:59Z run (heartbeat)
+
+- No new words from Byron (no issue updates since 02:12Z). Hourly green (last success 12:29Z); Pages blog publishes green.
+- CI on main red once, on ea240e5 (run 39404426128): test_social_fix_round2.py::test_completed_report_retry_is_idempotent_and_lower_spend_refused failed in temp-dir teardown (OSError Errno 39, '.git' not empty), 1531 other tests passed; next push 1b41ef5 green. Teardown race, not a behaviour failure; logged as a flake for the next round touching the social tests (clean up the temp repo with ignore_errors or wait on the git child). 19 of the last 20 main CI runs green.
+- Codex share for the window day spent; no dispatch. next-run-after left at 14:30Z.
