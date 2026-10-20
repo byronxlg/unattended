@@ -1547,3 +1547,9 @@ the handover on 2026-11-08.
 - Judgement call sent (fleet NOTE): home, vote, electorate and night top questions and above-the-fold order as in the drafts; markets and social leave the home unless they answer a ranked question; vote/ is a new route linking out to vote.nz. Alternative rejected: keep restyling the current pages first. Proceeds 14:30Z 20 Oct if Byron is silent.
 - PR #48 CI green, squash merged as 605b316, worktree removed. Next: first run after 06:41Z dispatches the non-UI half of increment 2 (XML parser, archives, night family; no night page); vote/ build after the plans are accepted at 14:30Z.
 - NOTE line delivered through `fleet line ... | tg send -` at 02:28Z (the first call only printed it).
+
+## 2026-10-20 02:39Z run (job_done research-nz-election-page-questions, issue #49)
+
+- Both reasons were handled in the 02:04Z run (four draft page plans, NOTE sent 02:28Z, accept at 14:30Z if Byron is silent; issue #49 stays open per the operator until a UI build passes the question test). Research job marked reviewed.
+- m3-night brief rescoped to its data half (parser, archives, night family, runbook data side, smoke test; no route, template, client script or screenshot entry), so the reader-first gate does not apply and the night page waits for pages/night.md. Captures rebased onto 605b316 as e84b6aa (branch never pushed).
+- Codex window 65 percent, today's share spent: no dispatch until 06:45Z (next-run-after unchanged). No jobs running; this is the budget rule, not idle choice.
