@@ -493,7 +493,9 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                     message += ('showing data through ' + last_day) if last_day else 'no earlier sample is published.'
                 else:
                     message = ('Offline verification; synthetic data, not live data.' if fixture else 'Time-stratified X sample; not a complete count.') if record else 'Previous data retained; collection pending or unavailable.'
-                status = dict(id='status-social', source_ref=[], observed_at=now, dataset='social', state=('stale' if error or record is None else 'fresh') if success else 'unavailable', last_attempt_at=now, last_success_at=success, last_good_run_url=run_url if record else prior.get('last_good_run_url'), error_code=error, message=message)
+                # A skipped collection is not a handled failure for publication or readers.
+                status_error = None if budget_spent and error == 'SOCIAL_CREDIT_CAP' else error
+                status = dict(id='status-social', source_ref=[], observed_at=now, dataset='social', state=('stale' if error or record is None else 'fresh') if success else 'unavailable', last_attempt_at=now, last_success_at=success, last_good_run_url=run_url if record else prior.get('last_good_run_url'), error_code=status_error, message=message)
                 statuses = [r for r in old.get('status', {}).get('data', []) if r['dataset'] != 'social'] + [status]
                 export.pair(stage, 'status', export.envelope(statuses, [], run_url, sha))
                 export.merged_licences(stage)

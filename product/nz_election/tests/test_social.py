@@ -219,7 +219,7 @@ def test_spent_day_cli_exits_zero_without_transport_or_ledger_changes(tmp_path, 
     assert output.read_text() == 'validated=true\n'
     assert {p: p.read_bytes() for p in (out / 'social').iterdir()} == unchanged
     status = next(r for r in export.validate_bundle(out)['status']['data'] if r['dataset'] == 'social')
-    assert status['error_code'] == 'SOCIAL_CREDIT_CAP'
+    assert status['error_code'] is None
     assert status['state'] == ('stale' if published else 'unavailable')
     assert status['message'] == "Day's collection cap was already spent; " + ('showing data through 2026-10-16' if published else 'no earlier sample is published.')
 

@@ -210,7 +210,8 @@ can exhaust the budget before all windows complete. Collection checks its NZ
 budget date before and after pacing; crossing midnight stops before another
 request. Cap/failure retains the
 last-good daily aggregates and publishes status; no prior success is unavailable.
-An already-spent budget day exits 0 with status only: no requests, new sample or ledger changes.
+An already-spent budget day exits 0 through collection and publication, with no requests, new sample or ledger changes.
+Its status has no error code; the message explains the spent budget and retained sample, with the last-success timestamp preserved.
 A cap reached during collection remains fatal with `SOCIAL_CREDIT_CAP`.
 A sample older than 36 hours after its last NZ day closed is hidden on the page.
 The existing hourly Pages rebuild consumes the updated data branch; this workflow
