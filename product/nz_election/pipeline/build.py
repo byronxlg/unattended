@@ -378,7 +378,7 @@ def polls_page(envs, built, presentation=None, *, full_sources=False):
         row_notes.append(f'<div class="source-note" id="{identity}"><p>{escape(poll["pollster"])}. Fieldwork ended <time datetime="{poll["fieldwork_end"]}">{observation_label(poll["fieldwork_end"])}</time>.</p><p class="source-actions">' + ' '.join(link(url, 'Original report') for url in poll['reference_urls']) + f' <a href="#source-history">Revision, retrieval, licence and data run</a></p></div>')
         history.append([f'<span id="{escape(poll["id"])}" aria-describedby="source-history">{escape(poll["pollster"])}</span>',
                         escape(poll['fieldwork_start'] + ' to ' + poll['fieldwork_end']),
-                        'Not reported' if poll['sample'] is None else str(poll['sample']),
+                        '' if poll['sample'] is None else str(poll['sample']),
                         *[display(poll['shares'][p], poll['scale']) if poll['shares'].get(p) is not None else '' for p in parties], refs])
     details += '<h2>How have the polls moved?</h2>' + table('All national 2026 observations in the source revision; scroll for all parties',
                                             ['Pollster', 'Fieldwork', 'Sample'] + [label(p) for p in parties] + ['Reports'], history, source='source-history')
@@ -546,7 +546,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None):
         from product.nz_election.pipeline.home import sources, directory_links
         from product.nz_election.pipeline.electorate_pages import records
         from product.nz_election.pipeline.snapshot_views import sources as snapshot_sources
-        methods = sources(envs, built, home) + records(envs, built) + snapshot_sources() + methods
+        methods = sources(envs, built, home) + records(envs, built) + snapshot_sources(envs) + methods
         manifest = export.envelope(dict(id='build', source_ref=[], observed_at=built, code_sha=sha,
                          data_sha=data_sha if envs else None, build_run_url=run_url, built_at=built,
                          data_available='polls' in envs), [], run_url, sha)

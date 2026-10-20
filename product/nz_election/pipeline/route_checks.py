@@ -42,7 +42,12 @@ def check_site(site, envs):
         if path.startswith('electorates/') and path != 'electorates/':
             row = next(r for r in envs.get('electorates', {}).get('data', config('electorates')) if path == 'electorates/' + r['slug'] + '/')
             require('id="candidates-title"' in html and 'class="electorate-top"' in html, 'electorate overview and candidate anchor')
-            require('class="tile-map"' in html and 'id="source-map"' in html, 'electorate location and provenance')
+            if envs.get('baseline-2023', {}).get('data'):
+                require('class="tile-map"' in html and 'id="source-map"' in html
+                        and 'class="chart-data"' in html and 'class="map-key"' in html,
+                        'electorate map, exact values, legend and provenance')
+            else:
+                require('class="tile-map"' not in html, 'absent nationwide result map omitted')
             require('id="source-baseline-2023"' in html, 'baseline fragment preserved')
             require('incumbent' not in html.lower(), 'no inferred incumbents')
 

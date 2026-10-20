@@ -69,7 +69,7 @@ def detail(row, envs, built=None):
                  f'<p class="local-margin"><strong>{held["margin"]:,}</strong> vote majority in 2023'
                  + (' by-election' if row['slug'] == 'port-waikato' else '') + '</p>')
     boundary = row['boundary_note']
-    if boundary == 'All these electorates remain unchanged from their 2020 boundaries and names.':
+    if row['mapping_status'] == 'unchanged':
         boundary = row['name'] + "'s boundaries and name are unchanged from 2020."
     intro += '<p class="boundary-note">' + escape(boundary) + '</p>'
     candidates = ''
@@ -83,6 +83,8 @@ def detail(row, envs, built=None):
                   + candidates + '</ul>' + footnote('candidates-2026') + '</section>') if candidates else '<span id="candidates-title"></span>'
     intro += footnote('port-waikato') if row['slug'] == 'port-waikato' else source(envs, 'baseline-2023', built)
     outline = '<figure aria-describedby="source-map">' + map_graphic(envs, row['slug']) + '<figcaption>Highlighted: ' + escape(row['name']) + '</figcaption>' + footnote('map') + '</figure>'
+    if not envs.get('baseline-2023', {}).get('data'):
+        outline = ''
     content = '<div class="electorate-top"><div>' + intro + candidates + '</div>' + outline + '</div>'
     baseline = ''
     for old in envs.get('baseline-2023', {}).get('data', []):
@@ -97,7 +99,7 @@ def detail(row, envs, built=None):
         if old['party_votes']:
             baseline += table(old['old_name'] + ': party votes', ['Party', 'Votes'], [[escape(v['name']), f'{v["votes"]:,}'] for v in old['party_votes']], source='source-baseline-2023')
     if baseline:
-        content += '<section class="original-results"><h2>2023 results on the original boundaries</h2><p>These votes have not been moved or added together to fit the 2025 boundaries.</p><details><summary>See the vote counts</summary>' + baseline + '</details></section>'
+        content += '<section class="original-results"><h2>2023 results on the original boundaries</h2><p>These votes have not been moved or added together to fit the 2025 boundaries.</p><details><summary>See the vote counts</summary>' + baseline + '</details>' + (source(envs, 'baseline-2023', built) if row['slug'] == 'port-waikato' else '') + '</section>'
     roll = next((r for r in load('enrolment') if r['electorate_slug'] == row['slug']), None)
     if roll:
         content += '<section><h2>Enrolment</h2><p aria-describedby="source-enrolment-snapshot">' + f'{roll["enrolled"]:,} enrolled at {observation_label(roll["as_at"])}.</p>' + footnote('enrolment-snapshot') + '</section>'

@@ -7,6 +7,10 @@ import argparse
 from html.parser import HTMLParser
 from pathlib import Path
 import re
+import sys
+
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 VOID = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
 BLOCK = {'address', 'article', 'aside', 'blockquote', 'br', 'caption', 'dd', 'div', 'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'header', 'hr', 'li', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'summary', 'table', 'td', 'th', 'tr', 'ul'}
@@ -53,10 +57,12 @@ class VisibleText(HTMLParser):
         return ''.join(self.parts)
 
 
-BANNED = re.compile(r'\b(?:not\s+available|unavailable|pending|withheld|missing|not\s+supplied)\b', re.I)
+BANNED = re.compile(r'\b(?:not\s+available|unavailable|pending|withheld|missing|not\s+supplied|not\s+reported)\b', re.I)
 
 
 def check_absent_text(html, name='page'):
+    from product.nz_election.pipeline.content_checks import check_empty_headings
+    check_empty_headings(html)
     # Include collapsed tables and image alternatives, not only the first viewport.
     class PublicText(HTMLParser):
         def __init__(self):

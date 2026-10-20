@@ -100,13 +100,11 @@ def map_graphic(envs, selected=None):
             marks += f'<a href="{PREFIX}electorates/{row["slug"]}/" aria-label="{escape(title)}"><title>{escape(title)}</title>{rect}</a>'
         records.append([escape(row['name']), escape(held['party']) if held else '', f'{held["margin"]:,}' if held else ''])
     graphic = (f'<svg class="tile-map" viewBox="0 0 {width} {height}" role="{"img" if selected else "group"}" aria-label="2023 holders on original boundaries; schematic 2025 locations" aria-describedby="source-map">{marks}</svg>')
-    if selected:
-        return graphic
     legend = '<div class="map-key">' + ''.join(f'<span><i style="background:{colour(p)}"></i>{escape(label(p))}</span>' for p in ['nat','lab','grn','act','tpm']) + '</div>'
     return graphic + legend + '<p class="map-caption">Darker tiles mean larger 2023 margins. Locations are schematic; Māori seats sit in a separate column. For changed boundaries, tiles show the named 2023 predecessor, not a recalculated result.</p>' + fallback(table('2023 holders on original boundaries', ['Electorate', 'Party', 'Margin'], records, source='source-map'))
 
 
-def sources():
+def sources(envs):
     content = ''
     for name, title in [('map','Electorate tile map'), ('leaders','Party leaders'), ('candidates-2026','2026 candidates'), ('enrolment-snapshot','Electorate enrolment'), ('history','Election history'), ('positions','Coalition positions'), ('port-waikato','Port Waikato by-election')]:
         stem = {'map':'hexmap','enrolment-snapshot':'enrolment','port-waikato':'port-waikato-2023'}.get(name,name)
@@ -114,6 +112,11 @@ def sources():
         content += f'<section id="home-{name}"><h2>{title}</h2>'
         if name == 'map':
             content += '<p>Square tiles from the reviewed hexmap snapshot. Colour uses the 2023 result on the original boundaries, not a prediction for 2026. For changed seats, the first named predecessor in the reviewed correspondence supplies the original result. This is historical context, not an allocation of votes to new boundaries. Margins are votes, not percentages. Port Waikato uses the November by-election.</p>'
+            content += '<p>Result colours and vote majorities: <a href="#records-baseline-2023">Electoral Commission 2023 results and licence</a>; <a href="#home-port-waikato">Port Waikato by-election snapshot and licence</a>.</p>'
+            for entry in envs.get('baseline-2023', {}).get('source', []):
+                content += '<p>' + link(entry['url'], 'Electoral Commission results') + '. ' + escape(entry['licence']) + '</p>'
+            entry = load('port-waikato-2023')[0]
+            content += '<p>' + link(entry['source_url'], 'Port Waikato by-election results') + '. ' + escape(entry['licence']) + '</p>'
         if name == 'history':
             content += table('General election history', ['Year', 'Party', 'Vote share', 'Seats'], [[str(r['year']), escape(r['party']), r['party_vote_share'] + '%', str(r['seats'])] for r in rows], source='source-history-snapshot') + '<div class="source-note" id="source-history-snapshot"><p>Electoral Commission, sources below.</p><p class="source-actions">' + link(rows[0]['source_url'], 'Election results') + '</p></div>'
         for row in rows:
