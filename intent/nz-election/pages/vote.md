@@ -22,6 +22,10 @@ Task-focused search arrivals and home referrals: enrolment to 25 October, overse
 4. Links: overseas, accessible formats, assisted voting, each with its NZ-time deadline.
 5. Link to the reader's electorate page and to Policy.nz.
 
+## Graphics
+
+1. Days left - a large countdown to election day with the enrolment and advance-voting dates on one key-dates timeline - reference: https://www.nbcnews.com/politics/2026-elections/midterms (hero countdown line) - keeps: one big number, dates in order - changes: three NZ dates, EC-sourced. Everything else on this page is links: none for those, they are actions not data.
+
 ## Data, worked back
 
 1 to 4. Fetch once: EC pages (key dates, what to do, overseas, accessible formats), EC copyright, independent summary and links only, reviewed daily to 7 Nov.

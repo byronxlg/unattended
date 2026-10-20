@@ -20,6 +20,12 @@ Search, home, news-link and shared-result arrivals from 19:00 NZDT on 7 November
 3. Electorate table: leader, margin, reporting status, linking each electorate page.
 4. Status line: "Preliminary; official results due 27 November", then the preliminary to official change.
 
+## Graphics
+
+1. Seat answer - the home seat strip (same component), live, with the reporting share beside the bloc totals - reference: https://www.nbcnews.com/politics/2026-elections/midterms ("Battle for control") - keeps: majority marker, totals in the display face - changes: live preliminary counts.
+2. Reporting - one thick progress bar of voting places reported with the update time - reference: https://www.nbcnews.com/politics/2026-elections/midterms (hero status line) - keeps: one number, large - changes: voting places, never "votes counted".
+3. Electorates - the home hex map coloured by current leader, shade by margin, uncounted grey, above the table - reference: https://web.archive.org/web/20250305135954/https://projects.fivethirtyeight.com/2024-election-forecast/ ("Who's favored to win each state?") - keeps: map first, table second - changes: leader on the night, not a rating.
+
 ## Data, worked back
 
 1 to 3. Pipeline: electionresults.govt.nz XML (M3 increments 2, 4, 5), 30 second polling in the client, dated fallback snapshot and official link when the feed is unreachable; EC copyright.

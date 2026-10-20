@@ -41,7 +41,7 @@ for p in sorted((ROOT / "posts").glob("*.md")):
         if k not in meta: fail(f"{p.relative_to(ROOT)}: frontmatter lacks {k}")
     if str(meta.get("date")) != p.stem: fail(f"{p.relative_to(ROOT)}: date does not match filename")
 
-PAGE_PLAN_HEADINGS = ("## Readers and their questions", "## Answers", "## Data, worked back",
+PAGE_PLAN_HEADINGS = ("## Readers and their questions", "## Answers", "## Graphics", "## Data, worked back",
                       "## Page order", "## Not shown", "## Question test")
 for d in sorted((ROOT / "intent").iterdir()) if (ROOT / "intent").exists() else []:
     if not d.is_dir() or d.name in ("research", "candidates"): continue
@@ -61,6 +61,11 @@ for d in sorted((ROOT / "intent").iterdir()) if (ROOT / "intent").exists() else 
             fail(f"{pp.relative_to(ROOT)}: no 'status: draft' or 'status: accepted <UTC time>' line")
         if not re.search(r"^1\. .*https?://", txt.split("## Readers and their questions", 1)[-1], re.M):
             fail(f"{pp.relative_to(ROOT)}: questions are not a ranked list with evidence links")
+        # Graphics from the references (Byron, Telegram 2026-10-20 02:39Z): each graphic names
+        # the reference graphic it is modelled on, or the page says why it has none.
+        gfx = txt.split("## Graphics", 1)[-1].split("\n## ", 1)[0]
+        if "## Graphics" in txt and not re.search(r"https?://|^none: ", gfx, re.M):
+            fail(f"{pp.relative_to(ROOT)}: '## Graphics' names no reference graphic and no 'none: <reason>'")
 
 for name in ("ledger.jsonl", "ticks.jsonl", "mistakes.jsonl"):
     p = ROOT / "state" / name

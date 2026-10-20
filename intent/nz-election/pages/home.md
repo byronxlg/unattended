@@ -22,6 +22,12 @@ General readers from search, shared graphics and news links before 7 November; r
 4. Electorate picker (link list or select) to the electorate page.
 5. On the night: national seats, percent of voting places reported, update time, link to night/.
 
+## Graphics
+
+1. Seat answer - a full-width 122-seat strip, one block per seat in party colour, grouped by bloc from the outside in, a heavy 62 marker with a direct label, the bloc totals as large numbers at each end - reference: https://www.nbcnews.com/politics/2026-elections/midterms ("Battle for control" seat strip and majority marker) and https://web.archive.org/web/20250305135954/https://projects.fivethirtyeight.com/2024-election-forecast/ ("What does the path to 61 look like?" is the snake chart) - keeps: full width, majority marker annotated, totals in the display face - changes: MMP seats from the allocator, overhang shown. The 538 dot histogram of outcomes only once a stated seat simulation exists.
+2. Poll trend - thick party-coloured average lines with end labels (party and value) in the text face, individual polls as faint dots, a shaded range, the latest change annotated on the chart - reference: https://web.archive.org/web/20250305135954/https://projects.fivethirtyeight.com/2024-election-forecast/ ("How has the forecast changed over time?") - keeps: line weight, end labels, annotation, proper axes - changes: six parties, not two; small parties on their own scale or a second panel so the 5 percent threshold reads.
+4. Electorate picker - an NZ electorate hex map coloured by 2023 holder, margin as shade, tap through to the electorate page, the list kept beside it - reference: https://web.archive.org/web/20250305135954/https://projects.fivethirtyeight.com/2024-election-forecast/ ("Who's favored to win each state?") - keeps: the map as the page's centre of gravity, legend with stated thresholds - changes: hex layout (fetch once, add to Data), holder and margin rather than ratings until a rating method is stated.
+
 ## Data, worked back
 
 1. Have: polls family (Wikipedia, CC BY-SA 4.0, hourly pipeline) and allocator.
