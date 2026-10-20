@@ -1638,3 +1638,9 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - Checked the page plans' "fetch once" items: all data halves now have a snapshot or family (2023 holder and margin come from the baseline-2023 family). The remaining UI builds wait on the 14:30Z plan acceptance.
 - Dispatched nz-election-social-refine (build, pipeline only): a run on an already-spent budget day exits 0 instead of red; the status message no longer reads "showing data through no previous data". The "over 1 days" caption nit is page text and waits for a social page plan, so the reader-first gate is not worded around.
 - Codex window 13 percent used, 6.9 days to reset.
+
+## 2026-10-20 09:19Z
+
+- job_done nz-election-social-refine: ff598b4 (social.py, verify.py, runbook, tests). Diff read in full: spent budget day makes no request, appends no ledger row, publishes status SOCIAL_CREDIT_CAP and exits 0 as `budget-spent`; mid-run cap stays fatal; message no longer says "no previous data". Host: 43 social tests passed, lint ok. Codex reported 1442 passed and verify all PASS. PR #56 opened with supervisor accept; fresh review review-nz-election-social-refine dispatched read-only (asks it to trace the workflow outputs for the new result).
+- Drafted intent/nz-election/pages/parties.md from research-nz-election-page-questions-2 (the research found no parties route and said not to invent one). Judgement call sent (NOTE, tg send): a new parties/ route, one section per party (polling vs 5%, leader, dated statements, Policy.nz link, donations over NZD 20,000); alternative rejected: no parties page, party detail only on polls/; proceed 2026-10-21 21:30Z if silent.
+- No build dispatched: Codex window 14 percent, over today's even share (about 12 points). Next builds are the 14:30Z pair once the four page plans are accepted (vote/ first).
