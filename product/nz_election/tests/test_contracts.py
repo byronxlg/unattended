@@ -16,7 +16,7 @@ def bundle(tmp_path):
 
 
 def test_capture_manifest():
-    assert len(captures()) == 116
+    assert len(captures()) == 117
 
 
 def test_envelopes_and_provenance(bundle):
@@ -109,7 +109,7 @@ def test_hourly_daily_race_preserves_union(tmp_path):
     from product.nz_election.pipeline.publish import publish, git, DATA
     hourly, daily, remote = [tmp_path / s for s in ('hourly', 'daily', 'remote.git')]
     refresh(hourly, now='2026-10-18T01:00:00Z')
-    daily_refresh(daily, now='2026-10-18T01:00:00Z')
+    daily_refresh(daily, now='2026-10-18T01:00:00Z', historical_advance=True)
     remote.mkdir()
     git(remote, 'init', '--bare', '-q')
     barrier = threading.Barrier(2)

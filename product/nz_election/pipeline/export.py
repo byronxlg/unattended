@@ -25,6 +25,7 @@ FIELDS['electorates'] = ROW | set('name kind slug stats_id search_key baseline_i
 for stem in GEO:
     FIELDS[stem] = ROW | {'name', 'kind'}
 NEW_FIELDS = {
+    'advance-voting': 'date daily cumulative input_kind span_start',
     'markets': 'event_id event_slug event_title market_id family question outcomes unpriced_outcomes volume volume_unit liquidity liquidity_unit resolution_url resolution_criteria updated_at closed active',
     'candidates': 'person_id name party_id electorate_id list_rank wikidata_id wikipedia_url join_status conflict_ids field_sources',
     'party-lists': 'party_id candidate_ids complete review_ref field_sources',
@@ -37,10 +38,11 @@ for stem, fields in NEW_FIELDS.items():
     FIELDS[stem] = ROW | set(fields.split())
 FAMILIES.update({'candidates': {'candidates', 'party-lists', 'candidate-review'},
                  **{s: {s} for s in ('baseline-2023', 'enrolment', 'electorate-polls', 'markets')}})
+FAMILIES['advance'] = {'advance-voting'}
 FAMILIES['social'] = {'social/daily', 'social/credits'}
 FIELDS['social/daily'] = ROW | set('day sample party_counts attitude topic_counts model_versions question_version provenance probability_sums'.split())
 FIELDS['social/credits'] = ROW | set('day reserved spent cap requests allocation closed'.split())
-DATE_OBSERVATIONS = {'polls', 'averages', 'seats', 'baseline-2023', 'enrolment'}
+DATE_OBSERVATIONS = {'advance-voting', 'polls', 'averages', 'seats', 'baseline-2023', 'enrolment'}
 STEMS = {'social/daily', 'social/credits'} | set(NEW_FIELDS) | GEO | {'electorates', 'polls', 'averages', 'seats', 'status', 'manifest'}
 ALLOWED = {s + ext for s in STEMS for ext in ('.json', '.csv')} | {'LICENCES.md'}
 META = ['schema_version', 'source_json', 'fetched_at', 'run_url', 'code_sha',
@@ -119,6 +121,11 @@ def validate_envelope(env, stem):
     extra = {'type', 'features'} if stem in GEO else set()
     if set(env) not in (BASE | extra, BASE | DERIVED | extra) or type(env['schema_version']) is not int or env['schema_version'] != 1:
         raise ValueError('INVALID_ENVELOPE')
+    if stem == 'advance-voting':
+        from .advance import validate
+        validate(rows(env))
+        if not env['source'] or not env.get('input_hashes'):
+            raise ValueError('INVALID_ADVANCE')
     if stem == 'markets':
         if not isinstance(env['data'], list) or not env['data']:
             raise ValueError('INVALID_MARKET')
@@ -133,7 +140,7 @@ def validate_envelope(env, stem):
         timestamp(source['fetched_at'], 'source.fetched_at')
     if env['fetched_at'] != max((s['fetched_at'] for s in env['source']), default=None):
         raise ValueError('INVALID_ACQUISITION')
-    if stem in {'averages', 'seats'} and not DERIVED <= env.keys():
+    if stem in {'averages', 'seats', 'advance-voting'} and not DERIVED <= env.keys():
         raise ValueError('MISSING_DERIVATION')
     def exact(value):
         if isinstance(value, float):
@@ -216,6 +223,11 @@ def validate_daily_row(row, stem, sources):
             raise ValueError('INVALID_DAILY_NUMBER: ' + stem)
     if stem == 'markets':
         validate_market_row(row)
+    elif stem == 'advance-voting':
+        if {r.get('field') for r in row['source_ref']} != {'date', 'daily', 'cumulative'}:
+            raise ValueError('INVALID_FIELD_SOURCE')
+        natural(row['daily'], True)
+        natural(row['cumulative'], True)
     elif stem == 'candidates':
         if not isinstance(row['name'], str) or not row['name'] or not isinstance(row['party_id'], str) or not row['party_id']:
             raise ValueError('INVALID_CANDIDATE')

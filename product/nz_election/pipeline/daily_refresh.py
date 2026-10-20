@@ -13,12 +13,12 @@ import sys
 import tempfile
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from product.nz_election.pipeline import export, geography, candidates, baseline, enrolment, electorate_polls, markets
+from product.nz_election.pipeline import export, geography, candidates, baseline, enrolment, electorate_polls, markets, advance
 from product.nz_election.pipeline.refresh import config, code_sha, utc_now
 from product.nz_election.pipeline.storage import replace_directory
 
 
-def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', load=geography.load, loaders=None, messages=None):
+def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', load=geography.load, loaders=None, messages=None, historical_advance=False):
     out = Path(out).absolute()
     if out.is_symlink():
         raise ValueError('UNSAFE_OUTPUT_PATH')
@@ -80,15 +80,25 @@ def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', lo
                           error_code=error, message='Retained last-good geography.' if error else capture_message)
             statuses = [r for r in statuses if r['dataset'] != 'geography'] + [status]
             producers = loaders if loaders is not None else {'candidates': candidates.load, 'baseline-2023': baseline.load,
-                                                            'enrolment': enrolment.load, 'electorate-polls': electorate_polls.load, 'markets': markets.load}
+                                                            'enrolment': enrolment.load, 'electorate-polls': electorate_polls.load, 'markets': markets.load,
+                                                            'advance': lambda: advance.load(historical=historical_advance)}
             for family, producer in producers.items():
                 previous = next((r for r in statuses if r['dataset'] == family), {})
                 failure = None
                 try:
-                    payloads, sources, hashes = producer()
+                    loaded = producer()
+                    if loaded is None and family == 'advance':
+                        statuses = [r for r in statuses if r['dataset'] != family] + [dict(
+                            id='status-advance', source_ref=[], observed_at=now, dataset=family,
+                            state='stale' if previous.get('last_success_at') else 'unavailable',
+                            last_attempt_at=now, last_success_at=previous.get('last_success_at'),
+                            last_good_run_url=previous.get('last_good_run_url'), error_code=None,
+                            message='Awaiting a verified 2026 capture; any last-good capture is retained.')]
+                        continue
+                    payloads, sources, hashes = loaded
                     if set(payloads) != export.FAMILIES[family]:
                         raise ValueError('PARTIAL_DAILY_FAMILY')
-                    if (stage / 'electorates.json').exists():
+                    if family != 'advance' and (stage / 'electorates.json').exists():
                         registry = json.loads((stage / 'electorates.json').read_text())['data']
                         if hashes['electorates.data'] != export.digest(export.canonical(registry).encode()):
                             raise ValueError('DAILY_REGISTRY_MISMATCH')
@@ -122,8 +132,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--live', action='store_true')
+    parser.add_argument('--historical-advance', action='store_true', help='2023 offline verification only')
     args = parser.parse_args()
-    options = {}
+    if args.live and args.historical_advance:
+        parser.error('historical advance is offline only')
+    options = dict(historical_advance=args.historical_advance)
     if args.live:
         from product.nz_election.pipeline.daily_sources import live_loaders
         loaders, messages = live_loaders()

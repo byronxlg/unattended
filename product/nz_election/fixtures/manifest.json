@@ -1461,6 +1461,25 @@
    "licence": "Source: Polymarket. Subject to Polymarket terms. No open licence asserted.",
    "revision": "event updatedAt 2026-10-17T03:03:25.927906Z (upstream timestamp, distinct from captured_at)",
    "notes": "Gamma events response, one event, 6 markets, closed=False, endDate 2026-11-08T04:59:00Z; each market's resolution wording is in its description field and its rules page is https://polymarket.com/event/which-parties-will-be-part-of-the-next-government-of-new-zealand."
+  },
+  {
+   "path": "ec-2023/advance-voting.csv",
+   "url": "https://elections.nz/democracy-in-nz/historical-events/2023-general-election/voting-statistics/AdvanceVoteCSV",
+   "archive_url": "https://web.archive.org/web/20240513105727id_/https://elections.nz/democracy-in-nz/historical-events/2023-general-election/voting-statistics/AdvanceVoteCSV",
+   "captured_at": "2026-10-20T00:50:03Z",
+   "sha256": "d182a07933ef3bbdc472232c5a9e6086cf3f6cd6eb4d87af4b5db60d75a82da4",
+   "reviewer": "Codex acquisition; supervisor review pending",
+   "revision": "Wayback 20240513105727",
+   "licence": "Copyright Electoral Commission. No open licence stated.",
+   "notes": "Fetched archive_url verbatim after original URL returned an Incapsula HTML challenge. Official voting-statistics page identifies daily counts, updated February 2024 to include special votes, excluding overseas votes. Explicit zeros on 30 September and 1 October are supplied, not imputed. Historical offline verification only.",
+   "bytes": 546,
+   "advance": {
+    "year": 2023,
+    "kind": "daily",
+    "start": "2023-09-30",
+    "date_column": "Date",
+    "count_column": "2023 General Election"
+   }
   }
  ]
 }
