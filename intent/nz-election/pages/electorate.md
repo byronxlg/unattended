@@ -31,7 +31,7 @@ Search arrivals for "<electorate> candidates", local shares and home referrals b
 ## Data, worked back
 
 1. Have: `snapshots/candidates-2026.json` (CC BY-SA 4.0); fetch once a reconciliation against the EC candidate release.
-2. Fetch once: vote.nz link; `snapshots/hexmap.json` is schematic, never an address lookup.
+2. Fetch once: vote.nz link; `snapshots/hexmap.json` is schematic, never an address lookup; the locator graphic uses the hex tile highlighted on that layout until a licensed boundary file is fetched once (Stats NZ electorate boundaries 2025, CC BY 4.0, simplified).
 3. Fetch once: Policy.nz link, no ingestion.
 4. Have or fetch once: 2023 EC results (EC copyright), boundary comparability; Port Waikato from its snapshot.
 5. Pipeline: night family, electorate results.

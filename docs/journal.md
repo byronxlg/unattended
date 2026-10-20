@@ -1553,3 +1553,12 @@ the handover on 2026-11-08.
 - Both reasons were handled in the 02:04Z run (four draft page plans, NOTE sent 02:28Z, accept at 14:30Z if Byron is silent; issue #49 stays open per the operator until a UI build passes the question test). Research job marked reviewed.
 - m3-night brief rescoped to its data half (parser, archives, night family, runbook data side, smoke test; no route, template, client script or screenshot entry), so the reader-first gate does not apply and the night page waits for pages/night.md. Captures rebased onto 605b316 as e84b6aa (branch never pushed).
 - Codex window 65 percent, today's share spent: no dispatch until 06:45Z (next-run-after unchanged). No jobs running; this is the budget rule, not idle choice.
+
+## 2026-10-20 03:00Z run (issue #51)
+
+Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pages I provided had really good visuals. And the ones on our site are very basic and badly done."
+
+- The operator opened PR #52 (Graphics section in the page-plan template and the four draft plans, a `bin/lint` check, the graphic test in REVIEW.md pass 4 and the question test). Supervisor review accept logged on the PR; CI green (check 12m8s); the operator squash merged it as f244a58 before this run could; #51 closed.
+- Follow-up on main: home, night and electorate Data sections now name `snapshots/hexmap.json` (have) for the hex map and the electorate locator, and the 2023 holder and margin as fetch once. lint ok.
+- No new NOTE line: the Graphics direction is Byron's own ask. Draft plans keep the 14:30Z 20 Oct acceptance deadline. From then every UI brief (vote/ first, then home) carries the plan's Graphics lines and the screenshot-beside-reference test.
+- Next: 06:45Z run dispatches nz-election-m3-night (data half, no UI) as written. Codex window 65 percent, 5.2 days to reset.

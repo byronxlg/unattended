@@ -33,7 +33,7 @@ General readers from search, shared graphics and news links before 7 November; r
 1. Have: polls family (Wikipedia, CC BY-SA 4.0, hourly pipeline) and allocator.
 2. Have: polls family, same cadence; fieldwork dates kept apart from publication and retrieval.
 3. Fetch once: EC key dates (https://vote.nz/2026-general-election/about/overview/key-dates), EC copyright, link and dates only; reviewed daily to 7 Nov.
-4. Have: `snapshots/candidates-2026.json`, electorate route list.
+4. Have: `snapshots/candidates-2026.json`, electorate route list, `snapshots/hexmap.json` (schematic tile layout, from look-b) for the hex map; fetch once the 2023 holder and margin per electorate (EC results, EC copyright) for its colour and shade.
 5. Pipeline: night family (M3 increments 2 to 5), electionresults.govt.nz.
 
 ## Page order

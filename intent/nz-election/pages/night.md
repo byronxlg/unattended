@@ -29,6 +29,7 @@ Search, home, news-link and shared-result arrivals from 19:00 NZDT on 7 November
 ## Data, worked back
 
 1 to 3. Pipeline: electionresults.govt.nz XML (M3 increments 2, 4, 5), 30 second polling in the client, dated fallback snapshot and official link when the feed is unreachable; EC copyright.
+Graphic 3: have `snapshots/hexmap.json` (the home hex layout).
 4. Fetch once: EC calendar; pipeline: official-results capture when published (M3 increment 4).
 Before 19:00: countdown and the replay rehearsal, labelled as a replay, never as live.
 
