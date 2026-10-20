@@ -66,7 +66,7 @@ def page(envs, built=None, historical=False):
                  f'<p>{rows[0]["date"]} to {rows[-1]["date"]}; scale 0 to {peak:,} votes.</p></figure>')
     records = [[r['date'], *(f'{r[k]:,}' if r[k] is not None else 'Unknown across gap' for k in ('daily', 'cumulative'))] for r in rows]
     module = (f'<section id="advance" data-campaign-module="advance-voting">{historical_label}'
-              '<h2>How many people have voted early?</h2><p>National daily votes and the running total. Missing dates remain gaps.</p>' + window_note(envs, historical) + retained + chart +
+              '<h2>How many people have voted early?</h2><p>National daily votes and the running total. Days without a published count are left as gaps.</p>' + window_note(envs, historical) + retained + chart +
               table('Daily advance votes', ['Date', 'Daily', 'Cumulative'], records, source='source-advance') +
               f'<div class="source-note" id="source-advance"><p>{ATTRIBUTION} Observed through {rows[-1]["date"]}. '
               f'Retrieved {escape(env["fetched_at"])}.</p><p class="source-actions"><a href="{PREFIX}methods/#source-advance">Sources and method</a></p></div></section>')
