@@ -8,7 +8,7 @@ This specification implements `intent/nz-election/intent.md`. Source references 
 
 Take all preferred answers in the intent: a `data` branch; labelled old-boundary 2023 results; a window mean; SVG from simplified GeoJSON; reference IDs discovered at feed startup. No house-effect adjustment or geographic reallocation in v1.
 
-Milestones: M1 19 October; M2 26 October; M3 1 November; M4 4 November. Each closes only after deployment and verification. The plan must name changes to `.github/workflows/pages.yml`, two new data workflows, and product instructions in `product/nz_election/AGENTS.md`. This design job changes no files.
+Milestones: M1 19 October; M2 26 October; M3 1 November; M4 4 November (superseded 2026-10-20 by `schedule.md`, dated to 14 November). Each closes only after deployment and verification. The plan must name changes to `.github/workflows/pages.yml`, two new data workflows, and product instructions in `product/nz_election/AGENTS.md`. This design job changes no files.
 
 ## Sources and visible licence lines
 
@@ -382,7 +382,8 @@ resolution below changes a requirement, the resolution wins.
     `config/party-colours.json` and the UI never carries meaning by colour alone, so nothing
     depends on them. The supervisor supplies evidence captures before M2 screenshot acceptance.
 14. Election-night ownership: accepted. M4 opens a `needs-byron` issue with the runbook, the
-    feed checks and the capture list. The lab promises nothing after 4 Nov.
+    feed checks and the capture list. The lab promises nothing after 4 Nov. (Superseded 2026-10-20: the lab runs
+    to 14 Nov and owns election night; see `schedule.md`.)
 
 ### Constraints the spec did not know
 
