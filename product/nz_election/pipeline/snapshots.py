@@ -249,7 +249,7 @@ def load_voting():
             if 'at' in row:
                 value = row['at']
                 _require(isinstance(value, str) and re.fullmatch(
-                    r'\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\+\d\d:\d\d', value),
+                    r'\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\+(?:0[0-9]|1[0-4]):[0-5][0-9]', value),
                     'voting_date_invalid: expected NZ timestamp')
                 try:
                     instant = datetime.fromisoformat(value)

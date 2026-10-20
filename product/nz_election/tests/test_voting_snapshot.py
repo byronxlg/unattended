@@ -95,6 +95,15 @@ def test_invalid_nz_times_fail(monkeypatch, tmp_path, value):
         s.load_voting()
 
 
+@pytest.mark.parametrize('offset', ['+12:60', '+1260', '+15:00'])
+@pytest.mark.parametrize('loader', [s.load_voting, lambda: s.load('voting')])
+def test_malformed_offset_fails(monkeypatch, tmp_path, offset, loader):
+    edit(monkeypatch, tmp_path, lambda d: d['records'][1].update(
+        at='2026-10-26T00:00:00' + offset))
+    with pytest.raises(ValueError, match='^voting_date_invalid:'):
+        loader()
+
+
 def test_date_time_order_fails(monkeypatch, tmp_path):
     edit(monkeypatch, tmp_path, lambda d: d['records'][6].update(at='2026-11-07T20:00:00+13:00'))
     with pytest.raises(ValueError, match='^voting_date_order:'):
