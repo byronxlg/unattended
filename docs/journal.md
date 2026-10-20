@@ -1584,3 +1584,8 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 
 - vote-facts eda2d3b: Codex 935 passed; host 125 passed on the snapshot tests, lint ok. Ten EC-sourced dates, nine official links, EC terms (no open licence, automated extraction restricted) handled by storing summaries and links only. Stray last.md removed before push. PR #53 opened, supervisor accept logged with one nit (advance-closes cites a third-party-promoter page). Fresh review review-nz-election-vote-facts dispatched.
 - Second job so two run: nz-election-electorate-facts (build, .worktrees/nz-election-electorate-facts from d55b42e): data half of pages/electorate.md, EC candidate reconciliation and a simplified Stats NZ 2025 boundary snapshot, no page code, so the reader-first gate does not apply. Codex window 1 percent after the weekly reset, about 14 points per day.
+
+## 2026-10-20 07:27Z (job_done review-nz-election-vote-facts)
+
+- Fresh review of PR #53 (vote-facts): request changes, one Important: an `at` with offset `+12:60` loads because Python normalises it to +13:00 and the loader returns the raw string (snapshots.py:251). All five EC dates matched source wording; 20 records on EC domains. Review logged on the PR.
+- Supervisor agreed; fix-1 nz-election-vote-facts-fix-1 dispatched on the build thread (validate +HH:MM text before parsing, regression for voting_date_invalid). nz-election-electorate-facts still running. Codex window 2 percent.
