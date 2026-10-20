@@ -1609,3 +1609,11 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - PR #54 (electorate-facts): fix-1 99f69dc validates correction values by field. Merged main into the branch (no force-push); one conflict in snapshots.py NAMES, resolved as the union of both sets. Host `pytest -q product` 1078 passed, `bin/lint` ok. Pushed, supervisor accept logged, second fresh review review-nz-election-electorate-facts-2 dispatched.
 - Idle slot (issue #43): research-nz-election-page-questions-2 dispatched read-only, polls and party pages, feeding the next page plans; UI builds still wait for the 14:30Z acceptance of the four page plans.
 - Codex window 8 percent at dispatch.
+
+## 2026-10-20 08:18Z (run, job_done research-nz-election-page-questions-2, review-nz-election-electorate-facts-2)
+
+- PR #54 electorate-facts: second fresh review on a1df13c accept, no findings (its sandbox could not run pytest; host 1078 passed at 08:00Z), CI green; review logged on the PR; squash merged as 67c1980, worktree removed.
+- Research polls/parties/campaign/downloads read (Codex could not write last.md to disk; the reply is its output). Ranks are hypotheses, search data unreachable. Drafted `intent/nz-election/pages/polls.md` (questions: who is ahead, has support changed, can a bloc reach 61; above the fold party averages then the trend; graphics modelled on 538's averages module, polls chart and electoral bar).
+- Judgement call sent (NOTE, Telegram 08:3xZ): polls plan top three and fold; no party pages for now (research found no question a party page answers better than links to Policy.nz and the existing positions/leaders data). Alternative rejected: party index plus per-party pages. Accept 20:30Z 20 Oct if silent.
+- Dispatched nz-election-donations-facts in .worktrees/nz-election-donations-facts on change/nz-election-donations-facts from 67c1980: EC donations over $20,000 as snapshots/donations.json with loader and tests, no page (data half of M3 increment 3, fetch once per #40). Brief state/jobs/nz-election-donations-facts/prompt.md.
+- Codex window 8 percent at run start.
