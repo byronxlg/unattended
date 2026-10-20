@@ -1631,3 +1631,10 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - Host verification: donation tests 355 passed, `bin/lint` lint ok, jq on the snapshot 146 records, skipped [], per-party counts and total equal to last.md. Supervisor accept logged on PR #55 (opened this run); fresh review review-nz-election-donations-facts dispatched read-only.
 - One job running: the window day that began about 06:41Z has spent its even share (13 of about 13 points). Next build dispatches are the 14:30Z pair (m3-night as written, vote/ page from pages/vote.md) once the page plans are accepted; vote/ first if the share forces a choice (advance voting 26 Oct).
 - Codex window 13 percent at run start.
+
+## 2026-10-20 09:07Z
+
+- Fresh review of PR #55 (donations-facts) accept, no findings; logged on the PR. CI green; squash merged as 6afc912; worktree removed.
+- Checked the page plans' "fetch once" items: all data halves now have a snapshot or family (2023 holder and margin come from the baseline-2023 family). The remaining UI builds wait on the 14:30Z plan acceptance.
+- Dispatched nz-election-social-refine (build, pipeline only): a run on an already-spent budget day exits 0 instead of red; the status message no longer reads "showing data through no previous data". The "over 1 days" caption nit is page text and waits for a social page plan, so the reader-first gate is not worded around.
+- Codex window 13 percent used, 6.9 days to reset.
