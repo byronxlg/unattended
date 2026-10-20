@@ -70,9 +70,33 @@ def parse(raw, *, kind, start, date_column='Date', count_column='2023 General El
         raise ValueError(ERROR) from None
 
 
+def descriptor(value):
+    """Reject malformed capture metadata before selecting or reading a source."""
+    required = {'year', 'kind', 'start', 'date_column', 'count_column'}
+    if not isinstance(value, dict) or not required <= value.keys():
+        raise ValueError(ERROR)
+    if (type(value['year']) is not int or not 1 <= value['year'] <= 9999 or
+            value['kind'] not in ('daily', 'cumulative') or
+            any(not isinstance(value[k], str) or not value[k].strip() for k in ('date_column', 'count_column')) or
+            value['date_column'] == value['count_column']):
+        raise ValueError(ERROR)
+    try:
+        export.calendar_date(value['start'], 'advance start')
+    except ValueError:
+        raise ValueError(ERROR) from None
+    if value['start'][:4] != f"{value['year']:04d}":
+        raise ValueError(ERROR)
+    return value
+
+
 def load(*, historical=False):
     entries = json.loads((ROOT / 'manifest.json').read_text())['entries']
-    selected = [e for e in entries if e.get('advance', {}).get('year') == (2023 if historical else 2026)]
+    selected = []
+    for entry in entries:
+        if 'advance' in entry:
+            settings = descriptor(entry['advance'])
+            if settings['year'] == (2023 if historical else 2026):
+                selected.append(entry)
     if not selected:
         return None
     for candidate in selected:

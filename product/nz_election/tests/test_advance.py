@@ -112,3 +112,56 @@ def test_newest_immutable_capture_replaces_series(tmp_path, monkeypatch):
     (tmp_path / new['path']).write_bytes(b'corrupt')
     with pytest.raises(ValueError, match='CAPTURE_HASH_MISMATCH'):
         advance.load(historical=True)
+
+
+@pytest.mark.parametrize('probe', ['missing-kind', 'null-start', 'null-advance'])
+@pytest.mark.parametrize('retained', [False, True])
+def test_bad_descriptor_is_handled_without_blocking_other_families(tmp_path, monkeypatch, probe, retained):
+    import json
+    from product.nz_election.pipeline import markets
+    from product.nz_election.pipeline.fixtures import ROOT
+    entry = deepcopy(next(e for e in json.loads((ROOT / 'manifest.json').read_text())['entries'] if 'advance' in e))
+    data = tmp_path / 'data'
+    if retained:
+        daily_refresh(data, historical_advance=True)
+    before = {p.name: p.read_bytes() for p in data.glob('advance-voting.*')}
+    if probe == 'missing-kind':
+        del entry['advance']['kind']
+    elif probe == 'null-start':
+        entry['advance']['start'] = None
+    else:
+        entry['advance'] = None
+    fixtures = tmp_path / 'fixtures'
+    fixtures.mkdir()
+    (fixtures / 'manifest.json').write_text(json.dumps(dict(entries=[entry])))
+    monkeypatch.setattr(advance, 'ROOT', fixtures)
+    with pytest.raises(ValueError, match='^INVALID_ADVANCE$'):
+        advance.load(historical=True)
+    daily_refresh(data, loaders={'advance': lambda: advance.load(historical=True), 'markets': markets.load})
+    envs = export.validate_bundle(data)
+    statuses = {r['dataset']: r for r in envs['status']['data']}
+    assert statuses['advance']['error_code'] == 'INVALID_ADVANCE'
+    assert statuses['advance']['state'] == ('stale' if retained else 'unavailable')
+    assert statuses['markets']['state'] == 'fresh' and envs['markets']['data']
+    assert before == {p.name: p.read_bytes() for p in data.glob('advance-voting.*')}
+
+
+@pytest.mark.parametrize('field', ['year', 'kind', 'start', 'date_column', 'count_column'])
+@pytest.mark.parametrize('bad', ['', None, [], {}, True, 1.5, 10**100, 'ſ-invalid'])
+def test_descriptor_field_types_raise_handled_error(field, bad):
+    value = dict(year=2026, kind='daily', start='2026-10-26', date_column='Date', count_column='Votes')
+    value[field] = bad
+    # Nonempty strings are legitimate CSV column names; the parser checks their presence.
+    if field.endswith('_column') and bad == 'ſ-invalid':
+        assert advance.descriptor(value) == value
+        with pytest.raises(ValueError, match='^INVALID_ADVANCE$'):
+            advance.parse(b'Date,Votes\n2026-10-26,1', **{k: value[k] for k in ('kind', 'start', 'date_column', 'count_column')})
+    else:
+        with pytest.raises(ValueError, match='^INVALID_ADVANCE$'):
+            advance.descriptor(value)
+
+
+@pytest.mark.parametrize('bad', ['', None, [], {}, True, 1.5, 10**100, 'ſ-invalid'])
+def test_descriptor_shape_raises_handled_error(bad):
+    with pytest.raises(ValueError, match='^INVALID_ADVANCE$'):
+        advance.descriptor(bad)
