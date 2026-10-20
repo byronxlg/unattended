@@ -1501,3 +1501,10 @@ the handover on 2026-11-08.
 - PR #45 (look-b) fresh design review: request changes, three Important (electorate maps lack the exact-value table; map provenance credits only Stats NZ and Port Waikato party votes point at an empty source target; empty "Closest on unchanged boundaries" heading and "Not reported" survive the absent gate) and one nit (Port Waikato "Nineteen electorates are unchanged"). Visual verdict: hero meets the 538 clear-answer hierarchy. Logged on the PR. All four to fix-2 nz-election-look-b-fix-2 on the build thread; test_average.py:52 named as a moving contract (grepped first).
 - Codex window 55 percent, 5.3 days to reset, about 9 points per day.
 - Next: merge #46 on accept and green CI, dispatch the hourly by hand as the proving run; host-verify look-b fix-2, second fresh review, merge #45, send Byron the link.
+
+## 2026-10-20 00:25Z (job_done review-nz-election-polls-fix2)
+
+- Fresh Codex review of PR #46 (bounded release-date sort values, hourly parse_drift since 20:40Z 19 Oct): accept, no findings; eval FAIL on fe698de and PASS on 03a72cf, live capture 44 rows including the Freshwater 2026-10-19 poll. Logged on the PR.
+- CI green; PR #46 squash merged as c5c388d; worktree removed; hourly dispatched by hand (run 39347561539) as the proving run.
+- Plan empty for M3 (due 1 Nov), so the second job slot goes to plan-nz-election-m3 (read-only): requirements 9 to 12, at most five increments, advance voting first so it publishes from 26 Oct, a 2023 replay rehearsal procedure before 4 Nov, s197 freeze, CORS probe. Running alongside look-b fix-2 (PR #45).
+- Codex window 55 percent, 5.3 days to reset, about 9 points per day.
