@@ -1,0 +1,221 @@
+{
+  "schema": "voting-v1",
+  "retrieved_at": "2026-10-20T07:06:51Z",
+  "timezone": "Pacific/Auckland",
+  "records": [
+    {
+      "id": "overseas-opens",
+      "kind": "date",
+      "summary": "Overseas voting begins on 21 October.",
+      "source_url": "https://vote.nz/2026-general-election/overseas/vote-from-overseas",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "enrolment-closes",
+      "kind": "date",
+      "summary": "Enrol or update your details by midnight at the end of 25 October.",
+      "source_url": "https://vote.nz/enrolling/enrol-or-update/enrol-or-update-online",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "date": "2026-10-25",
+      "at": "2026-10-26T00:00:00+13:00"
+    },
+    {
+      "id": "advance-opens",
+      "kind": "date",
+      "summary": "Advance voting begins on 26 October; check local opening hours.",
+      "source_url": "https://vote.nz/2026-general-election/about/overview/key-dates",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "date": "2026-10-26"
+    },
+    {
+      "id": "advance-closes",
+      "kind": "date",
+      "summary": "The last day of advance voting is 6 November.",
+      "source_url": "https://elections.nz/guidance-and-rules/for-third-party-promoters/new-standard-page-2",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "date": "2026-11-06"
+    },
+    {
+      "id": "s197-cutoff",
+      "kind": "date",
+      "summary": "Election-day campaigning restrictions begin at midnight after 6 November and run until 7pm on 7 November.",
+      "source_url": "https://elections.nz/assets/2026-Media-Kit-/2026-General-Election-media-kit.pdf",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "date": "2026-11-06",
+      "at": "2026-11-07T00:00:00+13:00",
+      "source_locator": "Page 23: Election day rules - 7 November 2026"
+    },
+    {
+      "id": "election-day",
+      "kind": "date",
+      "summary": "Election day is 7 November; voting places open at 9am and close at 7pm.",
+      "source_url": "https://vote.nz/2026-general-election/about/overview/key-dates",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "telephone-registration-closes",
+      "kind": "date",
+      "summary": "Register for telephone dictation by noon on election day, including if you have used it before.",
+      "source_url": "https://vote.nz/2026-general-election/voting-in-the-election/cant-get-to-a-voting-place/telephone-dictation-voting",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "date": "2026-11-07",
+      "at": "2026-11-07T12:00:00+13:00"
+    },
+    {
+      "id": "voting-closes",
+      "kind": "date",
+      "summary": "Voting in New Zealand closes at 7pm on election day.",
+      "source_url": "https://vote.nz/2026-general-election/voting-in-the-election/what-to-do",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "date": "2026-11-07",
+      "at": "2026-11-07T19:00:00+13:00"
+    },
+    {
+      "id": "overseas-upload-closes",
+      "kind": "date",
+      "summary": "Upload completed overseas voting papers by 7pm New Zealand time on election day.",
+      "source_url": "https://vote.nz/2026-general-election/overseas/vote-from-overseas",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "date": "2026-11-07",
+      "at": "2026-11-07T19:00:00+13:00"
+    },
+    {
+      "id": "telephone-voting-closes",
+      "kind": "date",
+      "summary": "Registered telephone-dictation voters can vote until 7pm New Zealand time on election day.",
+      "source_url": "https://vote.nz/2026-general-election/voting-in-the-election/cant-get-to-a-voting-place/telephone-dictation-voting",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "date": "2026-11-07",
+      "at": "2026-11-07T19:00:00+13:00"
+    },
+    {
+      "id": "check-or-update-enrolment",
+      "kind": "action",
+      "summary": "Check your enrolment or update your details using the official online service.",
+      "source_url": "https://vote.nz/enrolling/enrol-or-update/enrol-or-update-online",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "url": "https://vote.nz/enrolling/enrol-or-update/enrol-or-update-online",
+      "deadline_ids": [
+        "enrolment-closes"
+      ]
+    },
+    {
+      "id": "find-where-to-vote",
+      "kind": "action",
+      "summary": "Use the official map or list to check voting locations, opening hours and accessibility.",
+      "source_url": "https://vote.nz/2026-general-election/voting-in-the-election/find-a-voting-place",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "url": "https://vote.nz/2026-general-election/voting-in-the-election/find-a-voting-place",
+      "deadline_ids": [
+        "voting-closes"
+      ]
+    },
+    {
+      "id": "what-to-bring",
+      "kind": "action",
+      "summary": "An EasyVote card speeds things up, but you can vote without it and do not need ID.",
+      "source_url": "https://vote.nz/2026-general-election/voting-in-the-election/what-to-do",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "url": "https://vote.nz/2026-general-election/voting-in-the-election/what-to-do",
+      "deadline_ids": [
+        "voting-closes"
+      ]
+    },
+    {
+      "id": "two-votes",
+      "kind": "action",
+      "summary": "Choose a party with your party vote and a local candidate with your electorate vote.",
+      "source_url": "https://vote.nz/2026-general-election/voting-in-the-election/what-to-do",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "url": "https://vote.nz/2026-general-election/voting-in-the-election/what-to-do",
+      "deadline_ids": [
+        "voting-closes"
+      ]
+    },
+    {
+      "id": "overseas-voting",
+      "kind": "action",
+      "summary": "Download, complete and upload overseas voting papers, or check overseas voting-place options.",
+      "source_url": "https://vote.nz/2026-general-election/overseas/vote-from-overseas",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "url": "https://vote.nz/2026-general-election/overseas/vote-from-overseas",
+      "deadline_ids": [
+        "enrolment-closes",
+        "overseas-upload-closes"
+      ]
+    },
+    {
+      "id": "accessible-formats",
+      "kind": "action",
+      "summary": "Find voting information in audio, Braille, Easy Read, large print and NZSL.",
+      "source_url": "https://vote.nz/2026-general-election/resources/information-in-accessible-formats",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "url": "https://vote.nz/2026-general-election/resources/information-in-accessible-formats"
+    },
+    {
+      "id": "assisted-voting",
+      "kind": "action",
+      "summary": "A trusted person or voting-place worker can help you read or mark your voting paper.",
+      "source_url": "https://vote.nz/2026-general-election/voting-in-the-election/what-to-do",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "url": "https://vote.nz/2026-general-election/voting-in-the-election/what-to-do",
+      "deadline_ids": [
+        "voting-closes"
+      ]
+    },
+    {
+      "id": "takeaway-voting",
+      "kind": "action",
+      "summary": "Authorise someone to collect your papers and return the completed vote before voting closes.",
+      "source_url": "https://vote.nz/2026-general-election/voting-in-the-election/cant-get-to-a-voting-place",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "url": "https://vote.nz/2026-general-election/voting-in-the-election/cant-get-to-a-voting-place",
+      "deadline_ids": [
+        "voting-closes"
+      ]
+    },
+    {
+      "id": "telephone-dictation",
+      "kind": "action",
+      "summary": "Eligible voters who cannot mark their papers without help can register for telephone dictation.",
+      "source_url": "https://vote.nz/2026-general-election/voting-in-the-election/cant-get-to-a-voting-place/telephone-dictation-voting",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "url": "https://vote.nz/2026-general-election/voting-in-the-election/cant-get-to-a-voting-place/telephone-dictation-voting",
+      "deadline_ids": [
+        "telephone-registration-closes",
+        "telephone-voting-closes"
+      ]
+    },
+    {
+      "id": "ec-terms",
+      "kind": "terms",
+      "summary": "EC retains copyright; its website terms require consent for access other than through a standard browser, including automated extraction.",
+      "source_url": "https://vote.nz/privacy-and-security/your-online-information-and-using-our-websites",
+      "retrieved_at": "2026-10-20T07:06:51Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "copyright_notice": "Copyright © Electoral Commission New Zealand",
+      "terms_note": "No open reuse licence is stated on the reviewed pages. This snapshot contains independent factual summaries and links, not copied page content."
+    }
+  ]
+}
