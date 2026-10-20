@@ -7,7 +7,8 @@
 
 - banned characters: em dash and emoji in tracked text files (house rule); verbatim captures under fixtures/ are exempt
 - posts: frontmatter shape, date matches filename
-- intent: every intent/<slug>/ has intent.md; a plan.md has a checklist; a spec.md lists concerns
+- intent: every intent/<slug>/ has intent.md; a plan.md has a checklist; a spec.md lists concerns;
+  a pages/<page>.md page plan has every section, a status line and ranked questions with evidence
 - ledgers: state/ledger.jsonl and state/ticks.jsonl parse line by line
 - changes: state/changes.yaml parses and each change has a slug and an outcome
 - size: CLAUDE.md and AGENTS.md under 120 lines (the playbook says under a page)
@@ -40,6 +41,8 @@ for p in sorted((ROOT / "posts").glob("*.md")):
         if k not in meta: fail(f"{p.relative_to(ROOT)}: frontmatter lacks {k}")
     if str(meta.get("date")) != p.stem: fail(f"{p.relative_to(ROOT)}: date does not match filename")
 
+PAGE_PLAN_HEADINGS = ("## Readers and their questions", "## Answers", "## Data, worked back",
+                      "## Page order", "## Not shown", "## Question test")
 for d in sorted((ROOT / "intent").iterdir()) if (ROOT / "intent").exists() else []:
     if not d.is_dir() or d.name in ("research", "candidates"): continue
     if not (d / "intent.md").exists(): fail(f"intent/{d.name}: no intent.md")
@@ -47,6 +50,17 @@ for d in sorted((ROOT / "intent").iterdir()) if (ROOT / "intent").exists() else 
     if plan.exists() and not re.search(r"^- \[[ x]\] ", plan.read_text(), re.M): fail(f"intent/{d.name}/plan.md: no checklist items")
     spec = d / "spec.md"
     if spec.exists() and "## Concerns" not in spec.read_text(): fail(f"intent/{d.name}/spec.md: no '## Concerns' section")
+    # Reader-first gate (Byron, Telegram 2026-10-20 01:41Z): a page plan works back from the
+    # reader's questions to the data before any UI is built; bin/codex-run refuses a UI build
+    # brief without an accepted one, this keeps every plan complete.
+    for pp in sorted((d / "pages").glob("*.md")) if (d / "pages").is_dir() else []:
+        txt = pp.read_text()
+        for h in PAGE_PLAN_HEADINGS:
+            if f"\n{h}\n" not in f"\n{txt}\n": fail(f"{pp.relative_to(ROOT)}: no '{h}' section")
+        if not re.search(r"^status: (draft|accepted \d{4}-\d{2}-\d{2}T\d{2}:\d{2}Z)", txt, re.M):
+            fail(f"{pp.relative_to(ROOT)}: no 'status: draft' or 'status: accepted <UTC time>' line")
+        if not re.search(r"^1\. .*https?://", txt.split("## Readers and their questions", 1)[-1], re.M):
+            fail(f"{pp.relative_to(ROOT)}: questions are not a ranked list with evidence links")
 
 for name in ("ledger.jsonl", "ticks.jsonl", "mistakes.jsonl"):
     p = ROOT / "state" / name

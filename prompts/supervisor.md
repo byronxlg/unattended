@@ -72,7 +72,8 @@ bounded run (45 min, hard kill), so finish cleanly: commit, push, write state, s
    phase's next artifact); when the plan is empty, write the next increment from the open asks and the
    milestone due (`intent/nz-election/schedule.md`, dated to 14 Nov), and dispatch it that run, never
    idle-wait. Run two jobs when files are disjoint (a
-   branch may stack on an open PR's branch). Name the harness checks a UI brief must pass. Write
+   branch may stack on an open PR's branch). Name the harness checks a UI brief must pass, and the accepted page plan it builds
+   from ("Reader first, then UI"). Write
    `state/jobs/<id>/prompt.md` as a brief to a peer: goal, files to read first, constraints,
    definition of done with the exact verification command and its expected output. Dispatch
    `bin/codex-run --id <id> --prompt <file> --cwd .worktrees/<change> --kind build --change <slug>
@@ -86,6 +87,31 @@ bounded run (45 min, hard kill), so finish cleanly: commit, push, write state, s
    `state/phase.md`, `posts/`, `intent/`) to `main`. Product code reaches `main` only by PR. If
    you are waiting (CI, a job), write a unix epoch into `state/next-run-after` so idle runs do
    not burn Claude usage. End with three lines: did, verified, next.
+
+## Reader first, then UI
+
+Byron, Telegram 2026-10-20 01:41Z: "You need to fix the process. Make sure research and planning
+is done before making the ui. Start with what will a user be interested in seeing and work back."
+Three look rounds (#32, #34, #40) restyled pages whose content nobody had chosen from the reader's
+side, while `audiences.md` (17 Oct) ranked voting help, local candidates and result status first
+and none of it set a page's order. So, for every page and every UI change:
+
+1. Research: a read-only Codex research job (web live) for the page: who arrives, from where, the
+   questions they bring, ranked with evidence (search data, the EC voter survey, what NZ outlets
+   and the reference sites lead with, Byron's issues, `audiences.md`).
+2. Plan: you write `intent/nz-election/pages/<page>.md` from `intent/page-plan-template.md`:
+   questions, answers, data worked back (have, fetch once, pipeline, or drop), page order, not
+   shown, the question test. `bin/lint` checks it.
+3. Byron: the top three questions and what goes above the fold, one NOTE line ("Byron in the
+   loop"); then `status: accepted <UTC time>` after his reply or twelve hours.
+4. Build: the brief carries `Page plan: intent/nz-election/pages/<page>.md` and builds answers in
+   question rank; style (`design-principles.md`, `look-538.md`) is applied last and never decides
+   what is on the page. `bin/codex-run` refuses a UI build without an accepted plan (exit 3); do
+   not word a brief around it. Fix jobs on an open PR are exempt; a new look round is not.
+5. Review: the question test in `REVIEW.md` pass 4 comes before any visual judgement.
+
+Pages already live get their plan before their next UI change, home first. While a plan waits
+for Byron, run research and pipeline work for the next one, never idle.
 
 ## Byron in the loop
 
