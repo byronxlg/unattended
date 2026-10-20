@@ -160,6 +160,13 @@ def _reconciliation(row, electorate):
                          and _url(item.get('source_url')), 'Correction requires evidence')
                 _require('before' in item and 'after' in item
                          and item['before'] != item['after'], 'Invalid correction')
+                for value in (item['before'], item['after']):
+                    if item['field'] == 'list_rank':
+                        valid = _integer(value, 1)
+                    else:
+                        # Source affiliations need not appear in party-map.
+                        valid = _text(value) and value == value.strip()
+                    _require(valid, f"Invalid correction {item['field']} value")
             elif category == 'absent_from_ec':
                 _require(_text(item.get('name')) and _text(item.get('party')),
                          'Invalid absent candidate')

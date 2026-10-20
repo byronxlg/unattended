@@ -80,3 +80,40 @@ def test_reconciliation_integrity(monkeypatch, tmp_path, change):
     mutate(monkeypatch, tmp_path, edit)
     with pytest.raises(ValueError):
         s.load(NAME)
+
+
+def edit_correction(monkeypatch, tmp_path, field, side, value):
+    def edit(data):
+        correction = next(c for row in data['records'] for c in row['corrections'])
+        correction.update(field=field, before=7 if field == 'list_rank' else 'Original',
+                          after=9 if field == 'list_rank' else 'Corrected')
+        correction[side] = value
+    mutate(monkeypatch, tmp_path, edit)
+
+
+@pytest.mark.parametrize('field', ['name', 'party'])
+@pytest.mark.parametrize('side', ['before', 'after'])
+@pytest.mark.parametrize('value', [
+    '', None, [], {}, 1, 1.5, 10**100, True, ' \t', ' padded', 'padded\u00a0',
+])
+def test_reject_invalid_correction_text(monkeypatch, tmp_path, field, side, value):
+    edit_correction(monkeypatch, tmp_path, field, side, value)
+    with pytest.raises(ValueError, match=f'Invalid correction {field} value'):
+        s.load(NAME)
+
+
+@pytest.mark.parametrize('side', ['before', 'after'])
+@pytest.mark.parametrize('value', ['', None, [], {}, True, 0, -1, 1.5, 10**100])
+def test_reject_invalid_correction_rank(monkeypatch, tmp_path, side, value):
+    edit_correction(monkeypatch, tmp_path, 'list_rank', side, value)
+    with pytest.raises(ValueError, match='Invalid correction list_rank value'):
+        s.load(NAME)
+
+
+@pytest.mark.parametrize('side', ['before', 'after'])
+@pytest.mark.parametrize(('field', 'value'), [
+    ('name', 'Hūhana Lyndon'), ('party', 'A new source party label'), ('list_rank', 3),
+])
+def test_accept_valid_correction_values(monkeypatch, tmp_path, side, field, value):
+    edit_correction(monkeypatch, tmp_path, field, side, value)
+    assert s.load(NAME)
