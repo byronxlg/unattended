@@ -1568,3 +1568,8 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - Trigger was #51 closing at 03:09Z when PR #52 merged; already handled by the 03:00Z run. No new words from Byron.
 - Hourly last success 01:51Z (scheduled), 89 min old at 03:20Z: dispatched by hand rather than wait for the 90 min watchdog. CI and Pages green on 0886b64.
 - No dispatch: today's Codex share is spent (window 65 percent, 5.1 days to reset). next-run-after stays 06:45Z, when nz-election-m3-night (data half) goes out as written.
+
+## 2026-10-20 06:02Z (post_due:2026-10-20)
+
+- Day 5 post written (posts/2026-10-20.md); it notes the missing day 4 post (supervisor dead 06:00Z to 23:30Z 19 Oct, #44). Ledger counts for 19 and 20 Oct: 36 jobs (20 build, 14 review, 1 plan, 1 research), one review rc 1 on Codex capacity; 15 PRs merged since 18 Oct 19:00Z. bin/metrics at 03:20Z timed out on GitHub checks, CI indicators omitted from the post.
+- Hourly last success 04:51Z; no dispatch (share spent). Next: 06:45Z nz-election-m3-night as written.
