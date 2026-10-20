@@ -1602,3 +1602,10 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - PR #53 second fresh review review-nz-election-vote-facts-2 died at 67 s: "Selected model is at capacity" (rc 1). Re-dispatched unchanged as review-nz-election-vote-facts-3. PR #53 CI green on 9731f12; PR #54 CI pending.
 - Both PRs touch snapshots.py (lines 251 and 161); expect a rebase on whichever merges second.
 - Codex window 6 percent.
+
+## 2026-10-20 08:00Z (job_done: electorate-facts-fix-1, review-vote-facts-3)
+
+- PR #53 (vote-facts, snapshots/voting.json): third fresh review accept, no findings (the second hit Codex capacity); logged on the PR; CI green; squash merged as 6a07d2c; worktree removed.
+- PR #54 (electorate-facts): fix-1 99f69dc validates correction values by field. Merged main into the branch (no force-push); one conflict in snapshots.py NAMES, resolved as the union of both sets. Host `pytest -q product` 1078 passed, `bin/lint` ok. Pushed, supervisor accept logged, second fresh review review-nz-election-electorate-facts-2 dispatched.
+- Idle slot (issue #43): research-nz-election-page-questions-2 dispatched read-only, polls and party pages, feeding the next page plans; UI builds still wait for the 14:30Z acceptance of the four page plans.
+- Codex window 8 percent at dispatch.
