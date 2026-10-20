@@ -1595,3 +1595,10 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - vote-facts fix-1 9731f12: offset text validated before parsing, six regression cases; host ran the snapshot and voting tests (136 passed); Codex reports 941 passed, lint ok, regressions fail without the bounds. Pushed to PR #53, supervisor accept logged, second fresh review review-nz-election-vote-facts-2 dispatched.
 - electorate-facts f28be8e: Stats NZ 2025 boundaries (71 features, CC BY 4.0, 316,359 bytes, locator only), EC candidate reconciliation against the 9 October release (469 electorate candidates, 443 list entries), 60 name and 2 affiliation corrections with evidence, 50 optional ranks still omitted; EC data has no open licence, facts only stored. Pushed, PR #54 opened, supervisor accept logged, fresh review review-nz-election-electorate-facts dispatched.
 - No build dispatched: the remaining work (m3-night, vote/ page) waits on the page plans' 14:30Z acceptance. Codex window 5 percent.
+
+## 2026-10-20 07:50Z (job_done review-nz-election-electorate-facts)
+
+- PR #54 electorate-facts fresh review: request changes, one Important (snapshots.py:161 accepts "", null, [], {}, numbers as correction values). Checks it did pass: eight name and two affiliation corrections match the EC, 71 boundary features, licence recorded, no fuzzy joins, main's tests untouched. Logged on the PR; fix-1 nz-election-electorate-facts-fix-1 dispatched on the build thread (validate before and after by field, rejection tests).
+- PR #53 second fresh review review-nz-election-vote-facts-2 died at 67 s: "Selected model is at capacity" (rc 1). Re-dispatched unchanged as review-nz-election-vote-facts-3. PR #53 CI green on 9731f12; PR #54 CI pending.
+- Both PRs touch snapshots.py (lines 251 and 161); expect a rebase on whichever merges second.
+- Codex window 6 percent.
