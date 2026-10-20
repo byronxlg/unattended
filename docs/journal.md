@@ -1562,3 +1562,9 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - Follow-up on main: home, night and electorate Data sections now name `snapshots/hexmap.json` (have) for the hex map and the electorate locator, and the 2023 holder and margin as fetch once. lint ok.
 - No new NOTE line: the Graphics direction is Byron's own ask. Draft plans keep the 14:30Z 20 Oct acceptance deadline. From then every UI brief (vote/ first, then home) carries the plan's Graphics lines and the screenshot-beside-reference test.
 - Next: 06:45Z run dispatches nz-election-m3-night (data half, no UI) as written. Codex window 65 percent, 5.2 days to reset.
+
+## 2026-10-20 03:20Z (issue trigger)
+
+- Trigger was #51 closing at 03:09Z when PR #52 merged; already handled by the 03:00Z run. No new words from Byron.
+- Hourly last success 01:51Z (scheduled), 89 min old at 03:20Z: dispatched by hand rather than wait for the 90 min watchdog. CI and Pages green on 0886b64.
+- No dispatch: today's Codex share is spent (window 65 percent, 5.1 days to reset). next-run-after stays 06:45Z, when nz-election-m3-night (data half) goes out as written.
