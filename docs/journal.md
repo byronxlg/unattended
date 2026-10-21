@@ -1694,3 +1694,9 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 - pages/polls.md accepted 23:00Z: NOTE sent 08:18Z, deadline 20:30Z passed in silence. pages/parties.md stays draft until 21:30Z 21 Oct.
 - Codex window 15 percent, window-day share spent; no dispatch. next-run-after stays 07:05Z 21 Oct.
 - Next (07:05Z run): dispatch nz-election-pollster-record, the vote/ page build (Page plan: intent/nz-election/pages/vote.md), m3-night as written; polls/ page build can now cite pages/polls.md.
+
+## 2026-10-21 02:00Z (heartbeat)
+
+- No new words from Byron; no new issues. Hourly green (latest 01:38Z), blog publish green.
+- Codex window 15 percent, window-day share (07:04Z to 07:04Z) spent; no dispatch. next-run-after stays 07:05Z 21 Oct.
+- Next (07:05Z run): dispatch nz-election-pollster-record, the vote/ page build (Page plan: intent/nz-election/pages/vote.md), m3-night as written.
