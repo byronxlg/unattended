@@ -1772,3 +1772,13 @@ All workflows green since the last run (hourly and blog publish to 04:42Z, CI 02
 - fix-1 6e1547b on PR #59 claims all four Important items from the first fresh review with regression tests (6 files, +165/-4, no page code). Host: test_night.py and test_xml_parser.py 110 passed, `verify.py night` PASS night, lint ok; Codex reports 1788 passed. Stray last.md removed, branch pushed, supervisor accept logged on the PR with one nit (`verify.py night --data <empty dir>` fails closed as a ValueError traceback, INVALID_INVENTORY, not a named line).
 - Second fresh review review-nz-election-m3-night-2 dispatched (read-only, confirms the four items on `git diff 272eb6e 6e1547b`, judges the nit).
 - Codex window 28 percent, about 8 points used today. Only one job running: the night/ page build brief (Page plan: intent/nz-election/pages/night.md) is written next run, after #59 merges, so it builds on main rather than stacking on a branch still in review.
+
+## 2026-10-21 09:20Z (job_done review-nz-election-m3-night-2)
+
+Second fresh review of PR #59 (m3-night data half): request changes. Important: night.py:86 infers "Final snapshot"
+from absent derivation metadata, so stripping it from illustrative step 0 and relabelling publishes 285,114 synthetic
+votes as final; xml_parser.py:109 does not bound electorate seats against the registry (House 1119 accepted). Nit:
+verify --data on an empty dir raises INVALID_INVENTORY as a traceback. The four fix-1 items were confirmed closed.
+Logged on the PR; nz-election-m3-night-fix-2 dispatched 09:2xZ on the build thread (brief names the invariant: archive
+or final rows must match their source capture, independent of metadata). No second job: today's share is mostly spent
+(window 28 percent at 09:12Z) and the night/ page build waits on #59.
