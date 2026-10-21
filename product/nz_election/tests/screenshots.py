@@ -395,6 +395,16 @@ def advance_images(browser, out):
     return results
 
 
+def vote_answer_check(answer, viewport):
+    assert answer.is_visible(), 'VOTE_ANSWER_NOT_VISIBLE'
+    box = answer.bounding_box()
+    assert (box and box['width'] > 0 and box['height'] > 0
+            and box['x'] >= 0 and box['y'] >= 0
+            and box['x'] + box['width'] <= viewport['width']
+            and box['y'] + box['height'] <= viewport['height']), 'VOTE_ANSWER_BOX'
+    assert answer.inner_text().strip(), 'VOTE_ANSWER_EMPTY'
+
+
 def vote_images(browser, out, data):
     from product.nz_election.pipeline.build import build
     from product.nz_election.pipeline.snapshots import load_voting
@@ -415,7 +425,7 @@ def vote_images(browser, out, data):
                     check_page(page, origin + PREFIX + 'nz-election/vote/', site, origin)
                     assert page.locator('.vote-first section').first.get_attribute('id') == ('enrol' if state == 'before' else 'places')
                     if width == 390:
-                        assert page.locator('#two-votes').evaluate('e=>e.getBoundingClientRect().bottom') <= height, 'VOTE_ANSWERS_BELOW_FOLD'
+                        vote_answer_check(page.locator('#two-votes'), dict(width=width, height=height))
                         assert page.locator('#help').evaluate('e=>e.getBoundingClientRect().top') >= height, 'VOTE_HELP_ABOVE_FOLD'
                     hrefs = page.locator('a').evaluate_all('els=>els.filter(e=>e.getBoundingClientRect().top<innerHeight && e.getBoundingClientRect().bottom>0 && e.getBoundingClientRect().right>0).map(e=>e.getAttribute("href"))')
                     assert hrefs and set(hrefs) <= official, 'VOTE_FIRST_SCREEN_EC_LINKS'

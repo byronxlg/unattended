@@ -58,3 +58,71 @@ def test_missing_action_drops_link_and_no_accessible_deadline():
     assert 'Deadline' not in accessible
     assert '12:00 pm, Saturday 7 November 2026 NZDT' in html
     assert '7:00 pm, Saturday 7 November 2026 NZDT' in html
+
+
+@pytest.mark.parametrize('identity', ['what-to-bring', 'two-votes'])
+def test_snapshot_correction_changes_published_guidance(monkeypatch, tmp_path, identity):
+    import json
+    from html import escape
+    from product.nz_election.pipeline import snapshots
+
+    snapshot = json.loads((snapshots.SNAPSHOTS / 'voting.json').read_text())
+    record = next(r for r in snapshot['records'] if r['id'] == identity)
+    original = record['summary']
+    correction = 'Corrected guidance with <reviewed> wording & source context.'
+    record['summary'] = correction
+    (tmp_path / 'voting.json').write_text(json.dumps(snapshot))
+    monkeypatch.setattr(snapshots, 'SNAPSHOTS', tmp_path)
+    html = page('2026-10-25T11:00:00Z')
+    answer = html.split('<section id="two-votes">')[1].split('</section>')[0]
+    assert escape(correction) in answer
+    assert escape(original) not in answer
+
+
+class AnswerFixture:
+    def __init__(self, *, visible=True, box=None, text='Voting guidance'):
+        self.visible = visible
+        self.box = dict(x=16, y=600, width=358, height=200) if box is None else box
+        self.text = text
+
+    def is_visible(self):
+        return self.visible
+
+    def bounding_box(self):
+        return self.box
+
+    def inner_text(self):
+        return self.text
+
+
+def test_hidden_answer_fails_then_visible_answer_passes():
+    from product.nz_election.tests.screenshots import vote_answer_check
+
+    # display:none has an empty client rectangle, which passed the old bottom-only gate.
+    hidden = AnswerFixture(visible=False, box=dict(x=0, y=0, width=0, height=0), text='')
+    assert hidden.box['y'] + hidden.box['height'] <= 844
+    with pytest.raises(AssertionError, match='VOTE_ANSWER_NOT_VISIBLE'):
+        vote_answer_check(hidden, dict(width=390, height=844))
+    vote_answer_check(AnswerFixture(), dict(width=390, height=844))
+
+
+@pytest.mark.parametrize('box', [
+    dict(x=16, y=600, width=0, height=200),
+    dict(x=16, y=600, width=358, height=0),
+    dict(x=-1, y=600, width=358, height=200),
+    dict(x=16, y=-1, width=358, height=200),
+    dict(x=16, y=600, width=375, height=200),
+    dict(x=16, y=600, width=358, height=245),
+])
+def test_answer_requires_whole_nonzero_box_in_viewport(box):
+    from product.nz_election.tests.screenshots import vote_answer_check
+
+    with pytest.raises(AssertionError, match='VOTE_ANSWER_BOX'):
+        vote_answer_check(AnswerFixture(box=box), dict(width=390, height=844))
+
+
+def test_answer_requires_nonempty_text():
+    from product.nz_election.tests.screenshots import vote_answer_check
+
+    with pytest.raises(AssertionError, match='VOTE_ANSWER_EMPTY'):
+        vote_answer_check(AnswerFixture(text=' \n '), dict(width=390, height=844))

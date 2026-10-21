@@ -41,8 +41,8 @@ def page(built, rows=None):
                '</figcaption><ol>' + ''.join(timeline) + '</ol></figure>') if timeline or countdown else ''
     places = section('places', 'Where can I vote, and when?',
                      action('find-where-to-vote', 'Use the official finder for places and opening hours') + graphic)
-    bring = '<p>No EasyVote card or ID needed.</p>' if records.get('what-to-bring') else ''
-    votes = '<p>Party vote: choose a party. Electorate vote: choose a local candidate.</p>' if records.get('two-votes') else ''
+    bring = '<p>' + escape(records['what-to-bring']['summary']) + '</p>' if records.get('what-to-bring') else ''
+    votes = '<p>' + escape(records['two-votes']['summary']) + '</p>' if records.get('two-votes') else ''
     guidance = action('two-votes', 'Official voting guidance') or action('what-to-bring', 'Official voting guidance')
     basics = section('two-votes', 'What do I bring? How do I vote?', bring + votes + guidance)
     advance = records.get('advance-opens', {}).get('date')
