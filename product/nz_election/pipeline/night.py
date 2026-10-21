@@ -74,6 +74,27 @@ def prepare(root, loaded, run_url, sha, now):
     validate(root)
 
 
+def validate_mode(row):
+    # Capture identity and derivation constrain labels even if both labels are edited.
+    refs = row['source_ref']
+    if not refs or any(type(ref) is not str for ref in refs):
+        raise ValueError('NIGHT_MODE')
+    if all(re.fullmatch(r'ec-mediademo-xml/election-obs[1-9][0-9]*\.xml', ref) for ref in refs):
+        expected = MODES['demo']
+        if 'derivation' in row:
+            raise ValueError('NIGHT_MODE')
+    elif all(re.fullmatch(r'ec-(2017|2020|2023)-xml/election\.xml', ref) for ref in refs):
+        expected = MODES['final']
+        if 'derivation' in row:
+            if refs != ['ec-2023-xml/election.xml'] or not isinstance(row['derivation'], dict) or not row['derivation']:
+                raise ValueError('NIGHT_MODE')
+            expected = LABEL
+    else:
+        raise ValueError('NIGHT_MODE')
+    if row.get('mode') != expected:
+        raise ValueError('NIGHT_MODE')
+
+
 def validate_row(row, stem):
     try:
         if not isinstance(row, dict) or not {'id', 'source_ref'} <= row.keys() or not isinstance(row['source_ref'], list):
@@ -88,6 +109,7 @@ def validate_row(row, stem):
             if export.digest(export.canonical(refs).encode()) != row.get('reference_version'):
                 raise ValueError('NIGHT_REFERENCE')
         else:
+            validate_mode(row)
             if row.get('mode') not in MODES.values() or not row['party_results']:
                 raise ValueError('NIGHT_ROW')
             for result in row['party_results'].values():

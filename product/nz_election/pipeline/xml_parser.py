@@ -6,6 +6,9 @@ import xml.etree.ElementTree as ET
 from .export import canonical, digest
 
 MAX_BYTES = 2_000_000
+COUNT_FIELDS = {'votes', 'party_seats', 'candidate_seats', 'total_seats', 'list_no',
+                'total_voting_places_counted', 'total_votes_cast', 'total_electorates_final',
+                'total_minimal_votes', 'total_special_votes', 'total_registered_parties'}
 
 
 def count(value):
@@ -40,6 +43,8 @@ def fields(node, required):
         raise ValueError('XML_FIELDS')
     result = {}
     for child in node:
+        if child.tag in COUNT_FIELDS:
+            count(child.text)
         if len(child) or child.attrib or not child.text or not child.text.strip():
             raise ValueError('XML_FIELDS')
         result[child.tag] = child.text
@@ -106,6 +111,8 @@ def election(raw, refs):
     for row in parties.values():
         # EC supplies truncated percentage strings, not a denominator of votes cast.
         if row['total_seats'] != row['party_seats'] + row['candidate_seats']:
+            raise ValueError('XML_TOTAL')
+        if not valid and (Decimal(row['percent_votes']) or row['total_seats']):
             raise ValueError('XML_TOTAL')
         if valid and abs(Decimal(row['percent_votes']) - Decimal(100 * row['votes']) / valid) > Decimal(1).scaleb(-len(row['percent_votes'].partition('.')[2])):
             raise ValueError('XML_TOTAL')

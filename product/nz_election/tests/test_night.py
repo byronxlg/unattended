@@ -116,3 +116,87 @@ def test_prepare_rejects_paths_before_writing(tmp_path):
     with pytest.raises(ValueError, match='^NIGHT_PATH$'):
         night.prepare(tmp_path, (payloads, sources, hashes), 'offline-verification', 'test', '2026-10-21T00:00:00Z')
     assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize('sequence_id', ['mediademo', 'illustrative-2023'])
+def test_prepare_rejects_relabelled_simulation(tmp_path, sequence_id):
+    loaded = night.load()
+    payloads = loaded[0]
+    seq = next(s for s in payloads['night/index'] if s['id'] == sequence_id)
+    if sequence_id == 'mediademo':
+        removed = seq['snapshot_paths'].pop()
+        del payloads[removed[:-5]]
+    seq['mode'] = 'Final snapshot'
+    for path in seq['snapshot_paths']:
+        payloads[path[:-5]][0]['mode'] = 'Final snapshot'
+    with pytest.raises(ValueError, match='^NIGHT_MODE$'):
+        night.prepare(tmp_path, loaded, 'offline-verification', 'test', '2026-10-21T00:00:00Z')
+
+
+def test_validate_rejects_relabelled_demo_even_with_matching_hashes(family):
+    index_path = family / 'night/index.json'
+    index = json.loads(index_path.read_text())
+    seq = next(s for s in index['data'] if s['id'] == 'mediademo')
+    removed = seq['snapshot_paths'].pop()
+    for name in (removed, removed[:-5] + '.csv'):
+        (family / name).unlink()
+        del seq['files'][name]
+    seq['mode'] = 'Final snapshot'
+    path = family / seq['snapshot_paths'][0]
+    env = json.loads(path.read_text())
+    env['data'][0]['mode'] = 'Final snapshot'
+    path.write_text(export.canonical(env) + '\n')
+    path.with_suffix('.csv').write_bytes(export.csv_bytes(env))
+    for name in (seq['snapshot_paths'][0], seq['snapshot_paths'][0][:-5] + '.csv'):
+        seq['files'][name] = export.digest((family / name).read_bytes())
+    index_path.write_text(export.canonical(index) + '\n')
+    index_path.with_suffix('.csv').write_bytes(export.csv_bytes(index))
+    with pytest.raises(ValueError, match='^NIGHT_MODE$'):
+        night.validate(family)
+
+
+@pytest.mark.parametrize('supplied', [False, True])
+def test_verify_night_fixture_or_supplied_artifact(tmp_path, monkeypatch, capsys, supplied):
+    from product.nz_election.pipeline import verify
+    args = ['verify', 'night']
+    tmp_path = tmp_path / 'data'
+    if supplied:
+        daily_refresh(tmp_path, loaders={'night': night.load})
+        args += ['--data', str(tmp_path)]
+        def no_fixture_build(*args, **kwargs):
+            pytest.fail('supplied artifact must not be replaced by a fixture build')
+        monkeypatch.setattr('product.nz_election.pipeline.daily_refresh.daily_refresh', no_fixture_build)
+    monkeypatch.setattr('sys.argv', args)
+    from product.nz_election.tests import night_smoke
+    checked = []
+    original = night_smoke.check
+    def smoke(root):
+        checked.append(root)
+        return original(root)
+    monkeypatch.setattr(night_smoke, 'check', smoke)
+    verify.main()
+    assert len(checked) == 1
+    if supplied:
+        assert checked == [tmp_path]
+    assert capsys.readouterr().out == 'PASS night\n'
+
+
+def test_verify_night_missing_supplied_family(tmp_path, monkeypatch, capsys):
+    from product.nz_election.pipeline import verify
+    from product.nz_election.pipeline.refresh import refresh
+    tmp_path = tmp_path / 'data'
+    refresh(tmp_path)
+    monkeypatch.setattr('sys.argv', ['verify', 'night', '--data', str(tmp_path)])
+    with pytest.raises(ValueError, match='^MISSING_NIGHT_FAMILY$'):
+        verify.main()
+    assert 'PASS night' not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('mode', ['', None, [], {}, True, 1.5, 10**100, 'Ｒecorded demo', night.LABEL])
+def test_demo_mode_rejects_malformed_or_incompatible_labels(mode):
+    payloads, _, _ = night.load()
+    seq = next(s for s in payloads['night/index'] if s['id'] == 'mediademo')
+    row = payloads[seq['snapshot_paths'][0][:-5]][0]
+    row['mode'] = mode
+    with pytest.raises(ValueError, match='^NIGHT_MODE$'):
+        night.validate_row(row, seq['snapshot_paths'][0][:-5])

@@ -48,3 +48,13 @@ The page job owns replay controls, no-JS rendering and screenshots. Client XML p
 live-feed checks belong with the client implementation; this data-only job adds no client script.
 Before live use, establish timezone evidence, check HTTPS availability and browser CORS separately,
 and capture validated references before accepting results. This package makes no live availability claim.
+
+Verification with `verify.py night --data <directory>` checks that supplied bundle and fails with
+`MISSING_NIGHT_FAMILY` if its night index is absent. Without `--data`, verification builds fixtures.
+Snapshot modes are constrained by capture references and derivation: demo captures stay Recorded demo,
+archive captures stay Final snapshot, and derived 2023 steps retain the illustrative label.
+A zero valid-party-vote total requires zero party percentages and seats (`XML_TOTAL` otherwise).
+Empty and whitespace-only count elements use `XML_COUNT`, as do other malformed count tokens.
+
+The aggregate `all` gate retains its optional-family contract: an absent night family is omitted
+from its checks and produces no PASS night line. The explicit `night` gate requires the family.

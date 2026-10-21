@@ -328,11 +328,14 @@ def verify_advance(envs, root):
     require(all((data / ('advance-voting' + ext)).read_bytes() == raw for ext, raw in before.items()), 'advance last-good bytes')
 
 
-def verify_night(envs, root):
+def verify_night(envs, root, *, data=None):
     from product.nz_election.pipeline.daily_refresh import daily_refresh
     from product.nz_election.tests.night_smoke import check
-    data = root / 'night-data'
-    daily_refresh(data)
+    if data is None:
+        data = root / 'night-data'
+        daily_refresh(data)
+    elif not (data / 'night/index.json').is_file():
+        raise ValueError('MISSING_NIGHT_FAMILY')
     export.validate_bundle(data)
     check(data)
 
@@ -391,7 +394,13 @@ def main():
             require(panel(actual, built) in (product / 'methods/index.html').read_text(), 'supplied market provenance')
         for name, check in checks.items():
             if args.check in ('all', name):
-                check(envs, root)
+                if name == 'night' and args.check == 'all' and args.data and 'night/index' not in supplied:
+                    # The aggregate gate permits absent families, without claiming their validation.
+                    continue
+                if name == 'night':
+                    check(envs, root, data=args.data)
+                else:
+                    check(envs, root)
                 print('PASS ' + name + {'geography': ': 64 general, 7 Māori', 'candidates': ': 71 electorates', 'electorates': ': 71 pages'}.get(name, ''))
         if args.check == 'all':
             print('PASS all')

@@ -57,3 +57,32 @@ def test_xml_totals_and_timestamp(raw):
                                  (b'2024-11-10T00:00:00', b'2024-99-10T00:00:00', 'XML_TIMESTAMP')]:
         with pytest.raises(ValueError, match='^' + code + '$'):
             xml.election(source.replace(before, after), reference)
+
+
+@pytest.mark.parametrize('percentages,seats', [(True, True), (True, False), (False, True), (False, False)])
+def test_xml_zero_votes_require_zero_percentages_and_seats(raw, percentages, seats):
+    import xml.etree.ElementTree as ET
+    root = ET.fromstring(raw['ec-2023-xml/election.xml'])
+    for party in root.findall('.//party'):
+        party.find('votes').text = '0'
+        if not percentages:
+            party.find('percent_votes').text = '0.00'
+        if not seats:
+            for field in ('party_seats', 'candidate_seats', 'total_seats'):
+                party.find(field).text = '0'
+    source = ET.tostring(root)
+    if percentages or seats:
+        with pytest.raises(ValueError, match='^XML_TOTAL$'):
+            xml.election(source, refs(raw))
+    else:
+        assert xml.election(source, refs(raw))['reported_house'] == 0
+
+
+@pytest.mark.parametrize('value', [None, '', ' ', '\t\n', 'null', 'true', '1.5', '9' * 100, '１２', '1e3'])
+@pytest.mark.parametrize('field', ['votes', 'party_seats', 'candidate_seats', 'total_seats', 'total_votes_cast'])
+def test_xml_malformed_counts_through_parse_path(raw, value, field):
+    import xml.etree.ElementTree as ET
+    root = ET.fromstring(raw['ec-2023-xml/election.xml'])
+    root.find('.//' + field).text = value
+    with pytest.raises(ValueError, match='^XML_COUNT$'):
+        xml.election(ET.tostring(root), refs(raw))
