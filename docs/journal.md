@@ -1818,3 +1818,9 @@ or final rows must match their source capture, independent of metadata). No seco
 - Host harness on f02d0f4: PASS 80 routes 338 images. CI red (run 39583749324): night_browser.py looks for Chromium only at a host cache path, StopIteration on the runner; ci.yml installs no browser. One social test failed on tmp cleanup (OSError directory not empty), green on main, treated as a flake to watch.
 - Decision: item 1 deferred to the electorate detail data job (needs data the lab has not captured); items 2 to 6 plus the CI Chromium install to fix-2. Alternative rejected: merging red with a skip on missing Chromium (weakens a check).
 - Dispatched nz-election-night-page-fix-2 on the build thread (followup-2.md). Codex window 33 percent, resets in 5.9 days; fix rounds only today.
+
+## 2026-10-21 10:52Z (job_done nz-election-night-page-fix-2)
+
+- fix-2 eb4a0d0 (717 s): six items plus CI Chromium install. Codex: 1911 passed, 2 errors (sandbox Chromium launch), PASS all, lint ok.
+- Host: test_night_page.py 27 passed with host Chromium, bin/lint ok, build on live data PASS 80 routes; night/ at 390 before 7 Nov shows the countdown, How to vote and the official EC link first (question test passes; no replay on live data yet, night family not on the data branch).
+- Pushed, supervisor accept logged on PR #60, second fresh review review-nz-election-night-page-2 dispatched. Codex window 35 percent, resets in 5.8 days.
