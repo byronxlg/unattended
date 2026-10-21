@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<election updated="2020-11-20T00:00:00">
+    <statistics>
+        <total_voting_places_counted>12655</total_voting_places_counted>
+        <percent_voting_places_counted>100.0</percent_voting_places_counted>
+        <total_votes_cast>2907792</total_votes_cast>
+        <percent_votes_cast>81.9</percent_votes_cast>
+        <total_electorates_final>72</total_electorates_final>
+        <percent_electorates_final>100.0</percent_electorates_final>
+        <total_minimal_votes>0</total_minimal_votes>
+        <total_special_votes>0</total_special_votes>
+        <total_registered_parties>18</total_registered_parties>
+    </statistics>
+    <partystatus>
+        <party p_no="5">
+            <votes>219031</votes>
+            <percent_votes>7.6</percent_votes>
+            <party_seats>9</party_seats>
+            <candidate_seats>1</candidate_seats>
+            <total_seats>10</total_seats>
+        </party>
+        <party p_no="49">
+            <votes>28429</votes>
+            <percent_votes>1.0</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+        <party p_no="7">
+            <votes>13329</votes>
+            <percent_votes>0.5</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+        <party p_no="13">
+            <votes>226757</votes>
+            <percent_votes>7.9</percent_votes>
+            <party_seats>9</party_seats>
+            <candidate_seats>1</candidate_seats>
+            <total_seats>10</total_seats>
+        </party>
+        <party p_no="41">
+            <votes>914</votes>
+            <percent_votes>0.0</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+        <party p_no="17">
+            <votes>1443545</votes>
+            <percent_votes>50.0</percent_votes>
+            <party_seats>19</party_seats>
+            <candidate_seats>46</candidate_seats>
+            <total_seats>65</total_seats>
+        </party>
+        <party p_no="19">
+            <votes>33630</votes>
+            <percent_votes>1.2</percent_votes>
+            <party_seats>1</party_seats>
+            <candidate_seats>1</candidate_seats>
+            <total_seats>2</total_seats>
+        </party>
+        <party p_no="25">
+            <votes>3256</votes>
+            <percent_votes>0.1</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+        <party p_no="21">
+            <votes>738275</votes>
+            <percent_votes>25.6</percent_votes>
+            <party_seats>10</party_seats>
+            <candidate_seats>23</candidate_seats>
+            <total_seats>33</total_seats>
+        </party>
+        <party p_no="11">
+            <votes>42613</votes>
+            <percent_votes>1.5</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+        <party p_no="22">
+            <votes>75020</votes>
+            <percent_votes>2.6</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+        <party p_no="36">
+            <votes>8121</votes>
+            <percent_votes>0.3</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+        <party p_no="31">
+            <votes>1520</votes>
+            <percent_votes>0.1</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+        <party p_no="38">
+            <votes>1880</votes>
+            <percent_votes>0.1</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+        <party p_no="40">
+            <votes>2414</votes>
+            <percent_votes>0.1</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+        <party p_no="29">
+            <votes>43449</votes>
+            <percent_votes>1.5</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+        <party p_no="37">
+            <votes>4237</votes>
+            <percent_votes>0.1</percent_votes>
+            <party_seats>0</party_seats>
+            <candidate_seats>0</candidate_seats>
+            <total_seats>0</total_seats>
+        </party>
+    </partystatus>
+</election>

@@ -29,7 +29,7 @@ def acquired(sources, path):
 
 def live_loaders(acquire=None):
     """Acquire in memory; failures propagate to atomic last-good family retention."""
-    from . import fetch, markets, candidates, baseline, enrolment, electorate_polls, advance
+    from . import fetch, markets, candidates, baseline, enrolment, electorate_polls, advance, night
     acquire = acquire or fetch.acquire
     messages = {}
 
@@ -75,4 +75,4 @@ def live_loaders(acquire=None):
         return payload
 
     return {'candidates': candidate_loader, 'baseline-2023': baseline.load, 'enrolment': enrolment.load,
-            'electorate-polls': electorate_polls.load, 'markets': market_loader, 'advance': advance.load}, messages
+            'electorate-polls': electorate_polls.load, 'markets': market_loader, 'night': night.load, 'advance': advance.load}, messages

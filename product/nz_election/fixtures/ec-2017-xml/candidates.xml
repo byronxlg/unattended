@@ -1,0 +1,3219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<candidates>
+    <candidate c_no="2">
+        <candidate_name>NAUHRIA, Roshan</candidate_name>
+        <electorate>0</electorate>
+        <party>29</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="3">
+        <candidate_name>WU, Joann</candidate_name>
+        <electorate>0</electorate>
+        <party>29</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="4">
+        <candidate_name>SHARMA, Anil</candidate_name>
+        <electorate>0</electorate>
+        <party>29</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="5">
+        <candidate_name>CHING, Steven</candidate_name>
+        <electorate>0</electorate>
+        <party>29</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="6">
+        <candidate_name>BAKSHI, Kanwaljit Singh</candidate_name>
+        <electorate>24</electorate>
+        <party>6</party>
+        <list_no>32</list_no>
+    </candidate>
+    <candidate c_no="7">
+        <candidate_name>BEERAM, Bala</candidate_name>
+        <electorate>21</electorate>
+        <party>6</party>
+        <list_no>57</list_no>
+    </candidate>
+    <candidate c_no="8">
+        <candidate_name>BENNETT, David</candidate_name>
+        <electorate>13</electorate>
+        <party>6</party>
+        <list_no>24</list_no>
+    </candidate>
+    <candidate c_no="9">
+        <candidate_name>BENNETT, Paula</candidate_name>
+        <electorate>55</electorate>
+        <party>6</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="10">
+        <candidate_name>BISHOP, Chris</candidate_name>
+        <electorate>17</electorate>
+        <party>6</party>
+        <list_no>40</list_no>
+    </candidate>
+    <candidate c_no="11">
+        <candidate_name>BRIDGES, Simon</candidate_name>
+        <electorate>52</electorate>
+        <party>6</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="12">
+        <candidate_name>BROWN, Simeon</candidate_name>
+        <electorate>38</electorate>
+        <party>6</party>
+        <list_no>60</list_no>
+    </candidate>
+    <candidate c_no="13">
+        <candidate_name>BROWNLEE, Gerry</candidate_name>
+        <electorate>18</electorate>
+        <party>6</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="14">
+        <candidate_name>NAMPALLY, Sree</candidate_name>
+        <electorate>0</electorate>
+        <party>29</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="15">
+        <candidate_name>CARTER, David</candidate_name>
+        <electorate>0</electorate>
+        <party>6</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="16">
+        <candidate_name>COLEMAN, Jonathan</candidate_name>
+        <electorate>34</electorate>
+        <party>6</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="17">
+        <candidate_name>COLLINS, Judith</candidate_name>
+        <electorate>40</electorate>
+        <party>6</party>
+        <list_no>16</list_no>
+    </candidate>
+    <candidate c_no="18">
+        <candidate_name>DEAN, Jacqui</candidate_name>
+        <electorate>59</electorate>
+        <party>6</party>
+        <list_no>23</list_no>
+    </candidate>
+    <candidate c_no="19">
+        <candidate_name>DOWIE, Sarah</candidate_name>
+        <electorate>19</electorate>
+        <party>6</party>
+        <list_no>41</list_no>
+    </candidate>
+    <candidate c_no="20">
+        <candidate_name>ELLIOTT, David</candidate_name>
+        <electorate>29</electorate>
+        <party>6</party>
+        <list_no>55</list_no>
+    </candidate>
+    <candidate c_no="21">
+        <candidate_name>ENGLISH, Bill</candidate_name>
+        <electorate>0</electorate>
+        <party>6</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="22">
+        <candidate_name>FALLOON, Andrew</candidate_name>
+        <electorate>42</electorate>
+        <party>6</party>
+        <list_no>61</list_no>
+    </candidate>
+    <candidate c_no="23">
+        <candidate_name>FINLAYSON, Christopher</candidate_name>
+        <electorate>46</electorate>
+        <party>6</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="24">
+        <candidate_name>GARCIA, Paulo</candidate_name>
+        <electorate>31</electorate>
+        <party>6</party>
+        <list_no>50</list_no>
+    </candidate>
+    <candidate c_no="25">
+        <candidate_name>YAO, Lily</candidate_name>
+        <electorate>0</electorate>
+        <party>29</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="26">
+        <candidate_name>FOX, Marama</candidate_name>
+        <electorate>66</electorate>
+        <party>10</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="27">
+        <candidate_name>FLAVELL, Te Ururoa</candidate_name>
+        <electorate>71</electorate>
+        <party>10</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="28">
+        <candidate_name>PAPA, Stanley Rahui</candidate_name>
+        <electorate>65</electorate>
+        <party>10</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="29">
+        <candidate_name>TAURIMA, Shane</candidate_name>
+        <electorate>67</electorate>
+        <party>10</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="30">
+        <candidate_name>REEDY-TAARE, Mei</candidate_name>
+        <electorate>70</electorate>
+        <party>10</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="31">
+        <candidate_name>TAMATI, Howie</candidate_name>
+        <electorate>68</electorate>
+        <party>10</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="32">
+        <candidate_name>GOLDSMITH, Paul</candidate_name>
+        <electorate>12</electorate>
+        <party>6</party>
+        <list_no>18</list_no>
+    </candidate>
+    <candidate c_no="34">
+        <candidate_name>BORELL, Joseph James</candidate_name>
+        <electorate>52</electorate>
+        <party>10</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="35">
+        <candidate_name>VERCOE, Rihi</candidate_name>
+        <electorate>10</electorate>
+        <party>10</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="36">
+        <candidate_name>WHITLOCK, Cinnamon</candidate_name>
+        <electorate>21</electorate>
+        <party>10</party>
+        <list_no>18</list_no>
+    </candidate>
+    <candidate c_no="37">
+        <candidate_name>STODDART-SMITH, Carrie</candidate_name>
+        <electorate>38</electorate>
+        <party>10</party>
+        <list_no>11</list_no>
+    </candidate>
+    <candidate c_no="38">
+        <candidate_name>GUY, Nathan</candidate_name>
+        <electorate>37</electorate>
+        <party>6</party>
+        <list_no>12</list_no>
+    </candidate>
+    <candidate c_no="39">
+        <candidate_name>HOHAIA, Tasha</candidate_name>
+        <electorate>25</electorate>
+        <party>10</party>
+        <list_no>14</list_no>
+    </candidate>
+    <candidate c_no="40">
+        <candidate_name>BHANA, Raewyn Teresa</candidate_name>
+        <electorate>40</electorate>
+        <party>10</party>
+        <list_no>19</list_no>
+    </candidate>
+    <candidate c_no="41">
+        <candidate_name>BIDDLE, Wendy</candidate_name>
+        <electorate>47</electorate>
+        <party>10</party>
+        <list_no>21</list_no>
+    </candidate>
+    <candidate c_no="42">
+        <candidate_name>LUA, Manase</candidate_name>
+        <electorate>26</electorate>
+        <party>10</party>
+        <list_no>12</list_no>
+    </candidate>
+    <candidate c_no="43">
+        <candidate_name>TOFILAU-TEVAGA, Esther</candidate_name>
+        <electorate>23</electorate>
+        <party>10</party>
+        <list_no>15</list_no>
+    </candidate>
+    <candidate c_no="45">
+        <candidate_name>JOHNSTON, Ted Faleauto</candidate_name>
+        <electorate>24</electorate>
+        <party>28</party>
+        <list_no>13</list_no>
+    </candidate>
+    <candidate c_no="46">
+        <candidate_name>CONDIE, Jenny</candidate_name>
+        <electorate>0</electorate>
+        <party>28</party>
+        <list_no>23</list_no>
+    </candidate>
+    <candidate c_no="47">
+        <candidate_name>HAY, David</candidate_name>
+        <electorate>0</electorate>
+        <party>28</party>
+        <list_no>22</list_no>
+    </candidate>
+    <candidate c_no="48">
+        <candidate_name>HAMMOND DOUBE, Jessica</candidate_name>
+        <electorate>36</electorate>
+        <party>28</party>
+        <list_no>24</list_no>
+    </candidate>
+    <candidate c_no="49">
+        <candidate_name>HILL, Doug</candidate_name>
+        <electorate>4</electorate>
+        <party>28</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="50">
+        <candidate_name>THURSTON, Dan</candidate_name>
+        <electorate>27</electorate>
+        <party>28</party>
+        <list_no>16</list_no>
+    </candidate>
+    <candidate c_no="51">
+        <candidate_name>IMMINK, Lesley</candidate_name>
+        <electorate>10</electorate>
+        <party>28</party>
+        <list_no>17</list_no>
+    </candidate>
+    <candidate c_no="52">
+        <candidate_name>WILSON, Olly</candidate_name>
+        <electorate>42</electorate>
+        <party>28</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="53">
+        <candidate_name>MOORE, Teresa</candidate_name>
+        <electorate>11</electorate>
+        <party>28</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="54">
+        <candidate_name>SNOYINK, Nicky</candidate_name>
+        <electorate>48</electorate>
+        <party>28</party>
+        <list_no>11</list_no>
+    </candidate>
+    <candidate c_no="55">
+        <candidate_name>SMITH, Lindsay</candidate_name>
+        <electorate>9</electorate>
+        <party>28</party>
+        <list_no>26</list_no>
+    </candidate>
+    <candidate c_no="56">
+        <candidate_name>MIKAERE, Buddy</candidate_name>
+        <electorate>0</electorate>
+        <party>28</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="57">
+        <candidate_name>WARWICK, Richard</candidate_name>
+        <electorate>17</electorate>
+        <party>28</party>
+        <list_no>12</list_no>
+    </candidate>
+    <candidate c_no="58">
+        <candidate_name>HAKA, Mika</candidate_name>
+        <electorate>1</electorate>
+        <party>28</party>
+        <list_no>10</list_no>
+    </candidate>
+    <candidate c_no="59">
+        <candidate_name>NEILL, Kevin</candidate_name>
+        <electorate>59</electorate>
+        <party>28</party>
+        <list_no>25</list_no>
+    </candidate>
+    <candidate c_no="60">
+        <candidate_name>POKERE-PHILLIPS, Donna</candidate_name>
+        <electorate>14</electorate>
+        <party>28</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="61">
+        <candidate_name>ISBISTER, Matt</candidate_name>
+        <electorate>33</electorate>
+        <party>28</party>
+        <list_no>21</list_no>
+    </candidate>
+    <candidate c_no="62">
+        <candidate_name>SIMMONS, Geoff</candidate_name>
+        <electorate>60</electorate>
+        <party>28</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="63">
+        <candidate_name>GLENJARMAN, Nicola</candidate_name>
+        <electorate>57</electorate>
+        <party>28</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="64">
+        <candidate_name>HOLWELL, Ash</candidate_name>
+        <electorate>63</electorate>
+        <party>4</party>
+        <list_no>29</list_no>
+    </candidate>
+    <candidate c_no="65">
+        <candidate_name>COATES, Barry</candidate_name>
+        <electorate>12</electorate>
+        <party>4</party>
+        <list_no>10</list_no>
+    </candidate>
+    <candidate c_no="66">
+        <candidate_name>WALSH, Bridget</candidate_name>
+        <electorate>0</electorate>
+        <party>4</party>
+        <list_no>36</list_no>
+    </candidate>
+    <candidate c_no="67">
+        <candidate_name>SWEET, Cathy</candidate_name>
+        <electorate>5</electorate>
+        <party>4</party>
+        <list_no>59</list_no>
+    </candidate>
+    <candidate c_no="68">
+        <candidate_name>SWARBRICK, Chlöe</candidate_name>
+        <electorate>26</electorate>
+        <party>4</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="69">
+        <candidate_name>PERLEY, Christopher John</candidate_name>
+        <electorate>54</electorate>
+        <party>4</party>
+        <list_no>20</list_no>
+    </candidate>
+    <candidate c_no="70">
+        <candidate_name>HORN, Chrys</candidate_name>
+        <electorate>48</electorate>
+        <party>4</party>
+        <list_no>46</list_no>
+    </candidate>
+    <candidate c_no="71">
+        <candidate_name>RUSDEN, Damon</candidate_name>
+        <electorate>29</electorate>
+        <party>4</party>
+        <list_no>54</list_no>
+    </candidate>
+    <candidate c_no="72">
+        <candidate_name>LEE, David</candidate_name>
+        <electorate>18</electorate>
+        <party>4</party>
+        <list_no>48</list_no>
+    </candidate>
+    <candidate c_no="73">
+        <candidate_name>ROCHE, Denise</candidate_name>
+        <electorate>1</electorate>
+        <party>4</party>
+        <list_no>13</list_no>
+    </candidate>
+    <candidate c_no="74">
+        <candidate_name>DYETT, Elaine</candidate_name>
+        <electorate>23</electorate>
+        <party>4</party>
+        <list_no>42</list_no>
+    </candidate>
+    <candidate c_no="75">
+        <candidate_name>KEREKERE, Elizabeth</candidate_name>
+        <electorate>66</electorate>
+        <party>4</party>
+        <list_no>19</list_no>
+    </candidate>
+    <candidate c_no="76">
+        <candidate_name>HODGE, Emma-Leigh</candidate_name>
+        <electorate>52</electorate>
+        <party>4</party>
+        <list_no>45</list_no>
+    </candidate>
+    <candidate c_no="77">
+        <candidate_name>SAGE, Eugenie</candidate_name>
+        <electorate>41</electorate>
+        <party>4</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="78">
+        <candidate_name>HUGHES, Gareth</candidate_name>
+        <electorate>10</electorate>
+        <party>4</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="79">
+        <candidate_name>RUDOLPH, Godfrey James</candidate_name>
+        <electorate>69</electorate>
+        <party>4</party>
+        <list_no>53</list_no>
+    </candidate>
+    <candidate c_no="80">
+        <candidate_name>GHAHRAMAN, Golriz</candidate_name>
+        <electorate>53</electorate>
+        <party>4</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="81">
+        <candidate_name>HUNT, Guy</candidate_name>
+        <electorate>38</electorate>
+        <party>4</party>
+        <list_no>41</list_no>
+    </candidate>
+    <candidate c_no="82">
+        <candidate_name>BURNARD, Harrison</candidate_name>
+        <electorate>45</electorate>
+        <party>4</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="83">
+        <candidate_name>HOLT, Hayley Doreen</candidate_name>
+        <electorate>15</electorate>
+        <party>4</party>
+        <list_no>14</list_no>
+    </candidate>
+    <candidate c_no="84">
+        <candidate_name>McDONALD, Jack</candidate_name>
+        <electorate>68</electorate>
+        <party>4</party>
+        <list_no>11</list_no>
+    </candidate>
+    <candidate c_no="85">
+        <candidate_name>GOODHUE, James</candidate_name>
+        <electorate>55</electorate>
+        <party>4</party>
+        <list_no>39</list_no>
+    </candidate>
+    <candidate c_no="86">
+        <candidate_name>SHAW, James</candidate_name>
+        <electorate>60</electorate>
+        <party>4</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="87">
+        <candidate_name>LOGIE, Jan</candidate_name>
+        <electorate>22</electorate>
+        <party>4</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="88">
+        <candidate_name>WRIGLEY, Jo</candidate_name>
+        <electorate>14</electorate>
+        <party>4</party>
+        <list_no>28</list_no>
+    </candidate>
+    <candidate c_no="89">
+        <candidate_name>HART, John</candidate_name>
+        <electorate>58</electorate>
+        <party>4</party>
+        <list_no>12</list_no>
+    </candidate>
+    <candidate c_no="90">
+        <candidate_name>GENTER, Julie Anne</candidate_name>
+        <electorate>27</electorate>
+        <party>4</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="91">
+        <candidate_name>SANDILANDS, Julie</candidate_name>
+        <electorate>51</electorate>
+        <party>4</party>
+        <list_no>55</list_no>
+    </candidate>
+    <candidate c_no="92">
+        <candidate_name>ZHU, Julie</candidate_name>
+        <electorate>3</electorate>
+        <party>4</party>
+        <list_no>22</list_no>
+    </candidate>
+    <candidate c_no="93">
+        <candidate_name>FULTON, Kate</candidate_name>
+        <electorate>61</electorate>
+        <party>4</party>
+        <list_no>26</list_no>
+    </candidate>
+    <candidate c_no="94">
+        <candidate_name>ADAMS, Brian Alan</candidate_name>
+        <electorate>6</electorate>
+        <party>18</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="95">
+        <candidate_name>GRAF, Clyde</candidate_name>
+        <electorate>7</electorate>
+        <party>18</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="96">
+        <candidate_name>TAMU, Leilani Leafaitulagi</candidate_name>
+        <electorate>31</electorate>
+        <party>4</party>
+        <list_no>17</list_no>
+    </candidate>
+    <candidate c_no="97">
+        <candidate_name>DAVIDSON, Marama</candidate_name>
+        <electorate>67</electorate>
+        <party>4</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="98">
+        <candidate_name>LAWREY, Matt</candidate_name>
+        <electorate>30</electorate>
+        <party>4</party>
+        <list_no>18</list_no>
+    </candidate>
+    <candidate c_no="99">
+        <candidate_name>TUREI, Metiria</candidate_name>
+        <electorate>70</electorate>
+        <party>4</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="100">
+        <candidate_name>SALTER, Peter</candidate_name>
+        <electorate>61</electorate>
+        <party>18</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="101">
+        <candidate_name>WALLACE, William John</candidate_name>
+        <electorate>0</electorate>
+        <party>18</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="102">
+        <candidate_name>MATHERS, Mojo</candidate_name>
+        <electorate>42</electorate>
+        <party>4</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="103">
+        <candidate_name>SAWYER, Carol</candidate_name>
+        <electorate>0</electorate>
+        <party>18</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="104">
+        <candidate_name>MAYNE, Nicholas</candidate_name>
+        <electorate>11</electorate>
+        <party>4</party>
+        <list_no>49</list_no>
+    </candidate>
+    <candidate c_no="105">
+        <candidate_name>HANSON, Kenneth Lloyd</candidate_name>
+        <electorate>0</electorate>
+        <party>18</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="106">
+        <candidate_name>PATRICK, Nicola</candidate_name>
+        <electorate>62</electorate>
+        <party>4</party>
+        <list_no>51</list_no>
+    </candidate>
+    <candidate c_no="107">
+        <candidate_name>MOLLOY, Mary</candidate_name>
+        <electorate>0</electorate>
+        <party>18</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="108">
+        <candidate_name>SMITH, Nicola</candidate_name>
+        <electorate>21</electorate>
+        <party>4</party>
+        <list_no>57</list_no>
+    </candidate>
+    <candidate c_no="109">
+        <candidate_name>BOULD, Niki</candidate_name>
+        <electorate>8</electorate>
+        <party>4</party>
+        <list_no>32</list_no>
+    </candidate>
+    <candidate c_no="110">
+        <candidate_name>BERRY, Nikki</candidate_name>
+        <electorate>57</electorate>
+        <party>4</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="111">
+        <candidate_name>WALL, Pat</candidate_name>
+        <electorate>59</electorate>
+        <party>4</party>
+        <list_no>38</list_no>
+    </candidate>
+    <candidate c_no="112">
+        <candidate_name>RICHARDSON, Peter</candidate_name>
+        <electorate>4</electorate>
+        <party>4</party>
+        <list_no>52</list_no>
+    </candidate>
+    <candidate c_no="113">
+        <candidate_name>MORGAN, Gareth</candidate_name>
+        <electorate>0</electorate>
+        <party>28</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="114">
+        <candidate_name>STEVENSON, Philippa</candidate_name>
+        <electorate>56</electorate>
+        <party>4</party>
+        <list_no>58</list_no>
+    </candidate>
+    <candidate c_no="115">
+        <candidate_name>GOLDSMITH, Rachael</candidate_name>
+        <electorate>6</electorate>
+        <party>4</party>
+        <list_no>37</list_no>
+    </candidate>
+    <candidate c_no="116">
+        <candidate_name>SINGH, Raj</candidate_name>
+        <electorate>24</electorate>
+        <party>4</party>
+        <list_no>56</list_no>
+    </candidate>
+    <candidate c_no="117">
+        <candidate_name>JAUNG, Rebekah</candidate_name>
+        <electorate>34</electorate>
+        <party>4</party>
+        <list_no>47</list_no>
+    </candidate>
+    <candidate c_no="118">
+        <candidate_name>MENENDEZ MARCH, Ricardo</candidate_name>
+        <electorate>28</electorate>
+        <party>4</party>
+        <list_no>21</list_no>
+    </candidate>
+    <candidate c_no="119">
+        <candidate_name>GILLIES, Richard</candidate_name>
+        <electorate>47</electorate>
+        <party>4</party>
+        <list_no>44</list_no>
+    </candidate>
+    <candidate c_no="120">
+        <candidate_name>LECKINGER, Richard</candidate_name>
+        <electorate>49</electorate>
+        <party>4</party>
+        <list_no>23</list_no>
+    </candidate>
+    <candidate c_no="121">
+        <candidate_name>McCUBBIN, Richard</candidate_name>
+        <electorate>20</electorate>
+        <party>4</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="122">
+        <candidate_name>WESLEY, Richard</candidate_name>
+        <electorate>64</electorate>
+        <party>4</party>
+        <list_no>40</list_no>
+    </candidate>
+    <candidate c_no="123">
+        <candidate_name>MOORE, Robert</candidate_name>
+        <electorate>50</electorate>
+        <party>4</party>
+        <list_no>50</list_no>
+    </candidate>
+    <candidate c_no="124">
+        <candidate_name>McCANDLESS, Robin Campbell</candidate_name>
+        <electorate>43</electorate>
+        <party>4</party>
+        <list_no>31</list_no>
+    </candidate>
+    <candidate c_no="125">
+        <candidate_name>SURENDRAN, Rochelle</candidate_name>
+        <electorate>19</electorate>
+        <party>4</party>
+        <list_no>35</list_no>
+    </candidate>
+    <candidate c_no="126">
+        <candidate_name>FERGUSON, Sam</candidate_name>
+        <electorate>37</electorate>
+        <party>4</party>
+        <list_no>43</list_no>
+    </candidate>
+    <candidate c_no="127">
+        <candidate_name>TAYLOR, Sam</candidate_name>
+        <electorate>13</electorate>
+        <party>4</party>
+        <list_no>25</list_no>
+    </candidate>
+    <candidate c_no="128">
+        <candidate_name>SUMMERFIELD, Scott</candidate_name>
+        <electorate>7</electorate>
+        <party>4</party>
+        <list_no>34</list_no>
+    </candidate>
+    <candidate c_no="129">
+        <candidate_name>GALLAGHER, Shane</candidate_name>
+        <electorate>9</electorate>
+        <party>4</party>
+        <list_no>33</list_no>
+    </candidate>
+    <candidate c_no="130">
+        <candidate_name>GRAND-MEYER, Stefan</candidate_name>
+        <electorate>44</electorate>
+        <party>4</party>
+        <list_no>30</list_no>
+    </candidate>
+    <candidate c_no="131">
+        <candidate_name>BRAMHALL, Stuart Jeanne</candidate_name>
+        <electorate>32</electorate>
+        <party>4</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="132">
+        <candidate_name>WOODLEY, Tane</candidate_name>
+        <electorate>36</electorate>
+        <party>4</party>
+        <list_no>27</list_no>
+    </candidate>
+    <candidate c_no="133">
+        <candidate_name>CROSSEN, Teall</candidate_name>
+        <electorate>46</electorate>
+        <party>4</party>
+        <list_no>15</list_no>
+    </candidate>
+    <candidate c_no="134">
+        <candidate_name>TUIONO, Teanau</candidate_name>
+        <electorate>25</electorate>
+        <party>4</party>
+        <list_no>16</list_no>
+    </candidate>
+    <candidate c_no="135">
+        <candidate_name>NASH, Thomas</candidate_name>
+        <electorate>39</electorate>
+        <party>4</party>
+        <list_no>24</list_no>
+    </candidate>
+    <candidate c_no="136">
+        <candidate_name>HORROCKS, Virginia</candidate_name>
+        <electorate>17</electorate>
+        <party>4</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="137">
+        <candidate_name>LEE, Denise</candidate_name>
+        <electorate>26</electorate>
+        <party>6</party>
+        <list_no>63</list_no>
+    </candidate>
+    <candidate c_no="138">
+        <candidate_name>TOLLEY, Anne</candidate_name>
+        <electorate>10</electorate>
+        <party>6</party>
+        <list_no>11</list_no>
+    </candidate>
+    <candidate c_no="139">
+        <candidate_name>WOODHOUSE, Michael</candidate_name>
+        <electorate>8</electorate>
+        <party>6</party>
+        <list_no>10</list_no>
+    </candidate>
+    <candidate c_no="140">
+        <candidate_name>KURIGER, Barbara</candidate_name>
+        <electorate>50</electorate>
+        <party>6</party>
+        <list_no>28</list_no>
+    </candidate>
+    <candidate c_no="141">
+        <candidate_name>BAYLY, Andrew</candidate_name>
+        <electorate>16</electorate>
+        <party>6</party>
+        <list_no>39</list_no>
+    </candidate>
+    <candidate c_no="142">
+        <candidate_name>PETERS, Winston</candidate_name>
+        <electorate>35</electorate>
+        <party>7</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="143">
+        <candidate_name>MARTIN, Tracey</candidate_name>
+        <electorate>45</electorate>
+        <party>7</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="144">
+        <candidate_name>BINDRA, Mahesh</candidate_name>
+        <electorate>28</electorate>
+        <party>7</party>
+        <list_no>10</list_no>
+    </candidate>
+    <candidate c_no="145">
+        <candidate_name>TABUTEAU, Fletcher</candidate_name>
+        <electorate>47</electorate>
+        <party>7</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="146">
+        <candidate_name>BALL, Darroch</candidate_name>
+        <electorate>39</electorate>
+        <party>7</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="147">
+        <candidate_name>JOYCE, Steven</candidate_name>
+        <electorate>0</electorate>
+        <party>6</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="148">
+        <candidate_name>HIATT, David</candidate_name>
+        <electorate>64</electorate>
+        <party>6</party>
+        <list_no>52</list_no>
+    </candidate>
+    <candidate c_no="149">
+        <candidate_name>HIPANGO, Harete</candidate_name>
+        <electorate>62</electorate>
+        <party>6</party>
+        <list_no>62</list_no>
+    </candidate>
+    <candidate c_no="150">
+        <candidate_name>KAYE, Nikki</candidate_name>
+        <electorate>1</electorate>
+        <party>6</party>
+        <list_no>13</list_no>
+    </candidate>
+    <candidate c_no="151">
+        <candidate_name>KING, Matt</candidate_name>
+        <electorate>35</electorate>
+        <party>6</party>
+        <list_no>51</list_no>
+    </candidate>
+    <candidate c_no="152">
+        <candidate_name>KORAKO, Nuk</candidate_name>
+        <electorate>41</electorate>
+        <party>6</party>
+        <list_no>42</list_no>
+    </candidate>
+    <candidate c_no="153">
+        <candidate_name>LEE, Melissa</candidate_name>
+        <electorate>27</electorate>
+        <party>6</party>
+        <list_no>31</list_no>
+    </candidate>
+    <candidate c_no="154">
+        <candidate_name>LOHENI, Agnes</candidate_name>
+        <electorate>23</electorate>
+        <party>6</party>
+        <list_no>49</list_no>
+    </candidate>
+    <candidate c_no="155">
+        <candidate_name>MACINDOE, Tim</candidate_name>
+        <electorate>14</electorate>
+        <party>6</party>
+        <list_no>25</list_no>
+    </candidate>
+    <candidate c_no="156">
+        <candidate_name>McKELVIE, Ian</candidate_name>
+        <electorate>43</electorate>
+        <party>6</party>
+        <list_no>37</list_no>
+    </candidate>
+    <candidate c_no="157">
+        <candidate_name>MITCHELL, Mark</candidate_name>
+        <electorate>45</electorate>
+        <party>6</party>
+        <list_no>21</list_no>
+    </candidate>
+    <candidate c_no="158">
+        <candidate_name>MULLER, Todd</candidate_name>
+        <electorate>2</electorate>
+        <party>6</party>
+        <list_no>43</list_no>
+    </candidate>
+    <candidate c_no="159">
+        <candidate_name>WILLIS, Nicola</candidate_name>
+        <electorate>60</electorate>
+        <party>6</party>
+        <list_no>48</list_no>
+    </candidate>
+    <candidate c_no="160">
+        <candidate_name>NGARO, Alfred</candidate_name>
+        <electorate>53</electorate>
+        <party>6</party>
+        <list_no>20</list_no>
+    </candidate>
+    <candidate c_no="161">
+        <candidate_name>BENNETT, Raewyn</candidate_name>
+        <electorate>2</electorate>
+        <party>10</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="162">
+        <candidate_name>KIRIA, John</candidate_name>
+        <electorate>28</electorate>
+        <party>10</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="163">
+        <candidate_name>ESERA, Tuilagi Saipele</candidate_name>
+        <electorate>24</electorate>
+        <party>10</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="164">
+        <candidate_name>MARSTERS, Maryanne</candidate_name>
+        <electorate>29</electorate>
+        <party>10</party>
+        <list_no>22</list_no>
+    </candidate>
+    <candidate c_no="165">
+        <candidate_name>WILLIAMS, Karen</candidate_name>
+        <electorate>31</electorate>
+        <party>10</party>
+        <list_no>23</list_no>
+    </candidate>
+    <candidate c_no="166">
+        <candidate_name>PEPA, Mele</candidate_name>
+        <electorate>49</electorate>
+        <party>10</party>
+        <list_no>25</list_no>
+    </candidate>
+    <candidate c_no="167">
+        <candidate_name>MITCHELL, Clayton</candidate_name>
+        <electorate>52</electorate>
+        <party>7</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="168">
+        <candidate_name>O&apos;ROURKE, Denis</candidate_name>
+        <electorate>41</electorate>
+        <party>7</party>
+        <list_no>13</list_no>
+    </candidate>
+    <candidate c_no="169">
+        <candidate_name>TE WHIU, Amiria</candidate_name>
+        <electorate>0</electorate>
+        <party>10</party>
+        <list_no>24</list_no>
+    </candidate>
+    <candidate c_no="170">
+        <candidate_name>JONES, Shane</candidate_name>
+        <electorate>63</electorate>
+        <party>7</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="171">
+        <candidate_name>MARCROFT, Jenny</candidate_name>
+        <electorate>49</electorate>
+        <party>7</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="172">
+        <candidate_name>O&apos;CONNOR, Simon</candidate_name>
+        <electorate>49</electorate>
+        <party>6</party>
+        <list_no>38</list_no>
+    </candidate>
+    <candidate c_no="173">
+        <candidate_name>PROSSER, Richard Ivor</candidate_name>
+        <electorate>57</electorate>
+        <party>7</party>
+        <list_no>15</list_no>
+    </candidate>
+    <candidate c_no="174">
+        <candidate_name>TE HAU, Hinurewa</candidate_name>
+        <electorate>0</electorate>
+        <party>10</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="175">
+        <candidate_name>O&apos;FALLON, Carolyn</candidate_name>
+        <electorate>44</electorate>
+        <party>6</party>
+        <list_no>58</list_no>
+    </candidate>
+    <candidate c_no="176">
+        <candidate_name>PARAONE, Pita</candidate_name>
+        <electorate>13</electorate>
+        <party>7</party>
+        <list_no>11</list_no>
+    </candidate>
+    <candidate c_no="177">
+        <candidate_name>NGATAI, Rongokino George</candidate_name>
+        <electorate>0</electorate>
+        <party>10</party>
+        <list_no>17</list_no>
+    </candidate>
+    <candidate c_no="178">
+        <candidate_name>PARMAR, Parmjeet</candidate_name>
+        <electorate>28</electorate>
+        <party>6</party>
+        <list_no>34</list_no>
+    </candidate>
+    <candidate c_no="179">
+        <candidate_name>TU&apos;INUKUAFE, Tae Moala</candidate_name>
+        <electorate>0</electorate>
+        <party>10</party>
+        <list_no>26</list_no>
+    </candidate>
+    <candidate c_no="180">
+        <candidate_name>PIERCE, Adrienne</candidate_name>
+        <electorate>39</electorate>
+        <party>6</party>
+        <list_no>54</list_no>
+    </candidate>
+    <candidate c_no="181">
+        <candidate_name>BOND, Ria</candidate_name>
+        <electorate>19</electorate>
+        <party>7</party>
+        <list_no>12</list_no>
+    </candidate>
+    <candidate c_no="182">
+        <candidate_name>CHAPMAN, Ngārangi</candidate_name>
+        <electorate>0</electorate>
+        <party>10</party>
+        <list_no>20</list_no>
+    </candidate>
+    <candidate c_no="183">
+        <candidate_name>WILSON, David</candidate_name>
+        <electorate>53</electorate>
+        <party>7</party>
+        <list_no>14</list_no>
+    </candidate>
+    <candidate c_no="184">
+        <candidate_name>PUGH, Maureen</candidate_name>
+        <electorate>61</electorate>
+        <party>6</party>
+        <list_no>44</list_no>
+    </candidate>
+    <candidate c_no="185">
+        <candidate_name>PATTERSON, Mark</candidate_name>
+        <electorate>6</electorate>
+        <party>7</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="186">
+        <candidate_name>RETI, Shane</candidate_name>
+        <electorate>63</electorate>
+        <party>6</party>
+        <list_no>45</list_no>
+    </candidate>
+    <candidate c_no="187">
+        <candidate_name>REEVES, Jon</candidate_name>
+        <electorate>16</electorate>
+        <party>7</party>
+        <list_no>16</list_no>
+    </candidate>
+    <candidate c_no="188">
+        <candidate_name>KANG, Wetex</candidate_name>
+        <electorate>3</electorate>
+        <party>10</party>
+        <list_no>13</list_no>
+    </candidate>
+    <candidate c_no="189">
+        <candidate_name>ROSS, Jami-Lee</candidate_name>
+        <electorate>3</electorate>
+        <party>6</party>
+        <list_no>27</list_no>
+    </candidate>
+    <candidate c_no="190">
+        <candidate_name>HUSBAND, Stu</candidate_name>
+        <electorate>56</electorate>
+        <party>7</party>
+        <list_no>17</list_no>
+    </candidate>
+    <candidate c_no="191">
+        <candidate_name>SAMUJH, Boris</candidate_name>
+        <electorate>14</electorate>
+        <party>10</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="192">
+        <candidate_name>McLEOD, Te Waka</candidate_name>
+        <electorate>0</electorate>
+        <party>10</party>
+        <list_no>10</list_no>
+    </candidate>
+    <candidate c_no="193">
+        <candidate_name>FOSTER, Andy</candidate_name>
+        <electorate>60</electorate>
+        <party>7</party>
+        <list_no>18</list_no>
+    </candidate>
+    <candidate c_no="194">
+        <candidate_name>SCOTT, Alastair</candidate_name>
+        <electorate>58</electorate>
+        <party>6</party>
+        <list_no>46</list_no>
+    </candidate>
+    <candidate c_no="195">
+        <candidate_name>MARK-SHADBOLT, Melanie</candidate_name>
+        <electorate>5</electorate>
+        <party>7</party>
+        <list_no>19</list_no>
+    </candidate>
+    <candidate c_no="196">
+        <candidate_name>SIMPSON, Scott</candidate_name>
+        <electorate>7</electorate>
+        <party>6</party>
+        <list_no>26</list_no>
+    </candidate>
+    <candidate c_no="197">
+        <candidate_name>PETERSON, Helen</candidate_name>
+        <electorate>15</electorate>
+        <party>7</party>
+        <list_no>20</list_no>
+    </candidate>
+    <candidate c_no="198">
+        <candidate_name>SMITH, Nick</candidate_name>
+        <electorate>30</electorate>
+        <party>6</party>
+        <list_no>15</list_no>
+    </candidate>
+    <candidate c_no="199">
+        <candidate_name>SMITH, Stuart</candidate_name>
+        <electorate>20</electorate>
+        <party>6</party>
+        <list_no>47</list_no>
+    </candidate>
+    <candidate c_no="200">
+        <candidate_name>UPSTON, Louise</candidate_name>
+        <electorate>51</electorate>
+        <party>6</party>
+        <list_no>19</list_no>
+    </candidate>
+    <candidate c_no="201">
+        <candidate_name>YOUNG, Jonathan</candidate_name>
+        <electorate>32</electorate>
+        <party>6</party>
+        <list_no>35</list_no>
+    </candidate>
+    <candidate c_no="202">
+        <candidate_name>YULE, Lawrence</candidate_name>
+        <electorate>54</electorate>
+        <party>6</party>
+        <list_no>67</list_no>
+    </candidate>
+    <candidate c_no="203">
+        <candidate_name>YANG, Jian</candidate_name>
+        <electorate>0</electorate>
+        <party>6</party>
+        <list_no>33</list_no>
+    </candidate>
+    <candidate c_no="204">
+        <candidate_name>McCLAY, Todd</candidate_name>
+        <electorate>47</electorate>
+        <party>6</party>
+        <list_no>14</list_no>
+    </candidate>
+    <candidate c_no="205">
+        <candidate_name>BARRY, Maggie</candidate_name>
+        <electorate>33</electorate>
+        <party>6</party>
+        <list_no>17</list_no>
+    </candidate>
+    <candidate c_no="206">
+        <candidate_name>BUNGARD, Katrina</candidate_name>
+        <electorate>25</electorate>
+        <party>6</party>
+        <list_no>56</list_no>
+    </candidate>
+    <candidate c_no="207">
+        <candidate_name>ADAMS, Amy</candidate_name>
+        <electorate>48</electorate>
+        <party>6</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="208">
+        <candidate_name>DOOCEY, Matt</candidate_name>
+        <electorate>57</electorate>
+        <party>6</party>
+        <list_no>29</list_no>
+    </candidate>
+    <candidate c_no="209">
+        <candidate_name>STANFORD, Erica</candidate_name>
+        <electorate>11</electorate>
+        <party>6</party>
+        <list_no>65</list_no>
+    </candidate>
+    <candidate c_no="210">
+        <candidate_name>MURRELL, Euon</candidate_name>
+        <electorate>22</electorate>
+        <party>6</party>
+        <list_no>59</list_no>
+    </candidate>
+    <candidate c_no="211">
+        <candidate_name>van de MOLEN, Tim</candidate_name>
+        <electorate>56</electorate>
+        <party>6</party>
+        <list_no>66</list_no>
+    </candidate>
+    <candidate c_no="212">
+        <candidate_name>HILTON, James Edwin</candidate_name>
+        <electorate>0</electorate>
+        <party>18</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="213">
+        <candidate_name>PENK, Chris</candidate_name>
+        <electorate>15</electorate>
+        <party>6</party>
+        <list_no>64</list_no>
+    </candidate>
+    <candidate c_no="214">
+        <candidate_name>TOMLINSON, Glen James</candidate_name>
+        <electorate>0</electorate>
+        <party>18</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="215">
+        <candidate_name>WAGNER, Nicky</candidate_name>
+        <electorate>4</electorate>
+        <party>6</party>
+        <list_no>22</list_no>
+    </candidate>
+    <candidate c_no="216">
+        <candidate_name>GREGORY, Matt</candidate_name>
+        <electorate>9</electorate>
+        <party>6</party>
+        <list_no>53</list_no>
+    </candidate>
+    <candidate c_no="217">
+        <candidate_name>HARAWIRA, Hone</candidate_name>
+        <electorate>69</electorate>
+        <party>11</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="218">
+        <candidate_name>McNAB, Lisa</candidate_name>
+        <electorate>0</electorate>
+        <party>11</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="219">
+        <candidate_name>PAPALI&apos;I, Papalii James</candidate_name>
+        <electorate>23</electorate>
+        <party>11</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="220">
+        <candidate_name>LIGHT, Damian</candidate_name>
+        <electorate>3</electorate>
+        <party>9</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="222">
+        <candidate_name>RICKARD, Ben</candidate_name>
+        <electorate>52</electorate>
+        <party>9</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="223">
+        <candidate_name>FOSTER, John Truman</candidate_name>
+        <electorate>20</electorate>
+        <party>9</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="224">
+        <candidate_name>GASKIN, Ian Camden</candidate_name>
+        <electorate>4</electorate>
+        <party>9</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="225">
+        <candidate_name>HUBSCHER, John</candidate_name>
+        <electorate>31</electorate>
+        <party>9</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="226">
+        <candidate_name>STEVENSON, Rob</candidate_name>
+        <electorate>43</electorate>
+        <party>7</party>
+        <list_no>21</list_no>
+    </candidate>
+    <candidate c_no="228">
+        <candidate_name>CLOSE, Lisa Susan</candidate_name>
+        <electorate>36</electorate>
+        <party>7</party>
+        <list_no>22</list_no>
+    </candidate>
+    <candidate c_no="229">
+        <candidate_name>HUBBARD, Josh</candidate_name>
+        <electorate>33</electorate>
+        <party>7</party>
+        <list_no>24</list_no>
+    </candidate>
+    <candidate c_no="230">
+        <candidate_name>MEIKLE, Talani</candidate_name>
+        <electorate>44</electorate>
+        <party>7</party>
+        <list_no>25</list_no>
+    </candidate>
+    <candidate c_no="231">
+        <candidate_name>CHAN, Peter</candidate_name>
+        <electorate>31</electorate>
+        <party>7</party>
+        <list_no>26</list_no>
+    </candidate>
+    <candidate c_no="232">
+        <candidate_name>GRAY, Lester</candidate_name>
+        <electorate>2</electorate>
+        <party>7</party>
+        <list_no>27</list_no>
+    </candidate>
+    <candidate c_no="233">
+        <candidate_name>DEGIA-PALA, Anne</candidate_name>
+        <electorate>21</electorate>
+        <party>7</party>
+        <list_no>28</list_no>
+    </candidate>
+    <candidate c_no="234">
+        <candidate_name>SKIPWORTH, Reginald Herbert</candidate_name>
+        <electorate>62</electorate>
+        <party>7</party>
+        <list_no>36</list_no>
+    </candidate>
+    <candidate c_no="235">
+        <candidate_name>CHONG, Murray</candidate_name>
+        <electorate>32</electorate>
+        <party>7</party>
+        <list_no>30</list_no>
+    </candidate>
+    <candidate c_no="236">
+        <candidate_name>FARRELLY, Jackie</candidate_name>
+        <electorate>61</electorate>
+        <party>7</party>
+        <list_no>31</list_no>
+    </candidate>
+    <candidate c_no="237">
+        <candidate_name>PAUL, Julian</candidate_name>
+        <electorate>12</electorate>
+        <party>7</party>
+        <list_no>33</list_no>
+    </candidate>
+    <candidate c_no="238">
+        <candidate_name>GREENING, Toa</candidate_name>
+        <electorate>40</electorate>
+        <party>7</party>
+        <list_no>32</list_no>
+    </candidate>
+    <candidate c_no="239">
+        <candidate_name>WIHONGI, Shayne</candidate_name>
+        <electorate>14</electorate>
+        <party>7</party>
+        <list_no>34</list_no>
+    </candidate>
+    <candidate c_no="240">
+        <candidate_name>RUDZKI, Romuald Edward</candidate_name>
+        <electorate>37</electorate>
+        <party>7</party>
+        <list_no>35</list_no>
+    </candidate>
+    <candidate c_no="241">
+        <candidate_name>MARK, Ron</candidate_name>
+        <electorate>58</electorate>
+        <party>7</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="243">
+        <candidate_name>KAIRAU, Joe</candidate_name>
+        <electorate>54</electorate>
+        <party>7</party>
+        <list_no>37</list_no>
+    </candidate>
+    <candidate c_no="244">
+        <candidate_name>MILLS, Geoffrey John</candidate_name>
+        <electorate>46</electorate>
+        <party>7</party>
+        <list_no>39</list_no>
+    </candidate>
+    <candidate c_no="245">
+        <candidate_name>FAMILTON, Alex</candidate_name>
+        <electorate>59</electorate>
+        <party>7</party>
+        <list_no>40</list_no>
+    </candidate>
+    <candidate c_no="246">
+        <candidate_name>ANDREWS, Anne-Marie</candidate_name>
+        <electorate>7</electorate>
+        <party>7</party>
+        <list_no>41</list_no>
+    </candidate>
+    <candidate c_no="247">
+        <candidate_name>TILLEY, Julian</candidate_name>
+        <electorate>10</electorate>
+        <party>7</party>
+        <list_no>42</list_no>
+    </candidate>
+    <candidate c_no="248">
+        <candidate_name>FLESHER, William</candidate_name>
+        <electorate>24</electorate>
+        <party>7</party>
+        <list_no>43</list_no>
+    </candidate>
+    <candidate c_no="249">
+        <candidate_name>KELLY, Suzanne</candidate_name>
+        <electorate>38</electorate>
+        <party>7</party>
+        <list_no>29</list_no>
+    </candidate>
+    <candidate c_no="250">
+        <candidate_name>APANUI, Tane John</candidate_name>
+        <electorate>64</electorate>
+        <party>7</party>
+        <list_no>44</list_no>
+    </candidate>
+    <candidate c_no="251">
+        <candidate_name>POROU, Tina Tangi Whaiora</candidate_name>
+        <electorate>0</electorate>
+        <party>10</party>
+        <list_no>16</list_no>
+    </candidate>
+    <candidate c_no="252">
+        <candidate_name>HALL, John</candidate_name>
+        <electorate>25</electorate>
+        <party>7</party>
+        <list_no>45</list_no>
+    </candidate>
+    <candidate c_no="253">
+        <candidate_name>VOIGHT, Warren</candidate_name>
+        <electorate>8</electorate>
+        <party>7</party>
+        <list_no>46</list_no>
+    </candidate>
+    <candidate c_no="255">
+        <candidate_name>EDWARDS, Frank</candidate_name>
+        <electorate>1</electorate>
+        <party>7</party>
+        <list_no>48</list_no>
+    </candidate>
+    <candidate c_no="256">
+        <candidate_name>PALMER, Lindy Michelle</candidate_name>
+        <electorate>48</electorate>
+        <party>7</party>
+        <list_no>56</list_no>
+    </candidate>
+    <candidate c_no="257">
+        <candidate_name>RUPPELDT, Ilja</candidate_name>
+        <electorate>11</electorate>
+        <party>7</party>
+        <list_no>49</list_no>
+    </candidate>
+    <candidate c_no="258">
+        <candidate_name>PARORO, Mataroa</candidate_name>
+        <electorate>23</electorate>
+        <party>7</party>
+        <list_no>50</list_no>
+    </candidate>
+    <candidate c_no="259">
+        <candidate_name>RUSHTON, Kerry Maria</candidate_name>
+        <electorate>9</electorate>
+        <party>7</party>
+        <list_no>51</list_no>
+    </candidate>
+    <candidate c_no="260">
+        <candidate_name>GUPTA, Alok</candidate_name>
+        <electorate>17</electorate>
+        <party>7</party>
+        <list_no>52</list_no>
+    </candidate>
+    <candidate c_no="261">
+        <candidate_name>LITTLEJOHN, Andrew McGregor</candidate_name>
+        <electorate>27</electorate>
+        <party>7</party>
+        <list_no>53</list_no>
+    </candidate>
+    <candidate c_no="262">
+        <candidate_name>ROBINSON, Philip</candidate_name>
+        <electorate>4</electorate>
+        <party>7</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="263">
+        <candidate_name>SARA, Susan</candidate_name>
+        <electorate>30</electorate>
+        <party>7</party>
+        <list_no>54</list_no>
+    </candidate>
+    <candidate c_no="264">
+        <candidate_name>MAHON, Ken</candidate_name>
+        <electorate>26</electorate>
+        <party>7</party>
+        <list_no>55</list_no>
+    </candidate>
+    <candidate c_no="265">
+        <candidate_name>LEITCH, Chris</candidate_name>
+        <electorate>63</electorate>
+        <party>8</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="266">
+        <candidate_name>DE RUYTER, Stephnie</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="267">
+        <candidate_name>COLLIN, Jack</candidate_name>
+        <electorate>61</electorate>
+        <party>8</party>
+        <list_no>11</list_no>
+    </candidate>
+    <candidate c_no="268">
+        <candidate_name>LEITCH, Andrew</candidate_name>
+        <electorate>28</electorate>
+        <party>8</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="269">
+        <candidate_name>JOBSIS, Jason</candidate_name>
+        <electorate>52</electorate>
+        <party>8</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="270">
+        <candidate_name>MacARTHUR, Scott</candidate_name>
+        <electorate>31</electorate>
+        <party>8</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="271">
+        <candidate_name>VAN WIEREN, Hessel</candidate_name>
+        <electorate>59</electorate>
+        <party>8</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="272">
+        <candidate_name>RANSOM, Katherine</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="273">
+        <candidate_name>RYAN, Dick</candidate_name>
+        <electorate>54</electorate>
+        <party>8</party>
+        <list_no>15</list_no>
+    </candidate>
+    <candidate c_no="274">
+        <candidate_name>PEMBERTON, John</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>14</list_no>
+    </candidate>
+    <candidate c_no="275">
+        <candidate_name>PULFORD, Barry</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>21</list_no>
+    </candidate>
+    <candidate c_no="276">
+        <candidate_name>RING, John</candidate_name>
+        <electorate>64</electorate>
+        <party>8</party>
+        <list_no>13</list_no>
+    </candidate>
+    <candidate c_no="277">
+        <candidate_name>MATTHYS, Karl</candidate_name>
+        <electorate>29</electorate>
+        <party>8</party>
+        <list_no>10</list_no>
+    </candidate>
+    <candidate c_no="278">
+        <candidate_name>ADCOCK-WHITE, Peter</candidate_name>
+        <electorate>57</electorate>
+        <party>8</party>
+        <list_no>20</list_no>
+    </candidate>
+    <candidate c_no="279">
+        <candidate_name>McKENZIE, Carolyn</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>16</list_no>
+    </candidate>
+    <candidate c_no="280">
+        <candidate_name>McCONACHY, Heather Ann</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>12</list_no>
+    </candidate>
+    <candidate c_no="281">
+        <candidate_name>MOWAT, Miriam</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>25</list_no>
+    </candidate>
+    <candidate c_no="282">
+        <candidate_name>SMITH, Heather Marion</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>18</list_no>
+    </candidate>
+    <candidate c_no="283">
+        <candidate_name>PLUNKET, Paddy</candidate_name>
+        <electorate>46</electorate>
+        <party>28</party>
+        <list_no>19</list_no>
+    </candidate>
+    <candidate c_no="284">
+        <candidate_name>GRAY, Abe</candidate_name>
+        <electorate>8</electorate>
+        <party>28</party>
+        <list_no>14</list_no>
+    </candidate>
+    <candidate c_no="285">
+        <candidate_name>LEE, Vanessa</candidate_name>
+        <electorate>0</electorate>
+        <party>28</party>
+        <list_no>18</list_no>
+    </candidate>
+    <candidate c_no="286">
+        <candidate_name>ULYATT, Clint</candidate_name>
+        <electorate>28</electorate>
+        <party>28</party>
+        <list_no>15</list_no>
+    </candidate>
+    <candidate c_no="287">
+        <candidate_name>TUKAPUA, Piri-Hira</candidate_name>
+        <electorate>37</electorate>
+        <party>28</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="288">
+        <candidate_name>RHODES, Mischele</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="289">
+        <candidate_name>LIVINGSTON-POOLEY, Tracy</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>19</list_no>
+    </candidate>
+    <candidate c_no="290">
+        <candidate_name>McCASKEY, John</candidate_name>
+        <electorate>20</electorate>
+        <party>8</party>
+        <list_no>23</list_no>
+    </candidate>
+    <candidate c_no="291">
+        <candidate_name>GRIBBEN, Gary</candidate_name>
+        <electorate>41</electorate>
+        <party>8</party>
+        <list_no>24</list_no>
+    </candidate>
+    <candidate c_no="292">
+        <candidate_name>WILSON, David Angus</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>17</list_no>
+    </candidate>
+    <candidate c_no="293">
+        <candidate_name>RICHARDS, Robert</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>26</list_no>
+    </candidate>
+    <candidate c_no="294">
+        <candidate_name>CHEEL, Tricia</candidate_name>
+        <electorate>34</electorate>
+        <party>8</party>
+        <list_no>22</list_no>
+    </candidate>
+    <candidate c_no="295">
+        <candidate_name>HUGHES, Peter</candidate_name>
+        <electorate>35</electorate>
+        <party>4</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="296">
+        <candidate_name>McCABE, Phil</candidate_name>
+        <electorate>16</electorate>
+        <party>4</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="297">
+        <candidate_name>KOLONI, Kym</candidate_name>
+        <electorate>34</electorate>
+        <party>7</party>
+        <list_no>38</list_no>
+    </candidate>
+    <candidate c_no="298">
+        <candidate_name>REPIA, Tracey-lee</candidate_name>
+        <electorate>0</electorate>
+        <party>11</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="300">
+        <candidate_name>NADAKUITAVUKI, Bale</candidate_name>
+        <electorate>36</electorate>
+        <party>9</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="301">
+        <candidate_name>TODD, Quentin</candidate_name>
+        <electorate>14</electorate>
+        <party>9</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="302">
+        <candidate_name>HAYES, Jo</candidate_name>
+        <electorate>5</electorate>
+        <party>6</party>
+        <list_no>36</list_no>
+    </candidate>
+    <candidate c_no="304">
+        <candidate_name>WALKER, Hamish</candidate_name>
+        <electorate>6</electorate>
+        <party>6</party>
+        <list_no>68</list_no>
+    </candidate>
+    <candidate c_no="305">
+        <candidate_name>DAVIS, Kelvin</candidate_name>
+        <electorate>69</electorate>
+        <party>5</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="306">
+        <candidate_name>LITTLE, Andrew</candidate_name>
+        <electorate>0</electorate>
+        <party>5</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="307">
+        <candidate_name>ROBERTSON, Grant</candidate_name>
+        <electorate>60</electorate>
+        <party>5</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="308">
+        <candidate_name>TWYFORD, Phil</candidate_name>
+        <electorate>53</electorate>
+        <party>5</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="309">
+        <candidate_name>WOODS, Megan</candidate_name>
+        <electorate>64</electorate>
+        <party>5</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="310">
+        <candidate_name>HIPKINS, Chris</candidate_name>
+        <electorate>44</electorate>
+        <party>5</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="311">
+        <candidate_name>SEPULONI, Carmel Jean</candidate_name>
+        <electorate>21</electorate>
+        <party>5</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="312">
+        <candidate_name>CLARK, David</candidate_name>
+        <electorate>8</electorate>
+        <party>5</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="313">
+        <candidate_name>PARKER, David</candidate_name>
+        <electorate>12</electorate>
+        <party>5</party>
+        <list_no>10</list_no>
+    </candidate>
+    <candidate c_no="314">
+        <candidate_name>NASH, Stuart</candidate_name>
+        <electorate>29</electorate>
+        <party>5</party>
+        <list_no>11</list_no>
+    </candidate>
+    <candidate c_no="315">
+        <candidate_name>RADHAKRISHNAN, Priyanca</candidate_name>
+        <electorate>26</electorate>
+        <party>5</party>
+        <list_no>12</list_no>
+    </candidate>
+    <candidate c_no="316">
+        <candidate_name>HUO, Raymond</candidate_name>
+        <electorate>0</electorate>
+        <party>5</party>
+        <list_no>13</list_no>
+    </candidate>
+    <candidate c_no="317">
+        <candidate_name>LEES-GALLOWAY, Iain Francis</candidate_name>
+        <electorate>39</electorate>
+        <party>5</party>
+        <list_no>14</list_no>
+    </candidate>
+    <candidate c_no="318">
+        <candidate_name>TINETTI, Jan</candidate_name>
+        <electorate>52</electorate>
+        <party>5</party>
+        <list_no>15</list_no>
+    </candidate>
+    <candidate c_no="319">
+        <candidate_name>SIO, Aupito Tofae Sua William</candidate_name>
+        <electorate>23</electorate>
+        <party>5</party>
+        <list_no>16</list_no>
+    </candidate>
+    <candidate c_no="320">
+        <candidate_name>PRIME, Willow-Jean</candidate_name>
+        <electorate>35</electorate>
+        <party>5</party>
+        <list_no>17</list_no>
+    </candidate>
+    <candidate c_no="321">
+        <candidate_name>O&apos;CONNOR, Damien</candidate_name>
+        <electorate>61</electorate>
+        <party>5</party>
+        <list_no>18</list_no>
+    </candidate>
+    <candidate c_no="322">
+        <candidate_name>SALESA, Jenny</candidate_name>
+        <electorate>24</electorate>
+        <party>5</party>
+        <list_no>19</list_no>
+    </candidate>
+    <candidate c_no="323">
+        <candidate_name>FAAFOI, Kris</candidate_name>
+        <electorate>22</electorate>
+        <party>5</party>
+        <list_no>20</list_no>
+    </candidate>
+    <candidate c_no="324">
+        <candidate_name>JACKSON, Willie</candidate_name>
+        <electorate>0</electorate>
+        <party>5</party>
+        <list_no>22</list_no>
+    </candidate>
+    <candidate c_no="325">
+        <candidate_name>CURRAN, Clare</candidate_name>
+        <electorate>9</electorate>
+        <party>5</party>
+        <list_no>23</list_no>
+    </candidate>
+    <candidate c_no="326">
+        <candidate_name>DYSON, Ruth</candidate_name>
+        <electorate>41</electorate>
+        <party>5</party>
+        <list_no>24</list_no>
+    </candidate>
+    <candidate c_no="327">
+        <candidate_name>WILLIAMS, Poto</candidate_name>
+        <electorate>5</electorate>
+        <party>5</party>
+        <list_no>25</list_no>
+    </candidate>
+    <candidate c_no="328">
+        <candidate_name>WALL, Louisa</candidate_name>
+        <electorate>25</electorate>
+        <party>5</party>
+        <list_no>26</list_no>
+    </candidate>
+    <candidate c_no="329">
+        <candidate_name>WOOD, Michael Philip</candidate_name>
+        <electorate>28</electorate>
+        <party>5</party>
+        <list_no>27</list_no>
+    </candidate>
+    <candidate c_no="330">
+        <candidate_name>ANDERSEN, Ginny</candidate_name>
+        <electorate>17</electorate>
+        <party>5</party>
+        <list_no>28</list_no>
+    </candidate>
+    <candidate c_no="331">
+        <candidate_name>LUXTON, Jo</candidate_name>
+        <electorate>42</electorate>
+        <party>5</party>
+        <list_no>29</list_no>
+    </candidate>
+    <candidate c_no="332">
+        <candidate_name>RUSSELL, Deborah</candidate_name>
+        <electorate>31</electorate>
+        <party>5</party>
+        <list_no>30</list_no>
+    </candidate>
+    <candidate c_no="333">
+        <candidate_name>CRAIG, Liz</candidate_name>
+        <electorate>19</electorate>
+        <party>5</party>
+        <list_no>31</list_no>
+    </candidate>
+    <candidate c_no="334">
+        <candidate_name>LUBECK, Marja</candidate_name>
+        <electorate>45</electorate>
+        <party>5</party>
+        <list_no>32</list_no>
+    </candidate>
+    <candidate c_no="335">
+        <candidate_name>MALLARD, Trevor</candidate_name>
+        <electorate>0</electorate>
+        <party>5</party>
+        <list_no>33</list_no>
+    </candidate>
+    <candidate c_no="336">
+        <candidate_name>EAGLE, Paul</candidate_name>
+        <electorate>46</electorate>
+        <party>5</party>
+        <list_no>34</list_no>
+    </candidate>
+    <candidate c_no="337">
+        <candidate_name>COFFEY, Tamati</candidate_name>
+        <electorate>71</electorate>
+        <party>5</party>
+        <list_no>35</list_no>
+    </candidate>
+    <candidate c_no="338">
+        <candidate_name>STRANGE, Jamie</candidate_name>
+        <electorate>13</electorate>
+        <party>5</party>
+        <list_no>36</list_no>
+    </candidate>
+    <candidate c_no="339">
+        <candidate_name>KANONGATA&apos;A-SUISUIKI, Anahila</candidate_name>
+        <electorate>0</electorate>
+        <party>5</party>
+        <list_no>37</list_no>
+    </candidate>
+    <candidate c_no="340">
+        <candidate_name>McANULTY, Kieran</candidate_name>
+        <electorate>58</electorate>
+        <party>5</party>
+        <list_no>38</list_no>
+    </candidate>
+    <candidate c_no="341">
+        <candidate_name>WARREN-CLARK, Angie</candidate_name>
+        <electorate>2</electorate>
+        <party>5</party>
+        <list_no>39</list_no>
+    </candidate>
+    <candidate c_no="342">
+        <candidate_name>WHITE, Helen Ione</candidate_name>
+        <electorate>1</electorate>
+        <party>5</party>
+        <list_no>40</list_no>
+    </candidate>
+    <candidate c_no="343">
+        <candidate_name>O&apos;CONNOR, Greg</candidate_name>
+        <electorate>36</electorate>
+        <party>5</party>
+        <list_no>41</list_no>
+    </candidate>
+    <candidate c_no="344">
+        <candidate_name>LEWIS, Steph</candidate_name>
+        <electorate>62</electorate>
+        <party>5</party>
+        <list_no>42</list_no>
+    </candidate>
+    <candidate c_no="345">
+        <candidate_name>WEBB, Duncan</candidate_name>
+        <electorate>4</electorate>
+        <party>5</party>
+        <list_no>43</list_no>
+    </candidate>
+    <candidate c_no="346">
+        <candidate_name>SOSENE, Lemauga Lydia</candidate_name>
+        <electorate>0</electorate>
+        <party>5</party>
+        <list_no>44</list_no>
+    </candidate>
+    <candidate c_no="347">
+        <candidate_name>WALKER, Janette</candidate_name>
+        <electorate>20</electorate>
+        <party>5</party>
+        <list_no>45</list_no>
+    </candidate>
+    <candidate c_no="348">
+        <candidate_name>LORCK, Anna</candidate_name>
+        <electorate>54</electorate>
+        <party>5</party>
+        <list_no>46</list_no>
+    </candidate>
+    <candidate c_no="349">
+        <candidate_name>UDANGA, Romy</candidate_name>
+        <electorate>33</electorate>
+        <party>5</party>
+        <list_no>47</list_no>
+    </candidate>
+    <candidate c_no="350">
+        <candidate_name>BOYACK, Rachel</candidate_name>
+        <electorate>30</electorate>
+        <party>5</party>
+        <list_no>48</list_no>
+    </candidate>
+    <candidate c_no="351">
+        <candidate_name>JOHAL, Sarb</candidate_name>
+        <electorate>0</electorate>
+        <party>5</party>
+        <list_no>49</list_no>
+    </candidate>
+    <candidate c_no="352">
+        <candidate_name>CHEN, Naisi</candidate_name>
+        <electorate>11</electorate>
+        <party>5</party>
+        <list_no>50</list_no>
+    </candidate>
+    <candidate c_no="353">
+        <candidate_name>HALBERT, Shanan</candidate_name>
+        <electorate>34</electorate>
+        <party>5</party>
+        <list_no>51</list_no>
+    </candidate>
+    <candidate c_no="354">
+        <candidate_name>ROSEWARNE, Dan</candidate_name>
+        <electorate>57</electorate>
+        <party>5</party>
+        <list_no>52</list_no>
+    </candidate>
+    <candidate c_no="355">
+        <candidate_name>AN, Jin</candidate_name>
+        <electorate>55</electorate>
+        <party>5</party>
+        <list_no>53</list_no>
+    </candidate>
+    <candidate c_no="356">
+        <candidate_name>HUMPHREY, Hilary</candidate_name>
+        <electorate>50</electorate>
+        <party>5</party>
+        <list_no>55</list_no>
+    </candidate>
+    <candidate c_no="357">
+        <candidate_name>SAVAGE, Tony John</candidate_name>
+        <electorate>63</electorate>
+        <party>5</party>
+        <list_no>56</list_no>
+    </candidate>
+    <candidate c_no="358">
+        <candidate_name>LOADER, Brooke</candidate_name>
+        <electorate>56</electorate>
+        <party>5</party>
+        <list_no>57</list_no>
+    </candidate>
+    <candidate c_no="359">
+        <candidate_name>SANDFORD, Ben</candidate_name>
+        <electorate>47</electorate>
+        <party>5</party>
+        <list_no>58</list_no>
+    </candidate>
+    <candidate c_no="360">
+        <candidate_name>TAOGAGA, Kurt</candidate_name>
+        <electorate>15</electorate>
+        <party>5</party>
+        <list_no>59</list_no>
+    </candidate>
+    <candidate c_no="361">
+        <candidate_name>WARREN, Heather</candidate_name>
+        <electorate>43</electorate>
+        <party>5</party>
+        <list_no>60</list_no>
+    </candidate>
+    <candidate c_no="362">
+        <candidate_name>McDONALD, Sam</candidate_name>
+        <electorate>49</electorate>
+        <party>5</party>
+        <list_no>61</list_no>
+    </candidate>
+    <candidate c_no="363">
+        <candidate_name>CHAPMAN, Cherie Joy</candidate_name>
+        <electorate>6</electorate>
+        <party>5</party>
+        <list_no>62</list_no>
+    </candidate>
+    <candidate c_no="364">
+        <candidate_name>AL-BUSTANJI, Ala&apos;</candidate_name>
+        <electorate>51</electorate>
+        <party>5</party>
+        <list_no>63</list_no>
+    </candidate>
+    <candidate c_no="365">
+        <candidate_name>KAUR, Baljit</candidate_name>
+        <electorate>16</electorate>
+        <party>5</party>
+        <list_no>64</list_no>
+    </candidate>
+    <candidate c_no="366">
+        <candidate_name>HIGGINS, Linsey</candidate_name>
+        <electorate>0</electorate>
+        <party>5</party>
+        <list_no>65</list_no>
+    </candidate>
+    <candidate c_no="367">
+        <candidate_name>KIRKER, Barry</candidate_name>
+        <electorate>38</electorate>
+        <party>5</party>
+        <list_no>66</list_no>
+    </candidate>
+    <candidate c_no="368">
+        <candidate_name>MAMEDOV, Tofik</candidate_name>
+        <electorate>3</electorate>
+        <party>5</party>
+        <list_no>67</list_no>
+    </candidate>
+    <candidate c_no="369">
+        <candidate_name>LOMAX, Michelle</candidate_name>
+        <electorate>0</electorate>
+        <party>5</party>
+        <list_no>68</list_no>
+    </candidate>
+    <candidate c_no="370">
+        <candidate_name>BLOMFIELD, Nathaniel James</candidate_name>
+        <electorate>7</electorate>
+        <party>5</party>
+        <list_no>69</list_no>
+    </candidate>
+    <candidate c_no="371">
+        <candidate_name>RIMELL, Anthony Peter</candidate_name>
+        <electorate>18</electorate>
+        <party>5</party>
+        <list_no>71</list_no>
+    </candidate>
+    <candidate c_no="372">
+        <candidate_name>CONDON, Tony</candidate_name>
+        <electorate>48</electorate>
+        <party>5</party>
+        <list_no>72</list_no>
+    </candidate>
+    <candidate c_no="373">
+        <candidate_name>PACKER, Sarah</candidate_name>
+        <electorate>0</electorate>
+        <party>5</party>
+        <list_no>73</list_no>
+    </candidate>
+    <candidate c_no="374">
+        <candidate_name>BEGG, Andy</candidate_name>
+        <electorate>0</electorate>
+        <party>5</party>
+        <list_no>74</list_no>
+    </candidate>
+    <candidate c_no="375">
+        <candidate_name>HADDOCK, Corie</candidate_name>
+        <electorate>32</electorate>
+        <party>5</party>
+        <list_no>75</list_no>
+    </candidate>
+    <candidate c_no="376">
+        <candidate_name>McCANN, Rob</candidate_name>
+        <electorate>37</electorate>
+        <party>5</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="377">
+        <candidate_name>ALLAN, Zélie</candidate_name>
+        <electorate>59</electorate>
+        <party>5</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="378">
+        <candidate_name>RURAWHE, Adrian Paki</candidate_name>
+        <electorate>68</electorate>
+        <party>5</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="379">
+        <candidate_name>HENARE, Peeni</candidate_name>
+        <electorate>67</electorate>
+        <party>5</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="380">
+        <candidate_name>MAHUTA, Nanaia</candidate_name>
+        <electorate>65</electorate>
+        <party>5</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="381">
+        <candidate_name>TIRIKATENE, Rino</candidate_name>
+        <electorate>70</electorate>
+        <party>5</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="382">
+        <candidate_name>ARDERN, Jacinda</candidate_name>
+        <electorate>27</electorate>
+        <party>5</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="383">
+        <candidate_name>WHAITIRI, Meka</candidate_name>
+        <electorate>66</electorate>
+        <party>5</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="384">
+        <candidate_name>PABLA, Jesse</candidate_name>
+        <electorate>40</electorate>
+        <party>5</party>
+        <list_no>54</list_no>
+    </candidate>
+    <candidate c_no="385">
+        <candidate_name>SHARMA, Gaurav</candidate_name>
+        <electorate>14</electorate>
+        <party>5</party>
+        <list_no>70</list_no>
+    </candidate>
+    <candidate c_no="386">
+        <candidate_name>HUDSON, Brett</candidate_name>
+        <electorate>36</electorate>
+        <party>6</party>
+        <list_no>30</list_no>
+    </candidate>
+    <candidate c_no="387">
+        <candidate_name>SEYMOUR, David</candidate_name>
+        <electorate>12</electorate>
+        <party>1</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="388">
+        <candidate_name>SINGH, Bhupinder</candidate_name>
+        <electorate>24</electorate>
+        <party>1</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="389">
+        <candidate_name>BOOTH, Jo</candidate_name>
+        <electorate>0</electorate>
+        <party>14</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="390">
+        <candidate_name>BEDFORD-PALMER, Blake</candidate_name>
+        <electorate>0</electorate>
+        <party>14</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="391">
+        <candidate_name>KING, Bruce James</candidate_name>
+        <electorate>0</electorate>
+        <party>14</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="392">
+        <candidate_name>COONEY, Ben</candidate_name>
+        <electorate>0</electorate>
+        <party>14</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="393">
+        <candidate_name>GOULDER-HOROBIN, Daymond</candidate_name>
+        <electorate>0</electorate>
+        <party>14</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="394">
+        <candidate_name>TURNER, Jourdan</candidate_name>
+        <electorate>0</electorate>
+        <party>14</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="395">
+        <candidate_name>DAWSON, Suzie</candidate_name>
+        <electorate>0</electorate>
+        <party>14</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="396">
+        <candidate_name>HOULBROOKE, Beth</candidate_name>
+        <electorate>0</electorate>
+        <party>1</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="397">
+        <candidate_name>VAN VELDEN, Brooke</candidate_name>
+        <electorate>1</electorate>
+        <party>1</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="398">
+        <candidate_name>BERRY, Stephen</candidate_name>
+        <electorate>11</electorate>
+        <party>1</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="400">
+        <candidate_name>JOHNSTON, Jane</candidate_name>
+        <electorate>55</electorate>
+        <party>7</party>
+        <list_no>47</list_no>
+    </candidate>
+    <candidate c_no="401">
+        <candidate_name>ROBINSON, Peter Franklin</candidate_name>
+        <electorate>60</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="402">
+        <candidate_name>OWENS, Brittany</candidate_name>
+        <electorate>45</electorate>
+        <party>28</party>
+        <list_no>20</list_no>
+    </candidate>
+    <candidate c_no="403">
+        <candidate_name>PEDERSEN, Stuart</candidate_name>
+        <electorate>52</electorate>
+        <party>1</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="404">
+        <candidate_name>CARLSON, Anneka</candidate_name>
+        <electorate>32</electorate>
+        <party>1</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="405">
+        <candidate_name>NG, Shan</candidate_name>
+        <electorate>22</electorate>
+        <party>1</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="406">
+        <candidate_name>TAYLOR, Mel</candidate_name>
+        <electorate>35</electorate>
+        <party>12</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="407">
+        <candidate_name>PURCHAS, Sam</candidate_name>
+        <electorate>8</electorate>
+        <party>1</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="408">
+        <candidate_name>BAKER, Leighton</candidate_name>
+        <electorate>12</electorate>
+        <party>12</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="409">
+        <candidate_name>IKILEI, Elliot</candidate_name>
+        <electorate>25</electorate>
+        <party>12</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="410">
+        <candidate_name>SEVERIN, Toni</candidate_name>
+        <electorate>5</electorate>
+        <party>1</party>
+        <list_no>10</list_no>
+    </candidate>
+    <candidate c_no="411">
+        <candidate_name>STITT, Kevin</candidate_name>
+        <electorate>23</electorate>
+        <party>12</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="412">
+        <candidate_name>O&apos;SULLIVAN, Grae</candidate_name>
+        <electorate>44</electorate>
+        <party>1</party>
+        <list_no>11</list_no>
+    </candidate>
+    <candidate c_no="413">
+        <candidate_name>EVANS, Richard</candidate_name>
+        <electorate>20</electorate>
+        <party>1</party>
+        <list_no>12</list_no>
+    </candidate>
+    <candidate c_no="414">
+        <candidate_name>McDOWALL, James</candidate_name>
+        <electorate>13</electorate>
+        <party>1</party>
+        <list_no>13</list_no>
+    </candidate>
+    <candidate c_no="415">
+        <candidate_name>WELLS, Richard</candidate_name>
+        <electorate>31</electorate>
+        <party>1</party>
+        <list_no>14</list_no>
+    </candidate>
+    <candidate c_no="416">
+        <candidate_name>WARREN, Michael</candidate_name>
+        <electorate>60</electorate>
+        <party>1</party>
+        <list_no>15</list_no>
+    </candidate>
+    <candidate c_no="417">
+        <candidate_name>MOORE, Andie</candidate_name>
+        <electorate>36</electorate>
+        <party>1</party>
+        <list_no>16</list_no>
+    </candidate>
+    <candidate c_no="418">
+        <candidate_name>PARKINS, Andy</candidate_name>
+        <electorate>17</electorate>
+        <party>1</party>
+        <list_no>17</list_no>
+    </candidate>
+    <candidate c_no="419">
+        <candidate_name>CARLEY, Bruce</candidate_name>
+        <electorate>2</electorate>
+        <party>1</party>
+        <list_no>18</list_no>
+    </candidate>
+    <candidate c_no="420">
+        <candidate_name>CORBETT, Tom</candidate_name>
+        <electorate>42</electorate>
+        <party>1</party>
+        <list_no>19</list_no>
+    </candidate>
+    <candidate c_no="421">
+        <candidate_name>FRAUENSTEIN, Martin</candidate_name>
+        <electorate>18</electorate>
+        <party>12</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="422">
+        <candidate_name>ASHTON, Lachie</candidate_name>
+        <electorate>6</electorate>
+        <party>12</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="423">
+        <candidate_name>DAVIDSON, Brian</candidate_name>
+        <electorate>48</electorate>
+        <party>1</party>
+        <list_no>20</list_no>
+    </candidate>
+    <candidate c_no="424">
+        <candidate_name>DAVIDSON, Alan</candidate_name>
+        <electorate>62</electorate>
+        <party>1</party>
+        <list_no>21</list_no>
+    </candidate>
+    <candidate c_no="425">
+        <candidate_name>DOUGHTY, Daniel</candidate_name>
+        <electorate>9</electorate>
+        <party>1</party>
+        <list_no>22</list_no>
+    </candidate>
+    <candidate c_no="426">
+        <candidate_name>DAVIE, Kathryn</candidate_name>
+        <electorate>28</electorate>
+        <party>12</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="427">
+        <candidate_name>WELSH, Bruce</candidate_name>
+        <electorate>46</electorate>
+        <party>12</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="428">
+        <candidate_name>DAVIE, Paul</candidate_name>
+        <electorate>31</electorate>
+        <party>12</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="429">
+        <candidate_name>LARKINS, Roger</candidate_name>
+        <electorate>54</electorate>
+        <party>12</party>
+        <list_no>10</list_no>
+    </candidate>
+    <candidate c_no="430">
+        <candidate_name>EVANS, Alex</candidate_name>
+        <electorate>15</electorate>
+        <party>1</party>
+        <list_no>23</list_no>
+    </candidate>
+    <candidate c_no="431">
+        <candidate_name>JOHNSON, Jeff</candidate_name>
+        <electorate>27</electorate>
+        <party>12</party>
+        <list_no>11</list_no>
+    </candidate>
+    <candidate c_no="432">
+        <candidate_name>FLETCHER, Stephen</candidate_name>
+        <electorate>53</electorate>
+        <party>1</party>
+        <list_no>38</list_no>
+    </candidate>
+    <candidate c_no="433">
+        <candidate_name>GILBERT, Paul</candidate_name>
+        <electorate>18</electorate>
+        <party>1</party>
+        <list_no>24</list_no>
+    </candidate>
+    <candidate c_no="434">
+        <candidate_name>PRICE, Benjamin</candidate_name>
+        <electorate>57</electorate>
+        <party>12</party>
+        <list_no>12</list_no>
+    </candidate>
+    <candidate c_no="435">
+        <candidate_name>GREENSLADE, David</candidate_name>
+        <electorate>20</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="436">
+        <candidate_name>BACKHOUSE, Cedric</candidate_name>
+        <electorate>43</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="437">
+        <candidate_name>GREENSLADE, Roger</candidate_name>
+        <electorate>58</electorate>
+        <party>1</party>
+        <list_no>25</list_no>
+    </candidate>
+    <candidate c_no="438">
+        <candidate_name>LUM, Raymond</candidate_name>
+        <electorate>59</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="439">
+        <candidate_name>JOHNSON, Marilyn</candidate_name>
+        <electorate>53</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="440">
+        <candidate_name>GRIEVE, Robin</candidate_name>
+        <electorate>63</electorate>
+        <party>1</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="441">
+        <candidate_name>HAWKINS, Stuart</candidate_name>
+        <electorate>57</electorate>
+        <party>1</party>
+        <list_no>26</list_no>
+    </candidate>
+    <candidate c_no="442">
+        <candidate_name>HAYCOCK, Bruce</candidate_name>
+        <electorate>55</electorate>
+        <party>1</party>
+        <list_no>27</list_no>
+    </candidate>
+    <candidate c_no="443">
+        <candidate_name>HUFFLETT, Paul Charles</candidate_name>
+        <electorate>30</electorate>
+        <party>1</party>
+        <list_no>28</list_no>
+    </candidate>
+    <candidate c_no="444">
+        <candidate_name>KEARNEY, Nick</candidate_name>
+        <electorate>33</electorate>
+        <party>1</party>
+        <list_no>29</list_no>
+    </candidate>
+    <candidate c_no="445">
+        <candidate_name>KRONFELD, Tim</candidate_name>
+        <electorate>34</electorate>
+        <party>1</party>
+        <list_no>30</list_no>
+    </candidate>
+    <candidate c_no="446">
+        <candidate_name>MILNE, Mike</candidate_name>
+        <electorate>49</electorate>
+        <party>1</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="447">
+        <candidate_name>MISSELBROOK, Joe Elwood</candidate_name>
+        <electorate>0</electorate>
+        <party>1</party>
+        <list_no>31</list_no>
+    </candidate>
+    <candidate c_no="448">
+        <candidate_name>NELSON, Craig</candidate_name>
+        <electorate>35</electorate>
+        <party>1</party>
+        <list_no>32</list_no>
+    </candidate>
+    <candidate c_no="449">
+        <candidate_name>BROSNAN, Chris</candidate_name>
+        <electorate>5</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="450">
+        <candidate_name>WHYTE, Brendan</candidate_name>
+        <electorate>15</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="451">
+        <candidate_name>PERRY, Joshua</candidate_name>
+        <electorate>0</electorate>
+        <party>1</party>
+        <list_no>33</list_no>
+    </candidate>
+    <candidate c_no="452">
+        <candidate_name>SHUKER, Denis</candidate_name>
+        <electorate>51</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="453">
+        <candidate_name>SINGH, Sam</candidate_name>
+        <electorate>3</electorate>
+        <party>1</party>
+        <list_no>34</list_no>
+    </candidate>
+    <candidate c_no="454">
+        <candidate_name>GREENFIELD, Stephen</candidate_name>
+        <electorate>1</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="455">
+        <candidate_name>SMITH, Anthony</candidate_name>
+        <electorate>16</electorate>
+        <party>1</party>
+        <list_no>35</list_no>
+    </candidate>
+    <candidate c_no="456">
+        <candidate_name>SOLE, Chris</candidate_name>
+        <electorate>46</electorate>
+        <party>1</party>
+        <list_no>36</list_no>
+    </candidate>
+    <candidate c_no="457">
+        <candidate_name>WILSON, Neil</candidate_name>
+        <electorate>43</electorate>
+        <party>1</party>
+        <list_no>37</list_no>
+    </candidate>
+    <candidate c_no="458">
+        <candidate_name>GRATTAN, Wayne Desmond</candidate_name>
+        <electorate>37</electorate>
+        <party>1</party>
+        <list_no>39</list_no>
+    </candidate>
+    <candidate c_no="459">
+        <candidate_name>LYNCH, Philip</candidate_name>
+        <electorate>44</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="460">
+        <candidate_name>FOX, David</candidate_name>
+        <electorate>41</electorate>
+        <party>1</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="461">
+        <candidate_name>THOMSON, Allan</candidate_name>
+        <electorate>50</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="462">
+        <candidate_name>KNIGHTS, Ruth</candidate_name>
+        <electorate>64</electorate>
+        <party>1</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="463">
+        <candidate_name>TAYLOR, Jim</candidate_name>
+        <electorate>63</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="464">
+        <candidate_name>MARKLAND, Zeb</candidate_name>
+        <electorate>61</electorate>
+        <party>1</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="465">
+        <candidate_name>PATTERSON, Owen</candidate_name>
+        <electorate>47</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="466">
+        <candidate_name>KNOTT, Warren</candidate_name>
+        <electorate>21</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="467">
+        <candidate_name>DAY, Laurence</candidate_name>
+        <electorate>29</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="468">
+        <candidate_name>GUTSCHLAG, Simon</candidate_name>
+        <electorate>30</electorate>
+        <party>12</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="469">
+        <candidate_name>SHEFFIELD-CRANSTOUN, Kelleigh</candidate_name>
+        <electorate>22</electorate>
+        <party>9</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="470">
+        <candidate_name>WOOLSTON, JB</candidate_name>
+        <electorate>0</electorate>
+        <party>9</party>
+        <list_no>10</list_no>
+    </candidate>
+    <candidate c_no="471">
+        <candidate_name>TURNER, Judy</candidate_name>
+        <electorate>0</electorate>
+        <party>9</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="472">
+        <candidate_name>REID, Peter</candidate_name>
+        <electorate>0</electorate>
+        <party>6</party>
+        <list_no>74</list_no>
+    </candidate>
+    <candidate c_no="473">
+        <candidate_name>WHYTE, Lisa</candidate_name>
+        <electorate>0</electorate>
+        <party>6</party>
+        <list_no>70</list_no>
+    </candidate>
+    <candidate c_no="474">
+        <candidate_name>SIRIGIRI, Rahul</candidate_name>
+        <electorate>0</electorate>
+        <party>6</party>
+        <list_no>73</list_no>
+    </candidate>
+    <candidate c_no="475">
+        <candidate_name>COOPER, Linda</candidate_name>
+        <electorate>0</electorate>
+        <party>6</party>
+        <list_no>71</list_no>
+    </candidate>
+    <candidate c_no="476">
+        <candidate_name>BIDOIS, Dan</candidate_name>
+        <electorate>0</electorate>
+        <party>6</party>
+        <list_no>72</list_no>
+    </candidate>
+    <candidate c_no="477">
+        <candidate_name>COLLINS, Graham</candidate_name>
+        <electorate>0</electorate>
+        <party>6</party>
+        <list_no>75</list_no>
+    </candidate>
+    <candidate c_no="478">
+        <candidate_name>BARLEY, Sarah-Jo</candidate_name>
+        <electorate>0</electorate>
+        <party>6</party>
+        <list_no>69</list_no>
+    </candidate>
+    <candidate c_no="479">
+        <candidate_name>VAN DEN HEUVEL, Anthony Joseph J</candidate_name>
+        <electorate>27</electorate>
+        <party>20</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="480">
+        <candidate_name>COGGAN, Felicity</candidate_name>
+        <electorate>23</electorate>
+        <party>24</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="481">
+        <candidate_name>TUCKER, Michael</candidate_name>
+        <electorate>26</electorate>
+        <party>24</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="482">
+        <candidate_name>KANE, Rusty</candidate_name>
+        <electorate>52</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="483">
+        <candidate_name>LAMARE, Yvette</candidate_name>
+        <electorate>52</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="484">
+        <candidate_name>HOLLEY, Claire</candidate_name>
+        <electorate>61</electorate>
+        <party>30</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="485">
+        <candidate_name>ALLAN, Kiri</candidate_name>
+        <electorate>10</electorate>
+        <party>5</party>
+        <list_no>21</list_no>
+    </candidate>
+    <candidate c_no="486">
+        <candidate_name>BRIGGS, Simon</candidate_name>
+        <electorate>0</electorate>
+        <party>8</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="487">
+        <candidate_name>WAITAI-RAPANA, Wikitoria</candidate_name>
+        <electorate>68</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="488">
+        <candidate_name>SMITH, Nicholas Andrew Spencer</candidate_name>
+        <electorate>0</electorate>
+        <party>14</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="489">
+        <candidate_name>ARBUCKLE, Jamie</candidate_name>
+        <electorate>20</electorate>
+        <party>7</party>
+        <list_no>23</list_no>
+    </candidate>
+    <candidate c_no="490">
+        <candidate_name>WILKINSON, Steven</candidate_name>
+        <electorate>61</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="491">
+        <candidate_name>LYE, Jeff</candidate_name>
+        <electorate>21</electorate>
+        <party>3</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="492">
+        <candidate_name>SCHUSTER, Tua</candidate_name>
+        <electorate>53</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="493">
+        <candidate_name>RERITI-CROFTS, Aroha Hohipera</candidate_name>
+        <electorate>57</electorate>
+        <party>10</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="494">
+        <candidate_name>OSMASTON, Richard</candidate_name>
+        <electorate>30</electorate>
+        <party>25</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="495">
+        <candidate_name>CLARK, Rachel</candidate_name>
+        <electorate>47</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="497">
+        <candidate_name>OSMASTON, Charlotte</candidate_name>
+        <electorate>20</electorate>
+        <party>25</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="498">
+        <candidate_name>ANDERSON, Liam</candidate_name>
+        <electorate>61</electorate>
+        <party>25</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="499">
+        <candidate_name>HAYNES, David</candidate_name>
+        <electorate>30</electorate>
+        <party>27</party>
+        <list_no>2</list_no>
+    </candidate>
+    <candidate c_no="500">
+        <candidate_name>SIMMONS, Alan Frank</candidate_name>
+        <electorate>51</electorate>
+        <party>27</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="501">
+        <candidate_name>BEARMAN-RIEDEL, Wilf</candidate_name>
+        <electorate>17</electorate>
+        <party>27</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="502">
+        <candidate_name>PAULL, Derrick</candidate_name>
+        <electorate>26</electorate>
+        <party>27</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="503">
+        <candidate_name>STRINGER, Joe</candidate_name>
+        <electorate>6</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="504">
+        <candidate_name>FOX, Dorothy Frances</candidate_name>
+        <electorate>17</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="505">
+        <candidate_name>WILKINSON, Steven</candidate_name>
+        <electorate>0</electorate>
+        <party>3</party>
+        <list_no>10</list_no>
+    </candidate>
+    <candidate c_no="506">
+        <candidate_name>CUMMINGS, Ian</candidate_name>
+        <electorate>16</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="507">
+        <candidate_name>MARSHALL, Gordon</candidate_name>
+        <electorate>22</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="508">
+        <candidate_name>LAWRENCE, Basil</candidate_name>
+        <electorate>32</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="509">
+        <candidate_name>LAMBERT, Paula</candidate_name>
+        <electorate>5</electorate>
+        <party>3</party>
+        <list_no>3</list_no>
+    </candidate>
+    <candidate c_no="510">
+        <candidate_name>McDERMOTT, Adrian</candidate_name>
+        <electorate>9</electorate>
+        <party>3</party>
+        <list_no>8</list_no>
+    </candidate>
+    <candidate c_no="511">
+        <candidate_name>SHUFFLEBOTHAM, Janine</candidate_name>
+        <electorate>4</electorate>
+        <party>3</party>
+        <list_no>9</list_no>
+    </candidate>
+    <candidate c_no="512">
+        <candidate_name>MIHAERE KINGI, Emma-Jane</candidate_name>
+        <electorate>70</electorate>
+        <party>3</party>
+        <list_no>5</list_no>
+    </candidate>
+    <candidate c_no="513">
+        <candidate_name>BRITNELL, Mike</candidate_name>
+        <electorate>0</electorate>
+        <party>3</party>
+        <list_no>4</list_no>
+    </candidate>
+    <candidate c_no="514">
+        <candidate_name>LUSBY, Stan</candidate_name>
+        <electorate>8</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="515">
+        <candidate_name>MINHINNICK, Marie</candidate_name>
+        <electorate>63</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="516">
+        <candidate_name>GOODE, Richard</candidate_name>
+        <electorate>22</electorate>
+        <party>31</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="517">
+        <candidate_name>WESSEX, Bob</candidate_name>
+        <electorate>60</electorate>
+        <party>31</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="518">
+        <candidate_name>HERBERT, Maki</candidate_name>
+        <electorate>69</electorate>
+        <party>3</party>
+        <list_no>1</list_no>
+    </candidate>
+    <candidate c_no="519">
+        <candidate_name>BROWN, Tony</candidate_name>
+        <electorate>0</electorate>
+        <party>3</party>
+        <list_no>12</list_no>
+    </candidate>
+    <candidate c_no="520">
+        <candidate_name>McTAGUE, Geoff</candidate_name>
+        <electorate>0</electorate>
+        <party>3</party>
+        <list_no>14</list_no>
+    </candidate>
+    <candidate c_no="521">
+        <candidate_name>SHIRIWASTOW, Vineet Prasad</candidate_name>
+        <electorate>0</electorate>
+        <party>3</party>
+        <list_no>6</list_no>
+    </candidate>
+    <candidate c_no="522">
+        <candidate_name>ROBIN, Rebecca</candidate_name>
+        <electorate>0</electorate>
+        <party>3</party>
+        <list_no>13</list_no>
+    </candidate>
+    <candidate c_no="523">
+        <candidate_name>SAXBY-KONING, Jonee</candidate_name>
+        <electorate>0</electorate>
+        <party>3</party>
+        <list_no>7</list_no>
+    </candidate>
+    <candidate c_no="524">
+        <candidate_name>SAXBY, Jeanette</candidate_name>
+        <electorate>0</electorate>
+        <party>3</party>
+        <list_no>11</list_no>
+    </candidate>
+    <candidate c_no="525">
+        <candidate_name>FRANCIS, Martin Thomas</candidate_name>
+        <electorate>18</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="526">
+        <candidate_name>GRAAMANS, Adrian</candidate_name>
+        <electorate>8</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="527">
+        <candidate_name>JONES, Leslie</candidate_name>
+        <electorate>1</electorate>
+        <party>32</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="528">
+        <candidate_name>CLEMENTS, Miriam</candidate_name>
+        <electorate>33</electorate>
+        <party>33</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="529">
+        <candidate_name>SMYTHE, Simon</candidate_name>
+        <electorate>46</electorate>
+        <party>31</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="530">
+        <candidate_name>RICHMOND, Tamatoa</candidate_name>
+        <electorate>24</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="531">
+        <candidate_name>STRATFORD, Roger</candidate_name>
+        <electorate>14</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="532">
+        <candidate_name>HAROLD, James Brett</candidate_name>
+        <electorate>58</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="533">
+        <candidate_name>HANSEN, Christopher Michael</candidate_name>
+        <electorate>64</electorate>
+        <party>23</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="534">
+        <candidate_name>MANJI, Raf</candidate_name>
+        <electorate>18</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="535">
+        <candidate_name>ANDREW, Scott</candidate_name>
+        <electorate>39</electorate>
+        <party>25</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="536">
+        <candidate_name>GIELEN, Jack</candidate_name>
+        <electorate>13</electorate>
+        <party>34</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="537">
+        <candidate_name>JENNINGS, Sam</candidate_name>
+        <electorate>37</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="538">
+        <candidate_name>TOMAR, Vin</candidate_name>
+        <electorate>14</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="539">
+        <candidate_name>TOSH, Allister David</candidate_name>
+        <electorate>54</electorate>
+        <party>35</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="540">
+        <candidate_name>IDDAMALGODA, Gayaal</candidate_name>
+        <electorate>60</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="541">
+        <candidate_name>McTAGUE, Geoff</candidate_name>
+        <electorate>64</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="542">
+        <candidate_name>STOCKMAN, Bruce</candidate_name>
+        <electorate>27</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="543">
+        <candidate_name>RATU, Tekawe Terence</candidate_name>
+        <electorate>10</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="544">
+        <candidate_name>ROBB, Hugh E</candidate_name>
+        <electorate>52</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="545">
+        <candidate_name>IZADEEN, Bishrul Hafi Ameer</candidate_name>
+        <electorate>28</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="546">
+        <candidate_name>BRIGHT, Penny</candidate_name>
+        <electorate>49</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+    <candidate c_no="547">
+        <candidate_name>WIRINGI, Destiny</candidate_name>
+        <electorate>57</electorate>
+        <party>0</party>
+        <list_no>0</list_no>
+    </candidate>
+</candidates>

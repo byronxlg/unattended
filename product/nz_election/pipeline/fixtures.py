@@ -4,7 +4,7 @@ import hashlib
 import io
 import json
 from pathlib import Path
-import xml.etree.ElementTree as ET
+from . import xml_parser
 
 ROOT = Path(__file__).resolve().parents[1] / "fixtures"
 
@@ -41,7 +41,9 @@ GOLDEN_PATHS = {'ec-2023/' + name + '.csv' for name in ('party-quotients', 'part
 def golden(root=ROOT):
     raw = captures(root, paths=GOLDEN_PATHS)
     def xml(name):
-        return ET.fromstring(raw[f"ec-2023-xml/{name}.xml"])
+        return xml_parser.document(raw[f"ec-2023-xml/{name}.xml"], name)
+    refs = xml_parser.references(*(raw[f"ec-2023-xml/{n}.xml"] for n in ("parties", "electorates", "candidates")))
+    xml_parser.election(raw["ec-2023-xml/election.xml"], refs)
     def rows(name):
         return list(csv.reader(io.StringIO(raw[f"ec-2023/{name}.csv"].decode("utf-8-sig"))))
     parties = {p.attrib["p_no"]: p.findtext("party_name") for p in xml("parties")}

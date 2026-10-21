@@ -1480,6 +1480,149 @@
     "date_column": "Date",
     "count_column": "2023 General Election"
    }
+  },
+  {
+   "path": "ec-2017-xml/electorates.xml",
+   "url": "https://electionresults.govt.nz/electionresults_2017/xml/electorates.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "a081fb6d500f4c58448d0e6fc15a893901782b8f3b16ea6b9b8935fde16238d5",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+  },
+  {
+   "path": "ec-2017-xml/parties.xml",
+   "url": "https://electionresults.govt.nz/electionresults_2017/xml/parties.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "d85419107ec481787bd755010f886b26d83f2e034820d21376af0ceb8b7e62dd",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+  },
+  {
+   "path": "ec-2017-xml/candidates.xml",
+   "url": "https://electionresults.govt.nz/electionresults_2017/xml/candidates.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "d3bb6e8067b880dc484030f12d05048987bff515a4c1789c253525ce7f5bbc68",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+  },
+  {
+   "path": "ec-2017-xml/election.xml",
+   "url": "https://electionresults.govt.nz/electionresults_2017/xml/election.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "18b52d1a0a2b7d2155f98c058e7c8d5e2062204e94749856965ccaf26192f469",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+  },
+  {
+   "path": "ec-2020-xml/electorates.xml",
+   "url": "https://electionresults.govt.nz/electionresults_2020/xml/electorates.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "6fd879f8bd61f5ebc0aae909f3cff50a22285f472adda6d3575277f35be8db72",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+  },
+  {
+   "path": "ec-2020-xml/parties.xml",
+   "url": "https://electionresults.govt.nz/electionresults_2020/xml/parties.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "ed75bf4f41d9d559d4263304f86a677fa4d20c6d08000430009cd4610f02a318",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+  },
+  {
+   "path": "ec-2020-xml/candidates.xml",
+   "url": "https://electionresults.govt.nz/electionresults_2020/xml/candidates.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "a4c305576f954dc3fa55e10f75342d9455451fccfe3f28ce638465ffe38a5327",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+  },
+  {
+   "path": "ec-2020-xml/election.xml",
+   "url": "https://electionresults.govt.nz/electionresults_2020/xml/election.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "88ace2b66aa9f8e321bdca57ae6e864d40e566b01a925e335bc3fd350271f56b",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+  },
+  {
+   "path": "ec-mediademo-xml/electorates.xml",
+   "url": "https://mediademo.electionresults.govt.nz/xml/electorates.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "f0e473f5715bffc1f14f83a1a1d385cb106918f78d063e6638b17978d2611af4",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC media demo feed reference file (simulated results, not an election). Captured once alongside the election.xml sequence."
+  },
+  {
+   "path": "ec-mediademo-xml/parties.xml",
+   "url": "https://mediademo.electionresults.govt.nz/xml/parties.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "9da73f6af958870a0e081f136816a3d3b3c16791fe40fedd0175284191c2a017",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC media demo feed reference file (simulated results, not an election). Captured once alongside the election.xml sequence."
+  },
+  {
+   "path": "ec-mediademo-xml/candidates.xml",
+   "url": "https://mediademo.electionresults.govt.nz/xml/candidates.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "55193961710a6f0e293e282c6b414e3c74f9b19b8ac84cb34f6700dadd4aa785",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC media demo feed reference file (simulated results, not an election). Captured once alongside the election.xml sequence."
+  },
+  {
+   "path": "ec-mediademo-xml/election-obs1.xml",
+   "url": "https://mediademo.electionresults.govt.nz/xml/election.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "b449450d4752f76885451d0810387285cbebc1c4e105ef2e2964634387624011",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC media demo feed, simulated changing count (not an election), observation 1 of a short sequence; feed updated=\"2026-10-20T14:22:32\" (NZ local, no offset). Electorate detail file paths not yet observed in the demo feed."
+  },
+  {
+   "path": "ec-mediademo-xml/election-obs2.xml",
+   "url": "https://mediademo.electionresults.govt.nz/xml/election.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-20T01:23:09Z",
+   "sha256": "4e2e3ce7312fd25d45622e31090dce47232eaee350a7d40f1eccd714df3457df",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC media demo feed, simulated changing count (not an election), observation 2 of a short sequence; feed updated=\"2026-10-20T14:23:02\" (NZ local, no offset). Electorate detail file paths not yet observed in the demo feed."
   }
  ]
 }

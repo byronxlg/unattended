@@ -13,7 +13,7 @@ import sys
 import tempfile
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from product.nz_election.pipeline import export, geography, candidates, baseline, enrolment, electorate_polls, markets, advance
+from product.nz_election.pipeline import export, geography, candidates, baseline, enrolment, electorate_polls, markets, advance, night
 from product.nz_election.pipeline.refresh import config, code_sha, utc_now
 from product.nz_election.pipeline.storage import replace_directory
 
@@ -81,7 +81,7 @@ def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', lo
             statuses = [r for r in statuses if r['dataset'] != 'geography'] + [status]
             producers = loaders if loaders is not None else {'candidates': candidates.load, 'baseline-2023': baseline.load,
                                                             'enrolment': enrolment.load, 'electorate-polls': electorate_polls.load, 'markets': markets.load,
-                                                            'advance': lambda: advance.load(historical=historical_advance)}
+                                                            'night': night.load, 'advance': lambda: advance.load(historical=historical_advance)}
             for family, producer in producers.items():
                 previous = next((r for r in statuses if r['dataset'] == family), {})
                 failure = None
@@ -96,19 +96,26 @@ def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', lo
                             message='Awaiting a verified 2026 capture; any last-good capture is retained.')]
                         continue
                     payloads, sources, hashes = loaded
-                    if set(payloads) != export.FAMILIES[family]:
+                    if family != 'night' and set(payloads) != export.FAMILIES[family]:
                         raise ValueError('PARTIAL_DAILY_FAMILY')
-                    if family != 'advance' and (stage / 'electorates.json').exists():
+                    if family not in {'advance', 'night'} and (stage / 'electorates.json').exists():
                         registry = json.loads((stage / 'electorates.json').read_text())['data']
                         if hashes['electorates.data'] != export.digest(export.canonical(registry).encode()):
                             raise ValueError('DAILY_REGISTRY_MISMATCH')
                     with tempfile.TemporaryDirectory(prefix='.family-', dir=out.parent) as family_tmp:
                         prepared = Path(family_tmp)
-                        for stem, data in payloads.items():
+                        if family == 'night':
+                            night.prepare(prepared, loaded, run_url, sha, now)
+                        for stem, data in ({} if family == 'night' else payloads).items():
                             export.pair(prepared, stem, export.envelope(data, sources, run_url, sha, inputs=hashes,
                                                                        method=family + '-v1', generated=now))
-                        for path in prepared.iterdir():
-                            shutil.copyfile(path, stage / path.name)
+                        if family == 'night':
+                            if (stage / 'night').exists():
+                                shutil.rmtree(stage / 'night')
+                            shutil.copytree(prepared / 'night', stage / 'night')
+                        else:
+                            for path in prepared.iterdir():
+                                shutil.copyfile(path, stage / path.name)
                     success, good_run = now, run_url
                 except ValueError as exc:
                     failure = str(exc)

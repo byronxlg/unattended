@@ -328,13 +328,27 @@ def verify_advance(envs, root):
     require(all((data / ('advance-voting' + ext)).read_bytes() == raw for ext, raw in before.items()), 'advance last-good bytes')
 
 
+def verify_night(envs, root, *, data=None):
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.tests.night_smoke import check
+    if data is None:
+        data = root / 'night-data'
+        daily_refresh(data)
+    elif not (data / 'night/index.json').is_file():
+        raise ValueError('MISSING_NIGHT_FAMILY')
+    export.validate_bundle(data)
+    check(data)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets', 'advance'])
+    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets', 'advance', 'night'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     args = parser.parse_args()
-    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets, 'advance': verify_advance}
+    if args.check == 'night' and args.data and not (args.data / 'night/index.json').is_file():
+        raise ValueError('MISSING_NIGHT_FAMILY')
+    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets, 'advance': verify_advance, 'night': verify_night}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
@@ -382,11 +396,20 @@ def main():
             require(panel(actual, built) in (product / 'methods/index.html').read_text(), 'supplied market provenance')
         for name, check in checks.items():
             if args.check in ('all', name):
-                check(envs, root)
+                if name == 'night' and args.check == 'all' and args.data and 'night/index' not in supplied:
+                    # The aggregate gate permits absent families, without claiming their validation.
+                    continue
+                if name == 'night':
+                    check(envs, root, data=args.data)
+                else:
+                    check(envs, root)
                 print('PASS ' + name + {'geography': ': 64 general, 7 Māori', 'candidates': ': 71 electorates', 'electorates': ': 71 pages'}.get(name, ''))
         if args.check == 'all':
             print('PASS all')
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except ValueError as exc:
+        raise SystemExit('FAIL ' + sys.argv[1] + ': ' + str(exc)) from None
