@@ -1831,3 +1831,7 @@ or final rows must match their source capture, independent of metadata). No seco
 - Item 2 (no screenshots in the branch) accepted with reasoning on the PR: host harness PASS 80 routes 338 images and night/ 390 looked at; harness reruns on fix-3.
 - Dispatched nz-election-night-page-fix-3 on the build thread (followup-3.md): notice in every phase, named gate requirement, failing-then-passing test; main's test assertions protected at b523eda. CI green on eb4a0d0.
 - Codex window 35 percent, 5.8 days to reset.
+
+## 2026-10-21 11:27Z (job_done nz-election-night-page-fix-3)
+
+fix-3 2a2c506 (s197 freeze notice and links restored in every night phase and replay frame; route gate in route_checks.py; regressions fail on eb4a0d0 per Codex). Host: test_night_page.py and test_night.py 73 passed with host Chromium, lint ok. Pushed, supervisor accept logged on PR #60, third fresh review review-nz-election-night-page-3 dispatched, CI pending. Codex window 36 percent. Next: merge #60 if accept and CI green, link to Byron, confirm Pages for b523eda; share spent until 07:05Z 22 Oct; electorate detail data for the night map next.
