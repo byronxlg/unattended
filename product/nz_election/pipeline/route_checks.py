@@ -14,9 +14,9 @@ def check_site(site, envs):
     from .verify import require
     routes = registered()
     cards = json.loads((site / 'og-manifest.json').read_text())
-    require(len(cards) == len(routes) == 79, 'OG count')
+    require(len(cards) == len(routes) == 80, 'OG count')
     require({c['route'] for c in cards} == {r['path'] for r in routes}, 'OG routes')
-    require(len({c['key'] for c in cards}) == 79, 'unique OG keys')
+    require(len({c['key'] for c in cards}) == 80, 'unique OG keys')
     built = json.loads((site / 'build-manifest.json').read_text())['data']['built_at']
     home = home_presentation(envs, built)
     for route in routes:

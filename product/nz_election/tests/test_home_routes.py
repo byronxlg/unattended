@@ -17,9 +17,9 @@ def test_route_cards_and_detail_order(populated):
     envs, site = populated
     check_site(site, envs)
     cards = json.loads((site / 'og-manifest.json').read_text())
-    assert len(cards) == 79
-    assert len(list((site / 'og').glob('*.html'))) == 79
-    assert len(list(site.rglob('index.html'))) == 79
+    assert len(cards) == 80
+    assert len(list((site / 'og').glob('*.html'))) == 80
+    assert len(list(site.rglob('index.html'))) == 80
     for card in cards:
         if card['route'].startswith('electorates/') and card['route'] != 'electorates/':
             assert card['description'].startswith(card['title'].split(':')[0])

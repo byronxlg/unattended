@@ -92,7 +92,7 @@ def test_built_routes_have_source_targets(built_design):
     _, site = built_design
     pages = list(site.rglob('index.html'))
     expected = [r['path'] for r in config('routes')] + ['electorates/' + r['slug'] + '/' for r in config('electorates')]
-    assert len(expected) == len(set(expected)) == 79
+    assert len(expected) == len(set(expected)) == 80
     assert {p.relative_to(site).as_posix() for p in site.rglob('index.html')} == {p + 'index.html' for p in expected}
     for page in pages:
         try:

@@ -37,7 +37,7 @@ def broken_fragments(site):
 def test_every_design_state_resolves_local_fragments(tmp_path, state):
     site, _ = fixture(tmp_path, state)
     root = site / 'nz-election'
-    assert len(list(root.rglob('index.html'))) == 79
+    assert len(list(root.rglob('index.html'))) == 80
     assert not (broken := broken_fragments(root)), f'BROKEN_FRAGMENT: {state}: {broken}'
 
 

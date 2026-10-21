@@ -308,7 +308,7 @@ def extra_images(browser, site, origin, out, og_only=False):
     from product.nz_election.pipeline.route_cards import route_key
     from product.nz_election.pipeline.build import config
     paths = [r['path'] for r in config('routes')] + ['electorates/' + r['slug'] + '/' for r in config('electorates')]
-    assert len(cards) == len({c['key'] for c in cards}) == 79, 'OG_INVENTORY'
+    assert len(cards) == len({c['key'] for c in cards}) == 80, 'OG_INVENTORY'
     assert {c['route'] for c in cards} == set(paths), 'OG_ROUTES'
     context = browser.new_context(viewport=dict(width=1200, height=630), color_scheme='light', reduced_motion='reduce')
     context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
@@ -395,6 +395,51 @@ def advance_images(browser, out):
     return results
 
 
+def vote_answer_check(answer, viewport):
+    assert answer.is_visible(), 'VOTE_ANSWER_NOT_VISIBLE'
+    box = answer.bounding_box()
+    assert (box and box['width'] > 0 and box['height'] > 0
+            and box['x'] >= 0 and box['y'] >= 0
+            and box['x'] + box['width'] <= viewport['width']
+            and box['y'] + box['height'] <= viewport['height']), 'VOTE_ANSWER_BOX'
+    assert answer.inner_text().strip(), 'VOTE_ANSWER_EMPTY'
+
+
+def vote_images(browser, out, data):
+    from product.nz_election.pipeline.build import build
+    from product.nz_election.pipeline.snapshots import load_voting
+    official = {r['url'] for r in load_voting() if r.get('url')}
+    results = []
+    with tempfile.TemporaryDirectory(prefix='nz-vote-states-') as tmp:
+        for state, clock in [('before', '2026-10-25T10:59:59Z'), ('open', '2026-10-25T11:00:00Z')]:
+            site = Path(tmp) / state
+            build(data, site / 'nz-election', built=clock)
+            server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(site)))
+            threading.Thread(target=server.serve_forever, daemon=True).start()
+            origin = 'http://127.0.0.1:' + str(server.server_port)
+            try:
+                for width, height in ADVANCE_SIZES:
+                    context = browser.new_context(viewport=dict(width=width, height=height), reduced_motion='reduce')
+                    context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
+                    page = context.new_page()
+                    check_page(page, origin + PREFIX + 'nz-election/vote/', site, origin)
+                    assert page.locator('.vote-first section').first.get_attribute('id') == ('enrol' if state == 'before' else 'places')
+                    if width == 390:
+                        vote_answer_check(page.locator('#two-votes'), dict(width=width, height=height))
+                        assert page.locator('#help').evaluate('e=>e.getBoundingClientRect().top') >= height, 'VOTE_HELP_ABOVE_FOLD'
+                    hrefs = page.locator('a').evaluate_all('els=>els.filter(e=>e.getBoundingClientRect().top<innerHeight && e.getBoundingClientRect().bottom>0 && e.getBoundingClientRect().right>0).map(e=>e.getAttribute("href"))')
+                    assert hrefs and set(hrefs) <= official, 'VOTE_FIRST_SCREEN_EC_LINKS'
+                    name = f'vote-{state}-{width}x{height}.png'
+                    page.screenshot(path=str(out / name))
+                    results.append(dict(state='vote-' + state, path=name, viewport=dict(width=width, height=height)))
+                    context.close()
+            finally:
+                server.shutdown()
+                server.server_close()
+    assert len(results) == 6
+    return results
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--site', type=Path, default=Path('site'))
@@ -410,7 +455,7 @@ def main():
     registry = json.loads((PRODUCT / 'config/electorates.json').read_text())
     expected_count = len(routes) + len(registry)
     routes += [dict(path='electorates/' + r['slug'] + '/') for r in registry]
-    assert len(routes) == expected_count == 79 and len({r['path'] for r in routes}) == expected_count
+    assert len(routes) == expected_count == 80 and len({r['path'] for r in routes}) == expected_count
     args.out.mkdir(parents=True, exist_ok=True)
     server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(site)))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -440,7 +485,7 @@ def main():
                 nojs.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
                 for route in routes:
                     path = route['path']
-                    if width == 360 and path not in {'', 'polls/', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/', 'electorates/wellington-north/', 'electorates/te-tai-tonga/'}:
+                    if width == 360 and path not in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'campaign/', 'downloads/', 'methods/', 'electorates/wellington-north/', 'electorates/te-tai-tonga/'}:
                         continue
                     page = context.new_page()
                     url = origin + PREFIX + 'nz-election/' + path
@@ -519,7 +564,7 @@ def main():
                     page.close()
                 nojs.close()
                 context.close()
-            additional = ([] if args.og_only else state_images(browser, args.out) + map_images + advance_images(browser, args.out)) + extra_images(browser, site, origin, args.out, args.og_only)
+            additional = ([] if args.og_only else state_images(browser, args.out) + map_images + advance_images(browser, args.out) + vote_images(browser, args.out, site / 'nz-election/data')) + extra_images(browser, site, origin, args.out, args.og_only)
             browser.close()
         if not args.og_only:
             for width in (390, 1280):
@@ -527,7 +572,7 @@ def main():
                 assert len(captured) == len(set(captured)) == expected_count
                 assert set(captured) == {PREFIX + 'nz-election/' + r['path'] for r in routes}
         if not args.og_only and has_geography and has_baseline:
-            assert len(manifest) + len(additional) == 296 + len(ADVANCE_STATES) * len(ADVANCE_SIZES), 'IMAGE_INVENTORY'
+            assert len(manifest) + len(additional) == 300 + len(ADVANCE_STATES) * len(ADVANCE_SIZES) + 6, 'IMAGE_INVENTORY'
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()

@@ -34,6 +34,7 @@ def summary(route, envs, home, built):
         'polls/': 'No published polling averages available.',
         'electorates/': 'Find your candidates and the 2025 electorate boundaries. No electorate forecast.',
         'night/': election_countdown(built) + '. Results appear here from 7 pm on 7 November. No results feed is published yet.',
+        'vote/': 'How and when to enrol, find a voting place and cast your two votes.',
         'campaign/': 'Official voting information and sourced national advance-voting observations.',
         'downloads/': 'Download published data with source dates, licences and producing runs.',
         'methods/': 'How equal-weight polls and Sainte-Laguë allocation calculate seats, with assumptions and limits.',

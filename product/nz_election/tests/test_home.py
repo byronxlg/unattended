@@ -190,7 +190,7 @@ def test_home_navigation(populated):
         nav = html.split('<header>')[1].split('</header>')[0]
         assert nav.count(f'<a href="{PREFIX}"') == 1
         assert nav.count(f'<a href="{PREFIX}polls/"') == 1
-        assert html.count('aria-current="page"') == (1 if path.parent == site or path.parent.name in {'polls', 'electorates', 'night', 'methods'} else 0)
+        assert html.count('aria-current="page"') == (1 if path.parent == site or path.parent.name in {'polls', 'electorates', 'night', 'vote', 'methods'} else 0)
         assert 'aria-label="Home sections"' not in html
 
 
@@ -218,9 +218,9 @@ def test_home_social_retains_dated_aggregate(tmp_path):
 def test_screenshot_count_inventory():
     from product.nz_election.tests.design_states import STATES
     routes = len(config('routes')) + len(config('electorates'))
-    assert routes == 79
+    assert routes == 80
     assert len(STATES) * 2 + 1 == 33
-    assert 2 * routes + 9 + 33 + 13 + 4 + routes == 296
+    assert 2 * routes + 10 + 33 + 13 + 4 + routes == 300
 
 
 def test_supplied_home_verifier_rejects_missing_fragments(populated, tmp_path):
