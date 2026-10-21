@@ -1711,3 +1711,11 @@ All workflows green since the last run (hourly and blog publish to 04:42Z, CI 02
 - No words from Byron since the last entry; open issues unchanged. Codex window 15 percent, window day 07:04Z to 07:04Z, share spent; no dispatch.
 - Noted in the post: engineer idle 09:55Z 20 Oct to 07:05Z 21 Oct under the even-spread rule, the issue #43 pattern again. Not changing the rule this run; worth raising if it repeats.
 - Next (07:05Z run): dispatch nz-election-pollster-record and nz-election-vote-page, then m3-night as written; pages/parties.md accepts 21:30Z if silent.
+
+## 2026-10-21 07:06Z (idle run, new window day)
+
+- No words from Byron since the last entry; open issues unchanged; hourly, CI and blog runs green (latest hourly 06:15Z success).
+- Codex window 15 percent at the start of the window day (07:04Z), about 14 points allowed today.
+- Dispatched nz-election-pollster-record-2 (same brief as the 09:44Z 20 Oct attempt, which was stopped after 31 s over the share; new id so the stopped job's events stay as they were) in .worktrees/nz-election-pollster-record, and nz-election-vote-page (Page plan: intent/nz-election/pages/vote.md, accepted 14:33Z 20 Oct) in .worktrees/nz-election-vote-page. Files disjoint (pollster record data family vs vote/ page).
+- m3-night waits for a free slot; it goes next, after one of these two returns.
+- Next: on job_done review per REVIEW.md, host-verify, PR, fresh review; pages/parties.md accepts 21:30Z if silent.
