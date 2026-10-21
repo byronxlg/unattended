@@ -31,7 +31,7 @@ def status_of(envs, family='polls'):
 
 def success_order(envs, family='polls'):
     if family != 'polls':
-        env = envs.get('electorates' if family == 'geography' else 'social/daily' if family == 'social' else 'advance-voting' if family == 'advance' else family, {})
+        env = envs.get('electorates' if family == 'geography' else 'social/daily' if family == 'social' else 'night/index' if family == 'night' else 'advance-voting' if family == 'advance' else family, {})
         return (env.get('fetched_at') or '', env.get('generated_at', ''))
     if 'polls' not in envs:
         return ('', '')
@@ -72,7 +72,7 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                 for line in listing:
                     mode, _, rest = line.split(' ', 2)
                     _, name = rest.split('\t', 1)
-                    if mode != '100644' or name not in {str(DATA / n) for n in export.ALLOWED}:
+                    if mode != '100644' or not name.startswith(str(DATA) + '/') or not export.allowed_path(name[len(str(DATA)) + 1:]):
                         raise ValueError('UNSAFE_DATA_TREE')
                 git(checkout, 'checkout', '-B', 'data', 'FETCH_HEAD')
             else:
@@ -85,8 +85,10 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
             all_older = True
             for dataset in datasets:
                 proposed = status_of(incoming, dataset)
-                stem = 'electorates' if dataset == 'geography' else 'social/daily' if dataset == 'social' else 'advance-voting' if dataset == 'advance' else dataset
+                stem = 'electorates' if dataset == 'geography' else 'social/daily' if dataset == 'social' else 'night/index' if dataset == 'night' else 'advance-voting' if dataset == 'advance' else dataset
                 owned = {s + ext for s in export.FAMILIES[dataset] for ext in ('.json', '.csv')}
+                if dataset == 'night':
+                    owned = {s + ext for s in incoming if s.startswith('night/') for ext in ('.json', '.csv')}
                 previous = status_of(current, dataset)
                 if dataset == 'social':
                     # Ledger accounting must survive stale aggregates and lease retries.
@@ -155,6 +157,8 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                 keep_status = previous and previous['last_attempt_at'] > proposed['last_attempt_at']
                 all_older = all_older and bool(keep_status and keep_data)
                 if not keep_data:
+                    if dataset == 'night' and 'night/index' in incoming and (target / 'night').exists():
+                        shutil.rmtree(target / 'night')
                     for name in owned:
                         if (bundle / name).exists():
                             (target / name).parent.mkdir(parents=True, exist_ok=True)
@@ -173,7 +177,7 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
             export.merged_licences(target)
             export.inventory(target, metadata['run_url'], metadata['code_sha'], max(r['last_attempt_at'] for r in statuses))
             export.validate_bundle(target)
-            git(checkout, 'add', '--', *[str(DATA / n) for n in sorted(export.ALLOWED) if (target / n).exists()])
+            git(checkout, 'add', '-A', '--', str(DATA))
             if git(checkout, 'diff', '--cached', '--quiet', check=False).returncode == 0:
                 return dict(outcome='unchanged', attempts=attempt + 1, sha=git(checkout, 'rev-parse', 'HEAD').stdout.strip())
             git(checkout, 'commit', '-qm', 'Publish validated poll bundle')

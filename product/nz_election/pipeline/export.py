@@ -38,6 +38,7 @@ for stem, fields in NEW_FIELDS.items():
     FIELDS[stem] = ROW | set(fields.split())
 FAMILIES.update({'candidates': {'candidates', 'party-lists', 'candidate-review'},
                  **{s: {s} for s in ('baseline-2023', 'enrolment', 'electorate-polls', 'markets')}})
+FAMILIES['night'] = {'night/index'}
 FAMILIES['advance'] = {'advance-voting'}
 FAMILIES['social'] = {'social/daily', 'social/credits'}
 FIELDS['social/daily'] = ROW | set('day sample party_counts attitude topic_counts model_versions question_version provenance probability_sums'.split())
@@ -50,6 +51,11 @@ META = ['schema_version', 'source_json', 'fetched_at', 'run_url', 'code_sha',
 INSTANT_FIELDS = {'fetched_at', 'generated_at', 'last_attempt_at', 'last_success_at', 'built_at', 'captured_at'}
 DATE_FIELDS = {'fieldwork_start', 'fieldwork_end', 'date', 'window_start', 'window_end', 'election_date', 'result_as_of', 'as_of'}
 DATE_PATTERN = r'[0-9]{4}-[0-9]{2}-[0-9]{2}'
+
+
+def allowed_path(name):
+    from .night import allowed
+    return name in ALLOWED or allowed(name)
 
 
 def timestamp(value, field='timestamp', *, nullable=False):
@@ -168,6 +174,10 @@ def validate_envelope(env, stem):
                 raise ValueError('BOUNDARY_ID_MISMATCH')
     seen = set()
     for row in rows(env):
+        if stem.startswith('night/'):
+            from .night import validate_row
+            validate_row(row, stem)
+            continue
         fields = FIELDS[stem]
         if stem == 'averages' and env['method_version'] == 'window-mean-30d-v1':
             fields = fields - {'derivations'}
@@ -317,14 +327,14 @@ def inventory(root, run_url, code_sha, now):
         name = path.relative_to(root).as_posix()
         if name.startswith('manifest.'):
             continue
-        if name not in ALLOWED or path.is_symlink() or not path.is_file():
+        if not allowed_path(name) or path.is_symlink() or not path.is_file():
             raise ValueError('UNSAFE_DATA_PATH')
         stem = path.relative_to(root).with_suffix('').as_posix()
         env = json.loads((root / (stem + '.json')).read_text()) if path.suffix in {'.json', '.csv'} else None
         if env:
             validate_envelope(env, stem)
         data = rows(env) if env else []
-        observations = [r['observed_at'] for r in data if r['observed_at'] is not None]
+        observations = [r['observed_at'] for r in data if r.get('observed_at') is not None]
         entries.append(dict(id=name, source_ref=env['source'] if env else [], observed_at=now,
                             path=name, format=path.suffix[1:], sha256=digest(path.read_bytes()),
                             bytes=path.stat().st_size, row_count=len(data),
@@ -347,7 +357,7 @@ def validate_bundle(root):
         raise ValueError('UNSAFE_DATA_PATH')
     paths = data_files(root)
     files = {p.relative_to(root).as_posix() for p in paths}
-    if files - ALLOWED or not {'manifest.json', 'manifest.csv', 'status.json', 'status.csv', 'LICENCES.md'} <= files:
+    if any(not allowed_path(n) for n in files) or not {'manifest.json', 'manifest.csv', 'status.json', 'status.csv', 'LICENCES.md'} <= files:
         raise ValueError('INVALID_INVENTORY')
     for path in paths:
         if path.is_symlink() or not path.is_file():
@@ -364,7 +374,7 @@ def validate_bundle(root):
         raise ValueError('INVALID_INVENTORY')
     for entry in entries:
         name = entry['path']
-        if name not in ALLOWED:
+        if not allowed_path(name):
             raise ValueError('UNSAFE_DATA_PATH')
         if name.startswith('manifest.'):
             if entry['sha256'] is not None or entry['bytes'] is not None:
@@ -376,7 +386,7 @@ def validate_bundle(root):
             if Path(name).suffix in {'.json', '.csv'}:
                 env = envs[str(Path(name).with_suffix(''))]
                 payload = rows(env)
-                observations = [r['observed_at'] for r in payload if r['observed_at'] is not None]
+                observations = [r['observed_at'] for r in payload if r.get('observed_at') is not None]
                 if (entry['row_count'] != len(payload)
                         or entry['licences'] != sorted({s['licence'] for s in env['source']})
                         or entry['fetched_at'] != env['fetched_at']
@@ -447,6 +457,9 @@ def validate_bundle(root):
             hashes = envs[stem]['input_hashes']
             if any(hashes.get(dep) != digest((root / dep).read_bytes()) for dep in deps):
                 raise ValueError('INPUT_HASH_MISMATCH')
+    if any(s.startswith('night/') for s in envs):
+        from .night import validate
+        validate(root)
     return envs
 
 
@@ -463,6 +476,9 @@ def merged_licences(root):
         if path.exists():
             text += '\n' + family + ':\n'
             text += ''.join(s['url'] + '\n' + s['licence'] + '\n' for s in json.loads(path.read_text())['source'])
+    if (root / 'night/index.json').exists():
+        text += '\nNight: offline archive and illustrative replay.\n'
+        text += ''.join(s['url'] + '\n' + s['licence'] + '\n' for s in json.loads((root / 'night/index.json').read_text())['source'])
     (root / 'LICENCES.md').write_text(text)
 
 
@@ -472,6 +488,11 @@ def data_files(root):
         if path.is_symlink():
             raise ValueError('UNSAFE_DATA_PATH')
         if path.is_dir():
+            if path.name == 'night':
+                from .night import validate
+                validate(root)
+                paths.extend(p for p in path.rglob('*') if p.is_file())
+                continue
             if path.name != 'social':
                 raise ValueError('UNSAFE_DATA_PATH')
             children = list(path.iterdir())
