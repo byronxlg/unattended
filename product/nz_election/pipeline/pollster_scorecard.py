@@ -1,4 +1,5 @@
 """Validate an offline historical scorecard without rounding or network access."""
+from calendar import monthrange
 from datetime import date, datetime
 from fractions import Fraction
 import gzip
@@ -10,6 +11,7 @@ from urllib.parse import parse_qs, urlsplit
 from zoneinfo import ZoneInfo
 
 from . import snapshots as s
+from .poll_parser import MONTHS
 
 DAYS = {2017: '2017-09-23', 2020: '2020-10-17', 2023: '2023-10-14'}
 EC_LICENCE = 'Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.'
@@ -113,6 +115,12 @@ def poll(row, sources, selected=False):
     end = calendar_date(row['fieldwork_end'])
     require(end < date.fromisoformat(DAYS[year]) and end <= local_day, 'fieldwork')
     require(row.get('fieldwork_precision') in ('day', 'month-upper-bound'), 'fieldwork')
+    month = re.fullmatch(r'([A-Za-z]+) ([0-9]{4})', row['fieldwork_label'])
+    if month or row['fieldwork_precision'] == 'month-upper-bound':
+        require(month is not None and month[1] in MONTHS, 'fieldwork')
+        year, number = int(month[2]), MONTHS[month[1]]
+        require(year > 0 and row['fieldwork_precision'] == 'month-upper-bound'
+                and end == date(year, number, monthrange(year, number)[1]), 'fieldwork')
     require('excluded_reason' not in row, 'fieldwork')
     if selected:
         require(bool(row['poll_shares']), 'absent_comparable_input')

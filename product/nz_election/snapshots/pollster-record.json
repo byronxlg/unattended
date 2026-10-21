@@ -6,7 +6,7 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0/",
   "method": {
     "scope": "National party-vote tables, including published internal polls, in the last Wikipedia revision before local election-day midnight. Excludes electorate and preferred-prime-minister tables. Coverage is source-table coverage, not a claim that an omitted party was never measured.",
-    "selection": "Latest documented fieldwork end, then publication upper bound. Single dates that may be release dates are ineligible; month-only fieldwork uses a labelled conservative month-end upper bound. Internal polls are not necessarily representative of all polls commissioned.",
+    "selection": "Latest documented fieldwork end, then publication upper bound. Single dates that may be release dates are ineligible; month-only fieldwork uses a labelled conservative month-end upper bound. Internal polls are not necessarily representative of all polls commissioned. No age cutoff: discontinued pollsters remain eligible, including Herald-DigiPoll (December 2015 for 2017) and YouGov (November 2019 for 2020).",
     "publication": "published_by is the pinned revision timestamp: public no later than this instant, not an asserted original release time.",
     "revisions": "Use only values in the last pre-cutoff revision; later additions, corrections and extra decimal precision are excluded. Wikipedia template output is not evidence; retained revision wikitext is authoritative.",
     "arithmetic": "Poll shares are exact decimal strings. Official shares, signed errors and MAE are exact rational numbers with decimal-string integer numerator and denominator, because vote-count division usually repeats. No intermediate rounding.",
@@ -7203,6 +7203,101 @@
       "fieldwork_end": "2022-08-03",
       "fieldwork_precision": "day",
       "id": "2023-horizon-4"
+    },
+    {
+      "pollster_id": "herald-digipoll",
+      "pollster": "Herald-DigiPoll",
+      "year": 2017,
+      "fieldwork_label": "8–21 Dec 2014",
+      "published_by": "2017-09-21T10:13:38Z",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=801707892",
+      "retrieved_at": "2026-10-21T07:09:42Z",
+      "licence": "CC BY-SA 4.0",
+      "source_locator": "National party vote table 1: Herald-DigiPoll, 8–21 Dec 2014",
+      "poll_shares": {
+        "nat": "50.4",
+        "lab": "28.9",
+        "grn": "9.5",
+        "nzf": "5.6",
+        "tpm": "1.5",
+        "act": "0.4",
+        "united-future": "0",
+        "con": "2.9",
+        "mana": "0.2"
+      },
+      "fieldwork_end": "2014-12-21",
+      "fieldwork_precision": "day",
+      "id": "2017-herald-digipoll-1"
+    },
+    {
+      "pollster_id": "herald-digipoll",
+      "pollster": "Herald-DigiPoll",
+      "year": 2017,
+      "fieldwork_label": "17–26 Apr 2015",
+      "published_by": "2017-09-21T10:13:38Z",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=801707892",
+      "retrieved_at": "2026-10-21T07:09:42Z",
+      "licence": "CC BY-SA 4.0",
+      "source_locator": "National party vote table 1: Herald-DigiPoll, 17–26 Apr 2015",
+      "poll_shares": {
+        "nat": "51",
+        "lab": "28.7",
+        "grn": "10.8",
+        "nzf": "6.1",
+        "tpm": "0.8",
+        "act": "0.8",
+        "con": "1.1"
+      },
+      "fieldwork_end": "2015-04-26",
+      "fieldwork_precision": "day",
+      "id": "2017-herald-digipoll-2"
+    },
+    {
+      "pollster_id": "herald-digipoll",
+      "pollster": "Herald-DigiPoll",
+      "year": 2017,
+      "fieldwork_label": "14–24 Aug 2015",
+      "published_by": "2017-09-21T10:13:38Z",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=801707892",
+      "retrieved_at": "2026-10-21T07:09:42Z",
+      "licence": "CC BY-SA 4.0",
+      "source_locator": "National party vote table 1: Herald-DigiPoll, 14–24 Aug 2015",
+      "poll_shares": {
+        "nat": "50.8",
+        "lab": "31",
+        "grn": "9.2",
+        "nzf": "6.9",
+        "tpm": "1",
+        "act": "0.2",
+        "con": "0.6",
+        "mana": "0.2"
+      },
+      "fieldwork_end": "2015-08-24",
+      "fieldwork_precision": "day",
+      "id": "2017-herald-digipoll-3"
+    },
+    {
+      "pollster_id": "herald-digipoll",
+      "pollster": "Herald-DigiPoll",
+      "year": 2017,
+      "fieldwork_label": "4–14 Dec 2015",
+      "published_by": "2017-09-21T10:13:38Z",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=801707892",
+      "retrieved_at": "2026-10-21T07:09:42Z",
+      "licence": "CC BY-SA 4.0",
+      "source_locator": "National party vote table 1: Herald-DigiPoll, 4–14 Dec 2015",
+      "poll_shares": {
+        "nat": "51.3",
+        "lab": "31.1",
+        "grn": "8.2",
+        "nzf": "5.7",
+        "tpm": "2.1",
+        "act": "0.8",
+        "united-future": "0.3"
+      },
+      "fieldwork_end": "2015-12-14",
+      "fieldwork_precision": "day",
+      "id": "2017-herald-digipoll-4"
     }
   ],
   "skipped": [
@@ -7337,6 +7432,22 @@
     {
       "year": 2023,
       "pollster_id": "yougov",
+      "reason": "No national party-vote row in the pinned pre-election revision. Later retrospective additions are excluded.",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=1179904504",
+      "retrieved_at": "2026-10-21T07:09:44Z",
+      "licence": "CC BY-SA 4.0"
+    },
+    {
+      "year": 2020,
+      "pollster_id": "herald-digipoll",
+      "reason": "No national party-vote row in the pinned pre-election revision. Later retrospective additions are excluded.",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=983775861",
+      "retrieved_at": "2026-10-21T07:09:43Z",
+      "licence": "CC BY-SA 4.0"
+    },
+    {
+      "year": 2023,
+      "pollster_id": "herald-digipoll",
       "reason": "No national party-vote row in the pinned pre-election revision. Later retrospective additions are excluded.",
       "source_url": "https://en.wikipedia.org/w/index.php?oldid=1179904504",
       "retrieved_at": "2026-10-21T07:09:44Z",
@@ -9443,6 +9554,114 @@
       "mean_absolute_error": {
         "numerator": "816896329",
         "denominator": "228096880"
+      }
+    },
+    {
+      "pollster_id": "herald-digipoll",
+      "pollster": "Herald-DigiPoll",
+      "year": 2017,
+      "fieldwork_label": "4–14 Dec 2015",
+      "published_by": "2017-09-21T10:13:38Z",
+      "source_url": "https://en.wikipedia.org/w/index.php?oldid=801707892",
+      "retrieved_at": "2026-10-21T07:09:42Z",
+      "licence": "CC BY-SA 4.0",
+      "source_locator": "National party vote table 1: Herald-DigiPoll, 4–14 Dec 2015",
+      "poll_shares": {
+        "nat": "51.3",
+        "lab": "31.1",
+        "grn": "8.2",
+        "nzf": "5.7",
+        "tpm": "2.1",
+        "act": "0.8",
+        "united-future": "0.3"
+      },
+      "fieldwork_end": "2015-12-14",
+      "fieldwork_precision": "day",
+      "id": "2017-herald-digipoll-4",
+      "election_day": "2017-09-23",
+      "compared_parties": [
+        "nat",
+        "lab",
+        "grn",
+        "nzf",
+        "tpm",
+        "act",
+        "united-future"
+      ],
+      "not_reported_parties": [
+        "alcp",
+        "ban1080",
+        "con",
+        "internet",
+        "mana",
+        "nzof",
+        "opp",
+        "peoples",
+        "social-credit"
+      ],
+      "official_shares": {
+        "nat": {
+          "numerator": "28801875",
+          "denominator": "647974"
+        },
+        "lab": {
+          "numerator": "11952300",
+          "denominator": "323987"
+        },
+        "grn": {
+          "numerator": "4061075",
+          "denominator": "647974"
+        },
+        "nzf": {
+          "numerator": "2333825",
+          "denominator": "323987"
+        },
+        "tpm": {
+          "numerator": "382250",
+          "denominator": "323987"
+        },
+        "act": {
+          "numerator": "326875",
+          "denominator": "647974"
+        },
+        "united-future": {
+          "numerator": "22275",
+          "denominator": "323987"
+        }
+      },
+      "party_errors": {
+        "nat": {
+          "numerator": "11097978",
+          "denominator": "1619935"
+        },
+        "lab": {
+          "numerator": "-18763043",
+          "denominator": "3239870"
+        },
+        "grn": {
+          "numerator": "6261559",
+          "denominator": "3239870"
+        },
+        "nzf": {
+          "numerator": "-4870991",
+          "denominator": "3239870"
+        },
+        "tpm": {
+          "numerator": "2981227",
+          "denominator": "3239870"
+        },
+        "act": {
+          "numerator": "957521",
+          "denominator": "3239870"
+        },
+        "united-future": {
+          "numerator": "749211",
+          "denominator": "3239870"
+        }
+      },
+      "mean_absolute_error": {
+        "numerator": "28389754",
+        "denominator": "11339545"
       }
     }
   ]
