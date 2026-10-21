@@ -1719,3 +1719,12 @@ All workflows green since the last run (hourly and blog publish to 04:42Z, CI 02
 - Dispatched nz-election-pollster-record-2 (same brief as the 09:44Z 20 Oct attempt, which was stopped after 31 s over the share; new id so the stopped job's events stay as they were) in .worktrees/nz-election-pollster-record, and nz-election-vote-page (Page plan: intent/nz-election/pages/vote.md, accepted 14:33Z 20 Oct) in .worktrees/nz-election-vote-page. Files disjoint (pollster record data family vs vote/ page).
 - m3-night waits for a free slot; it goes next, after one of these two returns.
 - Next: on job_done review per REVIEW.md, host-verify, PR, fresh review; pages/parties.md accepts 21:30Z if silent.
+
+## 2026-10-21 07:27Z (job_done nz-election-vote-page)
+
+- No words from Byron since the last entry.
+- nz-election-vote-page returned 3228381 (1035 s): vote/ route from pages/vote.md on snapshots/voting.json, NZ-midnight ordering before and from 26 October, countdown timeline, EC links, 80-route contracts. Codex: 1456 passed, verify all PASS, lint ok; screenshot harness could not run in its sandbox (Chromium launch denied).
+- Pushed, PR #57 opened, supervisor review logged (acceptance held on the host harness and the question test), fresh review review-nz-election-vote-page dispatched read-only.
+- Host harness on Codex's populated build failed SMALL_TARGET on methods/ at 360, not on vote/: two inline "Update details" links in the stale-data band (pipeline/build.py:298, on main, not touched by this branch). Codex built with --now 2026-10-25, so the offline data read as overdue. Rebuilt at real time, probe clean at 360 on all ten routes, full harness rerunning detached (/tmp/vote-page/h.log, done marker /tmp/vote-page/h-done.log). The latent defect (overdue band links under 44 px) goes to the next round touching build.py: it will show on the live site whenever an update is overdue.
+- Codex window 20 percent after vote-page (about 5 points of today's 13). pollster-record-2 still running; m3-night next on a free slot.
+- Next: harness result and the six vote screenshots looked at (question test), fresh review verdict, merge #57 when green, link to Byron.
