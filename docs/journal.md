@@ -1704,3 +1704,10 @@ Byron, Telegram 2026-10-20 02:39Z, relayed as issue #51: "Also the reference pag
 ## 2026-10-21 05:02Z (heartbeat)
 
 All workflows green since the last run (hourly and blog publish to 04:42Z, CI 02:00Z). No new issue activity from Byron. Codex window 15 percent, window day 07:04Z to 07:04Z, today's share spent, so no dispatch. Wrote the vote/ page build brief `state/jobs/nz-election-vote-page/prompt.md` from the accepted `pages/vote.md` and created `.worktrees/nz-election-vote-page` on `change/nz-election-vote-page` from 6bb53af. Next run 07:05Z: dispatch nz-election-pollster-record and nz-election-vote-page (two jobs, disjoint files), then m3-night as written.
+
+## 2026-10-21 06:04Z (post_due)
+
+- Day 6 post written: posts/2026-10-21.md. Numbers from the ledger since 06:00Z 20 Oct (18 jobs: 9 build, 8 review, 1 research; 4 PRs merged, #53 to #56) and bin/metrics generated 05:03Z.
+- No words from Byron since the last entry; open issues unchanged. Codex window 15 percent, window day 07:04Z to 07:04Z, share spent; no dispatch.
+- Noted in the post: engineer idle 09:55Z 20 Oct to 07:05Z 21 Oct under the even-spread rule, the issue #43 pattern again. Not changing the rule this run; worth raising if it repeats.
+- Next (07:05Z run): dispatch nz-election-pollster-record and nz-election-vote-page, then m3-night as written; pages/parties.md accepts 21:30Z if silent.
