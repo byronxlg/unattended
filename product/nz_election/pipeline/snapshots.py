@@ -12,7 +12,7 @@ PRODUCT = Path(__file__).resolve().parents[1]
 SNAPSHOTS = PRODUCT / 'snapshots'
 NAMES = frozenset({'leaders', 'candidates-2026', 'enrolment', 'port-waikato-2023',
                    'history', 'hexmap', 'positions', 'voting', 'donations', 'boundaries-2025',
-                   'candidate-reconciliation-2026'})
+                   'candidate-reconciliation-2026', 'pollster-record'})
 BOUNDARY_BYTE_LIMIT = 400_000
 BANNED = re.compile(r'\b(?:not available|unavailable|pending|missing)\b', re.I)
 PHOTO_LICENCES = frozenset({'CC0', 'CC BY 4.0', 'CC BY-SA 4.0', 'CC BY 3.0',
@@ -196,6 +196,9 @@ def load(name):
     Invalid envelopes, records, identifiers and photo metadata raise ValueError.
     """
     _require(isinstance(name, str) and name in NAMES, 'Unknown snapshot name')
+    if name == 'pollster-record':
+        from .pollster_scorecard import load_pollster_record
+        return load_pollster_record()
     if name == 'donations':
         from .donations import load_donations
         return load_donations()
