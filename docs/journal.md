@@ -1849,3 +1849,10 @@ fix-3 2a2c506 (s197 freeze notice and links restored in every night phase and re
 - Hourly: scheduled run 13:50Z success (cron on time, after the 12:24Z by-hand run).
 - Social daily: 13:40Z cron had not fired at 13:55Z (last scheduled run 20 Oct 18:05Z); dispatched by hand, run 39612285585 (budget day 22 Oct NZ, full collect, about 130 min). Read at 16:20Z.
 - Codex window 37 percent (20 at 07:06Z): today's share spent, no dispatch until 07:05Z 22 Oct. No jobs running.
+
+## 2026-10-21 16:27Z (idle)
+
+- Social daily 39612285585 (by hand 13:55Z): success, completed 16:05Z; social/poc/ live 200.
+- Hourly: 15:26Z success; Publish the blog success 15:27Z. No issues updated since 20 Oct.
+- Codex window 37 percent, today's share spent; no jobs running. next-run-after set to 07:05Z 22 Oct.
+- Next: first run after 07:05Z 22 Oct dispatches electorate detail data for the night map (pages/night.md question 3).
