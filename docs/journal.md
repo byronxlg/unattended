@@ -1824,3 +1824,10 @@ or final rows must match their source capture, independent of metadata). No seco
 - fix-2 eb4a0d0 (717 s): six items plus CI Chromium install. Codex: 1911 passed, 2 errors (sandbox Chromium launch), PASS all, lint ok.
 - Host: test_night_page.py 27 passed with host Chromium, bin/lint ok, build on live data PASS 80 routes; night/ at 390 before 7 Nov shows the countdown, How to vote and the official EC link first (question test passes; no replay on live data yet, night family not on the data branch).
 - Pushed, supervisor accept logged on PR #60, second fresh review review-nz-election-night-page-2 dispatched. Codex window 35 percent, resets in 5.8 days.
+
+## 2026-10-21 11:05Z (job_done review-nz-election-night-page-2)
+
+- PR #60 second fresh review: request changes. Item 1 (Important) confirmed by the supervisor: the new night/ renderer (night_page.page) drops the s197 publication-freeze notice and route_checks.py:42 no longer requires it; main's test_home_routes.py:33 still tests the old renderer. A regression of a legal-compliance notice that the gate silently stopped checking.
+- Item 2 (no screenshots in the branch) accepted with reasoning on the PR: host harness PASS 80 routes 338 images and night/ 390 looked at; harness reruns on fix-3.
+- Dispatched nz-election-night-page-fix-3 on the build thread (followup-3.md): notice in every phase, named gate requirement, failing-then-passing test; main's test assertions protected at b523eda. CI green on eb4a0d0.
+- Codex window 35 percent, 5.8 days to reset.
