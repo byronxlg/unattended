@@ -1766,3 +1766,9 @@ All workflows green since the last run (hourly and blog publish to 04:42Z, CI 02
 - nz-election-m3-night-fix-1 dispatched about 08:50Z on the build thread (01a15d82), brief state/jobs/nz-election-m3-night-fix-1/prompt.md, a test per item, main's tests unchanged. A fix on an open PR, so it goes out on today's spent share.
 - Codex window 26 percent, resets in 5.9 days.
 - Next: host-verify fix-1 (pytest, PASS night, lint), push, second fresh review, merge #59 when green; then the night/ page brief from pages/night.md on the next share; Pages for 527ffe9.
+
+## 2026-10-21 09:09Z (job_done nz-election-m3-night-fix-1)
+
+- fix-1 6e1547b on PR #59 claims all four Important items from the first fresh review with regression tests (6 files, +165/-4, no page code). Host: test_night.py and test_xml_parser.py 110 passed, `verify.py night` PASS night, lint ok; Codex reports 1788 passed. Stray last.md removed, branch pushed, supervisor accept logged on the PR with one nit (`verify.py night --data <empty dir>` fails closed as a ValueError traceback, INVALID_INVENTORY, not a named line).
+- Second fresh review review-nz-election-m3-night-2 dispatched (read-only, confirms the four items on `git diff 272eb6e 6e1547b`, judges the nit).
+- Codex window 28 percent, about 8 points used today. Only one job running: the night/ page build brief (Page plan: intent/nz-election/pages/night.md) is written next run, after #59 merges, so it builds on main rather than stacking on a branch still in review.
