@@ -40,6 +40,8 @@ def summary(route, envs, home, built):
         'methods/': 'How equal-weight polls and Sainte-Laguë allocation calculate seats, with assumptions and limits.',
         'social/poc/': 'Proof of concept: sampled posts are not votes or representative public opinion.',
     }.get(path)
+    if path == 'night/' and envs.get('night/index', {}).get('data'):
+        description = 'Packaged final results, recorded demo and an illustrative 2023 replay. Preliminary 2026 results remain separate.'
     if path.startswith('electorates/') and path != 'electorates/':
         row = next(r for r in envs.get('electorates', {}).get('data', config('electorates')) if path == 'electorates/' + r['slug'] + '/')
         from .snapshot_views import result

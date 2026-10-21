@@ -1,0 +1,81 @@
+"""Static night snapshots enhanced by a local, initially paused replay."""
+from datetime import datetime
+from decimal import Decimal
+from html import escape
+from itertools import combinations
+from .build import PREFIX, table, render, config
+from .presentation import election_countdown
+
+RESULTS = 'https://www.electionresults.govt.nz/'
+
+
+def snapshot(row, refs, identity, path):
+    source = 'source-' + identity
+    parties = sorted(row['party_results'].items(), key=lambda p: (-p[1]['votes'], p[0]))
+    names = {p: refs['parties'][p]['short_name'] for p, _ in parties}
+    content = ''
+    stats = row.get('statistics')
+    if stats:
+        percent = stats['percent_voting_places_counted']
+        clock = row.get('source_updated_local')
+        updated = ', updated ' + clock[11:16] if clock else ''
+        content += (f'<p class="night-reporting">Results cover <strong>{percent} percent</strong> of voting places{updated}.</p>'
+                    f'<progress aria-label="Voting places reported" max="100" value="{percent}">{percent}%</progress>')
+    if 'reported_house' in row and row['reported_house']:
+        house = row['reported_house']
+        majority = house // 2 + 1
+        seats = [(p, r['total_seats']) for p, r in parties if r['total_seats']]
+        content += f'<h2>Who has enough seats?</h2><p class="night-house">House {house}; <strong>{majority} for a majority</strong></p>'
+        content += f'<figure aria-describedby="{source}"><div class="strip" role="img" aria-label="Reported party seats; {majority} needed">'
+        # Archive IDs belong to their reference set, never the current party registry.
+        mapping = {'NAT': 'nat', 'LAB': 'lab', 'GP': 'grn', 'ACT': 'act', 'NZF': 'nzf', 'TPMAO': 'tpm', 'MAOR': 'tpm'}
+        colours = config('party-colours')
+        for p, n in seats:
+            colour = colours.get(mapping.get(refs['parties'][p]['abbrev']), {}).get('colour', '#595959')
+            content += f'<span class="segment" style="width:{Decimal(n)*100/house:.6f}%;background:{colour}" title="{escape(names[p])}: {n}"></span>'
+        content += f'<span class="majority" style="left:{Decimal(majority)*100/house:.6f}%"></span></div><figcaption>'
+        content += '; '.join(f'{escape(names[p])} {n}' for p, n in seats) + '</figcaption></figure>'
+        winners = [group for size in range(1, len(seats)+1) for group in combinations(seats, size)
+                   if sum(n for _, n in group) >= majority and all(sum(n for _, n in group)-n < majority for _, n in group)]
+        content += '<p>These combinations currently reach a majority; government formation is separate.</p>'
+        content += '<ul class="night-combinations">' + ''.join('<li>' + ' + '.join(escape(names[p]) for p, _ in g) + f': {sum(n for _, n in g)} seats</li>' for g in winners) + '</ul>'
+    content += f'<p class="night-votes"><strong>{row["valid_party_votes"]:,}</strong> valid party votes</p>'
+    caption = 'Party results: ' + row['mode'] + ', ' + (row.get('source_updated_local') or str(row['elapsed_seconds']) + ' seconds')
+    content += table(caption, ['Party', 'Valid party votes'] + (['Seats'] if 'reported_house' in row else []),
+                     [[escape(names[p]), f'{r["votes"]:,}'] + ([str(r['total_seats'])] if 'reported_house' in row else []) for p, r in parties], source=source)
+    clock = row.get('source_updated_local')
+    provenance = ('Source local timestamp ' + clock + ' (timezone unverified).' if clock else
+                  'Illustrative elapsed time ' + str(row['elapsed_seconds']) + ' seconds; scaled final party votes, not observed election-night counts.')
+    return (content + f'<div class="source-note" id="{source}"><p>Electoral Commission. {escape(provenance)} Copyright Electoral Commission; no open licence stated.</p>'
+            f'<p class="source-actions"><a href="{PREFIX}data/{path}">Snapshot JSON</a><a href="{PREFIX}data/{path[:-5]}.csv">CSV</a><a href="{RESULTS}">Official results</a></p></div>')
+
+
+def page(envs, built):
+    sequences = envs.get('night/index', {}).get('data', [])
+    before = f'<p class="countdown">{escape(election_countdown(built))}</p><p><a href="{PREFIX}vote/">How to vote</a></p>'
+    if not sequences:
+        return render('night', countdown=escape(election_countdown(built)), source=f'<p><a href="{RESULTS}">Official Electoral Commission results</a></p>')
+    links = '<nav aria-label="Packaged results">' + ''.join(f'<a href="?sequence={s["id"]}">{escape(s["mode"])} ({escape(s["id"])})</a>' for s in sequences) + '</nav>'
+    panels = []
+    for seq in sequences:
+        refs = envs[seq['reference_path'][:-5]]['data'][0]
+        rows = [envs[p[:-5]]['data'][0] for p in seq['snapshot_paths']]
+        frames = []
+        for i, (row, path) in enumerate(zip(rows, seq['snapshot_paths'])):
+            elapsed = row.get('elapsed_seconds', 0)
+            if len(rows) > 1 and 'elapsed_seconds' not in row:
+                elapsed = (datetime.fromisoformat(row['source_updated_local']) - datetime.fromisoformat(rows[0]['source_updated_local'])).total_seconds()
+            identity = seq['id'] + '-' + str(i)
+            frames.append(f'<div data-frame="{i}" data-elapsed="{elapsed}">' + snapshot(row, refs, identity, path) + '</div>')
+        panels.append(f'<section data-sequence="{seq["id"]}"><p class="night-mode">{escape(seq["mode"])} ({escape(seq["id"])})</p>' + ''.join(frames) + '</section>')
+    # Default is the dated final snapshot. All other states stay in inert templates.
+    default = next((s for s in sequences if s['id'] == '2023'), sequences[0])
+    selected = next(p for p in panels if f'data-sequence="{default["id"]}"' in p)
+    controls = ('<div id="night-controls" hidden><button type="button" id="night-play">Play</button> '
+                '<button type="button" id="night-reset">Reset</button> <label for="night-speed">Speed</label> '
+                '<select id="night-speed"><option value="1">1x</option><option value="10">10x</option><option value="60">60x</option></select>'
+                '<output id="night-clock" aria-live="polite">Paused</output></div>')
+    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + controls + '<div id="night-snapshot">' + selected.replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="Party results:', 'aria-label="Static party results:') + '</div>'
+            '<p>2026: Preliminary; official results due 27 November.</p>' + before + links +
+            ''.join(f'<template id="sequence-{s["id"]}">{p}</template>' for s, p in zip(sequences, panels)) +
+            f'</div><script type="module" src="{PREFIX}night.mjs"></script>')
