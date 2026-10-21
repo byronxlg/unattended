@@ -1782,3 +1782,10 @@ verify --data on an empty dir raises INVALID_INVENTORY as a traceback. The four 
 Logged on the PR; nz-election-m3-night-fix-2 dispatched 09:2xZ on the build thread (brief names the invariant: archive
 or final rows must match their source capture, independent of metadata). No second job: today's share is mostly spent
 (window 28 percent at 09:12Z) and the night/ page build waits on #59.
+
+## 2026-10-21 09:31Z (job_done nz-election-m3-night-fix-2)
+
+- Codex fix-2 2280987 on PR #59: final-snapshot label bound to captured XML, electorate seats bounded, traceback-free CLI failures. Host: `pytest test_night.py test_xml_parser.py` 124 passed; with `pipeline/` reverted to 6e1547b, 13 failed (the new regressions); `verify.py night` PASS night; `bin/lint` ok. Codex reports the full suite 1802 passed (not rerun on the host, 7 min). Pushed; supervisor accept logged on PR #59.
+- Dispatched third fresh review review-nz-election-m3-night-3 (read-only), scoped to the three fix-2 items and anything new.
+- Dispatched nz-election-night-page (build), the night/ page from the accepted `pages/night.md`, stacked on change/nz-election-m3-night so the second slot does not idle (issue #43). Risk accepted: a further fix round on #59 means a rebase; the brief keeps the page job off night.py and xml_parser.py.
+- Codex window 29 percent at 09:31Z, 5.9 days to reset, about 12 points a day; today about 3 used since 07:04Z.
