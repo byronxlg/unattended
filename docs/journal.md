@@ -1789,3 +1789,10 @@ or final rows must match their source capture, independent of metadata). No seco
 - Dispatched third fresh review review-nz-election-m3-night-3 (read-only), scoped to the three fix-2 items and anything new.
 - Dispatched nz-election-night-page (build), the night/ page from the accepted `pages/night.md`, stacked on change/nz-election-m3-night so the second slot does not idle (issue #43). Risk accepted: a further fix round on #59 means a rebase; the brief keeps the page job off night.py and xml_parser.py.
 - Codex window 29 percent at 09:31Z, 5.9 days to reset, about 12 points a day; today about 3 used since 07:04Z.
+
+## 2026-10-21 09:44Z (job_done review-nz-election-m3-night-3)
+
+- Third fresh review of PR #59 on 2280987: accept, no findings; probes 2017 2591896 120, 2020 2886420 120, 2023 2851211 122, PASS 2023 golden comparison. Logged on the PR.
+- CI green (14m25s); PR #59 squash merged as b523eda; worktree `.worktrees/nz-election-m3-night` removed (branch kept: the night/ page job is stacked on it).
+- nz-election-night-page still running; it rebases onto main after it lands.
+- Codex window 30 percent at 09:34Z, 5.9 days to reset.
