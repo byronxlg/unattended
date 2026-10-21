@@ -1743,3 +1743,12 @@ All workflows green since the last run (hourly and blog publish to 04:42Z, CI 02
 - PR #58 fresh review request changes, two Important: Herald-DigiPoll (4-14 Dec 2015 poll in pinned capture 801707892) in neither scores nor exclusions; month-only dates not checked against the month-end rule (pollster_scorecard.py:115). Supervisor agrees; both sent as nz-election-pollster-record-fix-1 on the build thread, with a completeness test and a rejection test; main's tests at the base sha stay.
 - Codex window 22 percent, about 7 of today's 13 points used. m3-night still waits for a free slot.
 - Next: merge #57 if the second review accepts and CI is green, link to Byron; host-verify pollster fix-1, second fresh review, merge #58; then m3-night; pages/parties.md accepts 21:30Z if silent.
+
+## 2026-10-21 08:09Z (job_done pollster-record-fix-1, review-vote-page-2)
+
+- No words from Byron since the last entry.
+- PR #57 vote/: second fresh review accept, no findings (it noted its screenshots were pre-fix). Supervisor built 3360258 on populated data (PASS build: 80 routes) and looked at vote/ at 390x844 and full page: first screen holds answers 1 to 3 in rank order (enrol by 25 Oct, official finder plus the countdown timeline, what to bring), question test pass. Nit for the next vote/ round: the 390 first screen starts at the h1, site header placement to check. CI green (12m23s), squash merged as 0dd53c8, worktree removed. Link sent to Byron (NOTE, tg send).
+- PR #58 pollster record fix-1 e1f4a05 (563 s): Herald-DigiPoll scored (20 records), completeness and month-end tests. Host: 1660 passed, lint ok. Pushed, verification logged on the PR, second fresh review review-nz-election-pollster-record-2 dispatched read-only.
+- nz-election-m3-night (data half, no page) rebased onto main 5cdcac8 (capture commit e6c73b6), brief sha references and the "(draft)" wording for pages/night.md updated (accepted 2026-10-20 14:33Z), dispatched in .worktrees/nz-election-m3-night.
+- Codex window 23 percent; about 9 of today's 13 points used.
+- Next: merge #58 if the second review accepts and CI is green; host-verify m3-night (pytest, verify night, replay 2,851,211 votes and House 122, no template diff), PR, fresh review; then the night/ page build from pages/night.md; pages/parties.md accepts 21:30Z if silent; confirm Pages for 0dd53c8 and vote/ live.
