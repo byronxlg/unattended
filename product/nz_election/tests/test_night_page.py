@@ -177,3 +177,51 @@ def test_nested_numeric_element_uses_xml_count():
     malformed = re.sub(rb'<votes>.*?</votes>', b'<votes><x>1</x></votes>', raw[paths[3]], count=1)
     with pytest.raises(ValueError, match='^XML_COUNT$'):
         xml_parser.election(malformed, refs)
+
+
+FREEZE_NOTICE = 'No publication between 00:00 and 19:00 NZDT on election day, under Electoral Act s197.'
+FREEZE_LAW = 'https://www.legislation.govt.nz/act/public/1993/0087/latest/DLM310065.html'
+
+
+@pytest.mark.parametrize('populated', [False, True])
+@pytest.mark.parametrize('built', ['2026-11-05T00:00:00Z', '2026-11-07T06:00:00Z'])
+def test_active_night_build_preserves_publication_freeze(tmp_path, populated, built):
+    from product.nz_election.pipeline.build import build
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.pipeline import night
+    from product.nz_election.pipeline.content_checks import Tree
+    data = tmp_path / 'data'
+    if populated:
+        daily_refresh(data, loaders={'night': night.load})
+    site = build(data, tmp_path / 'site/nz-election', built=built)
+    tree = Tree((site / 'night/index.html').read_text())
+    frames = [n for n in tree.nodes if 'data-frame' in n.attrs]
+    assert bool(frames) == populated
+    night_sources = [n for n in tree.nodes if n.attrs.get('id') == 'source-night']
+    for frame in frames:
+        notes = [n for n in frame.children if not isinstance(n, str) and n.attrs.get('class') == 'source-note']
+        assert len(notes) == 1
+        night_sources.extend(notes)
+    assert night_sources, 'Active night renderer must supply a source note'
+    for note in night_sources:
+        assert FREEZE_NOTICE in note.text
+        links = {link.attrs.get('href') for child in note.children
+                 if not isinstance(child, str) and child.tag == 'p' and child.attrs.get('class') == 'source-actions'
+                 for link in child.children if not isinstance(link, str) and link.tag == 'a'}
+        assert FREEZE_LAW in links
+        assert 'https://www.electionresults.govt.nz/' in links
+
+
+@pytest.mark.parametrize('removed', [FREEZE_NOTICE, FREEZE_LAW])
+def test_route_gate_independently_requires_night_publication_freeze(tmp_path, monkeypatch, removed):
+    from product.nz_election.pipeline.build import build
+    from product.nz_election.pipeline import night_page
+    from product.nz_election.pipeline.route_checks import check_site
+    built = '2026-11-05T00:00:00Z'
+    site = build(tmp_path / 'absent', tmp_path / 'site/nz-election', built=built)
+    path = site / 'night/index.html'
+    path.write_text(path.read_text().replace(removed, ''))
+    original = night_page.page
+    monkeypatch.setattr(night_page, 'page', lambda envs, built: original(envs, built).replace(removed, ''))
+    with pytest.raises(ValueError, match='night publication freeze notice'):
+        check_site(site, {})

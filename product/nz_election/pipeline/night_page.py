@@ -7,6 +7,8 @@ from .build import PREFIX, table, render, config
 from .presentation import election_countdown
 
 RESULTS = 'https://www.electionresults.govt.nz/'
+LAW = 'https://www.legislation.govt.nz/act/public/1993/0087/latest/DLM310065.html'
+FREEZE_NOTICE = 'No publication between 00:00 and 19:00 NZDT on election day, under Electoral Act s197.'
 
 
 def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=None):
@@ -61,18 +63,21 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
     clock = row.get('source_updated_local')
     provenance = ('Source local timestamp ' + clock + ' (timezone unverified).' if clock else
                   'Illustrative elapsed time ' + str(row['elapsed_seconds']) + ' seconds; scaled final party votes, not observed election-night counts.')
-    return (content + f'<div class="source-note" id="{source}"><p>Electoral Commission. {escape(provenance)} Copyright Electoral Commission; no open licence stated.</p>'
-            f'<p class="source-actions"><a href="{PREFIX}data/{path}">Snapshot JSON</a><a href="{PREFIX}data/{path[:-5]}.csv">CSV</a><a href="{RESULTS}">Official results</a></p></div>')
+    return (content + f'<div class="source-note" id="{source}"><p>Electoral Commission. {escape(provenance)} Copyright Electoral Commission; no open licence stated.</p><p>{FREEZE_NOTICE}</p>'
+            f'<p class="source-actions"><a href="{PREFIX}data/{path}">Snapshot JSON</a><a href="{PREFIX}data/{path[:-5]}.csv">CSV</a><a href="{RESULTS}">Official results</a><a href="{LAW}">Electoral Act s197</a></p></div>')
 
 
 def page(envs, built):
     sequences = envs.get('night/index', {}).get('data', [])
     pre_close = datetime.fromisoformat(built.replace('Z', '+00:00')) < datetime.fromisoformat('2026-11-07T19:00:00+13:00')
     before = f'<p class="countdown">{escape(election_countdown(built))}</p><p><a href="{PREFIX}vote/">How to vote</a></p>'
+    absent_source = (f'<div class="source-note" id="source-night"><p>{FREEZE_NOTICE}</p>'
+                     f'<p class="source-actions"><a href="{LAW}">Electoral Act s197</a>'
+                     f'<a href="{RESULTS}">Official Electoral Commission results</a></p></div>')
     if not sequences and not pre_close:
-        return f'<section class="night-page"><p><a href="{RESULTS}">Official Electoral Commission results</a></p></section>'
+        return f'<section class="night-page">{absent_source}</section>'
     if not sequences:
-        return render('night', countdown=escape(election_countdown(built)), source=f'<p><a href="{RESULTS}">Official Electoral Commission results</a></p>')
+        return render('night', countdown=escape(election_countdown(built)), source=absent_source)
     links = '<nav aria-label="Packaged results">' + ''.join(f'<a href="?sequence={s["id"]}">{escape(s["mode"])} ({escape(s["id"])})</a>' for s in sequences) + '</nav>'
     panels = []
     for seq in sequences:
