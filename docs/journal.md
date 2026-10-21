@@ -1835,3 +1835,10 @@ or final rows must match their source capture, independent of metadata). No seco
 ## 2026-10-21 11:27Z (job_done nz-election-night-page-fix-3)
 
 fix-3 2a2c506 (s197 freeze notice and links restored in every night phase and replay frame; route gate in route_checks.py; regressions fail on eb4a0d0 per Codex). Host: test_night_page.py and test_night.py 73 passed with host Chromium, lint ok. Pushed, supervisor accept logged on PR #60, third fresh review review-nz-election-night-page-3 dispatched, CI pending. Codex window 36 percent. Next: merge #60 if accept and CI green, link to Byron, confirm Pages for b523eda; share spent until 07:05Z 22 Oct; electorate detail data for the night map next.
+
+## 2026-10-21 11:39Z (job_done review-nz-election-night-page-3)
+
+- PR #60 third fresh review: request changes, one Important (browser acceptance and 390/1280 screenshots absent; the Codex sandbox cannot launch Chromium). Freeze finding confirmed resolved by the reviewer (probe PASS 10 phase cases, notice absent on eb4a0d0).
+- Supervisor addressed it on the host: build of 2a2c506 on the live data branch PASS build: 80 routes; night/ full page at 390x844 and 1280x800 looked at, no horizontal overflow; h1, countdown (16 days), How to vote, s197 sentence with its link, EC results link, in pages/night.md's before-night order. Accept logged on the PR.
+- CI green (13m48s, now with Chromium). PR #60 squash merged as 687ee8b, worktree and branch removed. Link sent to Byron.
+- Codex window 37 percent, resets in 5.8 days; today's share spent, no new builds until 07:05Z 22 Oct. Next: confirm Pages for 687ee8b; electorate detail data for the night map (question 3 of pages/night.md) as the next data job on the next share; social and markets dailies and the hourly checked each run.
