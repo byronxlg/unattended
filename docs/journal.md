@@ -1796,3 +1796,11 @@ or final rows must match their source capture, independent of metadata). No seco
 - CI green (14m25s); PR #59 squash merged as b523eda; worktree `.worktrees/nz-election-m3-night` removed (branch kept: the night/ page job is stacked on it).
 - nz-election-night-page still running; it rebases onto main after it lands.
 - Codex window 30 percent at 09:34Z, 5.9 days to reset.
+
+## 2026-10-21 09:58Z (job_done nz-election-night-page)
+
+- nz-election-night-page b2e960b: national results, paused replay controls, XML parser, 20 screenshot states; Codex reported 1805 passed, 2 errors (Chromium blocked in its sandbox), PASS all, lint ok. Electorate map and table absent: the data half has no electorate leader or margin rows (accepted for now; electorate detail data is a follow-up before election night).
+- Rebased onto main (stack base 2280987 dropped after the PR #59 squash) as ae48859, branch not yet pushed.
+- Host rerun of the two Chromium tests: both fail at night_browser.py:74, not in setup. At speed x60 after 10 s the snapshot shows the 300 s frame (1,425,602 votes), not the end frame (2,851,211). Codex's "sandbox only" reading was wrong; a browser-only check hid a real replay defect.
+- nz-election-night-page-fix-1 dispatched on the build thread (followup-1.md): find the scheduler cause in web/night.mjs, add a Node fake-clock test that fails on ae48859, browser assertions unchanged.
+- Codex window 32 percent (20 at the 07:04Z window day start): today's share is spent; fix rounds on in-flight work only.
