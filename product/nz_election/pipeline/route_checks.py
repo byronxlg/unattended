@@ -2,7 +2,7 @@
 import json
 from html import escape
 from .build import config, home_presentation, PREFIX
-from .route_cards import route_key, summary, ORIGIN, night, card as render_card
+from .route_cards import route_key, summary, ORIGIN, card as render_card
 from product.nz_election.tests.design_checks import Document, provenance
 
 
@@ -38,7 +38,11 @@ def check_site(site, envs):
         require(og == render_card(route, envs, home, built), 'OG document content')
         require('<h1 ' in og and 'source-note' in og, 'OG content and source')
         if path == 'night/':
-            require(night(built) in html, 'night countdown, availability and publication freeze')
+            from .night_page import page
+            require('No publication between 00:00 and 19:00 NZDT on election day, under Electoral Act s197.' in html
+                    and 'href="https://www.legislation.govt.nz/act/public/1993/0087/latest/DLM310065.html"' in html,
+                    'night publication freeze notice')
+            require(page(envs, built) in html, 'night packaged results or absent countdown')
         if path.startswith('electorates/') and path != 'electorates/':
             row = next(r for r in envs.get('electorates', {}).get('data', config('electorates')) if path == 'electorates/' + r['slug'] + '/')
             require('id="candidates-title"' in html and 'class="electorate-top"' in html, 'electorate overview and candidate anchor')

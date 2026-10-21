@@ -336,8 +336,14 @@ def verify_night(envs, root, *, data=None):
         daily_refresh(data)
     elif not (data / 'night/index.json').is_file():
         raise ValueError('MISSING_NIGHT_FAMILY')
-    export.validate_bundle(data)
+    validated = export.validate_bundle(data)
     check(data)
+    from product.nz_election.pipeline.night_page import page
+    from product.nz_election.pipeline.m3_checks import check_night_markup
+    from product.nz_election.pipeline.landmark_checks import check_page
+    html = page(validated, '2026-10-21T00:00:00Z')
+    check_night_markup(html, validated)
+    check_page(html)
 
 
 def main():

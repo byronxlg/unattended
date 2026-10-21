@@ -53,7 +53,30 @@ def check_markup(html, envs, historical=False):
     return True
 
 
+def check_night_markup(html, envs):
+    from product.nz_election.tools.check_visible_text import check_absent_text
+    check_absent_text(html, 'night')
+    parser = Content()
+    parser.feed(html)
+    present = bool(envs.get('night/index', {}).get('data'))
+    modules = [attrs for _, attrs in parser.nodes if 'data-sequence' in attrs]
+    if bool(modules) != present:
+        raise ValueError('M3_NIGHT_PRESENCE')
+    if not present and any(tag in {'figure', 'svg', 'table', 'progress', 'canvas'} for tag, _ in parser.nodes):
+        raise ValueError('M3_EMPTY_NIGHT')
+    if present:
+        for seq in envs['night/index']['data']:
+            if seq['mode'] not in html:
+                raise ValueError('M3_NIGHT_MODE')
+            for path in seq['snapshot_paths']:
+                row = envs[path[:-5]]['data'][0]
+                if f'{row["valid_party_votes"]:,}' not in html:
+                    raise ValueError('M3_NIGHT_BACKING_ROWS')
+    return True
+
+
 def check_site(site, envs):
+    check_night_markup((site / 'night/index.html').read_text(), envs)
     html = (site / 'campaign/index.html').read_text()
     return check_markup(html, envs, 'Offline verification: historical 2023' in html)
 

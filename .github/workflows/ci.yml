@@ -18,6 +18,8 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - name: Lint
         run: bin/lint
+      - name: Install Chromium for browser tests
+        run: uv run --with 'playwright>=1.51,<2' python -m playwright install --with-deps chromium
       - name: Tests
         run: |
           if ls tests/test_*.py >/dev/null 2>&1; then

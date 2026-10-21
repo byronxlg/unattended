@@ -564,7 +564,8 @@ def main():
                     page.close()
                 nojs.close()
                 context.close()
-            additional = ([] if args.og_only else state_images(browser, args.out) + map_images + advance_images(browser, args.out) + vote_images(browser, args.out, site / 'nz-election/data')) + extra_images(browser, site, origin, args.out, args.og_only)
+            from product.nz_election.tests.night_browser import images as night_images, STATES as NIGHT_STATES, SIZES as NIGHT_SIZES
+            additional = ([] if args.og_only else night_images(browser, args.out) + state_images(browser, args.out) + map_images + advance_images(browser, args.out) + vote_images(browser, args.out, site / 'nz-election/data')) + extra_images(browser, site, origin, args.out, args.og_only)
             browser.close()
         if not args.og_only:
             for width in (390, 1280):
@@ -572,7 +573,7 @@ def main():
                 assert len(captured) == len(set(captured)) == expected_count
                 assert set(captured) == {PREFIX + 'nz-election/' + r['path'] for r in routes}
         if not args.og_only and has_geography and has_baseline:
-            assert len(manifest) + len(additional) == 300 + len(ADVANCE_STATES) * len(ADVANCE_SIZES) + 6, 'IMAGE_INVENTORY'
+            assert len(manifest) + len(additional) == 300 + len(ADVANCE_STATES) * len(ADVANCE_SIZES) + 6 + len(NIGHT_STATES) * len(NIGHT_SIZES), 'IMAGE_INVENTORY'
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()

@@ -559,7 +559,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
             raise ValueError('INVALID_ROUTES')
         primary_routes = [dict(r, label={'': 'Overview', 'polls/': 'Polls', 'night/': 'Night', 'vote/': 'Vote'}.get(r['path'], r['label'])) for r in routes if r['path'] in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'methods/'}]
         routes = routes + [dict(path='electorates/' + r['slug'] + '/', label=r['name']) for r in config('electorates')]
-        from product.nz_election.pipeline.route_cards import route_key, summary, card, night, ORIGIN
+        from product.nz_election.pipeline.route_cards import route_key, summary, card, ORIGIN
         keys = [route_key(r["path"]) for r in routes]
         if len(set(keys)) != len(routes):
             raise ValueError("DUPLICATE_ROUTE_KEY")
@@ -584,7 +584,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                 from product.nz_election.pipeline.vote_page import page
                 body = page(built)
             elif slug == 'night/':
-                body = night(built)
+                from product.nz_election.pipeline.night_page import page
+                body = page(envs, built)
             elif slug == 'electorates/':
                 body = electorates_page(envs, built)
             elif slug.startswith('electorates/'):
@@ -606,7 +607,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                      'Proof of concept: what X says about the parties' if slug == 'social/poc/' else route['label'])
             heading = ('' if slug in {'', 'vote/'} else
                        '<h1>What do the polls tell us?</h1>' + ('<p aria-describedby="source-seats">' + escape(home['title']) + '</p>' if home['result'] else '') if slug == 'polls/' else
-                       '<h1>' + escape({'night/': 'When will the results arrive?', 'electorates/': 'Who is standing in your electorate?', 'methods/': 'How are these numbers calculated?', 'downloads/': 'Where does the data come from?', 'campaign/': 'What is happening in the campaign?', 'social/poc/': 'What are people posting about the parties?'}.get(slug, title)) + '</h1>')
+                       '<h1>' + escape({'night/': 'Election night results', 'electorates/': 'Who is standing in your electorate?', 'methods/': 'How are these numbers calculated?', 'downloads/': 'Where does the data come from?', 'campaign/': 'What is happening in the campaign?', 'social/poc/': 'What are people posting about the parties?'}.get(slug, title)) + '</h1>')
             title, description = summary(route, envs, home, built)
             key = route_key(slug)
             cards.append(dict(route=slug, key=key, title=title, description=description, html='og/' + key + '.html', png='og/' + key + '.png'))
@@ -625,6 +626,9 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
             shutil.copyfile(PRODUCT / 'web' / asset, stage / asset)
         for page in stage.rglob('*.html'):
             validate_scripts(page.read_text())
+        shutil.copyfile(PRODUCT / 'web/night.css', stage / 'night.css')
+        shutil.copyfile(PRODUCT / 'web/night.mjs', stage / 'night.mjs')
+        shutil.copyfile(PRODUCT / 'web/night-parser.mjs', stage / 'night-parser.mjs')
         shutil.copyfile(PRODUCT / 'web/coalitions.mjs', stage / 'coalitions.mjs')
         shutil.copyfile(PRODUCT / 'web/styles.css', stage / 'styles.css')
         shutil.copytree(PRODUCT / 'web/fonts', stage / 'fonts')
