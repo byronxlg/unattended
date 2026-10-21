@@ -1735,3 +1735,11 @@ All workflows green since the last run (hourly and blog publish to 04:42Z, CI 02
 - PR #57 fresh review request changes: (1) no screenshots looked at, closed by the supervisor's look above; (2) answer-3 harness check reads only the bottom coordinate, a hidden answer passes; (3) answer-3 copy hardcoded in vote_page.py, snapshot only toggles it. Items 2 and 3 sent as nz-election-vote-page-fix-1 on the build thread (followup-1.md).
 - pollster-record-2 49da422: 19 scored pollster-years, snapshot, loader, tests only; host 187 passed in test_pollster_scorecard.py, lint ok. Pushed, PR #58 opened, supervisor accept-pending logged, fresh review review-nz-election-pollster-record dispatched.
 - Codex window 20 percent, about 13 points per day allowed. m3-night waits for a free slot (two jobs running).
+
+## 2026-10-21 07:52Z (job_done vote-page-fix-1, review-pollster-record)
+
+- No words from Byron since the last entry.
+- vote-page fix-1 3360258 (466 s): answer-3 visibility check reads visibility, clipping and viewport, not only the bottom edge; guidance rendered from snapshot summaries. Host: 1466 passed, lint ok; real-time harness on 3228381 had finished PASS 80 routes 318 images. Pushed, supervisor review logged on PR #57, second fresh review review-nz-election-vote-page-2 dispatched read-only.
+- PR #58 fresh review request changes, two Important: Herald-DigiPoll (4-14 Dec 2015 poll in pinned capture 801707892) in neither scores nor exclusions; month-only dates not checked against the month-end rule (pollster_scorecard.py:115). Supervisor agrees; both sent as nz-election-pollster-record-fix-1 on the build thread, with a completeness test and a rejection test; main's tests at the base sha stay.
+- Codex window 22 percent, about 7 of today's 13 points used. m3-night still waits for a free slot.
+- Next: merge #57 if the second review accepts and CI is green, link to Byron; host-verify pollster fix-1, second fresh review, merge #58; then m3-night; pages/parties.md accepts 21:30Z if silent.
