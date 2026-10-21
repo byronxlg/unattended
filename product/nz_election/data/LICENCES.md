@@ -206,3 +206,39 @@ https://gamma-api.polymarket.com/events?slug=nz-election-national-party-of-seats
 Source: Polymarket. Subject to Polymarket terms. No open licence asserted.
 https://gamma-api.polymarket.com/events?slug=which-parties-will-be-part-of-the-next-government-of-new-zealand
 Source: Polymarket. Subject to Polymarket terms. No open licence asserted.
+
+Night: offline archive and illustrative replay.
+https://electionresults.govt.nz/electionresults_2023/xml/election.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://electionresults.govt.nz/electionresults_2023/xml/parties.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://electionresults.govt.nz/electionresults_2023/xml/candidates.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://electionresults.govt.nz/electionresults_2023/xml/electorates.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://electionresults.govt.nz/electionresults_2017/xml/electorates.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://electionresults.govt.nz/electionresults_2017/xml/parties.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://electionresults.govt.nz/electionresults_2017/xml/candidates.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://electionresults.govt.nz/electionresults_2017/xml/election.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://electionresults.govt.nz/electionresults_2020/xml/electorates.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://electionresults.govt.nz/electionresults_2020/xml/parties.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://electionresults.govt.nz/electionresults_2020/xml/candidates.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://electionresults.govt.nz/electionresults_2020/xml/election.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://mediademo.electionresults.govt.nz/xml/electorates.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://mediademo.electionresults.govt.nz/xml/parties.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://mediademo.electionresults.govt.nz/xml/candidates.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://mediademo.electionresults.govt.nz/xml/election.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
+https://mediademo.electionresults.govt.nz/xml/election.xml
+Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
