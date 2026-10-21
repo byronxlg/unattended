@@ -10,7 +10,7 @@ from product.nz_election.tests.test_home import populated
 
 def test_markets_keep_amounts_in_linked_methods_section(populated):
     envs, site = populated
-    assert check_site(site) == 79
+    assert check_site(site) == 80
     html = (site / 'methods/index.html').read_text()
     module = html.split('<section id="markets"', 1)[1].split('</section>', 1)[0]
     records = html.split('<section id="market-observations"', 1)[1].split('</section>', 1)[0]

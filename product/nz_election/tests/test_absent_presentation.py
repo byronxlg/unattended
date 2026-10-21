@@ -16,7 +16,7 @@ def test_absence_gate_rejects_text_and_alternatives(text):
 
 def test_populated_public_routes_and_map(populated):
     envs, site = populated
-    assert check_site(site) == 79
+    assert check_site(site) == 80
     html = (site / 'index.html').read_text()
     assert html.count('<a href="/unattended/nz-election/electorates/') >= 71
     assert '2023 holders on original boundaries' in html

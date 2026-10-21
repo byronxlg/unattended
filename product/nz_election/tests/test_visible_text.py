@@ -7,7 +7,7 @@ from product.nz_election.tools.check_visible_text import VisibleText, check_site
 
 def test_populated_routes_have_bounded_visible_text(populated):
     _, site = populated
-    assert check_site(site) == 79
+    assert check_site(site) == 80
     downloads = (site / 'downloads/index.html').read_text()
     assert '<div><p><strong>Full manifest record (stored UTC)</strong></p>' in downloads
     assert '<pre>' in downloads and '"bytes":' in VisibleText(downloads).text

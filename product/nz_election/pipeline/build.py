@@ -2,7 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = []
 # ///
-"""Render 79 offline pages, validating everything before replacing product output."""
+"""Render 80 offline pages, validating everything before replacing product output."""
 import argparse
 from datetime import datetime
 from decimal import Decimal
@@ -555,9 +555,9 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                          data_available='polls' in envs), [], run_url, sha)
         export.pair(stage, 'build-manifest', manifest)
         routes = config('routes')
-        if len(routes) != 8 or {r['path'] for r in routes} != {'', 'polls/', 'electorates/', 'night/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
+        if len(routes) != 9 or {r['path'] for r in routes} != {'', 'polls/', 'electorates/', 'night/', 'vote/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
             raise ValueError('INVALID_ROUTES')
-        primary_routes = [dict(r, label={'': 'Overview', 'polls/': 'Polls', 'night/': 'Night'}.get(r['path'], r['label'])) for r in routes if r['path'] in {'', 'polls/', 'electorates/', 'night/', 'methods/'}]
+        primary_routes = [dict(r, label={'': 'Overview', 'polls/': 'Polls', 'night/': 'Night', 'vote/': 'Vote'}.get(r['path'], r['label'])) for r in routes if r['path'] in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'methods/'}]
         routes = routes + [dict(path='electorates/' + r['slug'] + '/', label=r['name']) for r in config('electorates')]
         from product.nz_election.pipeline.route_cards import route_key, summary, card, night, ORIGIN
         keys = [route_key(r["path"]) for r in routes]
@@ -580,6 +580,9 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                 body = page(envs, built, historical_advance)
                 from product.nz_election.pipeline.m3_checks import check_markup
                 check_markup(body, envs, historical_advance)
+            elif slug == 'vote/':
+                from product.nz_election.pipeline.vote_page import page
+                body = page(built)
             elif slug == 'night/':
                 body = night(built)
             elif slug == 'electorates/':
@@ -601,7 +604,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
             target.mkdir(parents=True, exist_ok=True)
             title = ('New Zealand votes on 7 November 2026' if slug == '' else
                      'Proof of concept: what X says about the parties' if slug == 'social/poc/' else route['label'])
-            heading = ('' if slug == '' else
+            heading = ('' if slug in {'', 'vote/'} else
                        '<h1>What do the polls tell us?</h1>' + ('<p aria-describedby="source-seats">' + escape(home['title']) + '</p>' if home['result'] else '') if slug == 'polls/' else
                        '<h1>' + escape({'night/': 'When will the results arrive?', 'electorates/': 'Who is standing in your electorate?', 'methods/': 'How are these numbers calculated?', 'downloads/': 'Where does the data come from?', 'campaign/': 'What is happening in the campaign?', 'social/poc/': 'What are people posting about the parties?'}.get(slug, title)) + '</h1>')
             title, description = summary(route, envs, home, built)
@@ -612,6 +615,10 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                                image=ORIGIN + PREFIX + cards[-1]['png'], heading=heading, prefix=PREFIX, nav=nav, body=body,
                                directory=directory_links(envs) if slug == '' else '',
                                built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.')
+            if slug == 'vote/':
+                # Navigation follows the task so first-screen actions stay on EC services.
+                header = re.search(r'<header>.*?</header>', page_html, flags=re.S)[0]
+                page_html = page_html.replace(header, '').replace('<footer>', header + '<footer>')
             (target / 'index.html').write_text(page_html)
         (stage / 'og-manifest.json').write_text(export.canonical(cards) + '\n')
         for asset in ('favicon.svg', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'):
@@ -638,7 +645,7 @@ def main():
     args = parser.parse_args()
     build(args.data, args.out, built=args.now, data_sha=args.data_sha or os.environ.get('NZ_DATA_SHA') or None,
           sha=os.environ.get('NZ_CODE_SHA'), historical_advance=args.historical_advance)
-    print('PASS build: 79 routes')
+    print('PASS build: 80 routes')
 
 
 if __name__ == '__main__':

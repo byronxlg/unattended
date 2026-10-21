@@ -12,6 +12,10 @@
     "label": "Electorates"
   },
   {
+    "path": "vote/",
+    "label": "How to vote"
+  },
+  {
     "path": "night/",
     "label": "Election night"
   },
