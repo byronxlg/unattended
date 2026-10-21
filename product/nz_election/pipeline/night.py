@@ -131,6 +131,25 @@ def validate_row(row, stem):
         raise ValueError('NIGHT_ROW') from None
 
 
+def validate_capture(row, env, cache):
+    if row['mode'] != MODES['final']:
+        return
+    if len(row['source_ref']) != 1:
+        raise ValueError('NIGHT_CAPTURE_MISMATCH')
+    source = row['source_ref'][0]
+    if source not in cache:
+        prefix = source.rsplit('/', 1)[0] + '/'
+        paths = {source} | {prefix + name + '.xml' for name in ('parties', 'electorates', 'candidates')}
+        # The committed captures are the trust anchor, not the package's editable metadata.
+        raw = fixtures.captures(root=fixtures.ROOT, paths=paths)
+        refs = xml_parser.references(*(raw[prefix + name + '.xml'] for name in ('parties', 'electorates', 'candidates')))
+        cache[source] = xml_parser.election(raw[source], refs), {name: export.digest(data) for name, data in raw.items()}
+    captured, hashes = cache[source]
+    if (any(env.get('input_hashes', {}).get(name) != digest for name, digest in hashes.items())
+            or any(row.get(field) != value for field, value in captured.items())):
+        raise ValueError('NIGHT_CAPTURE_MISMATCH')
+
+
 def validate(root):
     root = Path(root)
     folder = root / 'night'
@@ -149,6 +168,7 @@ def validate(root):
         index = index_env['data']
         expected = {'night/index.json', 'night/index.csv'}
         snapshots, ids = set(), set()
+        capture_cache = {}
         for seq in index:
             validate_row(seq, 'night/index')
             if seq['id'] in ids:
@@ -179,8 +199,10 @@ def validate(root):
                     raise ValueError('NIGHT_REFERENCE')
                 if row['reference_version'] != seq['reference_version']:
                     raise ValueError('NIGHT_REFERENCE')
-                if path in seq['snapshot_paths'] and row['mode'] != seq['mode']:
-                    raise ValueError('NIGHT_MODE')
+                if path in seq['snapshot_paths']:
+                    if row['mode'] != seq['mode']:
+                        raise ValueError('NIGHT_MODE')
+                    validate_capture(row, env, capture_cache)
             if seq['mode'] == 'Final snapshot' and len(seq['snapshot_paths']) != 1:
                 raise ValueError('NIGHT_INDEX')
         if not index or actual != expected:

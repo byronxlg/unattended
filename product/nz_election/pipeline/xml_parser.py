@@ -106,7 +106,9 @@ def election(raw, refs):
     if set(parties) - refs['parties'].keys():
         raise ValueError('XML_REFERENCE')
     valid = sum(p['votes'] for p in parties.values())
-    if valid > stats['total_votes_cast'] or stats['total_electorates_final'] > len(refs['electorates']):
+    electorate_count = len(refs['electorates'])
+    if (valid > stats['total_votes_cast'] or stats['total_electorates_final'] > electorate_count
+            or sum(p['candidate_seats'] for p in parties.values()) > electorate_count):
         raise ValueError('XML_TOTAL')
     for row in parties.values():
         # EC supplies truncated percentage strings, not a denominator of votes cast.

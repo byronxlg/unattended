@@ -346,6 +346,8 @@ def main():
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     args = parser.parse_args()
+    if args.check == 'night' and args.data and not (args.data / 'night/index.json').is_file():
+        raise ValueError('MISSING_NIGHT_FAMILY')
     checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets, 'advance': verify_advance, 'night': verify_night}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
@@ -407,4 +409,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except ValueError as exc:
+        raise SystemExit('FAIL ' + sys.argv[1] + ': ' + str(exc)) from None

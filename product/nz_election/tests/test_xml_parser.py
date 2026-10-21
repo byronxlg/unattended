@@ -86,3 +86,16 @@ def test_xml_malformed_counts_through_parse_path(raw, value, field):
     root.find('.//' + field).text = value
     with pytest.raises(ValueError, match='^XML_COUNT$'):
         xml.election(ET.tostring(root), refs(raw))
+
+
+@pytest.mark.parametrize('distribution', ['single-party', 'combined'])
+def test_xml_electorate_seats_bounded_by_archive_registry(raw, distribution):
+    import xml.etree.ElementTree as ET
+    root = ET.fromstring(raw['ec-2023-xml/election.xml'])
+    parties = root.findall('.//party')
+    for index, party in enumerate(parties):
+        seats = (999 if index == 0 else 0) if distribution == 'single-party' else (40 if index < 2 else 0)
+        party.find('candidate_seats').text = str(seats)
+        party.find('total_seats').text = str(seats + int(party.findtext('party_seats')))
+    with pytest.raises(ValueError, match='^XML_TOTAL$'):
+        xml.election(ET.tostring(root), refs(raw))

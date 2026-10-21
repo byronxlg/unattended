@@ -58,3 +58,13 @@ Empty and whitespace-only count elements use `XML_COUNT`, as do other malformed 
 
 The aggregate `all` gate retains its optional-family contract: an absent night family is omitted
 from its checks and produces no PASS night line. The explicit `night` gate requires the family.
+
+Final snapshots are compared with the parsed committed archive XML, including party votes, seats,
+statistics, source timestamp and reference version. Claimed input hashes must match the verified
+XML and its three reference captures. This independent check raises `NIGHT_CAPTURE_MISMATCH` for
+synthetic or altered final rows, even if replay metadata was removed and package hashes regenerated.
+Keep those immutable captures available when validating retained packages.
+Summed electorate seats cannot exceed that archive's electorate registry (`XML_TOTAL`); with
+nonnegative seat counts, this also bounds every individual party's electorate seats.
+The CLI prints `FAIL night: MISSING_NIGHT_FAMILY` and exits nonzero without a traceback when an
+explicit night check receives an empty directory. Other validation errors use the same FAIL format.

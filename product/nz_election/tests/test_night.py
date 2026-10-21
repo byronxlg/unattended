@@ -200,3 +200,63 @@ def test_demo_mode_rejects_malformed_or_incompatible_labels(mode):
     row['mode'] = mode
     with pytest.raises(ValueError, match='^NIGHT_MODE$'):
         night.validate_row(row, seq['snapshot_paths'][0][:-5])
+
+
+def write_unchecked_night(root, loaded):
+    """Serialize self-consistent bytes without invoking the validator under test."""
+    from copy import deepcopy
+    payloads, sources, hashes = deepcopy(loaded)
+    for stem in sorted(payloads, key=lambda s: s == 'night/index'):
+        if stem == 'night/index':
+            for seq in payloads[stem]:
+                seq['files'] = {name: export.digest((root / name).read_bytes())
+                                for path in [seq['reference_path']] + seq['snapshot_paths']
+                                for name in (path, path[:-5] + '.csv')}
+        env = export.envelope(payloads[stem], sources, 'offline-verification', 'test',
+                              inputs=hashes, method='night-v1', generated='2026-10-21T00:00:00Z')
+        path = root / (stem + '.json')
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(export.canonical(env) + '\n')
+        path.with_suffix('.csv').write_bytes(export.csv_bytes(env))
+
+
+@pytest.mark.parametrize('entrypoint', ['prepare', 'validate'])
+def test_stripped_replay_cannot_impersonate_archive(tmp_path, entrypoint):
+    payloads, sources, hashes = night.load()
+    seq = next(s for s in payloads['night/index'] if s['id'] == 'illustrative-2023')
+    final = next(s for s in payloads['night/index'] if s['id'] == '2023')
+    row = payloads[seq['snapshot_paths'][0][:-5]][0]
+    assert row['valid_party_votes'] == 285114
+    del row['derivation']
+    del row['elapsed_seconds']
+    row['source_updated_local'] = payloads[final['snapshot_paths'][0][:-5]][0]['source_updated_local']
+    row['mode'] = seq['mode'] = 'Final snapshot'
+    seq['snapshot_paths'] = seq['snapshot_paths'][:1]
+    payloads = {'night/index': [seq], seq['reference_path'][:-5]: payloads[seq['reference_path'][:-5]],
+                seq['snapshot_paths'][0][:-5]: [row]}
+    loaded = payloads, sources, hashes
+    if entrypoint == 'validate':
+        write_unchecked_night(tmp_path, loaded)
+    with pytest.raises(ValueError, match='^NIGHT_CAPTURE_MISMATCH$'):
+        if entrypoint == 'prepare':
+            night.prepare(tmp_path, loaded, 'offline-verification', 'test', '2026-10-21T00:00:00Z')
+        else:
+            night.validate(tmp_path)
+
+
+@pytest.mark.parametrize('bad_hash', ['', None, {}, [], True, 1.5, 10**100, '異', '0' * 64])
+def test_final_capture_hash_is_verified(tmp_path, bad_hash):
+    loaded = night.load()
+    loaded[2]['ec-2023-xml/election.xml'] = bad_hash
+    write_unchecked_night(tmp_path, loaded)
+    with pytest.raises(ValueError, match='^(NIGHT_CAPTURE_MISMATCH|INEXACT_NUMBER)$'):
+        night.validate(tmp_path)
+
+
+def test_verify_empty_directory_reports_named_failure(tmp_path):
+    import subprocess
+    import sys
+    result = subprocess.run([sys.executable, '-m', 'product.nz_election.pipeline.verify',
+                             'night', '--data', str(tmp_path)], capture_output=True, text=True)
+    assert result.returncode != 0
+    assert result.stdout + result.stderr == 'FAIL night: MISSING_NIGHT_FAMILY\n'
