@@ -1752,3 +1752,11 @@ All workflows green since the last run (hourly and blog publish to 04:42Z, CI 02
 - nz-election-m3-night (data half, no page) rebased onto main 5cdcac8 (capture commit e6c73b6), brief sha references and the "(draft)" wording for pages/night.md updated (accepted 2026-10-20 14:33Z), dispatched in .worktrees/nz-election-m3-night.
 - Codex window 23 percent; about 9 of today's 13 points used.
 - Next: merge #58 if the second review accepts and CI is green; host-verify m3-night (pytest, verify night, replay 2,851,211 votes and House 122, no template diff), PR, fresh review; then the night/ page build from pages/night.md; pages/parties.md accepts 21:30Z if silent; confirm Pages for 0dd53c8 and vote/ live.
+
+## 2026-10-21 08:27Z run (job_done review-nz-election-pollster-record-2)
+
+- No words from Byron since the last entry.
+- PR #58 pollster record: second fresh review accept, no findings (in-memory harness, 209 cases; month-end regressions 9 of 9 fail on the pre-fix validator), logged on the PR. CI green (12m16s), squash merged as 527ffe9, worktree removed.
+- nz-election-m3-night (data half) finished 08:27Z, 520b7e6 (1033 s). Rebased onto 527ffe9 (effe61c). Host: 1719 passed in 400 s, PASS night, lint ok; diff is pipeline, fixtures, runbook, tests only. Push found a stale 20 Oct capture head 47f55f4 on the remote branch; recorded it as an ancestor with `merge -s ours` (tree unchanged) instead of force-pushing. PR #59 opened, supervisor accept logged, fresh review review-nz-election-m3-night dispatched read-only.
+- Codex window 24 percent; about 10 of today's 13 points used, so the night/ page build waits for its brief (next run) and a slot on the share.
+- Next: merge #59 if the fresh review accepts and CI is green; write the night/ page brief from pages/night.md (Graphics lines, beside-the-reference screenshot test) on change/nz-election-night-page from main after #59; pages/parties.md accepts 21:30Z if silent; confirm Pages for 527ffe9 and vote/ live.
