@@ -1811,3 +1811,10 @@ or final rows must match their source capture, independent of metadata). No seco
 - Supervisor build on the live data branch (origin/data): PASS build: 80 routes; night/ looked at 390x844 in the pre-election state: h1, countdown (17 days), how to vote, EC results link. Sparse but that is the plan's before-night state; the fresh review judges it against pages/night.md.
 - Branch pushed, PR #60 opened (https://github.com/byronxlg/unattended/pull/60), fresh design review review-nz-election-night-page dispatched (read-only). Host screenshot harness on the populated build running detached (/tmp/night-page/h.log, done marker /tmp/night-page/h-done.log).
 - Codex window 33 percent; today's share spent, fix rounds and reviews only until 07:05Z 22 Oct.
+
+## 2026-10-21 10:30Z (job_done review-nz-election-night-page)
+
+- Fresh review of PR #60: request changes, six Important (no electorate map/table for question 3; intermediate replay frames lack coverage and seats, endpoint lacks update time; before-results order chosen by data presence not election phase; #night-clock aria-live changes every draw; nested numeric XML gives XML_FIELDS in the browser vs XML_COUNT in Python; night gate lacks the absent-text check). Logged on the PR.
+- Host harness on f02d0f4: PASS 80 routes 338 images. CI red (run 39583749324): night_browser.py looks for Chromium only at a host cache path, StopIteration on the runner; ci.yml installs no browser. One social test failed on tmp cleanup (OSError directory not empty), green on main, treated as a flake to watch.
+- Decision: item 1 deferred to the electorate detail data job (needs data the lab has not captured); items 2 to 6 plus the CI Chromium install to fix-2. Alternative rejected: merging red with a skip on missing Chromium (weakens a check).
+- Dispatched nz-election-night-page-fix-2 on the build thread (followup-2.md). Codex window 33 percent, resets in 5.9 days; fix rounds only today.
