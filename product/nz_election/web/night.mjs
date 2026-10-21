@@ -32,17 +32,23 @@ if (typeof document !== 'undefined') {
     const play = document.querySelector('#night-play');
     const output = document.querySelector('#night-clock');
     controls.hidden = frames.length < 2;
+    let timer;
     function draw() {
+      clearTimeout(timer);
       const index = clock.tick();
       if (visible !== index) { section.replaceChildren(mode, frames[index]); visible = index; }
       play.textContent = clock.running ? 'Pause' : 'Play';
       const text = `${clock.running ? 'Playing' : 'Paused'}: ${Math.floor(clock.elapsed)} seconds`;
       if (frames.length > 1 && output.textContent !== text) output.textContent = text;
+      // Re-anchor draws after each interaction and include the exact replay endpoint.
+      if (clock.running) {
+        const remaining = (clock.times.at(-1) - clock.elapsed) * 1000 / clock.speed;
+        timer = setTimeout(draw, Math.min(100, remaining));
+      }
     }
     play.addEventListener('click', () => { if (clock.running) clock.pause(); else clock.play(); draw(); });
     document.querySelector('#night-reset').addEventListener('click', () => { clock.reset(); draw(); });
     document.querySelector('#night-speed').addEventListener('change', e => { clock.rate(Number(e.target.value)); draw(); });
     draw();
-    if (frames.length > 1) setInterval(draw, 100);
   }
 }

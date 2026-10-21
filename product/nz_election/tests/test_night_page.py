@@ -85,3 +85,8 @@ try{return parser[name](v)}catch(e){return e.message}
                 rows.append(str(exc))
         expected.append(rows)
     assert actual == expected
+
+
+def test_replay_scheduler_endpoint():
+    subprocess.run(['node', '--test', '--test-reporter=tap',
+                    str(Path(__file__).with_name('night_scheduler.test.mjs'))], check=True)
