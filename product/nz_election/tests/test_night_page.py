@@ -90,3 +90,90 @@ try{return parser[name](v)}catch(e){return e.message}
 def test_replay_scheduler_endpoint():
     subprocess.run(['node', '--test', '--test-reporter=tap',
                     str(Path(__file__).with_name('night_scheduler.test.mjs'))], check=True)
+
+
+@pytest.mark.parametrize('host_installed', [False, True])
+def test_browser_launch_uses_playwright_default_without_host_binary(tmp_path, monkeypatch, host_installed):
+    from types import SimpleNamespace
+    from product.nz_election.tests.night_browser import launch_chromium
+    executable = tmp_path / 'Library/Caches/ms-playwright/chromium_headless_shell-123/chrome-headless-shell-mac-arm64/chrome-headless-shell'
+    if host_installed:
+        executable.parent.mkdir(parents=True)
+        executable.touch()
+    monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))
+    calls = []
+    pw = SimpleNamespace(chromium=SimpleNamespace(launch=lambda **kwargs: calls.append(kwargs)))
+    launch_chromium(pw)
+    assert calls == ([{'executable_path': str(executable)}] if host_installed else [{}])
+
+
+@pytest.fixture
+def night_envs():
+    from product.nz_election.pipeline.night import load
+    payloads, _, _ = load()
+    return {key: {'data': rows} for key, rows in payloads.items()}
+
+
+@pytest.mark.parametrize('populated', [False, True])
+@pytest.mark.parametrize('built,before', [('2026-11-05T00:00:00Z', True),
+                                        ('2026-11-07T05:59:59Z', True),
+                                        ('2026-11-07T06:00:00Z', False),
+                                        ('2026-11-07T06:00:01Z', False)])
+def test_night_phase_uses_build_time(night_envs, populated, built, before):
+    html = page(night_envs if populated else {}, built)
+    assert ('class="countdown"' in html) == before
+    assert ('href="/unattended/nz-election/vote/"' in html) == before
+    if before and populated:
+        assert html.index('class="countdown"') < html.index('/vote/') < html.index('id="night-controls"') < html.index('id="night-snapshot"')
+
+
+def test_replay_frames_explain_coverage_without_inventing_data(night_envs):
+    from product.nz_election.pipeline.content_checks import Tree
+    from product.nz_election.pipeline.m3_checks import check_night_markup
+    html = page(night_envs, '2026-11-05T00:00:00Z')
+    check_night_markup(html, night_envs)
+    tree = Tree(html)
+    replay = next(n for n in tree.nodes if n.tag == 'template' and n.attrs['id'] == 'sequence-illustrative-2023')
+    frames = [n for n in replay.children[0].children if not isinstance(n, str) and 'data-frame' in n.attrs]
+    for index, frame in enumerate(frames):
+        context = next(n for n in frame.children if not isinstance(n, str) and n.attrs.get('class') == 'night-frame-context')
+        assert f'Replay frame {index+1} of 3, {index*5}:00 elapsed.' in context.text
+        if index < 2:
+            assert 'voting-place coverage and seats are published only in the final archive' in context.text
+            assert 'Results cover' not in frame.text and 'House 122' not in frame.text
+        else:
+            basis = night_envs['night/illustrative-2023/step-2']['data'][0]['derivation']['basis']
+            updated = night_envs[basis[:-5]]['data'][0]['source_updated_local']
+            assert f'Final archive updated {updated[11:16]} on {updated[:10]}' in context.text
+            assert 'House 122' in frame.text and '2,851,211' in frame.text
+
+
+@pytest.mark.parametrize('phrase', ['not available', 'not reported', 'pending', 'withheld', 'missing', 'not supplied', 'unavailable'])
+def test_night_presence_rejects_placeholder_text(night_envs, phrase):
+    from product.nz_election.pipeline.m3_checks import check_night_markup
+    html = page(night_envs, '2026-11-05T00:00:00Z')
+    check_night_markup(html, night_envs)
+    with pytest.raises(ValueError, match='ABSENT_TEXT'):
+        check_night_markup(html + '<p>' + phrase + '</p>', night_envs)
+
+
+def test_elapsed_clock_is_not_live(night_envs):
+    from product.nz_election.tests.design_checks import Document
+    nodes = {a.get('id'): (tag, a) for tag, a in Document(page(night_envs, '2026-11-05T00:00:00Z')).nodes if a.get('id')}
+    tag, clock = nodes['night-clock']
+    assert tag == 'span' and clock['aria-live'] == 'off'
+    assert 'role' not in clock
+    _, announcement = nodes['night-announcement']
+    assert announcement['role'] == 'status' and announcement['aria-live'] == 'polite'
+
+
+def test_nested_numeric_element_uses_xml_count():
+    import re
+    from product.nz_election.pipeline import fixtures, xml_parser
+    prefix = 'ec-2023-xml/'
+    paths = [prefix + name + '.xml' for name in ('parties', 'electorates', 'candidates', 'election')]
+    raw = fixtures.captures(paths=set(paths))
+    refs = xml_parser.references(*(raw[p] for p in paths[:3]))
+    malformed = re.sub(rb'<votes>.*?</votes>', b'<votes><x>1</x></votes>', raw[paths[3]], count=1)
+    with pytest.raises(ValueError, match='^XML_COUNT$'):
+        xml_parser.election(malformed, refs)

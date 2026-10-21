@@ -23,7 +23,13 @@ function fields(node, required) {
   if (children.length !== required.length || new Set(children.map(c=>c.tagName)).size !== required.length || children.some(c=>!required.includes(c.tagName))) fail('XML_FIELDS');
   const result = {};
   for (const child of children) {
-    const text = child.textContent || null;
+    // ElementTree's .text stops before the first nested element.
+    let leading = '';
+    for (const node of child.childNodes) {
+      if (node.nodeType === 1) break;
+      if (node.nodeType === 3 || node.nodeType === 4) leading += node.data;
+    }
+    const text = leading || null;
     if (counts.has(child.tagName)) count(text);
     if (child.children.length || child.attributes.length || !text?.trim()) fail('XML_FIELDS');
     result[child.tagName] = text;

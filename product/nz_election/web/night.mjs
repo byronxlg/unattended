@@ -31,11 +31,14 @@ if (typeof document !== 'undefined') {
     const controls = document.querySelector('#night-controls');
     const play = document.querySelector('#night-play');
     const output = document.querySelector('#night-clock');
+    const announcement = document.querySelector('#night-announcement');
     controls.hidden = frames.length < 2;
     let timer;
     function draw() {
       clearTimeout(timer);
+      const wasRunning = clock.running;
       const index = clock.tick();
+      if (wasRunning && !clock.running) announcement.textContent = 'Replay ended.';
       if (visible !== index) { section.replaceChildren(mode, frames[index]); visible = index; }
       play.textContent = clock.running ? 'Pause' : 'Play';
       const text = `${clock.running ? 'Playing' : 'Paused'}: ${Math.floor(clock.elapsed)} seconds`;
@@ -46,9 +49,13 @@ if (typeof document !== 'undefined') {
         timer = setTimeout(draw, Math.min(100, remaining));
       }
     }
-    play.addEventListener('click', () => { if (clock.running) clock.pause(); else clock.play(); draw(); });
-    document.querySelector('#night-reset').addEventListener('click', () => { clock.reset(); draw(); });
-    document.querySelector('#night-speed').addEventListener('change', e => { clock.rate(Number(e.target.value)); draw(); });
+    play.addEventListener('click', () => {
+      if (clock.running) clock.pause(); else clock.play();
+      draw();
+      announcement.textContent = clock.running ? `Replay playing at ${clock.speed}x.` : clock.elapsed === clock.times.at(-1) ? 'Replay ended.' : 'Replay paused.';
+    });
+    document.querySelector('#night-reset').addEventListener('click', () => { clock.reset(); draw(); announcement.textContent = 'Replay reset and paused.'; });
+    document.querySelector('#night-speed').addEventListener('change', e => { clock.rate(Number(e.target.value)); draw(); announcement.textContent = `Replay speed ${clock.speed}x.`; });
     draw();
   }
 }

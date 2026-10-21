@@ -3,10 +3,12 @@
 # dependencies = ["playwright>=1.51,<2"]
 # ///
 """Deterministic replay, browser XML parity and exact screenshot states."""
+import base64
 from decimal import Decimal
 from functools import partial
 from http.server import ThreadingHTTPServer
 import json
+import re
 from pathlib import Path
 import sys
 import tempfile
@@ -28,8 +30,8 @@ def images(browser, out):
     with tempfile.TemporaryDirectory(prefix='night-browser-') as tmp:
         root = Path(tmp)
         daily_refresh(root / 'data', loaders={'night': night.load})
-        build(root / 'data', root / 'site/nz-election')
-        build(root / 'missing', root / 'empty/nz-election')
+        build(root / 'data', root / 'site/nz-election', built='2026-11-05T00:00:00Z')
+        build(root / 'missing', root / 'empty/nz-election', built='2026-11-05T00:00:00Z')
         for absent in (False, True):
             site = root / ('empty' if absent else 'site')
             server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(site)))
@@ -57,10 +59,20 @@ def images(browser, out):
                             assert not page.locator('#night-controls').is_visible()
                         else:
                             check_page(page, url, site, origin)
+                        page.evaluate('scrollTo(0, 0)')
+                        if width == 390:
+                            for locator in (page.locator('.countdown'), page.locator('main a[href="/unattended/nz-election/vote/"]')):
+                                box = locator.bounding_box()
+                                assert box and 0 <= box['y'] and box['y'] + box['height'] <= height, 'NIGHT_PRE_CLOSE_FOLD'
+                            if not absent:
+                                assert page.locator('.countdown').bounding_box()['y'] < page.locator('#night-snapshot').bounding_box()['y']
                         if sequence == 'illustrative-2023':
                             label = page.locator('#night-snapshot .night-mode')
                             assert 'Illustrative replay based on 2023 final results' in label.inner_text()
                             assert page.locator('#night-play').inner_text() == 'Play'
+                            assert page.locator('#night-clock').get_attribute('aria-live') == 'off'
+                            assert page.locator('#night-announcement').get_attribute('aria-live') == 'polite'
+                            assert 'Replay frame 1 of 3, 0:00 elapsed' in page.locator('#night-snapshot').inner_text()
                             page.locator('#night-speed').select_option('60')
                             if state != 'illustrative-start':
                                 page.locator('#night-play').click()
@@ -68,11 +80,15 @@ def images(browser, out):
                                 if state == 'illustrative-middle':
                                     page.locator('#night-play').click()
                                     assert page.locator('[data-frame="1"]:visible').count() == 1
+                                    assert 'Replay frame 2 of 3, 5:00 elapsed' in page.locator('#night-snapshot').inner_text()
+                                    assert 'published only in the final archive' in page.locator('#night-snapshot').inner_text()
                                     page.clock.run_for(30000)
                                     assert page.locator('[data-frame="1"]:visible').count() == 1
                                 else:
                                     assert '2,851,211' in page.locator('#night-snapshot').inner_text()
                                     assert 'House 122' in page.locator('#night-snapshot').inner_text()
+                                    assert 'Final archive updated' in page.locator('#night-snapshot .night-frame-context').inner_text()
+                                    assert page.locator('#night-announcement').inner_text() == 'Replay ended.'
                                 if state == 'reset-focus':
                                     page.locator('#night-play').focus()
                                     page.keyboard.press('Tab')
@@ -97,6 +113,7 @@ def images(browser, out):
                         assert all(u.startswith(origin + '/') for u in requests), 'REPLAY_OFFICIAL_FEED_REQUEST'
                         assert not any('/data/' in u for u in requests), 'REPLAY_FETCH'
                         name = f'night-{state}-{width}x{height}.png'
+                        page.evaluate('scrollTo(0, 0)')
                         page.screenshot(path=str(out / name))
                         results.append(dict(state='night-' + state, path=name, viewport=dict(width=width, height=height)))
                         context.close()
@@ -132,6 +149,31 @@ def parity(browser):
                 }''', [raw[p].decode('utf-8-sig') for p in paths])
                 assert result['refs'] == refs
                 assert result['result'] == xml_parser.election(raw[paths[3]], refs)
+                valid = raw[paths[3]].decode('utf-8-sig')
+                cases = []
+                for token in ('', ' ', 'null', 'true', '1.5', '1000000000', '１', '-1', '1e3',
+                              '<x>1</x>', '1<x>2</x>', '<![CDATA[1.5]]>'):
+                    malformed = re.sub(r'<votes>.*?</votes>', lambda _: '<votes>' + token + '</votes>', valid, count=1)
+                    cases.append(malformed)
+                cases += ['', '<broken>', '<parties/>', '<election/>',
+                          '<election updated="2026-10-20T14:22:32"/>', valid[:-20],
+                          '<!DOCTYPE election><election/>',
+                          '<!DOCTYPE election [<!ENTITY x "1">]><election>&x;</election>']
+                for malformed in cases:
+                    try:
+                        xml_parser.election(malformed.encode(), refs)
+                    except ValueError as exc:
+                        expected = str(exc)
+                    else:
+                        raise AssertionError('malformed election accepted')
+                    if '<votes><x>1</x></votes>' in malformed:
+                        assert expected == 'XML_COUNT'
+                    actual = page.evaluate('''({text, refs})=>{
+                        try {parser.election(new TextEncoder().encode(text), refs); return 'accepted';}
+                        catch(e) {return e.message;}
+                    }''', dict(text=malformed, refs=refs))
+                    assert actual == expected, (year, malformed[:120], expected, actual)
+
             for value in ['', None, [], {}, True, 1.5, 10**100, '１', ' 1', '01', '1e3', '-1', '1000000000', '1\n', '1\r', '1\u2028', '1\u2029']:
                 try:
                     xml_parser.count(value)
@@ -140,12 +182,34 @@ def parity(browser):
                 else:
                     raise AssertionError(value)
                 assert page.evaluate('v=>{try{parser.count(v)}catch(e){return e.message}}', value) == expected
-            for raw in ['', '<!DOCTYPE election><election/>', '<broken>', '<parties/>']:
-                assert page.evaluate('s=>{try{parser.documentXML(new TextEncoder().encode(s),"election")}catch(e){return e.message}}', raw) == 'XML_DOCUMENT'
+            for value in [None, [], {}, True, 1.5, 10**100, '異']:
+                try:
+                    xml_parser.document(value, 'election')
+                except ValueError as exc:
+                    expected = str(exc)
+                else:
+                    raise AssertionError('malformed document accepted')
+                assert page.evaluate('v=>{try{parser.documentXML(v,"election")}catch(e){return e.message}}', value) == expected == 'XML_DOCUMENT'
+            for raw_bytes in [b'', b'\xff', b'<election>' + b' ' * 2_000_000]:
+                try:
+                    xml_parser.document(raw_bytes, 'election')
+                except ValueError as exc:
+                    expected = str(exc)
+                else:
+                    raise AssertionError('malformed document accepted')
+                assert page.evaluate('v=>{try{parser.documentXML(Uint8Array.from(atob(v), c=>c.charCodeAt(0)),"election")}catch(e){return e.message}}', base64.b64encode(raw_bytes).decode()) == expected == 'XML_DOCUMENT'
+
         finally:
             server.shutdown()
             server.server_close()
             page.close()
+
+
+def launch_chromium(pw):
+    candidates = sorted((Path.home() / 'Library/Caches/ms-playwright').glob('chromium_headless_shell-*/chrome-headless-shell-mac-arm64/chrome-headless-shell'))
+    executable = next((p for p in candidates if p.is_file()), None)
+    # On CI, Playwright resolves its own platform-specific installed browser.
+    return pw.chromium.launch(**({'executable_path': str(executable)} if executable else {}))
 
 
 def main():
@@ -153,9 +217,7 @@ def main():
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else Path('artifacts/nz-election/night')
     out.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as pw:
-        candidates = sorted((Path.home() / 'Library/Caches/ms-playwright').glob('chromium_headless_shell-*/chrome-headless-shell-mac-arm64/chrome-headless-shell')) + [Path(pw.chromium.executable_path)]
-        executable = next(p for p in candidates if p.is_file())
-        with pw.chromium.launch(executable_path=str(executable)) as browser:
+        with launch_chromium(pw) as browser:
             parity(browser)
             images(browser, out)
     print('PASS night browser: clock, labels, archives, no-JS, absent, no official-feed requests, XML parity; 20 images')

@@ -51,7 +51,12 @@ test('60x replay renders the final frame within 10,000 ms of Play and stops', as
   const container = new Element();
   container.querySelectorAll = () => frames;
   container.querySelector = () => section;
-  const controls = Object.fromEntries(['play', 'reset', 'speed', 'clock', 'controls'].map(id => ['#night-' + id, new Element()]));
+  const controls = Object.fromEntries(['play', 'reset', 'speed', 'clock', 'controls', 'announcement'].map(id => ['#night-' + id, new Element()]));
+  const announcements = [];
+  Object.defineProperty(controls['#night-announcement'], 'textContent', {
+    get: () => announcements.at(-1) || '',
+    set: text => announcements.push(text),
+  });
   const document = {
     querySelector: selector => selector === '#night-snapshot' ? container : controls[selector],
     getElementById: () => null,
@@ -74,7 +79,10 @@ test('60x replay renders the final frame within 10,000 ms of Play and stops', as
   time.advance(37);
   controls['#night-speed'].dispatch('change', '60');
   controls['#night-play'].dispatch('click');
-  time.advance(10000);
+  time.advance(5000);
+  assert.deepEqual(announcements, ['Replay speed 60x.', 'Replay playing at 60x.'], 'draws do not announce elapsed time');
+  time.advance(5000);
+  assert.deepEqual(announcements, ['Replay speed 60x.', 'Replay playing at 60x.', 'Replay ended.']);
   assert.equal(frame(), 2, 'at 10,000 ms the rendered frame must be the endpoint');
   assert.equal(controls['#night-play'].textContent, 'Play');
   assert.equal(controls['#night-clock'].textContent, 'Paused: 600 seconds');
@@ -89,6 +97,7 @@ test('60x replay renders the final frame within 10,000 ms of Play and stops', as
   time.advance(2500);
   controls['#night-play'].dispatch('click');
   assert.equal(time.pending(), 0, 'pause cancels the pending draw');
+  assert.equal(announcements.at(-1), 'Replay paused.');
   time.advance(1000);
   controls['#night-speed'].dispatch('change', '10');
   controls['#night-play'].dispatch('click');
@@ -97,4 +106,5 @@ test('60x replay renders the final frame within 10,000 ms of Play and stops', as
   controls['#night-reset'].dispatch('click');
   assert.equal(frame(), 0);
   assert.equal(time.pending(), 0, 'reset cancels the pending draw');
+  assert.equal(announcements.at(-1), 'Replay reset and paused.');
 });

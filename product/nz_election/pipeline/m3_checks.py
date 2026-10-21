@@ -54,6 +54,8 @@ def check_markup(html, envs, historical=False):
 
 
 def check_night_markup(html, envs):
+    from product.nz_election.tools.check_visible_text import check_absent_text
+    check_absent_text(html, 'night')
     parser = Content()
     parser.feed(html)
     present = bool(envs.get('night/index', {}).get('data'))

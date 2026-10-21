@@ -95,4 +95,18 @@ seats or voting-place coverage. Synthetic steps have no observed update time, in
 endpoint. Do not manufacture these fields from scaled votes, map historical electorates onto
 2026 boundaries, or describe this rehearsal as a live election. The 2026 final-results date is
 separate from the explicitly historical/demo snapshots. An absent family renders the countdown,
-voting link and official results link only.
+voting link and official results link before polls close; after polls close it keeps the official
+results link. Phase uses the build timestamp (CLI `--now`), with the boundary at
+2026-11-07T06:00:00Z, 19:00 NZDT. Even with archives packaged, countdown and voting actions
+precede the results until that boundary.
+
+Each illustrative frame states its ordinal and elapsed time. Intermediate frames explain that
+coverage and seats are published only in the final archive. The endpoint shows that archive's
+source update date/time from its derivation basis, explicitly labelled as the final archive's
+clock, not an observed replay time. The elapsed counter has no live announcements; a separate
+polite region announces play, pause, speed, reset and completion.
+
+CI installs Playwright Chromium before tests. The browser harness uses a local Mac headless
+binary when present, otherwise Playwright's default browser resolver; a missing installation
+still fails the tests. Screenshot states use the deterministic build time 2026-11-05T00:00:00Z
+and check countdown/vote bounds at 390x844 before recording the existing named images.

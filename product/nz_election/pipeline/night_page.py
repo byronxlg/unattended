@@ -9,11 +9,26 @@ from .presentation import election_countdown
 RESULTS = 'https://www.electionresults.govt.nz/'
 
 
-def snapshot(row, refs, identity, path):
+def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=None):
     source = 'source-' + identity
     parties = sorted(row['party_results'].items(), key=lambda p: (-p[1]['votes'], p[0]))
     names = {p: refs['parties'][p]['short_name'] for p, _ in parties}
-    content = ''
+    context = []
+    if 'elapsed_seconds' in row:
+        minutes, seconds = divmod(row['elapsed_seconds'], 60)
+        context.append(f'Replay frame {frame} of {frame_count}, {minutes}:{seconds:02d} elapsed.')
+        if 'statistics' not in row and 'reported_house' not in row:
+            context.append('Scaled final party votes; voting-place coverage and seats are published only in the final archive.')
+        elif 'statistics' not in row:
+            context.append('Voting-place coverage is published only in the final archive.')
+        elif 'reported_house' not in row:
+            context.append('Seats are published only in the final archive.')
+        elif archive_updated:
+            context.append(f'Final archive updated {archive_updated[11:16]} on {archive_updated[:10]} (source local time; timezone unverified).')
+    elif row.get('source_updated_local'):
+        clock = row['source_updated_local']
+        context.append(f'Source updated {clock[11:16]} on {clock[:10]} (source local time; timezone unverified).')
+    content = '<p class="night-frame-context">' + escape(' '.join(context)) + '</p>' if context else ''
     stats = row.get('statistics')
     if stats:
         percent = stats['percent_voting_places_counted']
@@ -52,7 +67,10 @@ def snapshot(row, refs, identity, path):
 
 def page(envs, built):
     sequences = envs.get('night/index', {}).get('data', [])
+    pre_close = datetime.fromisoformat(built.replace('Z', '+00:00')) < datetime.fromisoformat('2026-11-07T19:00:00+13:00')
     before = f'<p class="countdown">{escape(election_countdown(built))}</p><p><a href="{PREFIX}vote/">How to vote</a></p>'
+    if not sequences and not pre_close:
+        return f'<section class="night-page"><p><a href="{RESULTS}">Official Electoral Commission results</a></p></section>'
     if not sequences:
         return render('night', countdown=escape(election_countdown(built)), source=f'<p><a href="{RESULTS}">Official Electoral Commission results</a></p>')
     links = '<nav aria-label="Packaged results">' + ''.join(f'<a href="?sequence={s["id"]}">{escape(s["mode"])} ({escape(s["id"])})</a>' for s in sequences) + '</nav>'
@@ -66,7 +84,10 @@ def page(envs, built):
             if len(rows) > 1 and 'elapsed_seconds' not in row:
                 elapsed = (datetime.fromisoformat(row['source_updated_local']) - datetime.fromisoformat(rows[0]['source_updated_local'])).total_seconds()
             identity = seq['id'] + '-' + str(i)
-            frames.append(f'<div data-frame="{i}" data-elapsed="{elapsed}">' + snapshot(row, refs, identity, path) + '</div>')
+            basis = row.get('derivation', {}).get('basis', '')
+            archive = envs.get(basis.removesuffix('.json'), {}).get('data', [])
+            archive_updated = archive[0].get('source_updated_local') if archive else None
+            frames.append(f'<div data-frame="{i}" data-elapsed="{elapsed}">' + snapshot(row, refs, identity, path, i + 1, len(rows), archive_updated) + '</div>')
         panels.append(f'<section data-sequence="{seq["id"]}"><p class="night-mode">{escape(seq["mode"])} ({escape(seq["id"])})</p>' + ''.join(frames) + '</section>')
     # Default is the dated final snapshot. All other states stay in inert templates.
     default = next((s for s in sequences if s['id'] == '2023'), sequences[0])
@@ -74,8 +95,9 @@ def page(envs, built):
     controls = ('<div id="night-controls" hidden><button type="button" id="night-play">Play</button> '
                 '<button type="button" id="night-reset">Reset</button> <label for="night-speed">Speed</label> '
                 '<select id="night-speed"><option value="1">1x</option><option value="10">10x</option><option value="60">60x</option></select>'
-                '<output id="night-clock" aria-live="polite">Paused</output></div>')
-    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + controls + '<div id="night-snapshot">' + selected.replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="Party results:', 'aria-label="Static party results:') + '</div>'
-            '<p>2026: Preliminary; official results due 27 November.</p>' + before + links +
+                '<span id="night-clock" aria-live="off">Paused</span>'
+                '<span id="night-announcement" role="status" aria-live="polite" aria-atomic="true"></span></div>')
+    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + controls + '<div id="night-snapshot">' + selected.replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="Party results:', 'aria-label="Static party results:') + '</div>'
+            '<p>2026: Preliminary; official results due 27 November.</p>' + links +
             ''.join(f'<template id="sequence-{s["id"]}">{p}</template>' for s, p in zip(sequences, panels)) +
             f'</div><script type="module" src="{PREFIX}night.mjs"></script>')
