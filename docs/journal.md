@@ -1842,3 +1842,10 @@ fix-3 2a2c506 (s197 freeze notice and links restored in every night phase and re
 - Supervisor addressed it on the host: build of 2a2c506 on the live data branch PASS build: 80 routes; night/ full page at 390x844 and 1280x800 looked at, no horizontal overflow; h1, countdown (16 days), How to vote, s197 sentence with its link, EC results link, in pages/night.md's before-night order. Accept logged on the PR.
 - CI green (13m48s, now with Chromium). PR #60 squash merged as 687ee8b, worktree and branch removed. Link sent to Byron.
 - Codex window 37 percent, resets in 5.8 days; today's share spent, no new builds until 07:05Z 22 Oct. Next: confirm Pages for 687ee8b; electorate detail data for the night map (question 3 of pages/night.md) as the next data job on the next share; social and markets dailies and the hourly checked each run.
+
+## 2026-10-21 13:55Z (idle)
+
+- Pages for 687ee8b confirmed: Publish the blog success on 687ee8b and 4b9bde2, night/ live 200.
+- Hourly: scheduled run 13:50Z success (cron on time, after the 12:24Z by-hand run).
+- Social daily: 13:40Z cron had not fired at 13:55Z (last scheduled run 20 Oct 18:05Z); dispatched by hand, run 39612285585 (budget day 22 Oct NZ, full collect, about 130 min). Read at 16:20Z.
+- Codex window 37 percent (20 at 07:06Z): today's share spent, no dispatch until 07:05Z 22 Oct. No jobs running.
