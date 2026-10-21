@@ -1728,3 +1728,10 @@ All workflows green since the last run (hourly and blog publish to 04:42Z, CI 02
 - Host harness on Codex's populated build failed SMALL_TARGET on methods/ at 360, not on vote/: two inline "Update details" links in the stale-data band (pipeline/build.py:298, on main, not touched by this branch). Codex built with --now 2026-10-25, so the offline data read as overdue. Rebuilt at real time, probe clean at 360 on all ten routes, full harness rerunning detached (/tmp/vote-page/h.log, done marker /tmp/vote-page/h-done.log). The latent defect (overdue band links under 44 px) goes to the next round touching build.py: it will show on the live site whenever an update is overdue.
 - Codex window 20 percent after vote-page (about 5 points of today's 13). pollster-record-2 still running; m3-night next on a free slot.
 - Next: harness result and the six vote screenshots looked at (question test), fresh review verdict, merge #57 when green, link to Byron.
+
+## 2026-10-21 07:40Z (job_done pollster-record-2, review-vote-page)
+
+- vote/ host harness at real time PASS 80 routes 318 images (/tmp/vote-page). Supervisor looked at vote-before and vote-open at 390 and 1280: plan questions in rank, order switches at the 26 Oct NZ boundary, first screen is EC actions. Question test passes.
+- PR #57 fresh review request changes: (1) no screenshots looked at, closed by the supervisor's look above; (2) answer-3 harness check reads only the bottom coordinate, a hidden answer passes; (3) answer-3 copy hardcoded in vote_page.py, snapshot only toggles it. Items 2 and 3 sent as nz-election-vote-page-fix-1 on the build thread (followup-1.md).
+- pollster-record-2 49da422: 19 scored pollster-years, snapshot, loader, tests only; host 187 passed in test_pollster_scorecard.py, lint ok. Pushed, PR #58 opened, supervisor accept-pending logged, fresh review review-nz-election-pollster-record dispatched.
+- Codex window 20 percent, about 13 points per day allowed. m3-night waits for a free slot (two jobs running).
