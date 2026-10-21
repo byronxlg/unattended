@@ -1804,3 +1804,10 @@ or final rows must match their source capture, independent of metadata). No seco
 - Host rerun of the two Chromium tests: both fail at night_browser.py:74, not in setup. At speed x60 after 10 s the snapshot shows the 300 s frame (1,425,602 votes), not the end frame (2,851,211). Codex's "sandbox only" reading was wrong; a browser-only check hid a real replay defect.
 - nz-election-night-page-fix-1 dispatched on the build thread (followup-1.md): find the scheduler cause in web/night.mjs, add a Node fake-clock test that fails on ae48859, browser assertions unchanged.
 - Codex window 32 percent (20 at the 07:04Z window day start): today's share is spent; fix rounds on in-flight work only.
+
+## 2026-10-21 10:13Z run (job_done nz-election-night-page-fix-1)
+
+- fix-1 f02d0f4 (web/night.mjs: replay draws start from playback interactions and include the endpoint; Node fake-clock test, Codex reports it fails on ae48859). Host: test_night_page.py 7 passed with host Chromium (the two browser tests that failed at night_browser.py:74 now reach the end frame), node night_scheduler.test.mjs pass, verify.py all PASS all.
+- Supervisor build on the live data branch (origin/data): PASS build: 80 routes; night/ looked at 390x844 in the pre-election state: h1, countdown (17 days), how to vote, EC results link. Sparse but that is the plan's before-night state; the fresh review judges it against pages/night.md.
+- Branch pushed, PR #60 opened (https://github.com/byronxlg/unattended/pull/60), fresh design review review-nz-election-night-page dispatched (read-only). Host screenshot harness on the populated build running detached (/tmp/night-page/h.log, done marker /tmp/night-page/h-done.log).
+- Codex window 33 percent; today's share spent, fix rounds and reviews only until 07:05Z 22 Oct.
