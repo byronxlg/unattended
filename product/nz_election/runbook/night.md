@@ -110,3 +110,30 @@ CI installs Playwright Chromium before tests. The browser harness uses a local M
 binary when present, otherwise Playwright's default browser resolver; a missing installation
 still fails the tests. Screenshot states use the deterministic build time 2026-11-05T00:00:00Z
 and check countdown/vote bounds at 390x844 before recording the existing named images.
+
+## Packaged electorate leaders and seat calculation (increment 4)
+
+The 2026 media captures are read offline after manifest hash validation. Detail paths are
+`eNN/eNN.xml` for electorate IDs 1 through 71, with two-digit padding. No browser request is
+made: these captures have no CORS permission. Transport remains increment 5 work. The package
+includes the six captured details; other electorate rows say not yet reported. A zero-place,
+zero-vote detail is never a leader or final count, including when its XML says `final="true"`.
+
+The illustrative replay derives 2023 leaders and margins from captured per-electorate candidate
+CSV totals, using party and electorate IDs to join candidate references. Intermediate margins
+are scaled final margins, not historical observations. Port Waikato's deferred contest remains
+unreported in this replay. Historic names and boundaries remain intact; links identify today's
+related electorate pages without transferring historic votes. Grey hexagons have no reported
+leader. The searchable table supplies names, provisional leaders, vote margins and reporting
+status without requiring a map or JavaScript.
+
+Source-reported seats remain distinct from the application calculation. The final 2023
+calculation uses the golden candidate/list inputs: proportional entitlement 120, overhang 2,
+vacancies 0, occupied House 122. Incomplete inputs and unresolved allocation ties suppress the
+waterfall. Unchecked list capacity suppresses vacancies and occupied House. No compatible dated
+preliminary/official captures are supplied, so production has no change comparison or specials
+component. Labelled synthetic pairs exercise that optional view in the proof harness.
+
+Run `PYTHONPATH=. uv run python product/nz_election/pipeline/verify.py waterfall` and the full
+night browser harness before release. The latter registers 22 states at both 390x844 and
+1280x800, including map, table, selected leader, seat calculation and comparison cases.

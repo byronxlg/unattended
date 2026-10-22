@@ -58,8 +58,9 @@ def test_populated_night_has_backed_results_and_sources():
     assert '62 for a majority' in html
     assert 'These combinations currently reach a majority; government formation is separate.' in html
     assert 'votes counted' not in html
-    assert 'electorate_results' not in html and '<svg' not in html
-    assert html.count('<template ') == 5
+    assert 'class="night-leader-map"' in html
+    assert 'Electorate provisional leaders' in html
+    assert html.count('<template ') == 6
 
 
 def test_xml_scalar_python_node_parity():

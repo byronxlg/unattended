@@ -627,6 +627,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
         for page in stage.rglob('*.html'):
             validate_scripts(page.read_text())
         shutil.copyfile(PRODUCT / 'web/night.css', stage / 'night.css')
+        shutil.copyfile(PRODUCT / 'web/night-seats.mjs', stage / 'night-seats.mjs')
         shutil.copyfile(PRODUCT / 'web/night.mjs', stage / 'night.mjs')
         shutil.copyfile(PRODUCT / 'web/night-parser.mjs', stage / 'night-parser.mjs')
         shutil.copyfile(PRODUCT / 'web/coalitions.mjs', stage / 'coalitions.mjs')

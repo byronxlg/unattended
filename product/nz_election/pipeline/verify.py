@@ -346,15 +346,43 @@ def verify_night(envs, root, *, data=None):
     check_page(html)
 
 
+def verify_waterfall(envs, root, *, data=None):
+    from product.nz_election.pipeline import night, night_seats, fixtures
+    if data is None:
+        data = root / 'waterfall-data'
+        from product.nz_election.pipeline.daily_refresh import daily_refresh
+        daily_refresh(data, loaders={'night': night.load}, now='2026-10-22T00:00:00Z')
+    if not (data / 'night/index.json').is_file():
+        raise ValueError('MISSING_NIGHT_FAMILY')
+    validated = export.validate_bundle(data)
+    night.validate(data)
+    for seq in validated['night/index']['data']:
+        refs = validated[seq['reference_path'][:-5]]['data'][0]
+        for path in seq['snapshot_paths']:
+            row = validated[path[:-5]]['data'][0]
+            for e, result in row.get('leaders', {}).items():
+                require(e in refs['electorates'], 'electorate reference')
+                require(not result['leader'] or result['leader'] in refs['candidates'], 'leader reference')
+                require(result['status'] != 'elected', 'provisional leaders')
+            if 'allocation_input' in row:
+                calc = night_seats.waterfall(row['allocation_input'], complete=True, capacity_verified=True)['calculation']
+                require(calc['seats'] == fixtures.golden()['expectedSeats'], 'golden seat calculation')
+            else:
+                require(night_seats.waterfall(None)['calculation'] is None, 'incomplete suppression')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets', 'advance', 'night'])
+    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets', 'advance', 'night', 'waterfall'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     args = parser.parse_args()
+    night_data = args.data
+    if night_data is None and args.site:
+        night_data = (args.site / 'nz-election' if (args.site / 'nz-election').is_dir() else args.site) / 'data'
     if args.check == 'night' and args.data and not (args.data / 'night/index.json').is_file():
         raise ValueError('MISSING_NIGHT_FAMILY')
-    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets, 'advance': verify_advance, 'night': verify_night}
+    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets, 'advance': verify_advance, 'night': verify_night, 'waterfall': verify_waterfall}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
@@ -402,11 +430,11 @@ def main():
             require(panel(actual, built) in (product / 'methods/index.html').read_text(), 'supplied market provenance')
         for name, check in checks.items():
             if args.check in ('all', name):
-                if name == 'night' and args.check == 'all' and args.data and 'night/index' not in supplied:
+                if name in {'night', 'waterfall'} and args.check == 'all' and night_data and not (night_data / 'night/index.json').is_file():
                     # The aggregate gate permits absent families, without claiming their validation.
                     continue
-                if name == 'night':
-                    check(envs, root, data=args.data)
+                if name in {'night', 'waterfall'}:
+                    check(envs, root, data=night_data)
                 else:
                     check(envs, root)
                 print('PASS ' + name + {'geography': ': 64 general, 7 Māori', 'candidates': ': 71 electorates', 'electorates': ': 71 pages'}.get(name, ''))

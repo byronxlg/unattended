@@ -21,7 +21,10 @@ from product.nz_election.pipeline.build import build
 from product.nz_election.pipeline.daily_refresh import daily_refresh
 
 STATES = ('illustrative-start', 'illustrative-middle', 'illustrative-end', 'recorded-demo',
-          'final-2017', 'final-2020', 'final-2023', 'reset-focus', 'no-js', 'absent')
+          'final-2017', 'final-2020', 'final-2023', 'reset-focus', 'no-js', 'absent',
+          'waterfall-early', 'waterfall-middle', 'waterfall-final', 'overhang', 'unresolved-tie',
+          'unchecked-capacity', 'selected-leader', 'electorate-map', 'electorate-table',
+          'official-comparison', 'no-specials', 'unavailable-live')
 SIZES = ((390, 844), (1280, 800))
 
 
@@ -55,7 +58,7 @@ def images(browser, out):
                         url = origin + '/unattended/nz-election/night/?sequence=' + sequence
                         if state == 'no-js':
                             page.goto(url)
-                            assert page.locator('table').count() == 1
+                            assert page.locator('table').count() == 3
                             assert not page.locator('#night-controls').is_visible()
                         else:
                             check_page(page, url, site, origin)
@@ -104,6 +107,30 @@ def images(browser, out):
                         if absent:
                             assert page.locator('figure,table,progress').count() == 0
                             assert page.locator('a[href="https://www.electionresults.govt.nz/"]').count() == 1
+                        if state in {'waterfall-early', 'waterfall-middle', 'waterfall-final', 'overhang', 'unresolved-tie', 'unchecked-capacity', 'selected-leader', 'electorate-map', 'electorate-table', 'official-comparison', 'no-specials', 'unavailable-live'}:
+                            from copy import deepcopy
+                            from product.nz_election.pipeline.night_page import snapshot
+                            payloads, _, _ = night.load()
+                            row = deepcopy(payloads['night/illustrative-2023/step-' + ('0' if state == 'waterfall-early' else '1' if state == 'waterfall-middle' else '2')][0])
+                            refs = payloads['night/references/2023'][0]
+                            if state == 'unavailable-live':
+                                seq = next(s for s in payloads['night/index'] if s['id'] == '2026-media')
+                                row = payloads[seq['snapshot_paths'][0][:-5]][0]
+                                refs = payloads[seq['reference_path'][:-5]][0]
+                            if state == 'unchecked-capacity':
+                                row['capacity_verified'] = False
+                            if state == 'unresolved-tie':
+                                row['allocation_input'] = dict(partyVotes={'a':50,'b':50}, electorateWins={'a':0,'b':0}, lists={'a':['a1'],'b':['b1']}, electorateWinners={'a':[],'b':[]}, nonListWinners=[], baseSeats=1)
+                            if state in {'official-comparison', 'no-specials'}:
+                                row['preliminary_baseline'] = dict(status='preliminary', election='synthetic-2026', reference_version='synthetic', date='2026-11-08', seats={'a':60,'b':60})
+                                row['official_result'] = dict(status='official', election='synthetic-2026', reference_version='synthetic', date='2026-11-27', seats={'a':61,'b':59})
+                            html = '<p class="night-mode">Offline verification: labelled synthetic proof; ' + row['mode'] + '</p>' + snapshot(row, refs, 'proof', 'night/illustrative-2023/step-2.json')
+                            page.locator('#night-snapshot').evaluate('(node,html)=>node.innerHTML=html', html)
+                            if state == 'selected-leader':
+                                page.locator('.night-search').fill('Auckland Central')
+                                assert page.locator('.night-electorates tbody tr:visible').count() == 1
+                            target = '.night-search' if state in {'selected-leader','electorate-table'} else '.night-electorates h2' if state in {'electorate-map','unavailable-live'} else '.night-waterfall' if state in {'waterfall-final','overhang','unchecked-capacity'} else '.night-calculation' if state in {'waterfall-early','waterfall-middle','unresolved-tie'} else 'h2:has-text("Change since preliminary result")'
+                            page.locator(target).evaluate('(node)=>node.scrollIntoView()')
                         assert not errors, errors
                         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), state
                         for pair in page.evaluate(CONTRAST):
@@ -113,7 +140,8 @@ def images(browser, out):
                         assert all(u.startswith(origin + '/') for u in requests), 'REPLAY_OFFICIAL_FEED_REQUEST'
                         assert not any('/data/' in u for u in requests), 'REPLAY_FETCH'
                         name = f'night-{state}-{width}x{height}.png'
-                        page.evaluate('scrollTo(0, 0)')
+                        if state in STATES[:10]:
+                            page.evaluate('scrollTo(0, 0)')
                         page.screenshot(path=str(out / name))
                         results.append(dict(state='night-' + state, path=name, viewport=dict(width=width, height=height)))
                         context.close()
@@ -174,6 +202,24 @@ def parity(browser):
                     }''', dict(text=malformed, refs=refs))
                     assert actual == expected, (year, malformed[:120], expected, actual)
 
+            prefix = 'ec-2026-media-xml/'
+            raw = fixtures.captures(paths={e['path'] for e in json.loads((fixtures.ROOT / 'manifest.json').read_text())['entries'] if e['path'].startswith(prefix)})
+            refs = xml_parser.references(*(raw[prefix+n+'.xml'] for n in ('parties','electorates','candidates')))
+            for path, captured in raw.items():
+                if not re.fullmatch(prefix + r'e[0-9]{2}/e[0-9]{2}\.xml', path):
+                    continue
+                cases = [captured.decode()]
+                for field in ('votes', 'total_voting_places', 'total_candidates'):
+                    for token in ('', 'null', 'true', '1.5', '1000000000', '異', '<x>1</x>'):
+                        cases.append(re.sub('<' + field + '>.*?</' + field + '>', '<' + field + '>' + token + '</' + field + '>', captured.decode(), count=1))
+                for text in cases:
+                    try:
+                        expected = xml_parser.detail(text.encode(), refs)
+                    except ValueError as exc:
+                        expected = str(exc)
+                    actual = page.evaluate('({text,refs})=>{try{return parser.detail(new TextEncoder().encode(text),refs)}catch(e){return e.message}}', dict(text=text, refs=refs))
+                    assert actual == expected, (path, expected, actual)
+
             for value in ['', None, [], {}, True, 1.5, 10**100, '１', ' 1', '01', '1e3', '-1', '1000000000', '1\n', '1\r', '1\u2028', '1\u2029']:
                 try:
                     xml_parser.count(value)
@@ -220,7 +266,7 @@ def main():
         with launch_chromium(pw) as browser:
             parity(browser)
             images(browser, out)
-    print('PASS night browser: clock, labels, archives, no-JS, absent, no official-feed requests, XML parity; 20 images')
+    print('PASS night browser: clock, labels, archives, no-JS, absent, no official-feed requests, XML parity; ' + str(len(STATES) * len(SIZES)) + ' images')
 
 
 if __name__ == '__main__':
