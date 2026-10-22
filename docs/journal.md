@@ -1912,3 +1912,12 @@ write the increment 4 brief.
 - Host screenshot harness started detached on the populated build (/tmp/parties/h.log, done marker /tmp/parties/h-done.log, shots /tmp/parties/shots).
 - m3-seats (increment 4) still running.
 - Next: on job_done read the review and the harness result, look at parties/ 390 for the question test (picker and first party's number above the fold, answers 1 to 3 after one tap), merge when green, link to Byron; m3-seats review; after 19:45Z amend plan-m3 increment 5 if Byron is silent.
+
+## 2026-10-22 07:46Z (job_done review-nz-election-parties-page)
+
+- Fresh review of PR #61 (parties/): request changes, three Important: picker chips wrap at phone width (inherited nav flex-wrap); party snapshot validators accept malformed provenance (unrelated source host, invented licence, null locator, copied policy text, empty Policy.nz slug); home chart label spacing 22 to 44 px grows the trend chart 290 to 378 px.
+- Supervisor: items 1 and 2 to fix-1; item 3 accepted as a scope change (chart labels are now party links and need separated tap targets; chart sits below the hero). Logged on PR #61.
+- Host screenshot harness on b389f5e failed HEADING_OUTLINE at 360 on the third route after home/ and polls/ (/tmp/parties/h.log); not in the fix-1 brief because it landed after dispatch.
+- nz-election-parties-page-fix-1 dispatched on the build thread (state/jobs/nz-election-parties-page/followup-1.md). Codex window 43 percent, about 5 points of today's 11 used.
+- m3-seats (increment 4) still running.
+- Next: on job_done host-verify fix-1 (pytest, lint, verify all) and rerun the harness; if HEADING_OUTLINE persists, fix-2 on the build thread naming the route; then second fresh review, merge, link to Byron; m3-seats review; after 19:45Z amend plan-m3 increment 5 if Byron is silent.
