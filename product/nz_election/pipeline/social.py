@@ -42,8 +42,9 @@ QUERY = '''(#nzpol OR #nzvotes OR #nzelection OR
 PARTIES = ('National', 'Labour', 'Green', 'ACT', 'NZ First', 'Te Pāti Māori', 'Opportunity', 'other', 'multiple', 'none/unclear')
 TOPICS = ('economy/tax', 'housing', 'health', 'education', 'crime', 'Treaty/Māori affairs', 'climate', 'immigration', 'campaign/personality', 'other/unclear')
 ATTITUDES = ('strongly negative', 'negative', 'neutral', 'positive', 'strongly positive')
-# Reviewed adapter example in the research brief; aliases are not persisted versions.
-MODEL_VERSIONS = frozenset({'jev-1.13.0', 'jev-fixture-1', 'jev-test-1'})
+# Pin requests and validation together so upstream default rotations cannot change the model.
+MODEL_VERSION = 'jev-1.13.0'
+MODEL_VERSIONS = frozenset({MODEL_VERSION, 'jev-fixture-1', 'jev-test-1'})
 QUESTION_VERSION = 'nz-politics-poc-1'
 QUESTIONS = {
     'relevant': dict(type='noul', instructions='Is this about current NZ national politics?'),
@@ -286,7 +287,7 @@ def classify(posts, *, key, send, diagnostic=None, enforce_bound=False):
     sent = len(candidates)
     for index, text, author in candidates:
         diagnostic.update(window=origins[index] if index < len(origins) else None, attempt=1, http_status=None, code=None, check=None)
-        payload = dict(model='jev-latest', state=text, questions=QUESTIONS)
+        payload = dict(model=MODEL_VERSION, state=text, questions=QUESTIONS)
         try:
             diagnostic['check'] = 'transport'
             status, raw = send('POST', 'https://api.typesafe.ai/v1/systemone', {'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'}, export.canonical(payload).encode())

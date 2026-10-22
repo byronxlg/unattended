@@ -248,6 +248,7 @@ The model registry currently accepts `jev-1.13.0`, plus the repo-owned synthetic
 versions `jev-fixture-1` and `jev-test-1`. Unknown returned models fail closed with
 a sanitized error; adding a version requires review. No upstream model string
 outside this closed registry can be stored or rendered.
+To move Jev deliberately, review the new version, change `MODEL_VERSION` in `pipeline/social.py` (request and registry share it), retain any historical versions needed to validate stored aggregates, and run the product tests and `evals/social-model-rotation/check.sh` before merging.
 
 Capture the populated social page, not only its unavailable state, using a fresh
 fixture output directory (move aside previous fixture output before repeating):
