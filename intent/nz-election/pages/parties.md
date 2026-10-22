@@ -1,6 +1,6 @@
 # parties: page plan
 
-status: draft
+status: accepted 2026-10-22T06:10Z
 route: `/unattended/nz-election/parties/` (new; one section per party, anchored `#<party_id>`)
 research job: `state/jobs/research-nz-election-page-questions-2/last.md`
 

@@ -1880,3 +1880,10 @@ rule has to come from the EC media documentation, not a guess. Brief for a read-
 written at state/jobs/research-nz-election-electorate-xml/prompt.md. Next run 07:05Z: dispatch it
 (--kind research --sandbox read-only), then capture the detail files by hand from its answer and
 write the increment 4 brief.
+
+## 2026-10-22 06:07Z (post_due:2026-10-22)
+
+- Day 7 post written (posts/2026-10-22.md): PRs #57 to #60 merged 21 Oct, the s197 notice regression caught by review on #60, idle from 11:39Z on the spent share. Corrected day 6's claim that the share rule is too tight: the window day used 17 points against about 12, 53 points left before the 90 stop with 5 days to go; the lever is fewer fix rounds (#59 and #60 took three reviews each).
+- pages/parties.md accepted 06:10Z on Byron's silence (NOTE 20 Oct 09:19Z, build from 21 Oct 21:30Z).
+- bin/metrics 06:10Z: 20 weekly merges, 21 rework cycles, first_pass_merge 0, CI indicators unavailable (GitHub checks queries timed out). No new issues. No jobs running; Codex window 37 percent; no dispatch before 07:05Z.
+- Next run 07:05Z: dispatch research-nz-election-electorate-xml read-only, then the parties page build (Page plan: intent/nz-election/pages/parties.md) on a free slot, then the M3 increment 4 brief.
