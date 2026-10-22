@@ -12,7 +12,7 @@ PRODUCT = Path(__file__).resolve().parents[1]
 SNAPSHOTS = PRODUCT / 'snapshots'
 NAMES = frozenset({'leaders', 'candidates-2026', 'enrolment', 'port-waikato-2023',
                    'history', 'hexmap', 'positions', 'voting', 'donations', 'boundaries-2025',
-                   'candidate-reconciliation-2026', 'pollster-record'})
+                   'candidate-reconciliation-2026', 'pollster-record', 'policy-links', 'party-list-tops'})
 BOUNDARY_BYTE_LIMIT = 400_000
 BANNED = re.compile(r'\b(?:not available|unavailable|pending|missing)\b', re.I)
 PHOTO_LICENCES = frozenset({'CC0', 'CC BY 4.0', 'CC BY-SA 4.0', 'CC BY 3.0',
@@ -196,6 +196,8 @@ def load(name):
     Invalid envelopes, records, identifiers and photo metadata raise ValueError.
     """
     _require(isinstance(name, str) and name in NAMES, 'Unknown snapshot name')
+    if name in {'policy-links', 'party-list-tops'}:
+        return load_party_details(name)
     if name == 'pollster-record':
         from .pollster_scorecard import load_pollster_record
         return load_pollster_record()
@@ -419,4 +421,37 @@ def load_voting():
     _require(bool(dates), 'voting_date_invalid: no dates')
     for refs in actions:
         _require(all(ref in dates for ref in refs), 'voting_deadline: unknown date')
+    return rows
+
+
+def load_party_details(name):
+    _require(name in {'policy-links', 'party-list-tops'}, 'Unknown party snapshot')
+    from .refresh import config
+    path = SNAPSHOTS / (name + '.json')
+    _require(not path.is_symlink(), 'Party snapshot must not be a symlink')
+    raw = path.read_text()
+    _require(not BANNED.search(raw), 'Party snapshot contains a banned phrase')
+    data = json.loads(raw)
+    _require(isinstance(data, dict), 'Invalid party snapshot envelope')
+    _require(data.get('schema') == name + '-v1', 'Invalid party snapshot schema')
+    _timestamp(data.get('retrieved_at'))
+    rows = data.get('records')
+    _require(isinstance(rows, list), 'Invalid party records')
+    parties = {p['id'] for p in config('party-map')['parties'] if not p['aggregate']}
+    seen = set()
+    for row in rows:
+        _require(isinstance(row, dict), 'Invalid party record')
+        p = row.get('party_id')
+        _require(isinstance(p, str) and p in parties and p not in seen, 'Invalid party identity')
+        seen.add(p)
+        _require(_url(row.get('source_url')) and _text(row.get('licence')), 'Invalid party source')
+        _timestamp(row.get('retrieved_at'))
+        if name == 'policy-links':
+            _require(_url(row.get('url')) and row['url'].startswith('https://policy.nz/2026/party-vote/parties/'), 'Invalid policy URL')
+        else:
+            candidates = row.get('candidates')
+            _require(isinstance(candidates, list) and 0 < len(candidates) <= 5, 'Invalid list top')
+            for rank, candidate in enumerate(candidates, 1):
+                _require(isinstance(candidate, dict) and type(candidate.get('rank')) is int
+                         and candidate['rank'] == rank and _text(candidate.get('name')), 'Invalid list rank')
     return rows

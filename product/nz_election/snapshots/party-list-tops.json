@@ -1,0 +1,194 @@
+{
+  "schema": "party-list-tops-v1",
+  "retrieved_at": "2026-10-22T07:00:00Z",
+  "method": "Transcribed opening ranks from EC PDF. Names reordered from surname, given names. Only opening ranks captured; no total candidate counts asserted.",
+  "records": [
+    {
+      "party_id": "nat",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "Page 2, party heading and opening list ranks",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "candidates": [
+        {
+          "rank": 1,
+          "name": "Christopher Luxon"
+        },
+        {
+          "rank": 2,
+          "name": "Nicola Valentine Willis"
+        },
+        {
+          "rank": 3,
+          "name": "Chris Bishop"
+        },
+        {
+          "rank": 4,
+          "name": "Simeon Brown"
+        },
+        {
+          "rank": 5,
+          "name": "Erica Stanford"
+        }
+      ]
+    },
+    {
+      "party_id": "lab",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "Page 1, party heading and opening list ranks",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "candidates": [
+        {
+          "rank": 1,
+          "name": "Chris Hipkins"
+        },
+        {
+          "rank": 2,
+          "name": "Carmel Jean Sepuloni"
+        },
+        {
+          "rank": 3,
+          "name": "Barbara Edmonds"
+        },
+        {
+          "rank": 4,
+          "name": "William Jackson"
+        },
+        {
+          "rank": 5,
+          "name": "Megan Woods"
+        }
+      ]
+    },
+    {
+      "party_id": "grn",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "Page 1, party heading and opening list ranks",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "candidates": [
+        {
+          "rank": 1,
+          "name": "Marama Mere-Ana Davidson"
+        },
+        {
+          "rank": 2,
+          "name": "Chlöe Swarbrick"
+        },
+        {
+          "rank": 3,
+          "name": "Teanau Tuiono"
+        },
+        {
+          "rank": 4,
+          "name": "Tamatha Paul"
+        },
+        {
+          "rank": 5,
+          "name": "Julie Anne Genter"
+        }
+      ]
+    },
+    {
+      "party_id": "act",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "Page 1, party heading and opening list ranks",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "candidates": [
+        {
+          "rank": 1,
+          "name": "David Seymour"
+        },
+        {
+          "rank": 2,
+          "name": "Nicole McKee"
+        },
+        {
+          "rank": 3,
+          "name": "Andrew Hoggard"
+        },
+        {
+          "rank": 4,
+          "name": "Paul Henry"
+        },
+        {
+          "rank": 5,
+          "name": "Karen Chhour"
+        }
+      ]
+    },
+    {
+      "party_id": "nzf",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "Page 2, party heading and opening list ranks",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "candidates": [
+        {
+          "rank": 1,
+          "name": "Winston Peters"
+        },
+        {
+          "rank": 2,
+          "name": "Shane Jones"
+        },
+        {
+          "rank": 3,
+          "name": "Casey Costello"
+        },
+        {
+          "rank": 4,
+          "name": "Mark Patterson"
+        },
+        {
+          "rank": 5,
+          "name": "Alfred Ngaro"
+        }
+      ]
+    },
+    {
+      "party_id": "opp",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "Page 3, party heading and opening list ranks",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "candidates": [
+        {
+          "rank": 1,
+          "name": "Qiulae Wong"
+        },
+        {
+          "rank": 2,
+          "name": "Daniel Eb"
+        },
+        {
+          "rank": 3,
+          "name": "Jessica Hammond"
+        },
+        {
+          "rank": 4,
+          "name": "Kayla Kingdon-Bebb"
+        },
+        {
+          "rank": 5,
+          "name": "Eden Skipper"
+        }
+      ]
+    },
+    {
+      "party_id": "tpm",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "Page 3, party heading and opening list ranks",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "candidates": [
+        {
+          "rank": 1,
+          "name": "Lance Norman"
+        }
+      ]
+    }
+  ]
+}

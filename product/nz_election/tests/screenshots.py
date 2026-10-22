@@ -308,7 +308,7 @@ def extra_images(browser, site, origin, out, og_only=False):
     from product.nz_election.pipeline.route_cards import route_key
     from product.nz_election.pipeline.build import config
     paths = [r['path'] for r in config('routes')] + ['electorates/' + r['slug'] + '/' for r in config('electorates')]
-    assert len(cards) == len({c['key'] for c in cards}) == 80, 'OG_INVENTORY'
+    assert len(cards) == len({c['key'] for c in cards}) == 81, 'OG_INVENTORY'
     assert {c['route'] for c in cards} == set(paths), 'OG_ROUTES'
     context = browser.new_context(viewport=dict(width=1200, height=630), color_scheme='light', reduced_motion='reduce')
     context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
@@ -455,7 +455,7 @@ def main():
     registry = json.loads((PRODUCT / 'config/electorates.json').read_text())
     expected_count = len(routes) + len(registry)
     routes += [dict(path='electorates/' + r['slug'] + '/') for r in registry]
-    assert len(routes) == expected_count == 80 and len({r['path'] for r in routes}) == expected_count
+    assert len(routes) == expected_count == 81 and len({r['path'] for r in routes}) == expected_count
     args.out.mkdir(parents=True, exist_ok=True)
     server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(site)))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -485,7 +485,7 @@ def main():
                 nojs.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
                 for route in routes:
                     path = route['path']
-                    if width == 360 and path not in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'campaign/', 'downloads/', 'methods/', 'electorates/wellington-north/', 'electorates/te-tai-tonga/'}:
+                    if width == 360 and path not in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'campaign/', 'downloads/', 'methods/', 'electorates/wellington-north/', 'electorates/te-tai-tonga/'}:
                         continue
                     page = context.new_page()
                     url = origin + PREFIX + 'nz-election/' + path
@@ -501,6 +501,22 @@ def main():
                     if path == 'electorates/nelson/' and width == 1280:
                         assert page_height < 2500, f'NELSON_PAGE_HEIGHT: {page_height}'
                     page.screenshot(path=str(target), full_page=path == 'electorates/nelson/')
+                    if path == 'parties/':
+                        chips = page.locator('.party-picker a')
+                        for href in chips.evaluate_all('els=>els.map(e=>e.getAttribute("href"))'):
+                            assert page.locator(href).count() == 1, 'PARTY_PICKER_ANCHOR'
+                        if width == 390 and page.locator('.party-number').count():
+                            viewport = dict(width=width, height=height)
+                            vote_answer_check(page.locator('.party-picker'), viewport)
+                            vote_answer_check(page.locator('.party-number').first, viewport)
+                            chips.first.click()
+                            section = page.locator('.party-section').first
+                            for selector in ('.party-portrait', '.party-position', '.party-policy', '.party-candidates'):
+                                vote_answer_check(section.locator(selector).first, viewport)
+                            anchor_name = 'parties-first-anchor-390x844.png'
+                            page.screenshot(path=str(args.out / anchor_name))
+                            map_images.append(dict(state='parties-first-anchor', path=anchor_name,
+                                                   viewport=viewport))
                     if path == '' and width in (390, 1280) and page.locator('#markets').count():
                         page.locator('#markets').screenshot(path=str(args.out / f'markets-module-{width}.png'))
                         (args.out / f'markets-module-{width}.json').write_text(json.dumps(page.locator('#markets').bounding_box()))
@@ -573,7 +589,7 @@ def main():
                 assert len(captured) == len(set(captured)) == expected_count
                 assert set(captured) == {PREFIX + 'nz-election/' + r['path'] for r in routes}
         if not args.og_only and has_geography and has_baseline:
-            assert len(manifest) + len(additional) == 300 + len(ADVANCE_STATES) * len(ADVANCE_SIZES) + 6 + len(NIGHT_STATES) * len(NIGHT_SIZES), 'IMAGE_INVENTORY'
+            assert len(manifest) + len(additional) == 305 + len(ADVANCE_STATES) * len(ADVANCE_SIZES) + 6 + len(NIGHT_STATES) * len(NIGHT_SIZES), 'IMAGE_INVENTORY'
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()

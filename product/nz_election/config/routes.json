@@ -8,6 +8,10 @@
     "label": "Polls and seats"
   },
   {
+    "path": "parties/",
+    "label": "Parties"
+  },
+  {
     "path": "electorates/",
     "label": "Electorates"
   },

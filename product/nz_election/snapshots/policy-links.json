@@ -1,0 +1,55 @@
+{
+  "schema": "policy-links-v1",
+  "retrieved_at": "2026-10-22T07:00:00Z",
+  "records": [
+    {
+      "party_id": "nat",
+      "url": "https://policy.nz/2026/party-vote/parties/national-party",
+      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "party_id": "lab",
+      "url": "https://policy.nz/2026/party-vote/parties/labour-party",
+      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "party_id": "grn",
+      "url": "https://policy.nz/2026/party-vote/parties/green-party",
+      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "party_id": "act",
+      "url": "https://policy.nz/2026/party-vote/parties/act-party",
+      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "party_id": "nzf",
+      "url": "https://policy.nz/2026/party-vote/parties/nz-first",
+      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "party_id": "tpm",
+      "url": "https://policy.nz/2026/party-vote/parties/te-pati-maori",
+      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "party_id": "opp",
+      "url": "https://policy.nz/2026/party-vote/parties/opportunity-party",
+      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
+      "retrieved_at": "2026-10-22T07:00:00Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    }
+  ]
+}

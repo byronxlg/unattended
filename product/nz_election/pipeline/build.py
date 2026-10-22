@@ -2,7 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = []
 # ///
-"""Render 80 offline pages, validating everything before replacing product output."""
+"""Render 81 offline pages, validating everything before replacing product output."""
 import argparse
 from datetime import datetime
 from decimal import Decimal
@@ -123,6 +123,11 @@ def label(p):
     return config('party-colours').get(p, {}).get('label', 'Others' if p == 'others' else p)
 
 
+def party_link(p):
+    from product.nz_election.pipeline.parties_page import party_link as anchor
+    return anchor(p)
+
+
 def label_positions(anchors, width):
     # Reserve 60 px for an abbreviation and a three-digit count at 14 px.
     result, cursor = {}, 0
@@ -237,7 +242,7 @@ def strip(seats, note=''):
                 side = 'right' if line_anchor > line_left else 'left'
                 labels.append(f'<span class="label-connector {mode}" aria-hidden="true" style="left:{min(line_left, line_anchor):.6f}%;width:{abs(line_left-line_anchor):.6f}%;height:{6+line_row*21}px;border-{side}:1px solid var(--ink)"></span>')
         labels.append(f'<div class="lane" role="group" data-party="{p}" style="--row:{row};--left:{left:.6f}%;--large-left:{large_left:.6f}%" aria-label="{escape(label(p))}: {n} calculated seats"><span>{p.upper()}</span> <strong>{n}</strong></div>')
-        records.append([escape(label(p)), str(base), str(extra), str(n)])
+        records.append([party_link(p), str(base), str(extra), str(n)])
     marker = Decimal(seats['assumed_majority']) * 100 / total
     return (note + '<figure class="seat-figure" aria-describedby="source-seats"><div class="strip" role="img" '
             'aria-describedby="source-seats" aria-label="Theoretical party seats, detailed in the following table">' + ''.join(segments) +
@@ -318,7 +323,7 @@ def seat_module(envs, built, presentation=None):
     thresholds = '<section><h2>Which parties are near the 5 percent threshold?</h2><p class="threshold-rule" aria-describedby="source-thresholds">5% of the party vote qualifies a party with a list. An electorate win can also qualify it below 5%.</p>'
     watch = threshold_watch(polls, average, seats['assumptions'])
     thresholds += table('Parties near the threshold', ['Party', 'Share', 'Below 5%'],
-                     [[escape(label(row['party_id'])), display(row['value'], row['scale']),
+                     [[party_link(row['party_id']), display(row['value'], row['scale']),
                        'Electorate assumed' if row['electorate_qualifies'] else 'Needs 5%'] for row in watch], source='source-thresholds')
     for row in watch:
         if row['missing_poll_ids']:
@@ -354,7 +359,7 @@ def polls_page(envs, built, presentation=None, *, full_sources=False):
     details = '<div class="grid"><section><h2>What is the average party vote?</h2>'
     details += f'<p aria-describedby="source-average">Window: {average["window_start"]} to {average["window_end"]}. Equal weight for {len(average["poll_ids"])} polls.</p>'
     details += table('Descriptive shares and coverage', ['Party', 'Share', 'Polls'],
-                     [[escape(label(p)), display(d['value'], d['scale']), str(len(d['poll_ids']))]
+                     [[party_link(p), display(d['value'], d['scale']), str(len(d['poll_ids']))]
                       for p, d in average['descriptive'].items() if d['value'] is not None], source='source-average')
     if full_sources and average['missing']:
         details += '<p>Missing observations:</p><ul>' + ''.join(f'<li>{escape(m["poll_id"])}: {escape(label(m["party_id"]))}</li>' for m in average['missing']) + '</ul>'
@@ -555,9 +560,9 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                          data_available='polls' in envs), [], run_url, sha)
         export.pair(stage, 'build-manifest', manifest)
         routes = config('routes')
-        if len(routes) != 9 or {r['path'] for r in routes} != {'', 'polls/', 'electorates/', 'night/', 'vote/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
+        if len(routes) != 10 or {r['path'] for r in routes} != {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
             raise ValueError('INVALID_ROUTES')
-        primary_routes = [dict(r, label={'': 'Overview', 'polls/': 'Polls', 'night/': 'Night', 'vote/': 'Vote'}.get(r['path'], r['label'])) for r in routes if r['path'] in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'methods/'}]
+        primary_routes = [dict(r, label={'': 'Overview', 'polls/': 'Polls', 'night/': 'Night', 'vote/': 'Vote'}.get(r['path'], r['label'])) for r in routes if r['path'] in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'methods/'}]
         routes = routes + [dict(path='electorates/' + r['slug'] + '/', label=r['name']) for r in config('electorates')]
         from product.nz_election.pipeline.route_cards import route_key, summary, card, ORIGIN
         keys = [route_key(r["path"]) for r in routes]
@@ -580,6 +585,9 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                 body = page(envs, built, historical_advance)
                 from product.nz_election.pipeline.m3_checks import check_markup
                 check_markup(body, envs, historical_advance)
+            elif slug == 'parties/':
+                from product.nz_election.pipeline.parties_page import page
+                body = page(envs, built)
             elif slug == 'vote/':
                 from product.nz_election.pipeline.vote_page import page
                 body = page(built)
@@ -605,7 +613,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
             target.mkdir(parents=True, exist_ok=True)
             title = ('New Zealand votes on 7 November 2026' if slug == '' else
                      'Proof of concept: what X says about the parties' if slug == 'social/poc/' else route['label'])
-            heading = ('' if slug in {'', 'vote/'} else
+            heading = ('' if slug in {'', 'vote/', 'parties/'} else
                        '<h1>What do the polls tell us?</h1>' + ('<p aria-describedby="source-seats">' + escape(home['title']) + '</p>' if home['result'] else '') if slug == 'polls/' else
                        '<h1>' + escape({'night/': 'Election night results', 'electorates/': 'Who is standing in your electorate?', 'methods/': 'How are these numbers calculated?', 'downloads/': 'Where does the data come from?', 'campaign/': 'What is happening in the campaign?', 'social/poc/': 'What are people posting about the parties?'}.get(slug, title)) + '</h1>')
             title, description = summary(route, envs, home, built)
@@ -616,6 +624,10 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                                image=ORIGIN + PREFIX + cards[-1]['png'], heading=heading, prefix=PREFIX, nav=nav, body=body,
                                directory=directory_links(envs) if slug == '' else '',
                                built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.')
+            if slug in {'', 'polls/', 'methods/'}:
+                page_html = page_html.replace('</head>', f'<link rel="stylesheet" href="{PREFIX}party-links.css"></head>')
+            if slug == 'parties/':
+                page_html = page_html.replace('</head>', f'<link rel="stylesheet" href="{PREFIX}parties.css"></head>')
             if slug == 'vote/':
                 # Navigation follows the task so first-screen actions stay on EC services.
                 header = re.search(r'<header>.*?</header>', page_html, flags=re.S)[0]
@@ -626,6 +638,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
             shutil.copyfile(PRODUCT / 'web' / asset, stage / asset)
         for page in stage.rglob('*.html'):
             validate_scripts(page.read_text())
+        shutil.copyfile(PRODUCT / 'web/party-links.css', stage / 'party-links.css')
+        shutil.copyfile(PRODUCT / 'web/parties.css', stage / 'parties.css')
         shutil.copyfile(PRODUCT / 'web/night.css', stage / 'night.css')
         shutil.copyfile(PRODUCT / 'web/night.mjs', stage / 'night.mjs')
         shutil.copyfile(PRODUCT / 'web/night-parser.mjs', stage / 'night-parser.mjs')
@@ -649,7 +663,7 @@ def main():
     args = parser.parse_args()
     build(args.data, args.out, built=args.now, data_sha=args.data_sha or os.environ.get('NZ_DATA_SHA') or None,
           sha=os.environ.get('NZ_CODE_SHA'), historical_advance=args.historical_advance)
-    print('PASS build: 80 routes')
+    print('PASS build: 81 routes')
 
 
 if __name__ == '__main__':
