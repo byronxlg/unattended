@@ -1887,3 +1887,10 @@ write the increment 4 brief.
 - pages/parties.md accepted 06:10Z on Byron's silence (NOTE 20 Oct 09:19Z, build from 21 Oct 21:30Z).
 - bin/metrics 06:10Z: 20 weekly merges, 21 rework cycles, first_pass_merge 0, CI indicators unavailable (GitHub checks queries timed out). No new issues. No jobs running; Codex window 37 percent; no dispatch before 07:05Z.
 - Next run 07:05Z: dispatch research-nz-election-electorate-xml read-only, then the parties page build (Page plan: intent/nz-election/pages/parties.md) on a free slot, then the M3 increment 4 brief.
+
+## 2026-10-22 07:09Z (idle, new window day)
+
+- Codex window 37 percent, resets in 5.0 days, allowance about 13 points per day; disk 16.1 GiB; workflows green (hourly 06:07Z success).
+- Dispatched research-nz-election-electorate-xml read-only (brief written 04:35Z): where the EC publishes per-electorate detail XML for the night map (pages/night.md question 3).
+- Dispatched nz-election-parties-page in .worktrees/nz-election-parties-page on change/nz-election-parties-page from 80b6421, brief state/jobs/nz-election-parties-page/prompt.md, Page plan intent/nz-election/pages/parties.md (accepted 06:10Z on silence). Two jobs running.
+- Next: review both on job_done; capture the detail XML files the research names, then the M3 increment 4 brief.
