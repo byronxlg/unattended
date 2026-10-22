@@ -1921,3 +1921,11 @@ write the increment 4 brief.
 - nz-election-parties-page-fix-1 dispatched on the build thread (state/jobs/nz-election-parties-page/followup-1.md). Codex window 43 percent, about 5 points of today's 11 used.
 - m3-seats (increment 4) still running.
 - Next: on job_done host-verify fix-1 (pytest, lint, verify all) and rerun the harness; if HEADING_OUTLINE persists, fix-2 on the build thread naming the route; then second fresh review, merge, link to Byron; m3-seats review; after 19:45Z amend plan-m3 increment 5 if Byron is silent.
+
+## 2026-10-22 08:05Z (job_done nz-election-m3-seats)
+
+- nz-election-m3-seats 467512b (M3 increment 4: electorate leaders, searchable table, hex map, conservative seat calculations): Codex 1956 passed, 2 errors (Chromium could not launch in its sandbox), PASS waterfall, PASS all, lint ok.
+- Host: test_night_page.py and test_waterfall.py 73 passed with host Chromium (includes the two sandbox errors, test_xml_python_browser_parity and test_replay_makes_no_official_feed_request); bin/lint ok. Uncommitted last.md removed from the worktree.
+- Pushed, PR #62 opened, supervisor review logged, fresh review review-nz-election-m3-seats dispatched (read-only). Replay screenshots at 390 and 1280 still to be looked at before merge.
+- Running: nz-election-parties-page-fix-1, review-nz-election-m3-seats. Codex window 45 percent.
+- Next: on job_done merge #62 if accept and CI green and replay screenshots looked at, else fix-1; parties fix-1 host-verify and harness; after 19:45Z amend plan-m3 increment 5 if Byron is silent.
