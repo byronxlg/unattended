@@ -1623,6 +1623,138 @@
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
    "notes": "EC media demo feed, simulated changing count (not an election), observation 2 of a short sequence; feed updated=\"2026-10-20T14:23:02\" (NZ local, no offset). Electorate detail file paths not yet observed in the demo feed."
+  },
+  {
+   "path": "ec-2026-media-xml/election.xml",
+   "url": "https://media.election.net.nz/xml/election.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:04Z",
+   "sha256": "b1c7c2bef43698c811dfd8ad677612dc9249210e24a135f80aface3fe5449acb",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+  },
+  {
+   "path": "ec-2026-media-xml/electorates.xml",
+   "url": "https://media.election.net.nz/xml/electorates.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:05Z",
+   "sha256": "7aac8ed7d884279712abb6c7c7b93b3d451c0220a0827d79b326183f80de5e42",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+  },
+  {
+   "path": "ec-2026-media-xml/parties.xml",
+   "url": "https://media.election.net.nz/xml/parties.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:07Z",
+   "sha256": "d7cde2849d763f77ad587082bafeb846a1a31e3d3b1c519148a0f7abeff2d9b8",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+  },
+  {
+   "path": "ec-2026-media-xml/candidates.xml",
+   "url": "https://media.election.net.nz/xml/candidates.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:08Z",
+   "sha256": "1b591edcbc4dfda50890e19e66bd4743ea6dc710a249eff26f22ac277c6de326",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+  },
+  {
+   "path": "ec-2026-media-xml/statistics.xml",
+   "url": "https://media.election.net.nz/xml/statistics.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:09Z",
+   "sha256": "99e56893695b56e37957b06918408b2e48489afcb7f7fbc6a8abca6c46e3a131",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+  },
+  {
+   "path": "ec-2026-media-xml/e01/e01.xml",
+   "url": "https://media.election.net.nz/xml/e01/e01.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:10Z",
+   "sha256": "a2b577ea95d667a2ba038fa8fdf88e459dc61b3c7176c57aef8a5ef90ec13b6a",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+  },
+  {
+   "path": "ec-2026-media-xml/e02/e02.xml",
+   "url": "https://media.election.net.nz/xml/e02/e02.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:12Z",
+   "sha256": "a4f66ed6d779d5ed61316f3ceaf037e467a736c20e166a2662d38c13eee89645",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+  },
+  {
+   "path": "ec-2026-media-xml/e33/e33.xml",
+   "url": "https://media.election.net.nz/xml/e33/e33.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:13Z",
+   "sha256": "0cd218bc260683f2c48455b2de4df898ab797db4a6f08b33e8f9a1d9fbc59176",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+  },
+  {
+   "path": "ec-2026-media-xml/e64/e64.xml",
+   "url": "https://media.election.net.nz/xml/e64/e64.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:14Z",
+   "sha256": "9c10dedd37b5757a9281e1cb84274ed4f467ebd0bbd7391618ef9d4d034b442f",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+  },
+  {
+   "path": "ec-2026-media-xml/e65/e65.xml",
+   "url": "https://media.election.net.nz/xml/e65/e65.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:15Z",
+   "sha256": "1cbacb94e7f13038c3e4e7244db47cc5d94b4e85f3e2843f2da9a83b25fe6caa",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+  },
+  {
+   "path": "ec-2026-media-xml/e71/e71.xml",
+   "url": "https://media.election.net.nz/xml/e71/e71.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:17Z",
+   "sha256": "c03d9b7584b158a407387b7fae3fbfbaba0ea98acd1fd59511c0ad94eca0426b",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+  },
+  {
+   "path": "ec-2026-media-xml/e01/votingplaces/01-01001.xml",
+   "url": "https://media.election.net.nz/xml/e01/votingplaces/01-01001.xml",
+   "archive_url": null,
+   "captured_at": "2026-10-22T07:22:18Z",
+   "sha256": "6dd4f83cb09daa7be13ab45e3c1b43b044c8982a53bc232cade55bfd6fa1099c",
+   "reviewer": "supervisor (Claude), unattended lab",
+   "revision": null,
+   "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
   }
  ]
 }

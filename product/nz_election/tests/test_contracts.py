@@ -16,7 +16,7 @@ def bundle(tmp_path):
 
 
 def test_capture_manifest():
-    assert len(captures()) == 130
+    assert len(captures()) == 142
 
 
 def test_envelopes_and_provenance(bundle):
