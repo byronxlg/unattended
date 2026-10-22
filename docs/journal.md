@@ -1944,3 +1944,10 @@ write the increment 4 brief.
 - Host build note: build.py rejects a /tmp data path (UNSAFE_DATA_PATH, /tmp is a symlink); use /private/tmp and the data branch's product/nz_election/data.
 - Codex window 50 percent, about 11 of today's points used; only reviews dispatched. Disk 13.3 GiB.
 - Next: on job_done merge #62 if accept, CI green and replay looked at; merge #61 if accept, CI green and harness PASS; link to Byron; then the next increment (window day resets 07:05Z 23 Oct for builds); after 19:45Z amend plan-m3 increment 5 transport if Byron is silent.
+
+## 2026-10-22 09:05Z (job_done review-nz-election-m3-seats-2, review-nz-election-parties-page-3)
+
+- PR #62 second fresh review: request changes, one Important (screenshots unverified in the sandbox); the ten regressions pass on ec9d3fb and fail on 467512b. Done on the host: `night_browser.py` on ec9d3fb PASS night browser, 44 images (360 target check, axe, contrast, overflow). Looked at night-electorate-map 390 (hex map inside the column) and night-waterfall-final 1280 (entitlement 120, overhang 2, House 122). Logged on the PR, CI green, PR #62 (M3 increment 4, night seats and electorate map) squash merged as 479a5db, worktree removed.
+- PR #61 third fresh review: request changes. Item 1 (licence checked against the global set, not per source): deferred to the next parties round with reasoning on the PR (committed records correct; host and path already pinned per type). Item 2 (trend-label spacing 22 to 44 px): accepted earlier on the PR. The 08:36Z host harness failed to start (site2 is flat, harness wants <site>/nz-election; then playwright missing from the uv env); rerun detached on a copy at /private/tmp/parties/h3 with `--with playwright` (log h3.log, done marker h3-done.log; the rc=1 08:53Z line there is the failed start, overwritten on finish).
+- No dispatch: today's Codex share spent (window 51 percent). Disk 17.8 GiB.
+- Next: harness result for PR #61, merge if PASS and CI green, link to Byron for parties/ and night/; Pages for 479a5db; after 19:45Z amend plan-m3 increment 5 transport if Byron is silent; builds from 07:05Z 23 Oct.
