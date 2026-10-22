@@ -86,11 +86,11 @@ Every frame is packaged into inert HTML templates at build time. Playback makes 
 source downloads are explicit links. Static HTML keeps the usable final table if scripts fail.
 
 Run `uv run product/nz_election/tests/night_browser.py` for browser XML parity, replay controls,
-request assertions and the exact 20-image night registry. The full screenshot harness adds the
-same ten states at 390x844 and 1280x800. It requires a host that permits Chromium to launch.
+request assertions and the exact 44-image night registry. The full screenshot harness adds the
+same 22 states at 390x844 and 1280x800. It requires a host that permits Chromium to launch.
 
-Acceptance gaps in the current captures: there are no electorate leaders, margins or reporting
-statuses, so no electorate map/table is rendered. Intermediate illustrative snapshots contain no
+The replay includes provisional electorate leaders and margins from the captured 2023 candidate
+results, with a leader-coloured map and searchable table. Intermediate illustrative snapshots contain no
 seats or voting-place coverage. Synthetic steps have no observed update time, including the
 endpoint. Do not manufacture these fields from scaled votes, map historical electorates onto
 2026 boundaries, or describe this rehearsal as a live election. The 2026 final-results date is
@@ -110,3 +110,32 @@ CI installs Playwright Chromium before tests. The browser harness uses a local M
 binary when present, otherwise Playwright's default browser resolver; a missing installation
 still fails the tests. Screenshot states use the deterministic build time 2026-11-05T00:00:00Z
 and check countdown/vote bounds at 390x844 before recording the existing named images.
+
+## Packaged electorate leaders and seat calculation (increment 4)
+
+The 2026 media captures are read offline after manifest hash validation. Detail paths are
+`eNN/eNN.xml` for electorate IDs 1 through 71, with two-digit padding. No browser request is
+made: these captures have no CORS permission. Transport remains increment 5 work. The package
+includes the six captured details; other electorate rows say not yet reported. A zero-place,
+zero-vote detail is never a leader or final count, including when its XML says `final="true"`.
+
+The illustrative replay derives 2023 leaders and margins from captured per-electorate candidate
+CSV totals, using party and electorate IDs to join candidate references. Intermediate margins
+are scaled final margins, not historical observations. Port Waikato's deferred contest remains
+unreported in this replay. Historic names and boundaries remain intact; links identify today's
+related electorate pages without transferring historic votes. Grey hexagons have no reported
+leader. Reported ties show margin 0 and every tied candidate by name. The map is non-interactive;
+Table links are the accessible selection route, at least 24 px wide and 44 px high. The searchable
+table supplies names, provisional leaders, vote margins and reporting status without requiring a
+map or JavaScript.
+
+Source-reported seats remain distinct from the application calculation. The final 2023
+calculation uses the golden candidate/list inputs: proportional entitlement 120, overhang 2,
+vacancies 0, occupied House 122. Incomplete inputs and unresolved allocation ties suppress the
+waterfall. Unchecked list capacity suppresses vacancies and occupied House. No compatible dated
+preliminary/official captures are supplied, so production has no change comparison or specials
+component. Labelled synthetic pairs exercise that optional view in the proof harness.
+
+Run `PYTHONPATH=. uv run python product/nz_election/pipeline/verify.py waterfall` and the full
+night browser harness before release. The latter registers 22 states at both 390x844 and
+1280x800, including map, table, selected leader, seat calculation and comparison cases.

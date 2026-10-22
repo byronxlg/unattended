@@ -31,6 +31,8 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
         clock = row['source_updated_local']
         context.append(f'Source updated {clock[11:16]} on {clock[:10]} (source local time; timezone unverified).')
     content = '<p class="night-frame-context">' + escape(' '.join(context)) + '</p>' if context else ''
+    if row['mode'] == 'Packaged 2026 preliminary snapshot':
+        content += '<p>This dated packaged snapshot is not a live connection. Electorates without a captured detail file have not yet reported here.</p>'
     stats = row.get('statistics')
     if stats:
         percent = stats['percent_voting_places_counted']
@@ -58,8 +60,11 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
         content += '<ul class="night-combinations">' + ''.join('<li>' + ' + '.join(escape(names[p]) for p, _ in g) + f': {sum(n for _, n in g)} seats</li>' for g in winners) + '</ul>'
     content += f'<p class="night-votes"><strong>{row["valid_party_votes"]:,}</strong> valid party votes</p>'
     caption = 'Party results: ' + row['mode'] + ', ' + (row.get('source_updated_local') or str(row['elapsed_seconds']) + ' seconds')
-    content += table(caption, ['Party', 'Valid party votes'] + (['Seats'] if 'reported_house' in row else []),
-                     [[escape(names[p]), f'{r["votes"]:,}'] + ([str(r['total_seats'])] if 'reported_house' in row else []) for p, r in parties], source=source)
+    content += '<details><summary>Party votes and source-reported seats</summary>' + table(caption, ['Party', 'Valid party votes'] + (['Source-reported seats'] if 'reported_house' in row else []),
+                     [[escape(names[p]), f'{r["votes"]:,}'] + ([str(r['total_seats'])] if 'reported_house' in row else []) for p, r in parties], source=source) + '</details>'
+    from .night_electorates import electorate_view, seat_chart, comparison_view
+    content += electorate_view(row, refs, source, identity) + seat_chart(row, source)
+    content += comparison_view(row.get('preliminary_baseline'), row.get('official_result'), source)
     clock = row.get('source_updated_local')
     provenance = ('Source local timestamp ' + clock + ' (timezone unverified).' if clock else
                   'Illustrative elapsed time ' + str(row['elapsed_seconds']) + ' seconds; scaled final party votes, not observed election-night counts.')
@@ -102,7 +107,7 @@ def page(envs, built):
                 '<select id="night-speed"><option value="1">1x</option><option value="10">10x</option><option value="60">60x</option></select>'
                 '<span id="night-clock" aria-live="off">Paused</span>'
                 '<span id="night-announcement" role="status" aria-live="polite" aria-atomic="true"></span></div>')
-    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + controls + '<div id="night-snapshot">' + selected.replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="Party results:', 'aria-label="Static party results:') + '</div>'
+    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + controls + '<div id="night-snapshot">' + selected.replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ') + '</div>'
             '<p>2026: Preliminary; official results due 27 November.</p>' + links +
             ''.join(f'<template id="sequence-{s["id"]}">{p}</template>' for s, p in zip(sequences, panels)) +
             f'</div><script type="module" src="{PREFIX}night.mjs"></script>')

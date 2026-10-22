@@ -16,7 +16,7 @@ def bundle(tmp_path):
 
 
 def test_capture_manifest():
-    assert len(captures()) == 130
+    assert len(captures()) == 142
 
 
 def test_envelopes_and_provenance(bundle):
@@ -128,6 +128,10 @@ def test_hourly_daily_race_preserves_union(tmp_path):
     git(tmp_path, 'clone', '-q', '--branch', 'data', str(remote), str(checkout))
     envs = export.validate_bundle(checkout / DATA)
     assert set.union(*export.FAMILIES.values()) <= envs.keys()
+    from product.nz_election.pipeline import night
+    assert night.validate(checkout / DATA) == night.validate(daily)
+    for path in night.validate(daily):
+        assert (daily / path).read_bytes() == (checkout / DATA / path).read_bytes()
     assert {r['dataset'] for r in envs['status']['data']} == set(export.FAMILIES)
     assert 'Stats NZ' in (checkout / DATA / 'LICENCES.md').read_text()
     for source in (hourly, daily, social):

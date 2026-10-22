@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from .export import canonical, digest
 
 MAX_BYTES = 2_000_000
-COUNT_FIELDS = {'votes', 'party_seats', 'candidate_seats', 'total_seats', 'list_no',
+COUNT_FIELDS = {'total_voting_places', 'total_party_informals', 'total_candidate_informals', 'total_candidates', 'votes', 'party_seats', 'candidate_seats', 'total_seats', 'list_no',
                 'total_voting_places_counted', 'total_votes_cast', 'total_electorates_final',
                 'total_minimal_votes', 'total_special_votes', 'total_registered_parties'}
 
@@ -121,3 +121,39 @@ def election(raw, refs):
     return dict(reference_version=refs['reference_version'], source_updated_local=local,
                 statistics=stats, party_results=parties, valid_party_votes=valid,
                 reported_house=sum(p['total_seats'] for p in parties.values()))
+
+
+def detail(raw, refs):
+    root = document(raw, 'electorate')
+    ident = root.get('e_no')
+    if set(root.attrib) != {'e_no', 'final', 'updated'} or ident not in refs['electorates'] or root.get('final') not in {'true', 'false'}:
+        raise ValueError('XML_REFERENCE')
+    local = root.get('updated')
+    try:
+        if not re.fullmatch(r'\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d', local or ''):
+            raise ValueError
+        datetime.fromisoformat(local)
+    except ValueError:
+        raise ValueError('XML_TIMESTAMP') from None
+    if [n.tag for n in root] != ['statistics', 'partyvotes', 'candidatevotes']:
+        raise ValueError('XML_FIELDS')
+    stats = fields(root[0], ['total_voting_places', 'total_voting_places_counted', 'percent_voting_places_counted',
+                            'total_votes_cast', 'percent_votes_cast', 'total_party_informals', 'total_candidate_informals',
+                            'total_registered_parties', 'total_candidates'])
+    stats = {k: percent(v) if k.startswith('percent_') else count(v) for k, v in stats.items()}
+    parties = {p: count(r['votes']) for p, r in records(root[1], 'party', 'p_no', ['votes']).items()}
+    candidates = {c: count(r['votes']) for c, r in records(root[2], 'candidate', 'c_no', ['votes']).items()}
+    if set(parties) - refs['parties'].keys() or any(c not in refs['candidates'] or refs['candidates'][c]['electorate'] != ident for c in candidates):
+        raise ValueError('XML_REFERENCE')
+    if (stats['total_voting_places_counted'] > stats['total_voting_places'] or len(candidates) != stats['total_candidates']
+            or sum(parties.values()) + stats['total_party_informals'] > stats['total_votes_cast']
+            or sum(candidates.values()) + stats['total_candidate_informals'] > stats['total_votes_cast']):
+        raise ValueError('XML_TOTAL')
+    ordered = sorted(candidates, key=lambda c: (-candidates[c], c))
+    margin = candidates[ordered[0]] - (candidates[ordered[1]] if len(ordered) > 1 else 0)
+    reported = stats['total_voting_places_counted'] > 0 and sum(candidates.values()) > 0
+    leader = ordered[0] if reported and margin > 0 else None
+    return dict(electorate_id=ident, source_updated_local=local, statistics=stats, party_votes=parties,
+                candidate_votes=candidates, leader=leader, margin=margin if reported else None,
+                **({'tied_candidates': [c for c in ordered if candidates[c] == candidates[ordered[0]]]} if reported and margin == 0 else {}),
+                status='final' if reported and stats['total_voting_places'] > 0 and stats['total_voting_places_counted'] == stats['total_voting_places'] and root.get('final') == 'true' else 'provisional' if reported else 'not yet reported')

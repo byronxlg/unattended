@@ -87,6 +87,27 @@ def home_mark_geometry(page):
     return markers
 
 
+def night_target_check(page):
+    """Every visible night electorate has an adequately sized table selection route."""
+    sections = page.locator('.night-electorates')
+    if not sections.count():
+        return
+    assert page.locator('.night-leader-map a,.night-leader-map [tabindex]').count() == 0, 'NIGHT_SMALL_MAP_TARGET'
+    targets = page.locator('.night-electorates tbody tr').evaluate_all('''rows=>rows.filter(row=>row.getClientRects().length).map(row=>({
+        electorate:row.cells[0].textContent,
+        links:[...row.cells[0].querySelectorAll('a[href]')].map(link=>{
+            const box=link.getBoundingClientRect();
+            return {width:box.width,height:box.height,href:link.getAttribute('href'),name:link.textContent.trim()};
+        })
+    }))''')
+    assert targets, 'NIGHT_SELECTION_ROWS'
+    for row in targets:
+        assert row['links'], ('NIGHT_SELECTION_LINK', row['electorate'])
+        for link in row['links']:
+            assert link['width'] >= 24 and link['height'] >= 24, ('NIGHT_SELECTION_TARGET', row)
+            assert link['name'] and '/electorates/' in link['href'], ('NIGHT_SELECTION_DESTINATION', row)
+
+
 def check_page(page, url, site, origin):
     errors = []
     page.on('pageerror', lambda error: errors.append(str(error)))
@@ -142,6 +163,7 @@ def check_page(page, url, site, origin):
     assert all(contrast(c, paper) >= 3 for c in boundaries), 'BOUNDARY_CONTRAST'
     targets = page.locator('a:not(svg a),summary,button,input').evaluate_all('els=>els.filter(e=>e.getClientRects().length).map(e=>e.getBoundingClientRect().height)')
     assert all(height >= 44 for height in targets), 'SMALL_TARGET'
+    night_target_check(page)
     page.keyboard.press('Tab')
     focused = page.evaluate('''()=>{const e=document.activeElement,s=getComputedStyle(e);return {text:e.textContent,width:s.outlineWidth,color:s.outlineColor,top:e.getBoundingClientRect().top}}''')
     assert focused['text'] == 'Skip to content' and focused['width'] == '3px' and focused['top'] >= 0, 'FOCUS_NOT_VISIBLE'

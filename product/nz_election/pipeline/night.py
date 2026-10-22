@@ -3,25 +3,46 @@ from copy import deepcopy
 import json
 from pathlib import Path
 import re
-from . import export, fixtures, xml_parser
+from . import export, fixtures, xml_parser, baseline
 
 LABEL = 'Illustrative replay based on 2023 final results'
-MODES = {'final': 'Final snapshot', 'illustrative': LABEL, 'demo': 'Recorded demo'}
+MODES = {'final': 'Final snapshot', 'illustrative': LABEL, 'demo': 'Recorded demo', 'preliminary': 'Packaged 2026 preliminary snapshot'}
 
 
 def allowed(name):
     return isinstance(name, str) and bool(re.fullmatch(r'night/(?:index|references/[a-z0-9-]{1,80}|[a-z0-9-]{1,40}/[a-z0-9-]{1,80})\.(?:json|csv)', name))
 
 
+def archive_leaders(raw, refs):
+    result = {}
+    party_ids = {name: p for p, r in refs['parties'].items() for name in (r['short_name'], r['party_name'])}
+    for e in refs['electorates']:
+        path = f'ec-2023/candidate-votes-by-voting-place-{e}.csv'
+        rows = baseline.candidate_votes(raw[path], int(e)) if path in raw else None
+        leader, margin = None, None
+        if rows:
+            rows = sorted(rows, key=lambda r: -r['votes'])
+            party = party_ids.get(rows[0]['party'])
+            matches = [c for c, r in refs['candidates'].items() if r['electorate'] == e and r['party'] == party]
+            if len(matches) != 1:
+                raise ValueError('NIGHT_REFERENCE')
+            margin = rows[0]['votes'] - rows[1]['votes']
+            leader = matches[0] if margin > 0 else None
+        result[e] = dict(electorate_id=e, leader=leader, margin=margin,
+                         status='provisional' if leader else 'not yet reported',
+                         source_ref=[path] if path in raw else [])
+    return result
+
+
 def load():
     entries = json.loads((fixtures.ROOT / 'manifest.json').read_text())['entries']
-    entries = [e for e in entries if re.fullmatch(r'ec-(2017|2020|2023|mediademo)-xml/.*', e['path'])]
+    entries = [e for e in entries if re.fullmatch(r'ec-(2017|2020|2023|mediademo)-xml/.*|ec-2026-media-xml/.*|ec-2023/.*', e['path'])]
     raw = fixtures.captures(paths={e['path'] for e in entries})
     sources = [dict(id=e['path'], url=e['url'], revision=e['revision'], licence=e['licence'],
                     fetched_at=e['captured_at'], history_url=None) for e in entries]
     hashes = {e['path']: e['sha256'] for e in entries}
     payloads, sequences = {}, []
-    for year in ('2017', '2020', '2023', 'mediademo'):
+    for year in ('2017', '2020', '2023', 'mediademo', '2026-media'):
         prefix = 'ec-' + year + '-xml/'
         refs = xml_parser.references(*(raw[prefix + n + '.xml'] for n in ('parties', 'electorates', 'candidates')))
         refpath = 'night/references/' + year
@@ -31,7 +52,18 @@ def load():
         for name in names:
             result = xml_parser.election(raw[prefix + name + '.xml'], refs)
             path = 'night/' + year + '/' + result['source_updated_local'].replace(':', '').lower()
-            row = dict(id=path, source_ref=[prefix + name + '.xml'], mode=MODES['demo' if year == 'mediademo' else 'final'], **result)
+            row = dict(id=path, source_ref=[prefix + name + '.xml'], mode=MODES['demo' if year == 'mediademo' else 'preliminary' if year == '2026-media' else 'final'], **result)
+            if year == '2023':
+                row['leaders'] = archive_leaders(raw, refs)
+                row['allocation_input'] = fixtures.golden()['input']
+                row['capacity_verified'] = True
+            if year == '2026-media':
+                row['leaders'] = {}
+                for detail_path in raw:
+                    if re.fullmatch(prefix + r'e[0-9]{2}/e[0-9]{2}\.xml', detail_path):
+                        detail = xml_parser.detail(raw[detail_path], refs)
+                        detail['source_ref'] = [detail_path]
+                        row['leaders'][detail['electorate_id']] = detail
             payloads[path] = [row]
             paths.append(path + '.json')
         sequences.append(dict(id=year, source_ref=[prefix + n + '.xml' for n in names], sequence_id=year,
@@ -42,10 +74,16 @@ def load():
                 path = 'night/illustrative-2023/step-' + str(step)
                 sample = deepcopy(row)
                 sample.update(id=path, mode=LABEL, elapsed_seconds=step * 300,
-                              derivation=dict(method='floor(final party votes * numerator / 10)', numerator=numerator, denominator=10,
+                              derivation=dict(method='floor(final party votes and electorate margins * numerator / 10); leaders from final candidate totals', numerator=numerator, denominator=10,
                                               basis=paths[0]))
                 del sample['source_updated_local']
+                for leader in sample['leaders'].values():
+                    if leader['leader']:
+                        leader['margin'] = leader['margin'] * numerator // 10
+                        leader['status'] = 'provisional'
                 if numerator != 10:
+                    sample.pop('allocation_input', None)
+                    sample.pop('capacity_verified', None)
                     sample.pop('reported_house')
                     sample.pop('statistics')
                     sample['party_results'] = {p: dict(votes=r['votes'] * numerator // 10) for p, r in row['party_results'].items()}
@@ -65,12 +103,12 @@ def prepare(root, loaded, run_url, sha, now):
     for stem, data in payloads.items():
         if stem == 'night/index':
             continue
-        export.pair(root, stem, export.envelope(data, sources, run_url, sha, inputs=hashes, method='night-v1', generated=now))
+        export.pair(root, stem, export.envelope(data, sources, run_url, sha, inputs=hashes, method='night-v2', generated=now))
     index = deepcopy(payloads['night/index'])
     for sequence in index:
         paths = [sequence['reference_path']] + sequence['snapshot_paths']
         sequence['files'] = {name: export.digest((root / name).read_bytes()) for path in paths for name in (path, path[:-5] + '.csv')}
-    export.pair(root, 'night/index', export.envelope(index, sources, run_url, sha, inputs=hashes, method='night-v1', generated=now))
+    export.pair(root, 'night/index', export.envelope(index, sources, run_url, sha, inputs=hashes, method='night-v2', generated=now))
     validate(root)
 
 
@@ -89,6 +127,8 @@ def validate_mode(row):
             if refs != ['ec-2023-xml/election.xml'] or not isinstance(row['derivation'], dict) or not row['derivation']:
                 raise ValueError('NIGHT_MODE')
             expected = LABEL
+    elif refs == ['ec-2026-media-xml/election.xml'] and 'derivation' not in row:
+        expected = MODES['preliminary']
     else:
         raise ValueError('NIGHT_MODE')
     if row.get('mode') != expected:
@@ -132,7 +172,7 @@ def validate_row(row, stem):
 
 
 def validate_capture(row, env, cache):
-    if row['mode'] != MODES['final']:
+    if row['mode'] not in {MODES['final'], MODES['preliminary']}:
         return
     if len(row['source_ref']) != 1:
         raise ValueError('NIGHT_CAPTURE_MISMATCH')
@@ -169,6 +209,7 @@ def validate(root):
         expected = {'night/index.json', 'night/index.csv'}
         snapshots, ids = set(), set()
         capture_cache = {}
+        trusted, _, trusted_hashes = load()
         for seq in index:
             validate_row(seq, 'night/index')
             if seq['id'] in ids:
@@ -192,7 +233,7 @@ def validate(root):
                 env = export.validate_envelope(json.loads((root / path).read_text()), path[:-5])
                 if (root / (path[:-5] + '.csv')).read_bytes() != export.csv_bytes(env):
                     raise ValueError('NIGHT_CSV')
-                if len(env['data']) != 1 or any(env.get(k) != index_env.get(k) for k in ('source', 'input_hashes', 'generated_at', 'run_url', 'code_sha')):
+                if len(env['data']) != 1 or any(env.get(k) != index_env.get(k) for k in ('source', 'input_hashes', 'method_version', 'generated_at', 'run_url', 'code_sha')):
                     raise ValueError('NIGHT_GENERATION')
                 row = env['data'][0]
                 if path in seq['snapshot_paths'] and set(row['party_results']) - reference['parties'].keys():
@@ -203,6 +244,18 @@ def validate(root):
                     if row['mode'] != seq['mode']:
                         raise ValueError('NIGHT_MODE')
                     validate_capture(row, env, capture_cache)
+                    # Legacy national-only packages remain readable during the atomic upgrade.
+                    enhanced = env['method_version'] == 'night-v2' or any(
+                        p.startswith(('ec-2023/', 'ec-2026-media-xml/')) for p in env['input_hashes'])
+                    if enhanced:
+                        expected_row = trusted.get(path[:-5], [{}])[0]
+                        for key in ('leaders', 'allocation_input', 'capacity_verified', 'preliminary_baseline', 'official_result'):
+                            if row.get(key) != expected_row.get(key):
+                                raise ValueError('NIGHT_CAPTURE_MISMATCH')
+                        if any(env['input_hashes'].get(p) != h for p, h in trusted_hashes.items()):
+                            raise ValueError('NIGHT_CAPTURE_MISMATCH')
+                    elif any(k in row for k in ('leaders', 'allocation_input', 'capacity_verified', 'preliminary_baseline', 'official_result')):
+                        raise ValueError('NIGHT_CAPTURE_MISMATCH')
             if seq['mode'] == 'Final snapshot' and len(seq['snapshot_paths']) != 1:
                 raise ValueError('NIGHT_INDEX')
         if not index or actual != expected:

@@ -8,7 +8,7 @@ export function percent(value) {
   if (typeof value !== 'string' || /^[0-9]{1,3}(\.[0-9]{1,2})?$/.exec(value)?.[0] !== value || Number(value) > 100) fail('XML_PERCENT');
   return value;
 }
-const counts = new Set(['votes','party_seats','candidate_seats','total_seats','list_no','total_voting_places_counted','total_votes_cast','total_electorates_final','total_minimal_votes','total_special_votes','total_registered_parties']);
+const counts = new Set(['total_voting_places','total_party_informals','total_candidate_informals','total_candidates','votes','party_seats','candidate_seats','total_seats','list_no','total_voting_places_counted','total_votes_cast','total_electorates_final','total_minimal_votes','total_special_votes','total_registered_parties']);
 export function documentXML(raw, tag) {
   if (!(raw instanceof Uint8Array) || !raw.length || raw.length > 2000000) fail('XML_DOCUMENT');
   let text;
@@ -83,4 +83,21 @@ export function election(raw, refs) {
     if (valid && (delta < 0n ? -delta : delta) > valid) fail('XML_TOTAL');
   }
   return {reference_version:refs.reference_version,source_updated_local:local,statistics:stats,party_results:parties,valid_party_votes:Number(valid),reported_house:Number(sum('total_seats'))};
+}
+export function detail(raw, refs) {
+  const root = documentXML(raw, 'electorate'), id = root.getAttribute('e_no'), local = root.getAttribute('updated');
+  if (root.attributes.length !== 3 || [...root.attributes].some(a=>!['e_no','final','updated'].includes(a.name)) || !Object.hasOwn(refs.electorates,id) || !['true','false'].includes(root.getAttribute('final'))) fail('XML_REFERENCE');
+  if (!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/.test(local || '') || local.startsWith('0000') || !Number.isFinite(Date.parse(local+'Z')) || new Date(local+'Z').toISOString().slice(0,19) !== local) fail('XML_TIMESTAMP');
+  if ([...root.children].map(c=>c.tagName).join(',') !== 'statistics,partyvotes,candidatevotes') fail('XML_FIELDS');
+  const stats = Object.fromEntries(Object.entries(fields(root.children[0], ['total_voting_places','total_voting_places_counted','percent_voting_places_counted','total_votes_cast','percent_votes_cast','total_party_informals','total_candidate_informals','total_registered_parties','total_candidates'])).map(([k,v])=>[k,k.startsWith('percent_')?percent(v):count(v)]));
+  const parties = Object.fromEntries(Object.entries(records(root.children[1],'party','p_no',['votes'])).map(([k,v])=>[k,count(v.votes)]));
+  const candidates = Object.fromEntries(Object.entries(records(root.children[2],'candidate','c_no',['votes'])).map(([k,v])=>[k,count(v.votes)]));
+  if (Object.keys(parties).some(p=>!Object.hasOwn(refs.parties,p)) || Object.keys(candidates).some(c=>!Object.hasOwn(refs.candidates,c) || refs.candidates[c].electorate !== id)) fail('XML_REFERENCE');
+  const sum = obj=>Object.values(obj).reduce((a,b)=>a+b,0);
+  if (stats.total_voting_places_counted > stats.total_voting_places || Object.keys(candidates).length !== stats.total_candidates || sum(parties)+stats.total_party_informals > stats.total_votes_cast || sum(candidates)+stats.total_candidate_informals > stats.total_votes_cast) fail('XML_TOTAL');
+  const ordered=Object.keys(candidates).sort((a,b)=>candidates[b]-candidates[a] || (a<b?-1:1));
+  const margin=candidates[ordered[0]]-(ordered.length>1?candidates[ordered[1]]:0);
+  const reported=stats.total_voting_places_counted>0 && sum(candidates)>0;
+  const leader=reported && margin>0 ? ordered[0] : null;
+  return {electorate_id:id,source_updated_local:local,statistics:stats,party_votes:parties,candidate_votes:candidates,leader,margin:reported?margin:null,...(reported && margin===0?{tied_candidates:ordered.filter(c=>candidates[c]===candidates[ordered[0]])}:{}),status:reported && stats.total_voting_places>0 && stats.total_voting_places_counted===stats.total_voting_places && root.getAttribute('final')==='true'?'final':reported?'provisional':'not yet reported'};
 }
