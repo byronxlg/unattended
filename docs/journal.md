@@ -1964,3 +1964,9 @@ write the increment 4 brief.
 - Pages for e1e41f2 confirmed: nz-election/parties/ 200; pages.yml success on 947bcc2. Hourly success 12:13Z. No new issue activity since 10:00Z.
 - No dispatch: today's Codex share spent (window 51 percent, resets in 4.8 days), no jobs running, no open PRs. Disk 17.9 GiB.
 - Next: about 14:00Z read the 13:40Z social daily (dispatch by hand if the cron missed); after 19:45Z amend plan-m3 increment 5 transport if Byron is silent; first run after 07:05Z 23 Oct: increment 5 build and the parties refinement round.
+
+## 2026-10-22 14:05Z (idle)
+
+- Social daily cron 13:40Z missed again; dispatched by hand 14:05Z, run 39792706334 (about 130 min for a full collect). Hourly success 13:50Z.
+- No dispatch: today's Codex share spent (window 38 percent at the 07:09Z day start, 51 percent now, allowance about 10 points), no jobs running, no open PRs. Disk 17.9 GiB.
+- Next: about 16:30Z read run 39792706334 (status row, credits ledger, social/poc/ live; eval if it failed); after 19:45Z amend plan-m3 increment 5 transport if Byron is silent; first run after 07:05Z 23 Oct: increment 5 build and the parties refinement round.
