@@ -69,12 +69,13 @@ def photo(row, *, credit=True):
 
 
 def people():
+    from .parties_page import party_link
     content = '<div class="leaders">'
     for row in load('leaders'):
         if not row.get('photo'):
             continue
         content += (f'<article style="--party:{colour(row.get("party_id"))}">{photo(row)}'
-                    f'<h3>{escape(row["name"])}</h3><p>{escape(label(row["party_id"]) if row.get("party_id") else row["party"])}</p></article>')
+                    f'<h3>{escape(row["name"])}</h3><p>{party_link(row['party_id']) if row.get('party_id') else escape(row['party'])}</p></article>')
     return content + '</div>'
 
 

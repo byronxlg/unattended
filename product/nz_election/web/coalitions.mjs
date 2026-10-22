@@ -117,7 +117,8 @@ export function stripHTML(result, labels, caption='Theoretical seats and overhan
       }
     }
     lanes+=`<div class="lane" role="group" data-party="${htmlEscape(p)}" style="--row:${mobile[p].row};--left:${fixed(mobile[p].left)}%;--large-left:${fixed(desktop[p].left)}%" aria-label="${name}: ${n} calculated seats"><span>${htmlEscape(p.toUpperCase())}</span> <strong>${n}</strong></div>`;
-    rows+=`<tr><td>${name}</td><td>${base}</td><td>${n-base}</td><td>${n}</td></tr>`;
+    const partyName=[...grouped,'opp'].includes(p)?`<a href="/unattended/nz-election/parties/#${htmlEscape(p)}">${name}</a>`:name;
+    rows+=`<tr><td>${partyName}</td><td>${base}</td><td>${n-base}</td><td>${n}</td></tr>`;
   }
   return '<figure class="seat-figure" aria-describedby="source-seats"><div class="strip" role="img" '+
     'aria-describedby="source-seats" aria-label="Theoretical party seats, detailed in the following table">'+segments+

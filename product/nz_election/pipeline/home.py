@@ -5,6 +5,7 @@ from html import escape
 from .build import (PREFIX, config, render, label, source_note, seat_module,
                     observation_label, compact_time, link, derivation_note)
 from .average import display
+from .parties_page import party_link
 from .presentation import overdue
 from .home_charts import svg, fallback, poll_chart, trend_chart, threshold_chart, text
 
@@ -97,7 +98,7 @@ def poll_figures(envs, presentation):
     figures = '<div class="poll-figures" aria-describedby="source-average">'
     for i, (party, value) in enumerate(ordered):
         colour = config('party-colours').get(party, {}).get('colour', 'var(--surface)')
-        figures += f'<p><span class="swatch" style="background:{colour}"></span>{escape(label(party))} <strong class="{"leading" if i < 2 else "remaining"}">{display(value["value"], value["scale"])}</strong></p>'
+        figures += f'<p><span class="swatch" style="background:{colour}"></span>{party_link(party)} <strong class="{"leading" if i < 2 else "remaining"}">{display(value["value"], value["scale"])}</strong></p>'
     figures += '</div>'
     selected = presentation['selected']
     if selected:

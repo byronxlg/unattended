@@ -10,7 +10,7 @@ from product.nz_election.tests.test_home import populated
 
 def test_all_routes_after_client_startup(populated):
     _, site = populated
-    assert check_site(site) == 80
+    assert check_site(site) == 81
     polls = rendered_page(site, (site / 'polls/index.html').read_text())
     names = [attrs['aria-label'] for _, attrs in Document(polls).nodes if attrs.get('role') == 'region']
     assert names.count('Theoretical seats and overhang') == 1

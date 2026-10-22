@@ -22,6 +22,11 @@ def colour(party):
     return config('party-colours').get(party, {}).get('colour', 'var(--grey)')
 
 
+def party_text(p, suffix="", css="", style=""):
+    from .parties_page import party_link
+    return f'<span class="chart-label {css}" style="{style}">' + party_link(p, label(p) + suffix) + "</span>"
+
+
 def text(value, css='', style=''):
     return f'<span class="chart-label {css}" style="{style}">{escape(str(value))}</span>'
 
@@ -51,7 +56,7 @@ def poll_chart(rows, parties, names):
                 symbol = f'<path d="M5 1l4 8H1Z" fill="{fill}"/>'
             symbols += (f'<svg class="poll-marker" viewBox="0 0 10 10" aria-hidden="true" aria-describedby="source-polls" '
                         f'style="left:{x*100/350:.6f}%;top:{y}px">{symbol}</svg>')
-        body += ('<div class="chart-row">' + text(label(party)) + '<div class="trend-plot">'
+        body += ('<div class="chart-row">' + party_text(party) + '<div class="trend-plot">'
                  + svg('polls', label(party) + ' poll shares', marks, 48) + symbols + '</div></div>')
     ticks = '<div class="chart-axis">' + ''.join(text(f'{n}%', 'numeric', f'left:{Decimal(n)*100/maximum:.1f}%') for n in range(0, maximum+1, 10)) + '</div>'
     return legend + body + '<div class="chart-row"><span></span>' + ticks + '</div>'
@@ -65,7 +70,7 @@ def threshold_chart(rows):
         status = 'At or above 5%' if r['value'] is not None and r['value'] >= 5*r['scale'] else 'Electorate assumed' if r['electorate_qualifies'] else 'Needs 5%'
         width = Decimal(r['value'] or 0)*350/r['scale']/maximum
         marks = f'<rect x="0" y="12" width="{width:.1f}" height="14" fill="{colour(r["party_id"])}"/><path d="M{1750/maximum:.1f} 0V40" stroke="var(--ink)" stroke-dasharray="4 3"/>'
-        body += ('<div class="chart-row threshold-row"><div>' + text(label(r['party_id'])) + text(status, 'chart-status') + '</div>'
+        body += ('<div class="chart-row threshold-row"><div>' + party_text(r['party_id']) + text(status, 'chart-status') + '</div>'
                  + svg('thresholds', label(r['party_id']) + ': ' + value + '; ' + status, marks, 40) + text(value, 'numeric') + '</div>')
     return text('Dashed line: 5%', 'chart-status') + body
 
@@ -102,13 +107,13 @@ def trend_chart(averages, parties):
     for py, party, (x, _, value, observed) in sorted(ends):
         if observed != averages[-1]['date']:
             stamp = date.fromisoformat(observed)
-            stale_labels += text(f'{label(party)} {value} ({stamp.day} {stamp:%b})', 'trend-stale',
+            stale_labels += party_text(party, f' {value} ({stamp.day} {stamp:%b})', 'trend-stale',
                 f'position:absolute;left:{x*100/350:.6f}%;top:{py-20:.1f}px;transform:translateY(-100%);max-width:132px')
             continue
-        position = max(py, previous+22)
+        position = max(py, previous+44)
         previous = position
         marks += f'<path d="M{x:.1f} {py:.1f}L350 {position:.1f}" stroke="{colour(party)}" fill="none"/>'
-        labels += text(label(party) + ' ' + value, '', f'top:{position-8:.1f}px')
+        labels += party_text(party, ' ' + value, '', f'top:{position-8:.1f}px')
     height = max(290, int(previous)+25)
     first_date, last_date = (date.fromisoformat(a['date']) for a in (averages[0], averages[-1]))
     return (text('Party vote percent; dashed line: 5%', 'chart-status') + f'<div class="trend-layout" style="height:{height}px"><div class="trend-labels">' + axis + '</div>'

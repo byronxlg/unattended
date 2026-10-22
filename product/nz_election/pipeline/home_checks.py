@@ -44,7 +44,7 @@ def check_site(site, envs):
     require(len(home.encode()) + (site / 'styles.css').stat().st_size < 200_000, 'home byte budget')
     require((site / 'styles.css').stat().st_size < 19_000, 'CSS budget')
     expected = {r['path'] + 'index.html' for r in config('routes')} | {'electorates/' + r['slug'] + '/index.html' for r in config('electorates')}
-    require(len(expected) == 80 and {p.relative_to(site).as_posix() for p in site.rglob('index.html')} == expected, '80 exact routes')
+    require(len(expected) == 81 and {p.relative_to(site).as_posix() for p in site.rglob('index.html')} == expected, '81 exact routes')
     for path in site.rglob('index.html'):
         html = path.read_text()
         nav = html.split('<header>')[1].split('</header>')[0]

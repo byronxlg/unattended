@@ -12,13 +12,14 @@ PRODUCT = Path(__file__).resolve().parents[1]
 SNAPSHOTS = PRODUCT / 'snapshots'
 NAMES = frozenset({'leaders', 'candidates-2026', 'enrolment', 'port-waikato-2023',
                    'history', 'hexmap', 'positions', 'voting', 'donations', 'boundaries-2025',
-                   'candidate-reconciliation-2026', 'pollster-record'})
+                   'candidate-reconciliation-2026', 'pollster-record', 'policy-links', 'party-list-tops'})
 BOUNDARY_BYTE_LIMIT = 400_000
 BANNED = re.compile(r'\b(?:not available|unavailable|pending|missing)\b', re.I)
 PHOTO_LICENCES = frozenset({'CC0', 'CC BY 4.0', 'CC BY-SA 4.0', 'CC BY 3.0',
                             'CC BY-SA 3.0', 'Public domain', 'NZ Crown copyright'})
 RECORD_LICENCES = PHOTO_LICENCES | frozenset({
     'CC BY 4.0 (Stats NZ)',
+    'Links only; no policy text reused and no reuse licence claimed.',
     'Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.',
     'Copyright ACT New Zealand; no open licence stated. Short attributed quotation.',
     'Copyright NZME; no open licence stated. Short attributed quotation.',
@@ -196,6 +197,8 @@ def load(name):
     Invalid envelopes, records, identifiers and photo metadata raise ValueError.
     """
     _require(isinstance(name, str) and name in NAMES, 'Unknown snapshot name')
+    if name in {'policy-links', 'party-list-tops'}:
+        return load_party_details(name)
     if name == 'pollster-record':
         from .pollster_scorecard import load_pollster_record
         return load_pollster_record()
@@ -419,4 +422,53 @@ def load_voting():
     _require(bool(dates), 'voting_date_invalid: no dates')
     for refs in actions:
         _require(all(ref in dates for ref in refs), 'voting_deadline: unknown date')
+    return rows
+
+
+def load_party_details(name):
+    _require(name in {'policy-links', 'party-list-tops'}, 'Unknown party snapshot')
+    from .refresh import config
+    path = SNAPSHOTS / (name + '.json')
+    _require(not path.is_symlink(), 'Party snapshot must not be a symlink')
+    raw = path.read_text()
+    _require(not BANNED.search(raw), 'Party snapshot contains a banned phrase')
+    data = json.loads(raw)
+    _require(isinstance(data, dict), 'Invalid party snapshot envelope')
+    _require(data.get('schema') == name + '-v1', 'Invalid party snapshot schema')
+    _timestamp(data.get('retrieved_at'))
+    rows = data.get('records')
+    _require(isinstance(rows, list), 'Invalid party records')
+    parties = {p['id'] for p in config('party-map')['parties'] if not p['aggregate']}
+    seen = set()
+    for row in rows:
+        _require(isinstance(row, dict), 'Invalid party record')
+        p = row.get('party_id')
+        _require(isinstance(p, str) and p in parties and p not in seen, 'Invalid party identity')
+        seen.add(p)
+        _require(_url(row.get('source_url')), 'Invalid party source')
+        source = urlsplit(row['source_url'])
+        _require(_text(row.get('licence')) and row['licence'] in RECORD_LICENCES,
+                 'Unknown record licence')
+        _timestamp(row.get('retrieved_at'))
+        if name == 'policy-links':
+            _require(set(row) <= {'party_id', 'url', 'source_url', 'licence',
+                                  'source_locator', 'retrieved_at'}, 'Policy records must be links only')
+            _require(source.scheme == 'https' and source.netloc == 'policy.nz',
+                     'Invalid policy source')
+            if 'source_locator' in row:
+                _require(_text(row['source_locator']), 'Invalid policy source locator')
+            _require(isinstance(row.get('url'), str) and re.fullmatch(
+                r'https://policy\.nz/2026/party-vote/parties/[a-z0-9]+(?:-[a-z0-9]+)*',
+                row['url']) is not None, 'Invalid policy URL')
+        else:
+            _require(source.scheme == 'https'
+                     and source.netloc in {'vote.nz', 'www.vote.nz', 'elections.nz', 'www.elections.nz'}
+                     and source.path == '/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf'
+                     and not source.query and not source.fragment, 'Invalid EC party list source')
+            _require(_text(row.get('source_locator')), 'Invalid list source locator')
+            candidates = row.get('candidates')
+            _require(isinstance(candidates, list) and 0 < len(candidates) <= 5, 'Invalid list top')
+            for rank, candidate in enumerate(candidates, 1):
+                _require(isinstance(candidate, dict) and type(candidate.get('rank')) is int
+                         and candidate['rank'] == rank and _text(candidate.get('name')), 'Invalid list rank')
     return rows
