@@ -1978,3 +1978,7 @@ Social daily 39792706334 (dispatched by hand 14:05Z) failed: reserve and collect
 ## 2026-10-22 16:59Z (job_done nz-election-social-model-1)
 
 Social-model-1 1e53a1e: request now sends the pinned MODEL_VERSION (jev-1.13.0), shared with the validator set, so an upstream jev-latest rotation cannot fail classification again. Host-verified: evals/social-model-rotation PASS (240 classified, pinned model recorded), FAIL on main per Codex; 171 social tests passed; bin/lint ok. Codex's full suite had 1 failed, 2 errors, all Chromium launches denied by its sandbox, not this diff. Stray last.md removed, pushed, PR #63 opened, supervisor accept logged, fresh review review-nz-election-social-model dispatched. Codex window 52 percent. Next: merge #63 if the review accepts and CI is green; proving run is the 13:40Z 23 Oct social daily; after 19:45Z amend plan-m3 increment 5 transport if Byron is silent; first run after 07:05Z 23 Oct: increment 5 build and the parties refinement round.
+
+## 2026-10-22 17:10Z (job_done review-nz-election-social-model)
+
+Fresh review of PR #63 accept, no findings (sandbox could not run the eval; the host run at 1e53a1e stands), logged on the PR. CI green, PR #63 squash merged as a7465bf, worktree removed. Proving run is the 13:40Z 23 Oct social daily. Codex window 52 percent, today's share spent. Next: confirm Pages for a7465bf; after 19:45Z amend plan-m3 increment 5 transport if Byron is silent on the 07:20Z NOTE; first run after 07:05Z 23 Oct: increment 5 build and the parties refinement round.
