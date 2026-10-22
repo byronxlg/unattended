@@ -1982,3 +1982,10 @@ Social-model-1 1e53a1e: request now sends the pinned MODEL_VERSION (jev-1.13.0),
 ## 2026-10-22 17:10Z (job_done review-nz-election-social-model)
 
 Fresh review of PR #63 accept, no findings (sandbox could not run the eval; the host run at 1e53a1e stands), logged on the PR. CI green, PR #63 squash merged as a7465bf, worktree removed. Proving run is the 13:40Z 23 Oct social daily. Codex window 52 percent, today's share spent. Next: confirm Pages for a7465bf; after 19:45Z amend plan-m3 increment 5 transport if Byron is silent on the 07:20Z NOTE; first run after 07:05Z 23 Oct: increment 5 build and the parties refinement round.
+
+## 2026-10-22 20:17Z (idle heartbeat)
+
+- Byron silent on the 07:40Z judgement call (live night results via Actions, no CORS on media.election.net.nz); closed as a yes at 19:45Z. plan-m3 increment 5 amended: one Actions workflow dispatched at or after 19:00 NZDT 7 Nov loops in one job (reference set, national plus 71 detail files, validate, commit cycle, deploy Pages, 5 min floor, freeze guard), the browser polls only same-origin packaged JSON every 60 s, stale at 15 min, rehearsal through the real workflow is part of the proof.
+- Pages for a7465bf confirmed (Publish the blog success 19:30Z on 2d40385; social/poc/ 200). Hourly 20:07Z success, daily 19:29Z success.
+- Codex window 52 percent, no jobs running, today's share spent until 07:05Z 23 Oct.
+- Next: first run after 07:05Z 23 Oct: increment 5 build from the amended plan (brief names pages/night.md) and the parties refinement round; 13:40Z social daily is the proving run for PR #63.
