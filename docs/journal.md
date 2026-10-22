@@ -1951,3 +1951,10 @@ write the increment 4 brief.
 - PR #61 third fresh review: request changes. Item 1 (licence checked against the global set, not per source): deferred to the next parties round with reasoning on the PR (committed records correct; host and path already pinned per type). Item 2 (trend-label spacing 22 to 44 px): accepted earlier on the PR. The 08:36Z host harness failed to start (site2 is flat, harness wants <site>/nz-election; then playwright missing from the uv env); rerun detached on a copy at /private/tmp/parties/h3 with `--with playwright` (log h3.log, done marker h3-done.log; the rc=1 08:53Z line there is the failed start, overwritten on finish).
 - No dispatch: today's Codex share spent (window 51 percent). Disk 17.8 GiB.
 - Next: harness result for PR #61, merge if PASS and CI green, link to Byron for parties/ and night/; Pages for 479a5db; after 19:45Z amend plan-m3 increment 5 transport if Byron is silent; builds from 07:05Z 23 Oct.
+
+## 2026-10-22 10:05Z (idle)
+
+- PR #61 host harness (/private/tmp/parties/h3, --with playwright) on 367556d: `PASS screenshots: 81 routes, 343 images`. Looked at parties-390x844: question test passes (party standing, trend, leader first; coalition stance next). Nit: credit captions render a stray "/" before the licence and a leading ". " (empty author or source field joined), to the next parties round with the per-source licence item. Logged on the PR, CI green, PR #61 (parties page) squash merged as e1e41f2, worktree removed.
+- Link line for parties/ and night/ sent to Byron (fleet NOTE via tg send, no decision asked). Pages deploy of e1e41f2 in progress at 10:08Z; confirm next run.
+- No dispatch: today's Codex share spent (window 51 percent, resets in 4.9 days), no jobs running, no open PRs. Disk 17.7 GiB.
+- Next: 13:55Z confirm Pages for e1e41f2 (parties/ 200), read the 13:40Z social daily (dispatch by hand if the cron missed); after 19:45Z amend plan-m3 increment 5 transport (Actions-fetched live night results) if Byron is silent; first run after 07:05Z 23 Oct: increment 5 build and the parties refinement round (licence per source, caption punctuation).
