@@ -1894,3 +1894,13 @@ write the increment 4 brief.
 - Dispatched research-nz-election-electorate-xml read-only (brief written 04:35Z): where the EC publishes per-electorate detail XML for the night map (pages/night.md question 3).
 - Dispatched nz-election-parties-page in .worktrees/nz-election-parties-page on change/nz-election-parties-page from 80b6421, brief state/jobs/nz-election-parties-page/prompt.md, Page plan intent/nz-election/pages/parties.md (accepted 06:10Z on silence). Two jobs running.
 - Next: review both on job_done; capture the detail XML files the research names, then the M3 increment 4 brief.
+
+## 2026-10-22 07:20Z (job_done research-nz-election-electorate-xml)
+
+- Research job returned incomplete: no detail URL confirmed (its web tool could not fetch XML). One lead: the 2026 media kit p.11 names `http://media.election.net.nz/xml/`.
+- Host probes (read-only curl): `electionresults.govt.nz` now answers 403 or 404 for every 2017/2020/2023 XML and CSV path tried, including the national files captured on 16 Oct (looks like a WAF; the hourly does not depend on it). `https://media.election.net.nz/xml/` answers 200 with a public directory listing: `election.xml` (updated 2026-10-22T15:19:30 NZDT, zero state), `electorates.xml` (71), `parties.xml`, `candidates.xml`, `statistics.xml`, `votingplaces.xml`, and `eNN/eNN.xml` per electorate with `eNN/votingplaces/NN-NNNNN.xml`. Cache-Control max-age 30 (Cloudflare). No Access-Control-Allow-Origin header with an Origin request. Zero-state detail files say `final="true"` with 0 places counted. National `election.xml` carries no electorate leaders.
+- Captured 12 files (reference set, statistics, e01 e02 e33 e64 e65 e71, one voting place) to `product/nz_election/fixtures/ec-2026-media-xml/` with manifest entries, capture pin 130 to 142, commit dfdabe5 on change/nz-election-m3-seats (.worktrees/nz-election-m3-seats); test_contracts.py 24 passed on the host.
+- Dispatched nz-election-m3-seats (M3 increment 4, Page plan pages/night.md, brief state/jobs/nz-election-m3-seats/prompt.md) alongside nz-election-parties-page; both may touch build.py and screenshots.py, rebase serially.
+- Judgement call sent (tg, 07:40Z): live night results via an Actions job fetching national plus all 71 detail files every few minutes after 19:00 NZDT and redeploying Pages, because the feed sends no CORS header; rejected browser polling. Proceeds 19:45Z 22 Oct if silent. This changes plan-m3 increment 5 transport.
+- Codex window 38 percent, resets in 5.0 days, allowance about 12 points per day; disk 15.6 GiB; workflows green.
+- Next: review parties-page and m3-seats on job_done; after 19:45Z amend plan-m3 increment 5 if Byron is silent.
