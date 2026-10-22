@@ -1929,3 +1929,10 @@ write the increment 4 brief.
 - Pushed, PR #62 opened, supervisor review logged, fresh review review-nz-election-m3-seats dispatched (read-only). Replay screenshots at 390 and 1280 still to be looked at before merge.
 - Running: nz-election-parties-page-fix-1, review-nz-election-m3-seats. Codex window 45 percent.
 - Next: on job_done merge #62 if accept and CI green and replay screenshots looked at, else fix-1; parties fix-1 host-verify and harness; after 19:45Z amend plan-m3 increment 5 if Byron is silent.
+
+## 2026-10-22 08:20Z (job_done nz-election-parties-page-fix-1, review-nz-election-m3-seats)
+
+- Fresh review of PR #62 (m3-seats): request changes, three Important: the seven Maori electorates at x=15 render 451-479 px, outside the 450 viewBox (night_electorates.py:81); a reported 100-100 tie returns margin None in both parsers and reads "Not yet reported" (xml_parser.py:157, night-parser.mjs:102); hex targets about 17x18 px with the target check excluding SVG links. Nit: runbook/night.md:88-94 stale. Supervisor agrees with all four, logged on PR #62; fix-1 nz-election-m3-seats-fix-1 dispatched on the build thread (state/jobs/nz-election-m3-seats-fix-1/prompt.md; viewBox containment test, tie parity in both parsers, 24 px target route covered by the harness).
+- PR #61 fix-1 bbbb576: Codex 1858 passed (sandbox Chromium errors only), PASS all, lint ok. Host build on live data (/tmp/parties/site, PASS build 81 routes) and a static outline scan: parties/ main headings h1 then h3, the HEADING_OUTLINE failure; all other 80 routes pass. fix-2 nz-election-parties-page-fix-2 dispatched on the build thread with a browserless outline test shown failing on bbbb576. Logged on PR #61.
+- Codex window 47 percent at dispatch, about 9 of today's 11 points used; both dispatches are fix rounds on open PRs. Disk 15.8 GiB.
+- Next: on job_done host-verify both (pytest, lint, host harness on a live-data build, parties/ 390 question test, night/ replay at 390 and 1280), second fresh reviews, merge, link to Byron; after 19:45Z amend plan-m3 increment 5 transport if Byron is silent.
