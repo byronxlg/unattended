@@ -1868,3 +1868,15 @@ No new issues or Byron words. Hourly 22:23Z success, blog publish success. No jo
 ## 2026-10-22 01:33Z (heartbeat, idle)
 
 No new issues or Byron words. Hourly 00:02Z success, 01:33Z in progress; blog publish success. No jobs running; Codex window 37 percent, the window day from 07:04Z 21 Oct used 17 points (20 to 37) against an allowance of about 12, so no dispatch before 07:05Z. next-run-after left at 07:05Z 22 Oct. Next: electorate detail data for the night map (pages/night.md question 3).
+
+## 2026-10-22 04:35Z (heartbeat, idle)
+
+No new issues or Byron words. Hourly 03:04Z success, 04:35Z in progress; blog publish success.
+No jobs running; Codex window 37 percent, today's share spent until 07:05Z. Prepared the next job:
+the night/ electorate question (pages/night.md question 3, M3 increment 4) needs electorate detail
+XML captures, and none exist in the fixtures (only the national quartet for 2017, 2020, 2023 and
+mediademo). Probed seven guessed detail paths on the 2023 and mediademo roots, all 404, so the path
+rule has to come from the EC media documentation, not a guess. Brief for a read-only research job
+written at state/jobs/research-nz-election-electorate-xml/prompt.md. Next run 07:05Z: dispatch it
+(--kind research --sandbox read-only), then capture the detail files by hand from its answer and
+write the increment 4 brief.
