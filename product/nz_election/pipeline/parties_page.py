@@ -88,6 +88,7 @@ def page(envs, built, facts=None):
     for index, p in enumerate(parties):
         rows = lambda name: [r for r in facts.get(name, []) if r.get('party_id') == p]
         tag = 'h1' if index == 0 else 'h2'
+        answer_tag = 'h2' if index == 0 else 'h3'
         content += f'<section class="party-section" id="{p}" style="--party:{colour(p)}"><{tag}>{escape(label(p))}</{tag}><div class="party-intro"><div class="party-leaders">'
         for i, leader in enumerate(rows('leaders')):
             photo = leader.get('photo')
@@ -108,12 +109,12 @@ def page(envs, built, facts=None):
         for row in rows('policy-links'):
             content += '<p class="party-policy">' + link(row['url'], 'Compare its policies by issue at Policy.nz') + '</p>'
         for row in rows('party-list-tops'):
-            content += '<div class="party-candidates"><h3>Top of the party list</h3><ol>' + ''.join(f'<li value="{c["rank"]}">{escape(c["name"])}</li>' for c in row['candidates']) + '</ol><p>' + link(row['source_url'], 'EC party list') + '</p></div>'
+            content += f'<div class="party-candidates"><{answer_tag}>Top of the party list</{answer_tag}><ol>' + ''.join(f'<li value="{c["rank"]}">{escape(c["name"])}</li>' for c in row['candidates']) + '</ol><p>' + link(row['source_url'], 'EC party list') + '</p></div>'
         donations = [r for r in rows('donations') if r['received'][:4] == built[:4]]
         if donations:
             total = sum((Decimal(r['amount_nzd']) for r in donations), Decimal(0))
             top = largest_donors(donations)
-            content += f'<div class="party-donations" data-total="{total:.2f}" data-count="{len(donations)}"><h3>Who funds it?</h3><p>{len(donations)} declared returns over NZD 20,000 in {built[:4]}, totalling <strong>NZD {total:,.2f}</strong>.</p><ul>'
+            content += f'<div class="party-donations" data-total="{total:.2f}" data-count="{len(donations)}"><{answer_tag}>Who funds it?</{answer_tag}><p>{len(donations)} declared returns over NZD 20,000 in {built[:4]}, totalling <strong>NZD {total:,.2f}</strong>.</p><ul>'
             content += ''.join('<li>' + escape(name) + f': NZD {donor["amount"]:,.2f}, received ' + ', '.join(observation_label(day) for day in sorted(donor['dates'])) + '.</li>' for name, donor in top)
             content += '</ul><p class="source-actions">' + link(donations[0]['source_url'], 'EC returns') + '</p><p class="party-credit">As listed by the EC, including returns whose documents have not been independently checked. Largest donors grouped by exact EC name. Return totals may combine donations; not total party funding. Copyright Electoral Commission.</p></div>'
         content += '</div></section>'
