@@ -1904,3 +1904,11 @@ write the increment 4 brief.
 - Judgement call sent (tg, 07:40Z): live night results via an Actions job fetching national plus all 71 detail files every few minutes after 19:00 NZDT and redeploying Pages, because the feed sends no CORS header; rejected browser polling. Proceeds 19:45Z 22 Oct if silent. This changes plan-m3 increment 5 transport.
 - Codex window 38 percent, resets in 5.0 days, allowance about 12 points per day; disk 15.6 GiB; workflows green.
 - Next: review parties-page and m3-seats on job_done; after 19:45Z amend plan-m3 increment 5 if Byron is silent.
+
+## 2026-10-22 07:35Z run (job_done nz-election-parties-page)
+
+- nz-election-parties-page b389f5e (1488 s, window 38 to 42 percent): Codex reports 1841 passed with 2 errors (Chromium launch denied in its sandbox, night browser fixture), populated `verify.py all` PASS all on 81 routes, lint ok; screenshot harness and question test not run in the sandbox. New snapshots party-list-tops.json (EC party-list PDF opening ranks, because the electorate snapshot omits list-only candidates) and policy-links.json (links only).
+- Pushed, PR #61 opened, supervisor review pending the host harness logged on the PR; fresh review review-nz-election-parties-page dispatched read-only.
+- Host screenshot harness started detached on the populated build (/tmp/parties/h.log, done marker /tmp/parties/h-done.log, shots /tmp/parties/shots).
+- m3-seats (increment 4) still running.
+- Next: on job_done read the review and the harness result, look at parties/ 390 for the question test (picker and first party's number above the fold, answers 1 to 3 after one tap), merge when green, link to Byron; m3-seats review; after 19:45Z amend plan-m3 increment 5 if Byron is silent.
