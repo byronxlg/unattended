@@ -15,7 +15,7 @@ import tempfile
 import threading
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from product.nz_election.tests.screenshots import Handler, check_page, CONTRAST, contrast
+from product.nz_election.tests.screenshots import Handler, check_page, CONTRAST, contrast, night_target_check
 from product.nz_election.pipeline import night, xml_parser, fixtures
 from product.nz_election.pipeline.build import build
 from product.nz_election.pipeline.daily_refresh import daily_refresh
@@ -131,6 +131,12 @@ def images(browser, out):
                                 assert page.locator('.night-electorates tbody tr:visible').count() == 1
                             target = '.night-search' if state in {'selected-leader','electorate-table'} else '.night-electorates h2' if state in {'electorate-map','unavailable-live'} else '.night-waterfall' if state in {'waterfall-final','overhang','unchecked-capacity'} else '.night-calculation' if state in {'waterfall-early','waterfall-middle','unresolved-tie'} else 'h2:has-text("Change since preliminary result")'
                             page.locator(target).evaluate('(node)=>node.scrollIntoView()')
+                        if page.locator('.night-electorates').count():
+                            page.set_viewport_size(dict(width=360, height=780))
+                            night_target_check(page)
+                            page.set_viewport_size(dict(width=width, height=height))
+                            if state not in STATES[:10]:
+                                page.locator(target).evaluate('(node)=>node.scrollIntoView()')
                         assert not errors, errors
                         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), state
                         for pair in page.evaluate(CONTRAST):
@@ -219,6 +225,15 @@ def parity(browser):
                         expected = str(exc)
                     actual = page.evaluate('({text,refs})=>{try{return parser.detail(new TextEncoder().encode(text),refs)}catch(e){return e.message}}', dict(text=text, refs=refs))
                     assert actual == expected, (path, expected, actual)
+
+            from product.nz_election.tests.night_detail_cases import reported_tie
+            for tied_count in (2, 3):
+                for final in (False, True):
+                    raw, refs, tied = reported_tie(tied_count, final)
+                    expected = xml_parser.detail(raw, refs)
+                    actual = page.evaluate('({text,refs})=>parser.detail(new TextEncoder().encode(text),refs)', dict(text=raw.decode(), refs=refs))
+                    assert actual['margin'] == 0 and actual['tied_candidates'] == tied
+                    assert actual == expected, 'REPORTED_TIE_PARITY'
 
             for value in ['', None, [], {}, True, 1.5, 10**100, '１', ' 1', '01', '1e3', '-1', '1000000000', '1\n', '1\r', '1\u2028', '1\u2029']:
                 try:

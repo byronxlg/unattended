@@ -154,5 +154,6 @@ def detail(raw, refs):
     reported = stats['total_voting_places_counted'] > 0 and sum(candidates.values()) > 0
     leader = ordered[0] if reported and margin > 0 else None
     return dict(electorate_id=ident, source_updated_local=local, statistics=stats, party_votes=parties,
-                candidate_votes=candidates, leader=leader, margin=margin if leader else None,
+                candidate_votes=candidates, leader=leader, margin=margin if reported else None,
+                **({'tied_candidates': [c for c in ordered if candidates[c] == candidates[ordered[0]]]} if reported and margin == 0 else {}),
                 status='final' if reported and stats['total_voting_places'] > 0 and stats['total_voting_places_counted'] == stats['total_voting_places'] and root.get('final') == 'true' else 'provisional' if reported else 'not yet reported')

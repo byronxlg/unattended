@@ -99,5 +99,5 @@ export function detail(raw, refs) {
   const margin=candidates[ordered[0]]-(ordered.length>1?candidates[ordered[1]]:0);
   const reported=stats.total_voting_places_counted>0 && sum(candidates)>0;
   const leader=reported && margin>0 ? ordered[0] : null;
-  return {electorate_id:id,source_updated_local:local,statistics:stats,party_votes:parties,candidate_votes:candidates,leader,margin:leader?margin:null,status:reported && stats.total_voting_places>0 && stats.total_voting_places_counted===stats.total_voting_places && root.getAttribute('final')==='true'?'final':reported?'provisional':'not yet reported'};
+  return {electorate_id:id,source_updated_local:local,statistics:stats,party_votes:parties,candidate_votes:candidates,leader,margin:reported?margin:null,...(reported && margin===0?{tied_candidates:ordered.filter(c=>candidates[c]===candidates[ordered[0]])}:{}),status:reported && stats.total_voting_places>0 && stats.total_voting_places_counted===stats.total_voting_places && root.getAttribute('final')==='true'?'final':reported?'provisional':'not yet reported'};
 }

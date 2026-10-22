@@ -69,11 +69,4 @@ if (typeof document !== 'undefined' && document.querySelector('#night-snapshot')
       row.hidden = !row.cells[0].textContent.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().includes(query);
     });
   });
-  snapshot.addEventListener('click', event => {
-    const link = event.target.closest('.night-leader-map a');
-    if (!link) return;
-    const section = link.closest('.night-electorates');
-    section.querySelector('.night-search').value = '';
-    section.querySelectorAll('tbody tr').forEach(row => { row.hidden = false; });
-  });
 }

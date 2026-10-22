@@ -139,7 +139,10 @@ def test_detail_tie_is_reported_without_a_leader():
     assert detail['leader'] is None and detail['status'] == 'final'
     from product.nz_election.pipeline.night_electorates import electorate_view
     row = dict(mode='Packaged 2026 preliminary snapshot', source_ref=[prefix+'election.xml'], leaders={'1':detail})
-    assert 'Tied; no sole leader' in electorate_view(row, refs, 'source-test', 'test')
+    assert detail['margin'] == 0
+    html = electorate_view(row, refs, 'source-test', 'test')
+    assert 'Tied:' in html
+    assert all(refs['candidates'][c]['candidate_name'] in html for c in detail['tied_candidates'])
 
 
 def test_legacy_national_package_can_upgrade(tmp_path):
