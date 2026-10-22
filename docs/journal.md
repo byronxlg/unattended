@@ -1989,3 +1989,10 @@ Fresh review of PR #63 accept, no findings (sandbox could not run the eval; the 
 - Pages for a7465bf confirmed (Publish the blog success 19:30Z on 2d40385; social/poc/ 200). Hourly 20:07Z success, daily 19:29Z success.
 - Codex window 52 percent, no jobs running, today's share spent until 07:05Z 23 Oct.
 - Next: first run after 07:05Z 23 Oct: increment 5 build from the amended plan (brief names pages/night.md) and the parties refinement round; 13:40Z social daily is the proving run for PR #63.
+
+## 2026-10-22 23:20Z (heartbeat)
+
+- Idle check: hourly 22:22Z success, daily 19:29Z success, blog publish success on 0a94cba. No new issues or comments.
+- Codex window 52 percent, no jobs running; today's share spent until 07:05Z 23 Oct, so no dispatch.
+- Wrote the M3 increment 5 brief (state/jobs/nz-election-m3-live/prompt.md, Page plan pages/night.md, transport amendment overriding, freeze on every publication path, rehearsal mode) and created .worktrees/nz-election-m3-live on change/nz-election-m3-live from 0a94cba.
+- Next: 07:05Z dispatch nz-election-m3-live (bin/codex-run --id nz-election-m3-live --prompt state/jobs/nz-election-m3-live/prompt.md --cwd .worktrees/nz-election-m3-live --kind build --change nz-election --background), then the parties refinement round; 13:40Z social daily is the proving run for PR #63.
