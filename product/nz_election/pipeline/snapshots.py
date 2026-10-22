@@ -19,6 +19,7 @@ PHOTO_LICENCES = frozenset({'CC0', 'CC BY 4.0', 'CC BY-SA 4.0', 'CC BY 3.0',
                             'CC BY-SA 3.0', 'Public domain', 'NZ Crown copyright'})
 RECORD_LICENCES = PHOTO_LICENCES | frozenset({
     'CC BY 4.0 (Stats NZ)',
+    'Links only; no policy text reused and no reuse licence claimed.',
     'Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.',
     'Copyright ACT New Zealand; no open licence stated. Short attributed quotation.',
     'Copyright NZME; no open licence stated. Short attributed quotation.',
@@ -444,11 +445,27 @@ def load_party_details(name):
         p = row.get('party_id')
         _require(isinstance(p, str) and p in parties and p not in seen, 'Invalid party identity')
         seen.add(p)
-        _require(_url(row.get('source_url')) and _text(row.get('licence')), 'Invalid party source')
+        _require(_url(row.get('source_url')), 'Invalid party source')
+        source = urlsplit(row['source_url'])
+        _require(_text(row.get('licence')) and row['licence'] in RECORD_LICENCES,
+                 'Unknown record licence')
         _timestamp(row.get('retrieved_at'))
         if name == 'policy-links':
-            _require(_url(row.get('url')) and row['url'].startswith('https://policy.nz/2026/party-vote/parties/'), 'Invalid policy URL')
+            _require(set(row) <= {'party_id', 'url', 'source_url', 'licence',
+                                  'source_locator', 'retrieved_at'}, 'Policy records must be links only')
+            _require(source.scheme == 'https' and source.netloc == 'policy.nz',
+                     'Invalid policy source')
+            if 'source_locator' in row:
+                _require(_text(row['source_locator']), 'Invalid policy source locator')
+            _require(isinstance(row.get('url'), str) and re.fullmatch(
+                r'https://policy\.nz/2026/party-vote/parties/[a-z0-9]+(?:-[a-z0-9]+)*',
+                row['url']) is not None, 'Invalid policy URL')
         else:
+            _require(source.scheme == 'https'
+                     and source.netloc in {'vote.nz', 'www.vote.nz', 'elections.nz', 'www.elections.nz'}
+                     and source.path == '/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf'
+                     and not source.query and not source.fragment, 'Invalid EC party list source')
+            _require(_text(row.get('source_locator')), 'Invalid list source locator')
             candidates = row.get('candidates')
             _require(isinstance(candidates, list) and 0 < len(candidates) <= 5, 'Invalid list top')
             for rank, candidate in enumerate(candidates, 1):

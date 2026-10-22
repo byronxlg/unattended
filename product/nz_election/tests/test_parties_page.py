@@ -85,3 +85,21 @@ def test_largest_donors_combine_returns_without_fuzzy_name_joins():
     result = largest_donors(rows)
     assert result[0] == ('A', dict(amount=Decimal('70000'), dates={'2026-01-01', '2026-02-01'}))
     assert result[1][0] == 'A Ltd'
+
+
+def test_picker_chips_share_top_at_360(tmp_path):
+    import subprocess
+    result = subprocess.run(['uv', 'run', 'product/nz_election/tests/parties_picker_browser.py', str(tmp_path)],
+                            capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert 'PASS party picker' in result.stdout
+
+
+def test_picker_overrides_shared_nav_wrapping():
+    from product.nz_election.pipeline.build import PRODUCT
+    shared = (PRODUCT / 'web/styles.css').read_text()
+    picker = (PRODUCT / 'web/parties.css').read_text()
+    assert re.search(r'nav\s*\{[^}]*flex-wrap:wrap', shared)
+    rule = re.search(r'\.party-picker\s*\{([^}]+)\}', picker)[1]
+    assert 'flex-wrap:nowrap' in rule
+    assert 'overflow-x:auto' in rule
