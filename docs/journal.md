@@ -2076,3 +2076,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - nz-election-parties-refine 10d31ce (740 s): per-source licence equality on policy-links and party-list-tops replacing the global RECORD_LICENCES check; credit captions join non-empty parts; 13 tests, 9 fail on base 729f9e7. Codex sandbox 1933 passed, 3 Chromium-only failures, lint ok, verify all PASS.
 - Supervisor: rebased onto main (f0ffbfa), host 37 passed on the parties tests including parties_picker_browser.py with Chromium. Read the 65-line diff: load_party_details accepts only those two names, so the removed global check is replaced by a stricter one; accept. PR #66 opened, fresh review review-nz-election-parties-refine dispatched.
 - Still running: nz-election-home-plan-fix-5 (PR #64, test_design six-digit tokens). Codex window 15 percent, 6.9 days to reset.
+
+## 2026-10-23 10:36Z run (job_done home-plan-fix-5, review-parties-refine)
+
+- home-plan fix-5 bc8ffb2: six-digit design tokens restored, CSS 18,999 bytes within budget. Host test_design.py 19 passed. Codex sandbox reported 3 Chromium startup failures (sandbox, no browser). Pushed to PR #64, supervisor note logged; CI rerun pending. Merge on green, M2 due 26 Oct.
+- PR #66 parties-refine: fresh Codex review accept, no findings (13 new cases pass on HEAD, 9 fail on 729f9e7; HTML byte-identical to main apart from captions), logged on the PR. CI pending; merge on green.
+- Dispatched nz-election-electorate-page (Page plan intent/nz-election/pages/electorate.md, .worktrees/nz-election-electorate-page on change/nz-election-electorate-page from main): race cards, vote.nz line and Stats NZ locator first screen, Policy.nz link, 2023 margin bars, night leader promoted when results exist. Brief state/jobs/nz-election-electorate-page/prompt.md.
+- Codex window 16 percent, 6.9 days to reset. Second slot held for the polls page build next run (pages/polls.md accepted).
