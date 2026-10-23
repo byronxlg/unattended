@@ -2011,3 +2011,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Gap noticed writing it: M2 v1 is due 26 Oct and the home rebuild from pages/home.md has no brief yet; it goes ahead of the parties refinement round.
 - No dispatch: share spent until 07:05Z. Codex window 52 percent, disk 16.8 GiB.
 - Next: 07:05Z dispatch nz-election-m3-live as written; write and dispatch the home rebuild (Page plan: intent/nz-election/pages/home.md) on the second slot; 13:40Z social daily proves PR #63.
+
+## 2026-10-23 07:06Z (idle, new window-day share)
+
+- Dispatched nz-election-m3-live (M3 increment 5: Actions night transport, freeze guard, rehearsal mode; brief state/jobs/nz-election-m3-live/prompt.md, .worktrees/nz-election-m3-live from 0a94cba, Page plan pages/night.md).
+- Wrote and dispatched nz-election-home-plan on the second slot (Page plan intent/nz-election/pages/home.md, accepted 2026-10-20T14:33Z; .worktrees/nz-election-home-plan on change/nz-election-home-plan from de9a7c2): home in question rank (date line, seat bar, polls trend with latest polls and threshold, hex map picker; leaders and markets off the home, markets kept elsewhere; night summary replaces the seat bar from 19:00 NZDT 7 Nov). Files disjoint from m3-live (no night pipeline or workflows). M2 v1 due 26 Oct is the reason it goes ahead of the parties refinement round.
+- No judgement call: both follow accepted plans. Codex window 52 percent, 4.0 days to reset, allowance about 12 points; disk 16.8 GiB.
+- Next: on job_done host-verify each (pytest, verify all, harness, question test at 390 for home), PR, fresh review, merge; 13:40Z social daily proves PR #63.
