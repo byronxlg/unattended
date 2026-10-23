@@ -252,3 +252,40 @@ def test_rehearsal_cli_artifacts_only(tmp_path, monkeypatch):
     rows = [export.validate_bundle(p)['night/live/current']['data'][0] for p in bundles]
     assert all(row['rehearsal'] and row['mode'] == 'Recorded demo' for row in rows)
     assert rows[0]['valid_party_votes'] != rows[1]['valid_party_votes']
+
+
+def test_live_dom_resume_fetches_synchronously():
+    result = subprocess.run(['node', '--input-type=module', '-e', '''
+import assert from 'node:assert/strict';
+let now = Date.parse('2026-11-07T06:01:00Z');
+Date.now = () => now;
+const listeners = {}, intervals = [], requests = [];
+const target = {dataset:{}, querySelector:()=>null, querySelectorAll:()=>[]};
+const notice = {textContent:''}, controls = {hidden:false};
+globalThis.location = {href:'https://example.test/unattended/nz-election/night/'};
+globalThis.document = {
+  hidden:false, activeElement:null,
+  querySelector:s=>({'#night-snapshot':target,'#night-live-status':notice,'#night-controls':controls}[s]),
+  querySelectorAll:()=>[], addEventListener:(name,fn)=>{listeners[name]=fn}
+};
+globalThis.setInterval = fn => intervals.push(fn);
+globalThis.fetch = url => {
+  requests.push({url:String(url), at:now, hidden:document.hidden});
+  return Promise.resolve({ok:true,json:async()=>({available:true,mode:'Live preliminary results',
+    retrieved_at:'2026-11-07T06:00:00Z',reference_version:'a'.repeat(64),html:'<p>Result</p>'})});
+};
+await import('./product/nz_election/web/night-live.mjs');
+await new Promise(resolve=>setImmediate(resolve));
+assert.equal(requests.length,1);
+document.hidden=true; listeners.visibilitychange();
+for (let i=0;i<120;i++) {now+=1000; intervals.forEach(fn=>fn());}
+assert.equal(requests.length,1);
+document.hidden=false; listeners.visibilitychange();
+// The real DOM handler must invoke fetch before returning, without firing a timer.
+assert.equal(requests.length,2);
+assert.deepEqual(requests[1],{url:requests[0].url,at:now,hidden:false});
+await new Promise(resolve=>setImmediate(resolve));
+now+=1000; intervals.forEach(fn=>fn());
+assert.equal(requests.length,2);
+'''], cwd=ROOT, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr

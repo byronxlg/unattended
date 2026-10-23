@@ -88,13 +88,38 @@ def images(browser, out):
                             assert 'Stale' in page.locator('#night-live-status').inner_text()
                             assert page.locator('#night-snapshot').inner_html() == before
                         if state == 'live-hidden-resumed':
-                            page.evaluate("Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'))")
+                            page.evaluate("""() => {
+                                window.resumeFetches = [];
+                                const original = window.fetch;
+                                window.fetch = (...args) => {
+                                    if (String(args[0]).endsWith('/night-live.json')) {
+                                        window.resumeFetches.push({at: Date.now(), hidden: document.hidden});
+                                    }
+                                    return original(...args);
+                                };
+                                Object.defineProperty(document, 'hidden', {configurable:true, value:true});
+                                document.dispatchEvent(new Event('visibilitychange'));
+                            }""")
                             count = len([u for u in requests if u.endswith('night-live.json')])
                             page.clock.run_for(120000)
                             assert len([u for u in requests if u.endswith('night-live.json')]) == count
-                            page.evaluate("Object.defineProperty(document,'hidden',{configurable:true,value:false});document.dispatchEvent(new Event('visibilitychange'))")
-                            page.wait_for_load_state('networkidle')
+                            assert page.evaluate('window.resumeFetches') == []
+                            # networkidle may already be satisfied by initial load. Await this request instead.
+                            with page.expect_response(lambda r: r.url.endswith('/night-live.json')) as resumed:
+                                with page.expect_request(lambda r: r.url.endswith('/night-live.json')):
+                                    resume = page.evaluate("""() => {
+                                        Object.defineProperty(document, 'hidden', {configurable:true, value:false});
+                                        document.dispatchEvent(new Event('visibilitychange'));
+                                        return {at: Date.now(), calls: window.resumeFetches};
+                                    }""")
+                                    assert resume['calls'] == [dict(at=resume['at'], hidden=False)]
+                                    # Flush browser delivery under Playwright's clock, not an application delay.
+                                    page.clock.run_for(50)
+                            assert resumed.value.status == 200
+                            resumed.value.finished()
+                            page.clock.run_for(1000)
                             assert len([u for u in requests if u.endswith('night-live.json')]) == count+1
+                            assert page.evaluate('window.resumeFetches') == resume['calls']
                     assert not errors, errors
                     assert all(u.startswith(origin+'/') for u in requests)
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
