@@ -90,4 +90,7 @@ def test_workflow_og_before_upload_and_freeze_unchanged():
     steps = ['pipeline/build.py', 'pipeline/verify.py all', 'playwright install --with-deps chromium', 'screenshots.py --site site --out artifacts/nz-election/og --og-only', 'check_images(', 'bin/blog build', 'actions/upload-pages-artifact@v3']
     assert [text.index(s) for s in steps] == sorted(text.index(s) for s in steps)
     assert text.index('Enforce election freeze at deployment time') < text.index('actions/deploy-pages@v4')
-    assert "datetime.fromisoformat('2026-11-06T10:30:00+00:00') <= now < datetime.fromisoformat('2026-11-07T06:00:00+00:00')" in text
+    assert 'python3 product/nz_election/pipeline/deployment_guard.py' in text
+    from product.nz_election.pipeline.deployment_guard import START, END
+    assert START.isoformat() == '2026-11-06T10:30:00+00:00'
+    assert END.isoformat() == '2026-11-07T06:00:00+00:00'

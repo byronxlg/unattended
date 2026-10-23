@@ -7,7 +7,7 @@ copies these product/nz_election/web/*.mjs files from the PR-reviewed code check
 from html.parser import HTMLParser
 
 PREFIX = '/unattended/nz-election/'
-SCRIPT_ALLOWLIST = {'coalitions.mjs', 'allocator.mjs', 'electorates.mjs', 'night.mjs'}
+SCRIPT_ALLOWLIST = {'coalitions.mjs', 'allocator.mjs', 'electorates.mjs', 'night.mjs', 'night-live.mjs'}
 
 
 def validate_scripts(html):

@@ -56,12 +56,11 @@ def test_freeze_cli_preserves_page_and_blocks_delayed_deployment(tmp_path):
     workflow = Path('.github/workflows/pages.yml').read_text()
     deploy = workflow.split('  deploy:', 1)[1]
     assert deploy.index('Enforce election freeze') < deploy.index('actions/deploy-pages')
-    assert '2026-11-06T10:30:00+00:00' in deploy and '2026-11-07T06:00:00+00:00' in deploy
-    import textwrap
-    guard = textwrap.dedent(deploy.split("python3 - <<'PYTHON'\n", 1)[1].split('          PYTHON', 1)[0])
-    for now, expected in [('2026-11-06T11:00:00+00:00', 1), ('2026-11-07T05:59:59+00:00', 1), ('2026-11-07T06:00:00+00:00', 0)]:
-        code = guard.replace('datetime.now(timezone.utc)', f'datetime.fromisoformat({now!r})')
-        assert subprocess.run([sys.executable, '-c', code], capture_output=True).returncode == expected
+    assert 'ref: ${{ github.sha }}' in deploy
+    assert 'python3 product/nz_election/pipeline/deployment_guard.py' in deploy
+    for now, expected in [('2026-11-06T10:30:00Z', 1), ('2026-11-06T11:00:00Z', 1), ('2026-11-07T05:59:59Z', 1), ('2026-11-07T06:00:00Z', 0)]:
+        assert subprocess.run([sys.executable, str(script), '--now', now], capture_output=True).returncode == expected
+
 
 
 def test_reservation_replay_cannot_hide_spend(tmp_path):

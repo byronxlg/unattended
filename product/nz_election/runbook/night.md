@@ -2,7 +2,7 @@
 
 Build offline with `uv run product/nz_election/pipeline/daily_refresh.py --out /tmp/night-data`.
 Check with `uv run product/nz_election/tests/night_smoke.py /tmp/night-data` and
-`uv run product/nz_election/pipeline/verify.py night`. The page uses these packaged snapshots; no live feed is enabled.
+`uv run product/nz_election/pipeline/verify.py night`. The archive/replay page uses these packaged snapshots. The live Actions path is documented below.
 
 `night/index.json` enumerates sequences, snapshot dependencies, reference versions and SHA-256
 hashes of every dependency and CSV sibling. All files use the existing provenance envelope.
@@ -86,8 +86,8 @@ Every frame is packaged into inert HTML templates at build time. Playback makes 
 source downloads are explicit links. Static HTML keeps the usable final table if scripts fail.
 
 Run `uv run product/nz_election/tests/night_browser.py` for browser XML parity, replay controls,
-request assertions and the exact 44-image night registry. The full screenshot harness adds the
-same 22 states at 390x844 and 1280x800. It requires a host that permits Chromium to launch.
+request assertions and the exact 60-image night registry. The full screenshot harness adds the
+same 30 states at 390x844 and 1280x800. It requires a host that permits Chromium to launch.
 
 The replay includes provisional electorate leaders and margins from the captured 2023 candidate
 results, with a leader-coloured map and searchable table. Intermediate illustrative snapshots contain no
@@ -115,7 +115,7 @@ and check countdown/vote bounds at 390x844 before recording the existing named i
 
 The 2026 media captures are read offline after manifest hash validation. Detail paths are
 `eNN/eNN.xml` for electorate IDs 1 through 71, with two-digit padding. No browser request is
-made: these captures have no CORS permission. Transport remains increment 5 work. The package
+made: these captures have no CORS permission. Live transport is now the Actions path below. The package
 includes the six captured details; other electorate rows say not yet reported. A zero-place,
 zero-vote detail is never a leader or final count, including when its XML says `final="true"`.
 
@@ -137,5 +137,99 @@ preliminary/official captures are supplied, so production has no change comparis
 component. Labelled synthetic pairs exercise that optional view in the proof harness.
 
 Run `PYTHONPATH=. uv run python product/nz_election/pipeline/verify.py waterfall` and the full
-night browser harness before release. The latter registers 22 states at both 390x844 and
+night browser harness before release. The latter registers 30 states at both 390x844 and
 1280x800, including map, table, selected leader, seat calculation and comparison cases.
+
+## Live operation through Actions (increment 5)
+
+The transport amendment supersedes the earlier browser-feed instructions. Production acquires
+`https://media.election.net.nz/xml/` in Actions, never in a browser. That origin has no CORS
+header. The browser reads only same-origin `night-live.json`, generated from the validated night
+family using the existing page renderer. Archives and explicit replay queries do not poll.
+
+Predeploy this code by 5 November. At or after **7 November 19:00 NZDT (06:00 UTC)**, dispatch:
+
+```sh
+gh workflow run nz-election-night-live.yml --ref main
+gh run list --workflow nz-election-night-live.yml
+```
+
+The injected-clock guard rejects production before that instant, including manual dispatch.
+There is no cron. The single non-cancelling workflow job loops for about five hours, then queues
+its successor before exiting; the job timeout is 350 minutes. A complete cycle fetches
+`electorates.xml`, `parties.xml`, `candidates.xml` serially, validates the references, fetches
+`election.xml` and all `e01/e01.xml` through `e71/e71.xml`, then rechecks all three references.
+The committed 2026 electorate registry anchors the 64 general and seven Maori seats. A changed
+reference set or any failed file discards that pending cycle. A later cycle starts from a fresh
+reference set. Counts remain source counts; 0 of 0 places with `final="true"` is never final
+and never supplies a leader.
+
+Each cycle is bounded to about 20 minutes plus the final bounded request; the next cycle starts
+no sooner than five minutes after the previous start. HTTP requests have 20-second timeouts,
+three attempts and bounded Retry-After handling. Publication uses the existing leased data-ref
+publisher, owning only night. A single Git commit contains references, national results, all
+71 details, JSON/CSV siblings and manifest. Other families survive lease retries. Daily captured
+night data cannot replace a newer Actions source vector. Unchanged XML skips the commit and
+Pages dispatch, including across chained jobs. It deliberately retains the earlier retrieval
+time; an unchanged source for 15 minutes therefore shows a conservative stale notice.
+
+A changed commit dispatches `pages.yml`; Pages uses its existing non-cancelling concurrency group.
+The [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)
+exempt custom Actions builds from the soft ten-builds-per-hour limit. The five-minute floor,
+unchanged-cycle suppression and serial deployment wait still apply here.
+The loop waits for pending Pages runs to finish, bounded to ten minutes. A deployment failure or
+wait timeout needs operator investigation in the Pages run log. Check the deployed build manifest
+for the actual code and data SHAs, then open `/unattended/nz-election/night/` without a replay query.
+The page polls at most once per 60 seconds, stops requests while hidden, rejects obsolete responses,
+and backs off on failed requests. Staleness is 15 minutes from the **complete cycle retrieval**,
+not the XML's local source clock. Each detail retains its own source timestamp. Failed acquisition
+keeps the last complete family; failed browser fetch keeps the displayed snapshot and official link.
+Exports say **Packaged by the site**, with upstream URLs, source clocks, Actions retrieval, run URL
+and code SHA. The stored raw XML lets validation reparse every result before accepting a package.
+
+### Rehearse before polling day
+
+After this commit is merged, use the same workflow with its rehearsal input:
+
+```sh
+gh workflow run nz-election-night-live.yml --ref main -f rehearsal=true
+gh run list --workflow nz-election-night-live.yml
+gh run download RUN_ID -n night-rehearsal -D artifacts/night-rehearsal
+```
+
+Rehearsal uses mediademo (its own 72-electorate registry, including e72/e72.xml) for about ten minutes, writes only the `night-rehearsal` artifact,
+and neither publishes nor chains a successor. Inspect the artifact's complete bundles with
+`verify.py night --data <bundle>` and compare source timestamps across cycles. It is explicitly
+Recorded demo, never live results. Record run URL, code SHA, artifact hashes and observed change
+in the supervisor report. A pre-merge local test is not this real Actions rehearsal.
+
+Offline proofs inject clocks and transport. They use the manifest-checked 2026 zero-state files
+and the two recorded demo national observations. Only six 2026 details were captured; remaining
+details in the test transport are **synthetic unreported zeros** built from each reference set.
+They are not added to the capture manifest or represented as official captures. Browser proof
+images use labelled 2023 final counts to exercise populated seat answers, separately from zero-state
+parser proofs. Run `tests/night_live_browser.py` with `PYTHONPATH=.` for the 16 added screenshots,
+or the full screenshot harness for the exact expanded state registry.
+
+### Stop, diagnose and roll back
+
+1. Disable the night workflow to prevent any queued successor from starting, then cancel the
+   current run and any queued runs. Cancellation is an explicit operator action; concurrency
+   never cancels runs automatically.
+2. Check `night/index.json`, its source timestamps and the last Pages deployment. A failed cycle
+   leaves the last complete snapshot intact. Check upstream HTTP failures, reference changes,
+   parser errors and Actions logs. Never patch a single detail into the data branch.
+3. For a pinned rollback, dispatch Pages with the trusted 40-character `code_sha` and `data_sha`.
+   The current workflow's guard runs before a rollback checkout and again in the deploy job.
+   All collection/publication/deployment paths use the same 6 November 23:30 through 7 November
+   19:00 NZDT freeze, including queued jobs. No rollback bypass exists.
+4. To resume, enable the workflow and dispatch it again after the close gate. Do not enable a
+   second feed or browser XML transport. Keep the reviewed preliminary root; there is no guessed
+   official-feed switch. For 27 November, capture and validate compatible official results through
+   the established daily capture workflow, keeping the preliminary baseline and its date. Stop
+   the preliminary live loop before publishing that transition. Only evidence-supported official
+   changes and specials components may appear.
+
+A failed renderer/browser launch is an acceptance gap, not permission to skip screenshots.
+The supervisor must inspect fresh, selected, hidden/resumed, stale, fallback, changed-reference,
+pre-close and post-close images at 390x844 and 1280x800 before release.

@@ -66,8 +66,14 @@ QUESTIONS['party']['criteria'].update({
 
 
 def frozen(now):
-    local = datetime.fromisoformat(export.timestamp(now).replace('Z', '+00:00')).astimezone(NZ)
-    return local.date() == date(2026, 11, 7) and local.hour < 19
+    from product.nz_election.pipeline.deployment_guard import require_publication_allowed
+    try:
+        require_publication_allowed(now)
+    except ValueError as exc:
+        if str(exc) != 'PUBLICATION_FROZEN':
+            raise
+        return True
+    return False
 
 
 def windows(day):

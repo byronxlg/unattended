@@ -68,8 +68,10 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
     clock = row.get('source_updated_local')
     provenance = ('Source local timestamp ' + clock + ' (timezone unverified).' if clock else
                   'Illustrative elapsed time ' + str(row['elapsed_seconds']) + ' seconds; scaled final party votes, not observed election-night counts.')
+    if row.get('packaging_label'):
+        provenance += ' Packaged by the site at ' + row['retrieved_at'] + '.'
     return (content + f'<div class="source-note" id="{source}"><p>Electoral Commission. {escape(provenance)} Copyright Electoral Commission; no open licence stated.</p><p>{FREEZE_NOTICE}</p>'
-            f'<p class="source-actions"><a href="{PREFIX}data/{path}">Snapshot JSON</a><a href="{PREFIX}data/{path[:-5]}.csv">CSV</a><a href="{RESULTS}">Official results</a><a href="{LAW}">Electoral Act s197</a></p></div>')
+            f'<p class="source-actions"><a href="{PREFIX}data/{path}">{"Snapshot JSON (Packaged by the site)" if row.get("packaging_label") else "Snapshot JSON"}</a><a href="{PREFIX}data/{path[:-5]}.csv">{"CSV (Packaged by the site)" if row.get("packaging_label") else "CSV"}</a><a href="{RESULTS}">Official results</a><a href="{LAW}">Electoral Act s197</a></p></div>')
 
 
 def page(envs, built):
@@ -99,15 +101,36 @@ def page(envs, built):
             archive_updated = archive[0].get('source_updated_local') if archive else None
             frames.append(f'<div data-frame="{i}" data-elapsed="{elapsed}">' + snapshot(row, refs, identity, path, i + 1, len(rows), archive_updated) + '</div>')
         panels.append(f'<section data-sequence="{seq["id"]}"><p class="night-mode">{escape(seq["mode"])} ({escape(seq["id"])})</p>' + ''.join(frames) + '</section>')
-    # Default is the dated final snapshot. All other states stay in inert templates.
-    default = next((s for s in sequences if s['id'] == '2023'), sequences[0])
+    # Keep replay explicit before close; prefer the complete live cycle after close.
+    default = next((s for s in sequences if s['id'] == ('2023' if pre_close else 'live')),
+                   next((s for s in sequences if s['id'] == '2026-media'), sequences[0]))
     selected = next(p for p in panels if f'data-sequence="{default["id"]}"' in p)
+    retrieval = ''
+    if default['id'] == 'live':
+        retrieval = envs[default['snapshot_paths'][0][:-5]]['data'][0]['retrieved_at']
     controls = ('<div id="night-controls" hidden><button type="button" id="night-play">Play</button> '
                 '<button type="button" id="night-reset">Reset</button> <label for="night-speed">Speed</label> '
                 '<select id="night-speed"><option value="1">1x</option><option value="10">10x</option><option value="60">60x</option></select>'
                 '<span id="night-clock" aria-live="off">Paused</span>'
                 '<span id="night-announcement" role="status" aria-live="polite" aria-atomic="true"></span></div>')
-    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + controls + '<div id="night-snapshot">' + selected.replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ') + '</div>'
+    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + '<p id="night-live-status" role="status"></p>' + controls + f'<div id="night-snapshot" data-retrieved-at="{escape(retrieval)}">' + selected.replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ') + '</div>'
             '<p>2026: Preliminary; official results due 27 November.</p>' + links +
             ''.join(f'<template id="sequence-{s["id"]}">{p}</template>' for s, p in zip(sequences, panels)) +
-            f'</div><script type="module" src="{PREFIX}night.mjs"></script>')
+            f'</div><script type="module" src="{PREFIX}night.mjs"></script><script type="module" src="{PREFIX}night-live.mjs"></script>')
+
+
+def live_package(envs):
+    """Render only validated local rows; source XML never supplies markup."""
+    sequences = envs.get('night/index', {}).get('data', [])
+    seq = next((s for s in sequences if s['id'] == 'live'), None)
+    if seq is None:
+        return dict(available=False)
+    path = seq['snapshot_paths'][0]
+    env = envs[path[:-5]]
+    row = env['data'][0]
+    refs = envs[seq['reference_path'][:-5]]['data'][0]
+    return dict(available=True, retrieved_at=row['retrieved_at'], reference_version=row['reference_version'],
+                mode=row['mode'], html=snapshot(row, refs, 'live-current', path),
+                provenance=dict(label='Packaged by the site', sources=env['source'], code_sha=env['code_sha'],
+                                run_url=env['run_url'], retrieved_at=row['retrieved_at']),
+                json_path='data/' + path, csv_path='data/' + path[:-5] + '.csv')

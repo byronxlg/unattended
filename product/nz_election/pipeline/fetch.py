@@ -32,6 +32,8 @@ class NoRedirect(HTTPRedirectHandler):
 
 
 def http(request, *, timeout):
+    from .deployment_guard import require_publication_allowed
+    require_publication_allowed()
     return build_opener(NoRedirect()).open(request, timeout=timeout)
 
 
@@ -135,4 +137,38 @@ def acquire(transport=http, *, sleep=time.sleep, now=lambda: datetime.now(timezo
             error = 'MAXLAG_RETRIES_EXHAUSTED'
         if attempt == 2:
             raise FetchError(error)
+        sleep(delay(headers, attempt, now))
+
+
+NIGHT_ROOTS = ('https://media.election.net.nz/xml/', 'https://mediademo.electionresults.govt.nz/xml/')
+
+
+def night_xml(root, path, *, transport=http, sleep=time.sleep, now=lambda: datetime.now(timezone.utc)):
+    """Only reviewed EC paths; no redirects, bounded bodies, serial caller."""
+    import re
+    if root not in NIGHT_ROOTS or not re.fullmatch(r'(?:electorates|parties|candidates|election)\.xml|e(0[1-9]|[1-6][0-9]|7[012])/e\1\.xml', path):
+        raise FetchError('UNAPPROVED_SOURCE')
+    if root == NIGHT_ROOTS[0] and path == 'e72/e72.xml':
+        raise FetchError('UNAPPROVED_SOURCE')
+    url = root + path
+    for attempt in range(3):
+        headers = {}
+        try:
+            with transport(Request(url, headers={'User-Agent': USER_AGENT}), timeout=20) as response:
+                headers = response.headers
+                if response.status != 200:
+                    raise HTTPError(url, response.status, 'EC fetch failed', headers, None)
+                raw = response.read(LIMIT + 1)
+                if len(raw) > 2_000_000:
+                    raise FetchError('RESPONSE_TOO_LARGE')
+                return raw
+        except HTTPError as exc:
+            headers = exc.headers or {}
+            exc.close()
+            if exc.code not in {429, 500, 502, 503, 504}:
+                raise FetchError('HTTP_REJECTED') from None
+        except (URLError, TimeoutError, OSError, HTTPException):
+            pass
+        if attempt == 2:
+            raise FetchError('HTTP_RETRIES_EXHAUSTED')
         sleep(delay(headers, attempt, now))

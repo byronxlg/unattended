@@ -1,0 +1,47 @@
+name: NZ election night live
+
+on:
+  workflow_dispatch:
+    inputs:
+      rehearsal:
+        description: Demo acquisition to artifact only (no publication or chaining)
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: nz-election-night-live
+  cancel-in-progress: false
+
+jobs:
+  live:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - name: Acquire complete cycles, publish changes and chain next run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          REHEARSAL: ${{ inputs.rehearsal }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          if [[ "$REHEARSAL" == 'true' ]]; then args+=(--rehearsal); fi
+          uv run product/nz_election/pipeline/night_live.py "${args[@]}"
+      - uses: actions/upload-artifact@v4
+        if: inputs.rehearsal && always()
+        with:
+          name: night-rehearsal
+          path: artifacts/night-rehearsal/
+          if-no-files-found: error

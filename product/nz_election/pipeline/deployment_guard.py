@@ -7,7 +7,10 @@ START = datetime.fromisoformat('2026-11-06T10:30:00+00:00')
 END = datetime.fromisoformat('2026-11-07T06:00:00+00:00')
 
 
-def require_publication_allowed(now):
+def require_publication_allowed(now=None):
+    now = now or datetime.now(timezone.utc).isoformat()
+    if not isinstance(now, str):
+        raise ValueError('INVALID_TIMESTAMP')
     instant = datetime.fromisoformat(now.replace('Z', '+00:00'))
     if instant.tzinfo is None:
         raise ValueError('INVALID_TIMESTAMP')

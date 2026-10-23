@@ -145,6 +145,8 @@ def main():
         parser.error('historical advance is offline only')
     options = dict(historical_advance=args.historical_advance)
     if args.live:
+        from product.nz_election.pipeline.deployment_guard import require_publication_allowed
+        require_publication_allowed()
         from product.nz_election.pipeline.daily_sources import live_loaders
         loaders, messages = live_loaders()
         options = dict(loaders=loaders, messages=messages, sha=os.environ['GITHUB_SHA'],

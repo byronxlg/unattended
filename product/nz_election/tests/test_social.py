@@ -106,7 +106,7 @@ def test_withholding_29_30_and_probability_retention():
     social.validate_row(enough, 'social/daily')
 
 
-@pytest.mark.parametrize('now,expected', [('2026-11-06T10:59:59Z', False), ('2026-11-06T11:00:00Z', True), ('2026-11-07T05:59:59Z', True), ('2026-11-07T06:00:00Z', False)])
+@pytest.mark.parametrize('now,expected', [('2026-11-06T10:29:59Z', False), ('2026-11-06T10:30:00Z', True), ('2026-11-06T10:59:59Z', True), ('2026-11-06T11:00:00Z', True), ('2026-11-07T05:59:59Z', True), ('2026-11-07T06:00:00Z', False)])
 def test_freeze(now, expected, tmp_path):
     assert social.frozen(now) == expected
     if expected:

@@ -329,6 +329,8 @@ def verify_advance(envs, root):
 
 
 def verify_night(envs, root, *, data=None):
+    from product.nz_election.pipeline.night_live import verify_contract
+    verify_contract()
     from product.nz_election.pipeline.daily_refresh import daily_refresh
     from product.nz_election.tests.night_smoke import check
     if data is None:

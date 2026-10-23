@@ -15,6 +15,7 @@ import tempfile
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from product.nz_election.pipeline import export
+from product.nz_election.pipeline.deployment_guard import require_publication_allowed
 
 DATA = Path('product/nz_election/data')
 OWNED = {s + ext for s in ('polls', 'averages', 'seats') for ext in ('.json', '.csv')}
@@ -38,12 +39,13 @@ def success_order(envs, family='polls'):
     return (envs['polls'].get('fetched_at') or '', envs['averages']['generated_at'])
 
 
-def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly', claim=None):
+def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly', claim=None, now=None):
+    require_publication_allowed(now() if now else None)
     if claim is not None and family != 'social':
         raise ValueError('INVALID_FAMILY')
-    if family not in {'hourly', 'daily', 'social'}:
+    if family not in {'hourly', 'daily', 'social', 'night'}:
         raise ValueError('INVALID_FAMILY')
-    datasets = ['polls'] if family == 'hourly' else ['social'] if family == 'social' else [f for f in export.FAMILIES if f not in {'polls', 'social'}]
+    datasets = ['polls'] if family == 'hourly' else ['social'] if family == 'social' else ['night'] if family == 'night' else [f for f in export.FAMILIES if f not in {'polls', 'social'}]
     bundle = Path(bundle).absolute()
     incoming = export.validate_bundle(bundle)
     remote = str(repository)
@@ -80,6 +82,9 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                 git(checkout, 'rm', '-rf', '--ignore-unmatch', '.')
             target = checkout / DATA
             current = export.validate_bundle(target) if fetched_sha else {'status': {'data': []}}
+            if family == 'night' and 'night/live/current' in current and 'night/live/current' in incoming:
+                if current['night/live/current']['data'][0]['raw_xml'] == incoming['night/live/current']['data'][0]['raw_xml']:
+                    return dict(outcome='unchanged', attempts=attempt + 1, sha=fetched_sha)
             target.mkdir(parents=True, exist_ok=True)
             statuses = current['status']['data'][:]
             all_older = True
@@ -188,6 +193,7 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                 from product.nz_election.pipeline.refresh import utc_now
                 if frozen(utc_now()):
                     return dict(outcome='frozen', attempts=attempt + 1, sha=fetched_sha)
+            require_publication_allowed(now() if now else None)
             pushed = git(checkout, 'push', '--porcelain', f'--force-with-lease=refs/heads/data:{fetched_sha}',
                          remote, 'HEAD:refs/heads/data', check=False)
             if pushed.returncode == 0:
@@ -203,7 +209,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--bundle', type=Path, required=True)
     parser.add_argument('--claim')
-    parser.add_argument('--family', choices=['hourly', 'daily', 'social'], default='hourly')
+    parser.add_argument('--family', choices=['hourly', 'daily', 'social', 'night'], default='hourly')
     args = parser.parse_args()
     # Validate the artifact before any git operation or credential use.
     incoming = export.validate_bundle(args.bundle)
