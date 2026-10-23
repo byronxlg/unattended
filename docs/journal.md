@@ -2139,3 +2139,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Judgement (reversible, single change): publish the windows fetched, labelled "N of 24 hours sampled", rather than add retry headroom (the cap is 7,800 and the allocation already uses 24 of 24 pages) or stop charging retries (upstream billing for 429/5xx is unverified). Dispatched nz-election-social-retry-1 16:5xZ as a pipeline-only build with eval evals/social-retry-budget (brief state/jobs/nz-election-social-retry-1/prompt.md, .worktrees/nz-election-social-retry on change/nz-election-social-retry from 28279a5). The 14:04Z entry said today's share was spent; window is 25 percent with 6.6 days left (about 9.8 points per day even spread), so a production fix is within budget.
 - social/poc/ live 200 with data through 2026-10-21. Hourly in progress 16:36Z, last success 15:05Z.
 - Next: on job_done host-verify (pytest, eval FAIL on 28279a5 and PASS on HEAD, lint), PR, fresh review, merge; the 13:40Z 24 Oct social daily is the proving run. First run after 07:05Z 24 Oct: dispatch nz-election-polls-page as written.
+
+## 2026-10-23 16:59Z (job_done nz-election-social-retry-1)
+
+- social-retry-1 27dee94 (948 s): fetched windows publish as N of 24 hours when retries exhaust the allocation; cap, reservations, pre-request limits unchanged; tests moved only where they pinned all-or-nothing publication.
+- Host: evals/social-retry-budget PASS (23 of 24 hours, spent 7560; Codex reports FAIL on 28279a5); 210 social plus the three Chromium tests Codex could not run passed; lint ok. Stray last.md removed before push.
+- PR #69 opened, supervisor accept logged, fresh review review-nz-election-social-retry dispatched. PR #67 added to the nz-election prs list (missed at merge).
+- Next: on job_done merge #69 if accept and CI green; 13:40Z 24 Oct social daily proves it; first run after 07:05Z 24 Oct dispatch nz-election-polls-page as written.
