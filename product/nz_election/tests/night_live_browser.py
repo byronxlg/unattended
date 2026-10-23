@@ -101,6 +101,9 @@ def images(browser, out):
                                 document.dispatchEvent(new Event('visibilitychange'));
                             }""")
                             count = len([u for u in requests if u.endswith('night-live.json')])
+                            # install() leaves time running. Freeze it while hidden so the
+                            # synchronous fetch and dispatch return share exactly one instant.
+                            page.clock.pause_at(page.evaluate('Date.now() / 1000') + 60)
                             page.clock.run_for(120000)
                             assert len([u for u in requests if u.endswith('night-live.json')]) == count
                             assert page.evaluate('window.resumeFetches') == []
@@ -112,7 +115,7 @@ def images(browser, out):
                                         document.dispatchEvent(new Event('visibilitychange'));
                                         return {at: Date.now(), calls: window.resumeFetches};
                                     }""")
-                                    assert resume['calls'] == [dict(at=resume['at'], hidden=False)]
+                                    assert resume['calls'] == [dict(at=resume['at'], hidden=False)], resume
                                     # Flush browser delivery under Playwright's clock, not an application delay.
                                     page.clock.run_for(50)
                             assert resumed.value.status == 200
@@ -120,6 +123,7 @@ def images(browser, out):
                             page.clock.run_for(1000)
                             assert len([u for u in requests if u.endswith('night-live.json')]) == count+1
                             assert page.evaluate('window.resumeFetches') == resume['calls']
+                            page.clock.resume()
                     assert not errors, errors
                     assert all(u.startswith(origin+'/') for u in requests)
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
