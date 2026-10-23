@@ -84,7 +84,8 @@ def map_graphic(envs, selected=None, *, hexagons=False):
     cells = load('hexmap')
     width = (max(c['x'] for c in cells)+1)*26
     height = (max(c['y'] for c in cells)+1)*26
-    marks, records = '', []
+    marks = '<defs><polygon id="hex" points="6,0 20,0 26,13 20,26 6,26 0,13"/></defs>' if hexagons else ''
+    records = []
     for c in cells:
         row = rows[c['electorate_slug']]
         held = result(row, envs)
@@ -97,7 +98,7 @@ def map_graphic(envs, selected=None, *, hexagons=False):
                 + (' stroke="var(--ink)" stroke-width="3"' if selected == row['slug'] else '') + '/>')
         if hexagons:
             x, y = c['x']*26, c['y']*26
-            rect = (f'<polygon points="{x+6},{y} {x+20},{y} {x+26},{y+13} {x+20},{y+26} {x+6},{y+26} {x},{y+13}" '
+            rect = (f'<use href="#hex" x="{x}" y="{y}" '
                     f'fill="{fill}" fill-opacity="{opacity:.2f}"/>')
         if selected:
             marks += '<g><title>' + escape(title) + '</title>' + rect + '</g>'
