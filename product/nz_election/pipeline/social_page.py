@@ -11,12 +11,16 @@ def count(n):
     return 'under 5' if n < 5 else str(n)
 
 
+def coverage(records):
+    return f"{sum(len(r['provenance']['windows']) for r in records)} of {24 * len(records)} hours sampled"
+
+
 def notice(records):
     if not records:
         return ''
     n = sum(r['sample']['eligible'] for r in records)
     start, end = min(r['day'] for r in records), max(r['day'] for r in records)
-    return f'<p class="state">Proof of concept. {count(n)} posts sampled from X; {start} to {end}. Not a measure of voter support.</p>'
+    return f'<p class="state">Proof of concept. {count(n)} posts sampled from X; {start} to {end}. {coverage(records)}. Not a measure of voter support.</p>'
 
 
 def fixture_notice(records):
@@ -43,7 +47,7 @@ def primary_chart(envs):
     n = sum(r['sample']['eligible'] for r in records)
     start, end = (datetime.fromisoformat(d) for d in (min(r['day'] for r in records), latest))
     dates = f'{start.day} {start:%B %Y}' if start == end else f'{start.day} {start:%B %Y} to {end.day} {end:%B %Y}'
-    intro = f'<p class="numeric" aria-describedby="source-social">{count(n)} posts sampled from X over {len(records)} days, {dates}, one page per hour, not a complete count.</p>'
+    intro = f'<p class="numeric" aria-describedby="source-social">{count(n)} posts sampled from X over {len(records)} days, {dates}, {coverage(records)}, at most one page per hour, not a complete count.</p>'
     intro += fixture_notice(records)
     if status.get('error_code'):
         intro += '<p class="state">Data to ' + escape(latest) + '.</p>'
@@ -106,7 +110,7 @@ def page(envs, built):
     concentration = max(r['sample']['top_author_share_ppm'] for r in records)
     models = ', '.join(sorted({m for r in records for m in r['model_versions']})) or 'No eligible classifications'
     exclusions = {k: sum(r['sample']['exclusions'][k] for r in records) for k in EXCLUSIONS}
-    caption = (f'<section id="social-method"><h2>How this sample was made</h2><p>One latest page from each hourly window of the NZ day: a time-stratified, recency-biased convenience sample. '
+    caption = (f'<section id="social-method"><h2>How this sample was made</h2><p>At most one latest page per hourly window of the NZ day: {coverage(records)}; a time-stratified, recency-biased convenience sample. '
                "The search matches each party's name and common short form as quoted phrases; the exact phrase list is recorded in each day's provenance. "
                f'{count(sum(r["sample"]["returned"] for r in records))} posts returned; {count(n)} eligible after deduplication and the relevance gate. '
                f'{count(sum(r["sample"]["unique_authors"] for r in records))} daily unique authors summed across days (authors may repeat between days). '
