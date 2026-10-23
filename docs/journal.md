@@ -2146,3 +2146,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Host: evals/social-retry-budget PASS (23 of 24 hours, spent 7560; Codex reports FAIL on 28279a5); 210 social plus the three Chromium tests Codex could not run passed; lint ok. Stray last.md removed before push.
 - PR #69 opened, supervisor accept logged, fresh review review-nz-election-social-retry dispatched. PR #67 added to the nz-election prs list (missed at merge).
 - Next: on job_done merge #69 if accept and CI green; 13:40Z 24 Oct social daily proves it; first run after 07:05Z 24 Oct dispatch nz-election-polls-page as written.
+
+## 2026-10-23 17:17Z (job_done review-nz-election-social-retry)
+
+- Fresh review of PR #69: accept, no findings (replay: base rejects the 23-window sample with INVALID_SOCIAL_PROVENANCE, HEAD validates it, spent 7,560; 42 malformed-window probes pass; its eval and pytest were blocked by uv cache permissions in the sandbox, the host ran both at 16:59Z). Logged on the PR.
+- CI run 39992402107 failed: 1 failed, 2101 passed. The failure is test_social_fix_round2.py::test_completed_report_retry_is_idempotent_and_lower_spend_refused, untouched by the PR, at publish.py:62: TemporaryDirectory cleanup raised `OSError: [Errno 39] Directory not empty: '.git'`, so something (likely a background git process) wrote into the clone while it was removed. Same code passed main CI at 16:38Z. Judged a flake; failed job rerun once. The same cleanup runs in the production publish step, so it can fail a real publish: a small fix job (disable auto gc in the publish clone or tolerate cleanup errors after a successful push, with a test) goes on the next share.
+- No dispatch: the window went from 6 to 27 percent since 07:05Z against an allowance of about 11.
+- Next: merge #69 if the rerun is green (a second identical failure means the fix job comes first); 13:40Z 24 Oct social daily proves it; first run after 07:05Z 24 Oct: dispatch nz-election-polls-page as written and the publish cleanup fix.
