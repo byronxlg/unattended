@@ -71,7 +71,7 @@ def panel(envs, built):
                     body += '<tr><th scope="row">' + name + '</th><td>No priced contracts</td></tr>'
                     continue
                 name = label(row)
-                body += '<tr data-market-id="' + row['id'] + '"><th scope="row">' + escape(name) + (' (closed)' if row['closed'] else '') + '</th><td>' + market_price(yes(row)['price']) + '</td></tr>'
+                body += '<tr data-market-id="' + row['id'] + '"><th scope="row">' + escape(question(row)) + (' (closed)' if row['closed'] else '') + '</th><td>' + market_price(yes(row)['price']) + '</td></tr>'
                 rules_name = {'next-pm': 'PM rules', 'government-membership': 'Government rules'}.get(family, ('National' if 'national' in event['slug'] else 'Labour') + ' seat rules')
                 actions += link('https://polymarket.com/event/' + event['slug'], rules_name)
                 amounts += '<p>' + escape(name) + ': volume ' + market_money(row['volume']) + '; liquidity ' + market_money(row['liquidity']) + '. Observed ' + escape(row['observed_at']) + '.</p>'

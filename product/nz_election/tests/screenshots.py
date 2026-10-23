@@ -74,7 +74,7 @@ def home_mark_geometry(page):
     markers = page.locator('.poll-marker > *').evaluate_all("""els=>els.map(e=>{
       const r=e.getBoundingClientRect();return {width:r.width,height:r.height,ratio:r.width/r.height};
     })""")
-    if page.locator('#polls .home-chart').count():
+    if page.locator('#latest-polls .home-chart').count():
         assert markers and all(0.9 <= m['ratio'] <= 1.1 for m in markers), 'HOME_POLL_MARKER_SHAPE: ' + str(markers)
     if page.locator('#trend .home-chart').count():
         offsets = page.locator('#trend').evaluate("""e=>{
@@ -539,7 +539,7 @@ def main():
                             page.screenshot(path=str(args.out / anchor_name))
                             map_images.append(dict(state='parties-first-anchor', path=anchor_name,
                                                    viewport=viewport))
-                    if path == '' and width in (390, 1280) and page.locator('#markets').count():
+                    if path == 'methods/' and width in (390, 1280) and page.locator('#markets').count():
                         page.locator('#markets').screenshot(path=str(args.out / f'markets-module-{width}.png'))
                         (args.out / f'markets-module-{width}.json').write_text(json.dumps(page.locator('#markets').bounding_box()))
                     plain = nojs.new_page()

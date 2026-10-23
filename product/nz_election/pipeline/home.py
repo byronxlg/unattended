@@ -42,7 +42,7 @@ def family_note(envs, identity, families):
             text.append('From ' + escape(publisher(src)) + '. ' + escape(src['licence']) + '. Retrieved ' + compact_time(src['fetched_at']) + '.')
         actions.append(f'<a href="{PREFIX}data/{family}.json">{escape(family)} inputs</a>')
     actions.append(f'<a href="{PREFIX}downloads/">Sources and producing runs</a>')
-    return note(identity, ' '.join(dict.fromkeys(text)), ''.join(dict.fromkeys(actions)))
+    return note(identity, ' '.join(dict.fromkeys(text)), ' '.join(dict.fromkeys(actions)))
 
 
 def electorate_summary(row, envs, correspondence=None):
@@ -139,39 +139,99 @@ def module(name, heading, dek, graphic, publisher, date, route, action):
             f'<p><a href="{PREFIX}{route}">{action}</a></p>' + footnote(name, publisher, date) + '</section>')
 
 
+def voting_dates(built, rows=None):
+    from datetime import datetime, date
+    from zoneinfo import ZoneInfo
+    from .snapshots import load_voting
+    records = {r['id']: r for r in (load_voting() if rows is None else rows)}
+    today = datetime.fromisoformat(built.replace('Z', '+00:00')).astimezone(ZoneInfo('Pacific/Auckland')).date()
+    clauses = []
+    for key, caption in [('enrolment-closes', 'Enrol by'), ('advance-opens', 'advance voting from'), ('election-day', 'election day')]:
+        row = records.get(key, {})
+        if not row.get('date'):
+            continue
+        day = date.fromisoformat(row['date'])
+        if key == 'enrolment-closes' and today > day:
+            caption = 'Enrolment closed on'
+        clauses.append(f'{caption} {day.day} {day:%B}')
+    if not clauses:
+        return ''
+    source = records.get('election-day', next(iter(records.values())))['source_url']
+    return ('<section id="dates" class="home-dates"><p>' + '; '.join(clauses) + '.</p><p>'
+            + f'<a href="{PREFIX}vote/">How to vote</a>' + ' ' + link(source, 'EC key dates') + '</p></section>')
+
+
+def night_summary(envs, built):
+    from datetime import datetime
+    if datetime.fromisoformat(built.replace('Z', '+00:00')) < datetime.fromisoformat('2026-11-07T19:00:00+13:00'):
+        return ''
+    # Consume only published 2026 observations through the validated family.
+    observations = []
+    for seq in envs.get('night/index', {}).get('data', []):
+        refs = envs.get(seq['reference_path'][:-5], {}).get('data', [])
+        for path in seq['snapshot_paths']:
+            for row in envs.get(path[:-5], {}).get('data', []):
+                if (row.get('source_updated_local', '').startswith('2026-')
+                        and 'reported_house' in row and row.get('statistics')
+                        and row.get('mode') not in {'Recorded demo', 'Illustrative replay based on 2023 final results'} and refs):
+                    observations.append((row['source_updated_local'], row, refs[0]))
+    if not observations:
+        return ''
+    clock, row, refs = max(observations, key=lambda item: item[0])
+    seats = '; '.join(escape(refs['parties'][p]['short_name']) + ' ' + str(r['total_seats'])
+                      for p, r in sorted(row['party_results'].items(), key=lambda item: -item[1]['total_seats']) if r['total_seats'] or row['reported_house'] == 0)
+    if row['reported_house'] == 0:
+        seats = '0 national seats reported.'
+    return ('<section id="night-summary" class="home-hero"><h1>Who is winning now?</h1>'
+            '<figure id="home-night" aria-describedby="source-night"><p class="seat-answer">' + seats + '</p>'
+            f'<p>{row["statistics"]["percent_voting_places_counted"]}% of voting places reported. House: {row["reported_house"]} seats.</p>'
+            '<p>' + escape(row['mode']) + '. Updated ' + escape(clock.replace('T', ' ')) + ' (source local time).</p></figure>'
+            + footnote('night', 'Electoral Commission', updated(envs, 'night/index', built))
+            + f'<p><a href="{PREFIX}night/">Election night results</a></p></section>')
+
+
 def hero(envs, built, presentation):
+    from .home_charts import colour
     result = presentation['result']
     if not result:
-        return '<section class="home-hero"><h1>New Zealand votes on 7 November</h1></section><span id="seats"></span><span id="source-seats"></span>'
-    content = '<p>No seat estimate available yet.</p>'
-    if result:
-        groups = config('seat-groups')
-        totals = [(key, sum(result['seats'].get(p, 0) for p in groups[key]['parties'])) for key in ('government', 'opposition')]
-        difference = totals[0][1] - result['assumed_majority']
-        answer = ('exactly enough seats to govern' if difference == 0 else
-                  f'{difference} more than the {result["assumed_majority"]} needed' if difference > 0 else f'{-difference} short of the {result["assumed_majority"]} needed')
-        content = f'<p class="seat-answer">Governing parties: {totals[0][1]} seats, {answer}.</p>'
-        content += (f'<p class="seat-dek">{result["assumed_majority"]} seats are needed in the assumed '
-                    f'{result["assumed_house"]}-seat House, including {result["overhang"]} overhang seats.</p>')
-        content += '<div class="topline">' + ''.join(
-            f'<p class="bloc-{groups[key]["token"]}">{key.title()} {n} seats</p>' for key, n in totals)
-        content += f'<p>{result["assumed_majority"]} needed</p></div>'
-        total = result['assumed_house']
-        remainder = total - sum(n for _, n in totals)
-        bars = [(groups[key]['token'], n) for key, n in totals]
-        if remainder:
-            bars.append(('neutral', remainder))
-        content += '<div class="strip" role="img" aria-label="Seats ordered by government, opposition, then ungrouped">' + ''.join(
-            f'<span class="segment bloc-fill-{token}" style="width:{Decimal(n) * 100 / total:.6f}%"></span>' for token, n in bars)
-        content += f'<span class="majority" style="left:{Decimal(result["assumed_majority"]) * 100 / total:.6f}%"></span></div>'
-        if remainder:
-            content += f'<p class="bloc-neutral">{remainder} seats outside these groups or unassigned</p>'
+        return ''
+    groups = config('seat-groups')
+    totals = [(key, sum(result['seats'].get(p, 0) for p in groups[key]['parties'])) for key in ('government', 'opposition')]
+    difference = totals[0][1] - result['assumed_majority']
+    answer = ('exactly enough seats to govern' if difference == 0 else
+              f'{difference} more than the {result["assumed_majority"]} needed' if difference > 0 else f'{-difference} short of the {result["assumed_majority"]} needed')
+    content = f'<p class="seat-answer">Governing parties: {totals[0][1]} seats, {answer}.</p>'
+    content += '<p class="seat-dek">Poll average using 2023 groups, not who forms government.</p>'
+    content += '<div class="topline">' + ''.join(
+        f'<p aria-label="{key.title()} {n} seats" class="bloc-{groups[key]["token"]}">{key.title()} <strong>{n}</strong></p>' for key, n in totals) + '</div>'
+    total = result['assumed_house']
+    remainder = total - sum(n for _, n in totals)
+    content += f'<div class="majority-label" style="left:{Decimal(result["assumed_majority"])*100/total:.6f}%">{result["assumed_majority"]} needed</div>'
+    content += '<div class="strip" role="img" aria-label="One block per seat; government from left, opposition from right">'
+    ungrouped = [p for p in result['seats'] if all(p not in groups[k]['parties'] for k in ('government', 'opposition'))]
+    for key, n, order in [('government', totals[0][1], 0), ('opposition', totals[1][1], 2), ('neutral', remainder, 1)]:
+        if not n:
+            continue
+        token = groups[key]['token'] if key in groups else 'neutral'
+        parties = groups[key]['parties'] if key in groups else ungrouped
+        if key == 'opposition':
+            parties = list(reversed(parties))
+        content += f'<span class="segment bloc-fill-{token}" style="width:{Decimal(n)*100/total:.6f}%;order:{order}">'
+        for party in parties:
+            content += ''.join(f'<span class="seat" style="background:{colour(party)}" title="{escape(label(party))}"></span>' for _ in range(result['seats'].get(party, 0)))
+        if key == 'neutral':
+            content += '<span class="seat"></span>' * (total-sum(result['seats'].values()))
+        content += '</span>'
+    content += f'<span class="majority" style="left:{Decimal(result["assumed_majority"])*100/total:.6f}%"></span></div>'
+    content += (f'<p class="seat-dek" aria-label="{result["assumed_majority"]} seats are needed in the assumed '
+                f'{total}-seat House, including {result["overhang"]} overhang seats.">{total} seats, including {result["overhang"]} overhang.</p>')
+    if remainder:
+        content += f'<p class="bloc-neutral">{remainder} seats outside these groups or unassigned</p>'
     averages = envs.get('averages', {}).get('data', [])
-    date = 'Average ' + observation_label(averages[-1]['date']) if averages else 'No published average'
-    return ('<section id="seats" class="home-hero"><h1>Who is favoured to form the next government?</h1>'
+    stamp = 'Average ' + observation_label(averages[-1]['date']) if averages else ''
+    return ('<section id="seats" class="home-hero"><h1 class="chart-data">Who is favoured to form the next government?</h1>'
             '<figure id="home-seats" aria-describedby="source-seats">' + content + '</figure>'
-            '<div class="source-note home-footnote" id="source-seats"><p class="source-actions">' + date +
-            f'. <a href="{PREFIX}methods/#home-seats">How it is made</a></p></div></section>')
+            + footnote('seats', stamp, '') + '</section>')
 
 
 def party_order():
@@ -204,7 +264,10 @@ def trend_graphic(envs):
     parties = party_order()
     wins = envs.get('seats', {}).get('data', {}).get('assumptions', {}).get('electorate_wins', {})
     plotted = [p for p in parties if wins.get(p, 0) or any(a['descriptive'].get(p, {}).get('value') is not None and a['descriptive'][p]['value'] >= 5*a['descriptive'][p]['scale'] for a in selected)]
-    return trend_chart(selected, plotted) + fallback(table('Weekly snapshots of the 30-day average, percent', ['As at'] + [label(p) for p in parties],
+    large = [p for p in plotted if any(a['descriptive'].get(p, {}).get('value') is not None and a['descriptive'][p]['value'] >= 15*a['descriptive'][p]['scale'] for a in selected)]
+    small = [p for p in plotted if p not in large]
+    charts = f'<p><a href="{PREFIX}methods/#home-thresholds">5% or an electorate win qualifies for list seats</a></p>' + ''.join(trend_chart(selected, group, maximum=maximum, polls=envs.get('polls', {}).get('data', []), previous=averages[-2] if len(averages) > 1 else None) for group, maximum in [(large, None), (small, 15)] if group)
+    return charts + fallback(table('Weekly snapshots of the 30-day average, percent', ['As at'] + [label(p) for p in parties],
                  [[observation_label(a['date'])] + [display(a['descriptive'][p]['value'], a['descriptive'][p]['scale']) if a['descriptive'].get(p, {}).get('value') is not None else '' for p in parties] for a in selected], source='source-trend'))
 
 
@@ -271,8 +334,23 @@ def directory_links(envs):
             'Browse all electorates</a></li></ul>')
 
 
+def poll_change(envs):
+    averages = envs.get('averages', {}).get('data', [])
+    if len(averages) < 2:
+        return 'Equal-weight 30-day averages, not a forecast.'
+    latest, previous = averages[-1], averages[-2]
+    ranked = sorted(((p, d) for p, d in latest['descriptive'].items() if p != 'others' and d.get('value') is not None), key=lambda item: -Fraction(item[1]['value'], item[1]['scale']))
+    changes = []
+    for party, value in ranked[:2]:
+        old = previous['descriptive'].get(party, {})
+        if old.get('value') is not None:
+            delta = Decimal(value['value'])/value['scale'] - Decimal(old['value'])/old['scale']
+            changes.append(label(party) + (f' {delta:+.1f} pp' if delta else ' unchanged'))
+    return ('; '.join(changes) + ' since ' + observation_label(previous['date']) + '. ' if changes else '') + 'Poll averages, not a forecast.'
+
+
 def page(envs, built, presentation):
-    from .snapshot_views import map_graphic, people, footnote as snapshot_note
+    from .snapshot_views import map_graphic, footnote as snapshot_note
     state, _ = seat_module(envs, built, presentation)
     if 'polls' not in envs:
         state = ''
@@ -280,33 +358,23 @@ def page(envs, built, presentation):
         state += '<p>Allocation tie: seats remain unassigned; see the calculation.</p>'
     if any(env.get('run_url') == 'offline-verification' for env in envs.values()):
         state += '<p class="fixture-note">Offline verification: historical or synthetic data, not live data.</p>'
-    date = updated(envs, 'polls', built)
-    # polls_page omits both sections when the polls family is unpublished.
-    trend_route = 'polls/#source-average' if 'polls' in envs else 'polls/'
-    coalition_route = 'methods/#home-positions'
-    modules = module('polls', 'What are the latest polls?', 'The latest national party-vote polls.', latest_polls(envs), 'Wikipedia contributors', date, 'polls/#polls', 'See all polls')
-    if not envs.get('polls', {}).get('data'):
-        modules = '<span id="polls"></span>'
-    modules += module('trend', 'How have the polls moved?', 'Equal-weight 30-day averages describe polls, not a forecast; coverage differs by party.', trend_graphic(envs), 'Wikipedia contributors', date, trend_route, 'See all averages')
-    if not envs.get('averages', {}).get('data'):
-        modules = modules.split('<section id="trend"')[0] + '<span id="trend"></span>'
-    modules += module('electorates', 'Who holds your electorate?', 'Explore the 2023 winners and margins on original boundaries; boundaries differ for 2026.', map_graphic(envs) + snapshot_note('map') + ('<h3>Closest on unchanged boundaries</h3>' + closest(envs) if watch_rows(envs) else ''), 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', 'See all electorates')
-    modules += '<section class="home-module" id="leaders"><h2>Who is leading the parties?</h2><figure id="home-leaders" aria-describedby="source-leaders">' + people() + '</figure>' + snapshot_note('leaders') + '</section>'
-    modules += module('thresholds', 'Which parties are near the 5 percent threshold?', 'An electorate win can qualify a party below 5%; 2023 electorate seats are assumed.', thresholds(envs), 'Wikipedia contributors', date, 'polls/#source-thresholds', 'See all threshold assumptions')
-    if 'seats' not in envs:
-        modules = modules.split('<section id="thresholds"')[0] + '<span id="thresholds"></span>'
-    market_date = updated(envs, 'markets', built)
-    market_dek = 'Market prices are not a forecast; government membership contracts are independent.'
-    market_env = envs.get('markets')
-    market_status = next((r for r in envs.get('status', {}).get('data', []) if r['dataset'] == 'markets'), {})
-    if market_env and (market_status.get('state') == 'stale' or overdue(market_status.get('last_success_at'), built, 'daily')):
-        market_dek += ' Update overdue or failed.'
-    if market_env and overdue(min(r['observed_at'] for r in market_env['data']), built, 'daily'):
-        market_dek += ' Observations are more than 36 hours old.'
-    modules += module('markets', 'What do prediction markets say?', market_dek, market_graphic(envs), 'Polymarket', market_date, 'methods/#home-markets', 'See all market details')
-    if not envs.get('markets', {}).get('data'):
-        modules = modules.split('<section id="markets"')[0] + '<span id="markets"></span>'
-    return render('home', prefix=PREFIX, hero=hero(envs, built, presentation), state=state, modules=modules, coalition_route=coalition_route, social_link=(f'<li><a href="{PREFIX}social/poc/">Social proof of concept</a></li>' if envs.get('social/daily', {}).get('data') else ''))
+    modules = ''
+    if envs.get('averages', {}).get('data') or envs.get('polls', {}).get('data'):
+        graphic = ''
+        if envs.get('averages', {}).get('data'):
+            graphic += '<div id="trend">' + trend_graphic(envs) + footnote('trend', 'Wikipedia contributors', updated(envs, 'polls', built)) + '</div>'
+        if envs.get('polls', {}).get('data'):
+            graphic += '<div id="latest-polls"><h3>Dated latest polls</h3>' + latest_polls(envs) + '</div>'
+        modules += module('polls', 'What changed in the latest polls?', poll_change(envs), graphic, 'Wikipedia contributors', updated(envs, 'polls', built), 'polls/', 'See all polls and averages')
+    graphic = '<div class="home-picker"><div>' + map_graphic(envs, hexagons=True) + snapshot_note('map') + '</div><div><h3>Find your electorate</h3>'
+    if watch_rows(envs):
+        graphic += '<p>Closest 2023 margins on unchanged boundaries</p>' + closest(envs)
+    graphic += f'<ul class="home-directory"><li><a href="{PREFIX}electorates/">Browse all electorates and candidates</a></li></ul></div></div>'
+    modules += module('electorates', 'Who is standing where I live?', 'Choose an electorate for its candidates. Map colours show 2023 holders, not 2026 predictions.', graphic, 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', 'See all electorates')
+    top = night_summary(envs, built) or hero(envs, built, presentation)
+    if not top:
+        top = '<h1>New Zealand votes on 7 November</h1>'
+    return render('home', dates=voting_dates(built), hero=top, state=state, modules=modules)
 
 
 def poll_inputs(polls):
@@ -339,7 +407,7 @@ def sources(envs, built, presentation):
                 ('electorates', 'Closest electorate inputs', watch(envs) + family_note(envs, 'source-watch', ('electorates', 'baseline-2023', 'candidates'))),
                 ('thresholds', 'Threshold inputs', threshold_body + selected),
                 ('markets', 'Market observations and terms', panel(envs, built) + family_note(envs, 'source-market-metadata', ('markets',))),
-                ('night', 'Election date', note('source-election', 'Election date: Electoral Commission, 7 November 2026. Countdown updated ' + compact_time(built) + '.', link('https://vote.nz/', 'Electoral Commission') + f'<a href="{PREFIX}build-manifest.json">Build record</a>')),
+                ('night', 'Election night inputs', (family_note(envs, 'source-night-family', ('night/index',)) if 'night/index' in envs else '') + note('source-election', 'Election date: Electoral Commission, 7 November 2026. Countdown updated ' + compact_time(built) + '.', link('https://vote.nz/', 'Electoral Commission') + f'<a href="{PREFIX}build-manifest.json">Build record</a>')),
                 ('directory', 'Electorate directory inputs', family_note(envs, 'source-directory', ('electorates', 'baseline-2023'))),
                 ('social', 'Social sample inputs', social(envs, built)),
                 ('method', 'Calculation inputs', source_note(envs.get('polls'), 'source-method', 'polls.json' if 'polls' in envs else 'validation-2023.json'))]

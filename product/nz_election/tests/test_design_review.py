@@ -55,7 +55,7 @@ def test_page_and_card_share_availability_and_selected_provenance(tmp_path):
             latest = max(p['fieldwork_end'] for p in stored['selected'])
             assert f'datetime="{latest}"' in stored['source']
         else:
-            assert 'id="home-seats"' not in html and 'id="seats"' in html
+            assert 'id="home-seats"' not in html and 'id="seats"' not in html
     assert 'class="strip"' not in polls_page({}, '2026-10-17T01:00:00Z')
 
 

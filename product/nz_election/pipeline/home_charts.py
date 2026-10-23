@@ -75,21 +75,37 @@ def threshold_chart(rows):
     return text('Dashed line: 5%', 'chart-status') + body
 
 
-def trend_chart(averages, parties):
+def trend_chart(averages, parties, *, maximum=None, polls=(), previous=None):
     start = date.fromisoformat(averages[0]['date'])
     days = max(1, (date.fromisoformat(averages[-1]['date'])-start).days)
     values = [Decimal(a['descriptive'][p]['value'])/a['descriptive'][p]['scale'] for a in averages for p in parties if a['descriptive'].get(p, {}).get('value') is not None]
-    maximum = max(40, int(max(values, default=40)/10+1)*10)
+    maximum = maximum or max(40, int(max(values, default=40)/10+1)*10)
     def y(v):
         return Decimal(260)-v*240/maximum
     marks, axis = '', ''
-    for tick in range(0, maximum+1, 10):
+    for tick in range(0, maximum+1, 5 if maximum <= 15 else 10):
         axis += text(tick, 'numeric', f'top:{y(Decimal(tick))-8:.1f}px')
         marks += f'<path d="M0 {y(Decimal(tick)):.1f}H350" stroke="var(--rule)" stroke-width="0.5"/>'
     marks += f'<path d="M0 {y(Decimal(5)):.1f}H350" stroke="var(--grey)" stroke-dasharray="4 3"/>'
     ends = []
     for party in parties:
         path, active, last = '', False, None
+        upper, lower = [], []
+        by_id = {p['id']: p for p in polls}
+        for a in averages:
+            observations = [Decimal(by_id[i]['shares'][party])/by_id[i]['scale'] for i in a['descriptive'].get(party, {}).get('poll_ids', []) if i in by_id and by_id[i]['shares'].get(party) is not None]
+            x = Decimal((date.fromisoformat(a['date'])-start).days)*330/days
+            if observations:
+                upper.append(f'{x:.1f},{y(max(observations)):.1f}')
+                lower.append(f'{x:.1f},{y(min(observations)):.1f}')
+        if upper:
+            marks += f'<polygon points="{" ".join(upper + list(reversed(lower)))}" fill="{colour(party)}" fill-opacity="0.1"/>'
+        for poll in polls:
+            day = date.fromisoformat(poll['fieldwork_end'])
+            value = poll['shares'].get(party)
+            if start <= day <= date.fromisoformat(averages[-1]['date']) and value is not None:
+                x = Decimal((day-start).days)*330/days
+                marks += f'<circle cx="{x:.1f}" cy="{y(Decimal(value)/poll["scale"]):.1f}" r="2" fill="{colour(party)}" fill-opacity="0.3"/>'
         for a in averages:
             d = a['descriptive'].get(party, {})
             if d.get('value') is None:
@@ -103,20 +119,28 @@ def trend_chart(averages, parties):
         marks += f'<path d="{path}" fill="none" stroke="{colour(party)}" stroke-width="3.5" vector-effect="non-scaling-stroke"/>'
         if last:
             ends.append((last[1], party, last))
-    previous, labels, stale_labels = Decimal(-20), '', ''
+    last_position, labels, stale_labels = Decimal(-20), '', ''
     for py, party, (x, _, value, observed) in sorted(ends):
         if observed != averages[-1]['date']:
             stamp = date.fromisoformat(observed)
             stale_labels += party_text(party, f' {value} ({stamp.day} {stamp:%b})', 'trend-stale',
                 f'position:absolute;left:{x*100/350:.6f}%;top:{py-20:.1f}px;transform:translateY(-100%);max-width:132px')
             continue
-        position = max(py, previous+44)
-        previous = position
+        position = max(py, last_position+44)
+        last_position = position
         marks += f'<path d="M{x:.1f} {py:.1f}L350 {position:.1f}" stroke="{colour(party)}" fill="none"/>'
+        delta = ''
+        before = (previous or {}).get('descriptive', {}).get(party, {})
+        after = averages[-1]['descriptive'].get(party, {})
+        if before.get('value') is not None and after.get('value') is not None:
+            change = Decimal(after['value'])/after['scale'] - Decimal(before['value'])/before['scale']
+            delta = f'{change:+.1f} pp'
         labels += party_text(party, ' ' + value, '', f'top:{position-8:.1f}px')
-    height = max(290, int(previous)+25)
+        if delta:
+            labels += text(delta, 'chart-status', f'top:{position+12:.1f}px')
+    height = max(290, int(last_position)+25)
     first_date, last_date = (date.fromisoformat(a['date']) for a in (averages[0], averages[-1]))
-    return (text('Party vote percent; dashed line: 5%', 'chart-status') + f'<div class="trend-layout" style="height:{height}px"><div class="trend-labels">' + axis + '</div>'
+    return (text('Party vote %; dashed line: 5%. Change since ' + previous['date'] + '.' if previous else 'Party vote percent; dashed line: 5%', 'chart-status') + text('Shading: poll range; dots: individual polls.', 'chart-status') + f'<div class="trend-layout" style="height:{height}px"><div class="trend-labels">' + axis + '</div>'
             + '<div class="trend-plot">' + svg('trend', 'Party averages over time, percent; dashed line marks 5 percent', marks, height) + stale_labels + '</div>'
             + '<div class="trend-labels">' + labels + '</div></div><div class="chart-dates"><span></span><div class="trend-labels">'
             + text(f'{first_date.day} {first_date:%b}', 'numeric', 'left:0')

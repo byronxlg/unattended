@@ -9,7 +9,7 @@ from product.nz_election.tests.design_checks import Document
 from product.nz_election.tests.test_home import populated, NOW  # noqa: F401
 
 
-@pytest.mark.parametrize('name', ['polls', 'trend', 'electorates', 'thresholds', 'markets'])
+@pytest.mark.parametrize('name', ['polls', 'electorates'])
 def test_named_modules_have_accessible_svg(populated, name):
     _, site = populated
     section = (site / 'index.html').read_text().split(f'<section id="{name}"')[1].split('</section>')[0]
@@ -36,7 +36,7 @@ def test_reading_column_is_capped(populated):
 
 def test_trend_has_direct_labels_and_threshold(populated):
     _, site = populated
-    html = (site / 'index.html').read_text().split('<section id="trend"')[1].split('</section>')[0]
+    html = (site / 'index.html').read_text().split('<div id="trend"')[1].split('</section>')[0]
     svg = html.split('</svg>')[0]
     assert 'stroke-dasharray="4 3"' in svg
     for party in ['National', 'Labour', 'ACT', 'NZ First', 'Te Pāti Māori']:
@@ -51,10 +51,11 @@ def test_compact_poll_rows_and_threshold_marks(populated):
     polls = html.split('<section id="polls"')[1].split('</section>')[0]
     assert polls.count('class="chart-row"') == len(party_order()) + 1
     assert all(shape in polls for shape in ['Filled circle', 'Open square', 'Triangle', '(newest)'])
-    threshold = html.split('<section id="thresholds"')[1].split('</section>')[0]
+    from product.nz_election.pipeline.home import thresholds
+    threshold = thresholds(populated[0])
     assert '<rect ' in threshold and 'stroke-dasharray="4 3"' in threshold
     assert 'Electorate assumed' in threshold and 'Needs 5%' in threshold
-    for module in ['polls', 'trend', 'thresholds', 'electorates']:
+    for module in ['polls', 'electorates']:
         section = html.split(f'<section id="{module}"')[1].split('</section>')[0]
         assert '<text ' not in section
         assert 'chart-label' in section
