@@ -187,6 +187,8 @@ def main():
     if args.fixtures:
         status = refresh(args.out)
     else:
+        from product.nz_election.pipeline.deployment_guard import require_publication_allowed
+        require_publication_allowed()
         from product.nz_election.pipeline.fetch import acquire
         run_url = os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID']
         def live():

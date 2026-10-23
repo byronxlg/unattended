@@ -17,7 +17,8 @@ Publish complete validated directories with atomic exchange; never replace files
 Fixture outputs must say offline verification, never live data.
 No-data builds retain the official worked example but never substitute fixture polls.
 
-Only fetch.py acquires source HTTP data: one Wikipedia API host, no redirects or citation fetches.
+Only fetch.py acquires source HTTP data: reviewed Wikipedia, Gamma and EC HTTPS endpoints.
+No redirects or citation fetches. Night XML acquisition is serial in Actions; browsers use packaged JSON.
 Inject transport and sleep in tests; never open a socket. Preserve bounded retries and response size.
 Only Actions publishes remote data; local bare repositories exercise the identical lease algorithm.
 Validate downloaded artifacts before git; reject symlinks, traversal and unknown filenames.

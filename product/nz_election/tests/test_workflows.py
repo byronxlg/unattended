@@ -101,7 +101,7 @@ def test_pages_triggers_and_pinned_checkouts(tmp_path):
     triggers = doc[True]
     assert triggers['push'] == {'branches': ['main']}
     assert triggers['workflow_run'] == {'workflows': ['NZ election hourly', 'NZ election daily'], 'types': ['completed'], 'branches': ['main']}
-    assert set(triggers['workflow_dispatch']['inputs']) == {'code_sha', 'data_sha'}
+    assert set(triggers['workflow_dispatch']['inputs']) == {'code_sha', 'data_sha', 'night_cycle'}
     assert all(v['required'] is False for v in triggers['workflow_dispatch']['inputs'].values())
     assert doc['concurrency'] == {'group': 'pages', 'cancel-in-progress': False}
     build = doc['jobs']['build']
@@ -109,7 +109,7 @@ def test_pages_triggers_and_pinned_checkouts(tmp_path):
     assert 'github.event.workflow_run.head_repository.full_name == github.repository' in build['if']
     assert 'conclusion' not in build['if']
     assert build['permissions'] == {'contents': 'read'}
-    assert doc['jobs']['deploy']['permissions'] == {'pages': 'write', 'id-token': 'write'}
+    assert doc['jobs']['deploy']['permissions'] == {'contents': 'read', 'pages': 'write', 'id-token': 'write'}
     steps = build['steps']
     assert steps[0]['with']['fetch-depth'] == 0
     assert steps[0]['with']['ref'] == '${{ github.sha }}'

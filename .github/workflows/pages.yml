@@ -1,10 +1,15 @@
 name: Publish the blog
+run-name: ${{ inputs.night_cycle || 'Publish the blog' }}
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
     inputs:
+      night_cycle:
+        description: Night publication correlation key
+        required: false
+        type: string
       code_sha:
         description: Trusted code commit for rollback (40 lowercase hex)
         required: false
@@ -41,6 +46,10 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.sha }}
           persist-credentials: false
+      - name: Preserve current publication guard
+        run: cp product/nz_election/pipeline/deployment_guard.py "$RUNNER_TEMP/deployment_guard.py"
+      - name: Check publication before rollback
+        run: python3 "$RUNNER_TEMP/deployment_guard.py"
       - name: Validate rollback inputs
         env:
           CODE_SHA: ${{ inputs.code_sha }}
@@ -97,6 +106,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: bin/metrics
+      - name: Check publication before build
+        run: python3 "$RUNNER_TEMP/deployment_guard.py"
       - name: Build election pages
         run: uv run product/nz_election/pipeline/build.py --data _nz-election-data/product/nz_election/data --out site/nz-election
       - name: Record build manifest
@@ -144,21 +155,20 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
       - uses: actions/configure-pages@v5
       - name: Enforce election freeze at deployment time
-        run: |
-          python3 - <<'PYTHON'
-          from datetime import datetime, timezone
-          now = datetime.now(timezone.utc)
-          if datetime.fromisoformat('2026-11-06T10:30:00+00:00') <= now < datetime.fromisoformat('2026-11-07T06:00:00+00:00'):
-              raise SystemExit('PUBLICATION_FROZEN')
-          PYTHON
+        run: python3 product/nz_election/pipeline/deployment_guard.py
       - id: deployment
         uses: actions/deploy-pages@v4
         timeout-minutes: 10

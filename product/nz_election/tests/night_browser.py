@@ -20,12 +20,14 @@ from product.nz_election.pipeline import night, xml_parser, fixtures
 from product.nz_election.pipeline.build import build
 from product.nz_election.pipeline.daily_refresh import daily_refresh
 
-STATES = ('illustrative-start', 'illustrative-middle', 'illustrative-end', 'recorded-demo',
+REPLAY_STATES = ('illustrative-start', 'illustrative-middle', 'illustrative-end', 'recorded-demo',
           'final-2017', 'final-2020', 'final-2023', 'reset-focus', 'no-js', 'absent',
           'waterfall-early', 'waterfall-middle', 'waterfall-final', 'overhang', 'unresolved-tie',
           'unchecked-capacity', 'selected-leader', 'electorate-map', 'electorate-table',
           'official-comparison', 'no-specials', 'unavailable-live')
 SIZES = ((390, 844), (1280, 800))
+from product.nz_election.tests.night_live_browser import STATES as LIVE_STATES, images as live_images
+STATES = REPLAY_STATES + LIVE_STATES
 
 
 def images(browser, out):
@@ -41,7 +43,7 @@ def images(browser, out):
             threading.Thread(target=server.serve_forever, daemon=True).start()
             origin = 'http://127.0.0.1:' + str(server.server_port)
             try:
-                for state in STATES:
+                for state in REPLAY_STATES:
                     if (state == 'absent') != absent:
                         continue
                     for width, height in SIZES:
@@ -154,6 +156,7 @@ def images(browser, out):
             finally:
                 server.shutdown()
                 server.server_close()
+    results.extend(live_images(browser, out))
     assert {(r['state'], r['viewport']['width']) for r in results} == {('night-' + s, w) for s in STATES for w, _ in SIZES}
     return results
 
