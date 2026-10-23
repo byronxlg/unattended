@@ -169,17 +169,35 @@ no sooner than five minutes after the previous start. HTTP requests have 20-seco
 three attempts and bounded Retry-After handling. Publication uses the existing leased data-ref
 publisher, owning only night. A single Git commit contains references, national results, all
 71 details, JSON/CSV siblings and manifest. Other families survive lease retries. Daily captured
-night data cannot replace a newer Actions source vector. Unchanged XML skips the commit and
-Pages dispatch, including across chained jobs. It deliberately retains the earlier retrieval
-time; an unchanged source for 15 minutes therefore shows a conservative stale notice.
+night data cannot replace a newer Actions source vector. Every successful production cycle publishes
+its new retrieval time, even when raw XML and result counts are unchanged. The loop still reports
+`changed` or `unchanged` for the result bytes; that distinction no longer suppresses freshness.
+Failed acquisition keeps the previous retrieval time. Rehearsal still saves only changed demo bundles.
 
-A changed commit dispatches `pages.yml`; Pages uses its existing non-cancelling concurrency group.
+Each new freshness commit dispatches `pages.yml`, using its existing non-cancelling concurrency group.
+This deliberately uses a full site build/deployment for unchanged counts too: the existing static
+Pages service has no independent same-origin JSON write endpoint. Reusing the complete validated
+artifact workflow preserves atomic exports and provenance without adding hosting or credentials.
+At a steady five-minute cadence, budget 12 Pages runs per hour; slow builds reduce that cadence. Budget
+approximately `60 + 12 * P` Actions runner-minutes per wall-clock hour, where `P` is the combined
+build and deploy job time per Pages run. For example, a measured `P=3` would cost about 96 runner-minutes
+per hour (60 for the looping acquisition job plus 36 for Pages). This is a planning example, not a
+measured run time. Record actual job durations during the real Actions rehearsal.
 The [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)
-exempt custom Actions builds from the soft ten-builds-per-hour limit. The five-minute floor,
-unchanged-cycle suppression and serial deployment wait still apply here.
-The loop waits for pending Pages runs to finish, bounded to ten minutes. A deployment failure or
-wait timeout needs operator investigation in the Pages run log. Check the deployed build manifest
-for the actual code and data SHAs, then open `/unattended/nz-election/night/` without a replay query.
+exempt custom Actions builds from the soft ten-builds-per-hour limit.
+
+Before acquisition, including the first cycle of each successor, the runner reads the data-branch
+SHA through the GitHub API and compares it with `data.data_sha` in the HTTPS-served
+`/unattended/nz-election/build-manifest.json` (cache-busted, bounded read). A mismatch or unavailable
+manifest triggers a pinned deployment of the published data, even if counts never change again or
+the upstream feed is now unavailable. No data ref means there is nothing to recover yet. A recovery
+uses that cycle's slot, so it cannot double the deployment rate, and never fabricates a retrieval time.
+A successful matching Pages run confirms that SHA within the runner; a fresh runner consults the
+served manifest again. Failed/timed-out deployment is never confirmed and retries on the next cycle.
+The data ref and served manifest are durable evidence; no in-memory pending flag is needed after a crash.
+The runner waits for its specific Pages run, bounded to ten minutes. Repeated failure needs operator
+investigation in the Pages run log. Check the deployed build manifest for actual code and data SHAs,
+then open `/unattended/nz-election/night/` without a replay query.
 The page polls at most once per 60 seconds, stops requests while hidden, rejects obsolete responses,
 and backs off on failed requests. Staleness is 15 minutes from the **complete cycle retrieval**,
 not the XML's local source clock. Each detail retains its own source timestamp. Failed acquisition

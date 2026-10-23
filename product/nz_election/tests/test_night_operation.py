@@ -33,12 +33,12 @@ def test_live_serial_poll_budget(tmp_path):
     assert runner.tick() == 'changed'
     assert [p for _, p in calls] == list(night_live.REFERENCES) + ['election.xml'] + [f'e{i:02}/e{i:02}.xml' for i in range(1, 72)] + list(night_live.REFERENCES)
     assert all(d['leader'] is None and d['status'] == 'not yet reported' for d in commits[0]['result']['leaders'].values())
+    assert runner.tick() == 'unchanged' and clock.seconds == 300 and len(commits) == 2
     before = {p.relative_to(tmp_path): p.read_bytes() for p in (tmp_path / 'data').rglob('*') if p.is_file()}
-    assert runner.tick() == 'unchanged' and clock.seconds == 300 and len(commits) == 1
     raw['e33/e33.xml'] = b'<broken>'
     assert runner.tick() == 'retained' and clock.seconds == 600
     assert before == {p.relative_to(tmp_path): p.read_bytes() for p in (tmp_path / 'data').rglob('*') if p.is_file()}
-    assert len(commits) == 1
+    assert len(commits) == 2
     export.validate_bundle(tmp_path / 'data')
 
 
@@ -289,3 +289,122 @@ now+=1000; intervals.forEach(fn=>fn());
 assert.equal(requests.length,2);
 '''], cwd=ROOT, capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
+
+
+def test_restart_recovers_published_but_undeployed_data(tmp_path, monkeypatch):
+    from datetime import datetime
+    from types import SimpleNamespace
+    import sys
+    clock = Clock()
+    captured = night_live.cycle(acquire=captures().__getitem__, now=clock.now)
+    published_sha, deployed_sha = 'a'*40, 'b'*40
+    dispatches = []
+    class InjectedDateTime(datetime):
+        @classmethod
+        def now(cls, zone=None):
+            return clock.now()
+    def acquire_cycle(**kwargs):
+        clock.seconds = 18001
+        return captured
+    def run(command, **kwargs):
+        if 'publish.py' in ' '.join(command):
+            return SimpleNamespace(stdout=json.dumps(dict(outcome='unchanged', sha=published_sha)))
+        if 'pages.yml' in command:
+            dispatches.append(command)
+        return SimpleNamespace(returncode=0)
+    def output(command, **kwargs):
+        if 'api' in command:
+            return json.dumps([dict(ref='refs/heads/data', object=dict(sha=published_sha))]).encode()
+        key = dispatches[-1][-1].removeprefix('night_cycle=')
+        return json.dumps([dict(displayTitle=key, status='completed', conclusion='success')]).encode()
+    monkeypatch.setattr(night_live, 'datetime', InjectedDateTime)
+    monkeypatch.setattr(night_live.time, 'monotonic', clock.monotonic)
+    monkeypatch.setattr(night_live.time, 'sleep', clock.sleep)
+    monkeypatch.setattr(night_live, 'cycle', acquire_cycle)
+    monkeypatch.setattr(night_live.subprocess, 'run', run)
+    monkeypatch.setattr(night_live.subprocess, 'check_output', output)
+    monkeypatch.setattr(night_live.fetch, 'deployed_data_sha', lambda: deployed_sha, raising=False)
+    for key, value in dict(GITHUB_SERVER_URL='https://github.com', GITHUB_REPOSITORY='example/test', GITHUB_RUN_ID='successor', GITHUB_SHA='c'*40).items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.setattr(sys, 'argv', ['night_live.py'])
+    night_live.main()
+    assert len(dispatches) == 1, 'restart must deploy the durable pending data even when publication is unchanged'
+    assert 'data_sha=' + published_sha in dispatches[0]
+
+
+def test_unchanged_acquisition_advances_published_freshness(tmp_path):
+    from product.nz_election.pipeline.night_page import live_package
+    clock, raw = Clock(), captures()
+    remote, bundle = tmp_path / 'remote.git', tmp_path / 'bundle'
+    subprocess.run(['git', 'init', '--bare', '-q', str(remote)], check=True)
+    packages = []
+    def commit(captured):
+        daily_refresh(bundle, loaders={'night': lambda: night_live.loaded(captured)}, now=captured['retrieved_at'])
+        publish.publish(bundle, remote, family='night', now=lambda: night_live.stamp(clock.now))
+        envs = {}
+        for stem in ('night/index', 'night/references/live', 'night/live/current'):
+            envs[stem] = json.loads(subprocess.check_output(['git', '--git-dir', str(remote), 'show', 'data:product/nz_election/data/' + stem + '.json']))
+        packages.append(live_package(envs))
+    runner = night_live.Runner(acquire=raw.__getitem__, now=clock.now, monotonic=clock.monotonic, sleep=clock.sleep, commit=commit)
+    assert [runner.tick() for _ in range(4)] == ['changed', 'unchanged', 'unchanged', 'unchanged']
+    assert packages[-1]['retrieved_at'] == '2026-11-07T06:15:00Z'
+    assert [p['retrieved_at'] for p in packages] == ['2026-11-07T06:00:00Z', '2026-11-07T06:05:00Z', '2026-11-07T06:10:00Z', '2026-11-07T06:15:00Z']
+    js("time=OPEN+STALE;pack.retrieved_at=" + json.dumps(packages[-1]['retrieved_at']) + ";await live.tick();assert.doesNotMatch(texts.at(-1),/Stale/);")
+
+
+def test_deployment_failure_retries_from_durable_state(monkeypatch):
+    clock, dispatches = Clock(), []
+    head, served = 'a'*40, ['b'*40]
+    fail = [True]
+    monkeypatch.setenv('GITHUB_REPOSITORY', 'example/test')
+    monkeypatch.setenv('GITHUB_RUN_ID', 'recovery')
+    monkeypatch.setattr(night_live.fetch, 'deployed_data_sha', lambda: served[0])
+    monkeypatch.setattr(night_live.subprocess, 'run', lambda command, **kwargs: dispatches.append(command))
+    def output(command, **kwargs):
+        if 'api' in command:
+            return json.dumps([dict(ref='refs/heads/data', object=dict(sha=head))]).encode()
+        if not fail[0]:
+            served[0] = head
+        return json.dumps([dict(displayTitle=dispatches[-1][-1].removeprefix('night_cycle='),
+                                status='completed', conclusion='failure' if fail[0] else 'success')]).encode()
+    monkeypatch.setattr(night_live.subprocess, 'check_output', output)
+    with pytest.raises(OSError, match='PAGES_DEPLOYMENT_FAILED'):
+        night_live.Deployment(clock.now).recover()
+    fail[0] = False
+    assert night_live.Deployment(clock.now).recover() is True
+    assert len(dispatches) == 2
+    assert night_live.Deployment(clock.now).recover() is False
+    assert len(dispatches) == 2
+
+
+def test_served_manifest_requires_valid_bounded_evidence():
+    from io import BytesIO
+    from product.nz_election.pipeline import fetch
+    class Response(BytesIO):
+        status = 200
+    for payload, expected in (({'data': {'data_sha': 'a'*40}}, 'a'*40),
+                              ({'data': {'data_sha': None}}, None),
+                              ({'data': {'data_sha': 'bad'}}, None), ([], None)):
+        def transport(request, *, timeout):
+            assert timeout == 20
+            assert request.full_url.startswith('https://byronxlg.github.io/unattended/nz-election/build-manifest.json?reconcile=')
+            assert request.get_header('Cache-control') == 'no-cache'
+            return Response(json.dumps(payload).encode())
+        assert fetch.deployed_data_sha(transport) == expected
+    assert fetch.deployed_data_sha(lambda *a, **k: Response(b'x'*(fetch.LIMIT+1))) is None
+
+
+def test_recovery_uses_one_cycle_without_acquiring_or_faking_freshness():
+    clock = Clock()
+    recoveries = iter([True, False])
+    acquisitions = []
+    def acquire(path):
+        acquisitions.append(path)
+        raise OSError('upstream unavailable')
+    runner = night_live.Runner(acquire=acquire, now=clock.now, monotonic=clock.monotonic,
+                              sleep=clock.sleep, commit=lambda _: pytest.fail('failed acquisition published'),
+                              recover=lambda: next(recoveries))
+    assert runner.tick() == 'recovered'
+    assert not acquisitions and runner.last_good is None
+    assert runner.tick() == 'retained'
+    assert clock.seconds == 300 and runner.last_good is None

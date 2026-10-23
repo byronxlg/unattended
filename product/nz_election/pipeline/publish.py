@@ -82,9 +82,6 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                 git(checkout, 'rm', '-rf', '--ignore-unmatch', '.')
             target = checkout / DATA
             current = export.validate_bundle(target) if fetched_sha else {'status': {'data': []}}
-            if family == 'night' and 'night/live/current' in current and 'night/live/current' in incoming:
-                if current['night/live/current']['data'][0]['raw_xml'] == incoming['night/live/current']['data'][0]['raw_xml']:
-                    return dict(outcome='unchanged', attempts=attempt + 1, sha=fetched_sha)
             target.mkdir(parents=True, exist_ok=True)
             statuses = current['status']['data'][:]
             all_older = True

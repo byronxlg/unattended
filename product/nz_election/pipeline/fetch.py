@@ -172,3 +172,21 @@ def night_xml(root, path, *, transport=http, sleep=time.sleep, now=lambda: datet
         if attempt == 2:
             raise FetchError('HTTP_RETRIES_EXHAUSTED')
         sleep(delay(headers, attempt, now))
+
+
+def deployed_data_sha(transport=http):
+    """Read durable Pages evidence; unavailable or malformed evidence never confirms a deploy."""
+    import re
+    url = 'https://byronxlg.github.io/unattended/nz-election/build-manifest.json'
+    request = Request(url + '?reconcile=' + str(time.time_ns()), headers={'Cache-Control': 'no-cache', 'User-Agent': USER_AGENT})
+    try:
+        with transport(request, timeout=20) as response:
+            if response.status != 200:
+                return None
+            raw = response.read(LIMIT + 1)
+            if len(raw) > LIMIT:
+                return None
+            sha = json.loads(raw)['data']['data_sha']
+            return sha if isinstance(sha, str) and re.fullmatch(r'[0-9a-f]{40}', sha) else None
+    except (ValueError, KeyError, TypeError, URLError, OSError, HTTPException):
+        return None

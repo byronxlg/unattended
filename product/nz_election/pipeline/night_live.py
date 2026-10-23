@@ -7,6 +7,7 @@ import argparse
 from datetime import datetime, timezone
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -125,11 +126,52 @@ def validate_row(row, env, reference):
         require_open(lambda: datetime.fromisoformat(row['retrieved_at'].replace('Z', '+00:00')))
 
 
+class Deployment:
+    """The data ref and served build manifest survive runner loss; memory only avoids repeat reads."""
+    def __init__(self, now):
+        self.now = now
+        self.confirmed_sha = None
+
+    def recover(self):
+        require_open(self.now)
+        refs = json.loads(subprocess.check_output(['gh', 'api',
+            'repos/' + os.environ['GITHUB_REPOSITORY'] + '/git/matching-refs/heads/data'], timeout=60))
+        head = next((r['object']['sha'] for r in refs if r['ref'] == 'refs/heads/data'), None)
+        return self.ensure(head) if head else False
+
+    def ensure(self, sha):
+        require_open(self.now)
+        if not isinstance(sha, str) or not re.fullmatch(r'[0-9a-f]{40}', sha):
+            raise ValueError('NIGHT_DATA_SHA')
+        if sha == self.confirmed_sha:
+            return False
+        if fetch.deployed_data_sha() == sha:
+            self.confirmed_sha = sha
+            return False
+        key = 'night-' + os.environ['GITHUB_RUN_ID'] + '-' + str(time.monotonic_ns())
+        subprocess.run(['gh', 'workflow', 'run', 'pages.yml', '--ref', 'main',
+                        '-f', 'data_sha=' + sha, '-f', 'night_cycle=' + key], check=True, timeout=120)
+        wait_until = time.monotonic() + 600
+        while True:
+            if time.monotonic() >= wait_until:
+                raise OSError('PAGES_WAIT_TIMEOUT')
+            runs = json.loads(subprocess.check_output(['gh', 'run', 'list', '--workflow', 'pages.yml', '--limit', '100',
+                              '--json', 'status,conclusion,displayTitle'], timeout=60))
+            run = next((r for r in runs if r['displayTitle'] == key), None)
+            if run and run['status'] == 'completed':
+                if run['conclusion'] != 'success':
+                    raise OSError('PAGES_DEPLOYMENT_FAILED')
+                self.confirmed_sha = sha
+                return True
+            time.sleep(30)
+
+
 class Runner:
-    def __init__(self, *, acquire, now, monotonic, sleep, commit, rehearsal=False, log=print):
+    def __init__(self, *, acquire, now, monotonic, sleep, commit, rehearsal=False, log=print, recover=None):
         self.acquire, self.now, self.monotonic, self.sleep, self.commit = acquire, now, monotonic, sleep, commit
         self.rehearsal = rehearsal
         self.log = log
+        self.recover = recover
         self.next_cycle = 0
         self.last_good = None
         self.digest = None
@@ -138,14 +180,18 @@ class Runner:
         self.sleep(max(0, self.next_cycle - self.monotonic()))
         self.next_cycle = self.monotonic() + FLOOR
         try:
+            # A recovery consumes this cycle's slot, so it cannot double the deployment rate.
+            if self.recover and self.recover():
+                return 'recovered'
             captured = cycle(acquire=self.acquire, now=self.now, rehearsal=self.rehearsal)
             digest = export.digest(export.canonical(captured['raw']).encode())
-            if digest != self.digest:
+            changed = digest != self.digest
+            if changed or not self.rehearsal:
                 if not self.rehearsal:
                     require_open(self.now)
                 self.commit(captured)
-                self.last_good, self.digest = captured, digest
-            return 'changed' if self.last_good is captured else 'unchanged'
+            self.last_good, self.digest = captured, digest
+            return 'changed' if changed else 'unchanged'
         except (ValueError, OSError, subprocess.SubprocessError) as exc:
             self.log('Retained last good cycle: ' + str(exc), flush=True)
             return 'retained'
@@ -161,9 +207,8 @@ def main():
         require_open(now)
     root = fetch.NIGHT_ROOTS[1 if args.rehearsal else 0]
     run_url = os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID']
-    pending_sha = None
+    deployment = Deployment(now) if not args.rehearsal else None
     def commit(captured):
-        nonlocal pending_sha
         from product.nz_election.pipeline.daily_refresh import daily_refresh
         with tempfile.TemporaryDirectory() as tmp:
             bundle = Path(tmp) / 'data'
@@ -179,30 +224,10 @@ def main():
                 return
             result = subprocess.run([sys.executable, 'product/nz_election/pipeline/publish.py', '--family', 'night', '--bundle', str(bundle)], check=True, capture_output=True, text=True, timeout=120)
             publication = json.loads(result.stdout)
-            if publication['outcome'] == 'published':
-                pending_sha = publication['sha']
-            if pending_sha is None:
-                return
-            require_open(now)
-            key = 'night-' + os.environ['GITHUB_RUN_ID'] + '-' + str(int(time.monotonic()))
-            subprocess.run(['gh', 'workflow', 'run', 'pages.yml', '--ref', 'main',
-                            '-f', 'data_sha=' + pending_sha, '-f', 'night_cycle=' + key], check=True, timeout=120)
-            # Match this dispatch, including failures, rather than treating unrelated runs as proof.
-            wait_until = time.monotonic() + 600
-            while True:
-                if time.monotonic() >= wait_until:
-                    raise OSError('PAGES_WAIT_TIMEOUT')
-                runs = json.loads(subprocess.check_output(['gh', 'run', 'list', '--workflow', 'pages.yml', '--limit', '100',
-                                  '--json', 'status,conclusion,displayTitle'], timeout=60))
-                run = next((r for r in runs if r['displayTitle'] == key), None)
-                if run and run['status'] == 'completed':
-                    if run['conclusion'] != 'success':
-                        raise OSError('PAGES_DEPLOYMENT_FAILED')
-                    pending_sha = None
-                    break
-                time.sleep(30)
+            deployment.ensure(publication['sha'])
     runner = Runner(acquire=lambda path: fetch.night_xml(root, path), now=now, monotonic=time.monotonic,
-                    sleep=time.sleep, commit=commit, rehearsal=args.rehearsal)
+                    sleep=time.sleep, commit=commit, rehearsal=args.rehearsal,
+                    recover=deployment.recover if deployment else None)
     deadline = time.monotonic() + (600 if args.rehearsal else 300 * 60)
     while time.monotonic() < deadline:
         print(runner.tick(), flush=True)
@@ -224,7 +249,7 @@ def verify_contract():
     assert len(commits[0]['result']['leaders']) == 71
     assert runner.tick() == 'unchanged' and clock.seconds == FLOOR
     raw['e71/e71.xml'] = b'<broken>'
-    assert runner.tick() == 'retained' and len(commits) == 1
+    assert runner.tick() == 'retained' and len(commits) == 2
     require_open(clock.now)
 
 
