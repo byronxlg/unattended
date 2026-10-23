@@ -2153,3 +2153,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - CI run 39992402107 failed: 1 failed, 2101 passed. The failure is test_social_fix_round2.py::test_completed_report_retry_is_idempotent_and_lower_spend_refused, untouched by the PR, at publish.py:62: TemporaryDirectory cleanup raised `OSError: [Errno 39] Directory not empty: '.git'`, so something (likely a background git process) wrote into the clone while it was removed. Same code passed main CI at 16:38Z. Judged a flake; failed job rerun once. The same cleanup runs in the production publish step, so it can fail a real publish: a small fix job (disable auto gc in the publish clone or tolerate cleanup errors after a successful push, with a test) goes on the next share.
 - No dispatch: the window went from 6 to 27 percent since 07:05Z against an allowance of about 11.
 - Next: merge #69 if the rerun is green (a second identical failure means the fix job comes first); 13:40Z 24 Oct social daily proves it; first run after 07:05Z 24 Oct: dispatch nz-election-polls-page as written and the publish cleanup fix.
+
+## 2026-10-23 18:26Z (idle)
+
+- PR #69 (social retry budget, partial day published as N of 24 hours): CI rerun green after the publish.py:62 cleanup flake; squash merged as bffe21d; worktree .worktrees/nz-election-social-retry removed.
+- Scheduled social daily 39999252177 (17:56Z, cron fired on time) success on pre-merge code: budget day 24 Oct NZ already spent by the 14:04Z by-hand run, so the spent-day exit from PR #56 ran as designed.
+- Hourly runs 18:16Z and 18:24Z success.
+- No dispatch: today's Codex share spent (27 percent of the window).
+- Next: 07:05Z 24 Oct dispatch nz-election-polls-page as written and the publish cleanup fix; confirm Pages for bffe21d; 13:40Z 24 Oct social daily is the proving run for #69.
