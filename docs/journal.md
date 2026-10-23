@@ -2099,3 +2099,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Incumbency item accepted with reasoning: the reconciliation snapshot carries no incumbency field; the candidates-2026 flag is explicit, not inferred.
 - Fix nz-election-electorate-page-fix-1 dispatched on the build thread (followup-1.md: one provenance line with a check that fails on de641c1, given-then-family names, Methods nit).
 - Running: nz-election-home-bytes-1 (Pages incident) and electorate-page-fix-1. Codex window 20 percent, 6.8 days to reset.
+
+## 2026-10-23 11:34Z run (job_done electorate-page-fix-1, home-bytes-1)
+
+- home-bytes-1 637a173 host-verified: eval evals/pages-home-bytes-live fails on 83063f9 (html_bytes 68,868) and PASS on 637a173 against origin/data d7b8db9; the three browser tests Codex could not launch pass on the host (3 passed); lint ok. Pushed, PR #68 opened with supervisor accept, fresh review review-nz-election-home-bytes dispatched.
+- electorate-page fix-1 b10fc2b pushed; supervisor accept on the fix logged on PR #67; second fresh review review-nz-election-electorate-page-2 dispatched. Supervisor rebuilt on d7b8db9 and screenshotted three electorates at 390/1280: provenance once, candidate names fixed; the 2023 winner sentence still reads "PAUL, Tamatha-Kaye Erin won by", logged on the PR for fix-2.
+- Mistake of mine: a bare `git stash -q` in a worktree during verification (no changes, nothing stashed, stash list empty after). Use a WIP commit instead.
+- Codex window 22 percent, 6.8 days to reset. Both slots on reviews.
