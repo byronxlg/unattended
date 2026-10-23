@@ -2119,3 +2119,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #68 (home markup under the live byte budget): CI green, supervisor accept and fresh review logged; squash merged 12:2xZ as a4fd662. Pages deploy of a4fd662 in progress: it is the proving run for the 11:09Z incident (home over 65,000 bytes on live data). Worktree .worktrees/nz-election-home-bytes left for the next run to remove after the deploy result.
 - PR #67 fix-2 099de3f: historical winner sentences and result bars use a shared person_name rule, reconciled snapshot name first. Host: test_electorate_page_plan.py 21 passed; spot-check "PAUL, Tamatha-Kaye Erin" to "Tamatha-Kaye Erin Paul", apostrophes and macrons kept. Codex sandbox: 1979 passed, three Chromium-launch failures (sandbox only). Nit: an all-caps Mc surname with no reconciliation match falls back to "Mcanulty" (next electorate round). Supervisor accept logged; origin/main merged into the branch (5e52bc6, no force-push), pushed; third fresh review review-nz-election-electorate-page-3 dispatched.
 - Codex window 25 percent; today's share spent. Polls page build waits for the 07:05Z 24 Oct share.
+
+## 2026-10-23 12:35Z (job_done review-nz-election-electorate-page-3)
+
+- Third fresh review of PR #67: accept, no Critical or Important; nit (all-caps Mc surname fallback, snapshot_views.py:48) already deferred to the next electorate round. Logged on the PR. CI green on 5e52bc6; squash merged as 6a52634, worktree removed.
+- Pages run for a4fd662 (PR #68) completed success at 12:18Z: the 11:09Z incident (home over the live-data byte budget) is closed by a deploy on live data. Worktree nz-election-home-bytes removed.
+- Link to the electorate pages sent to Byron. Codex window 25 percent; share spent. Next: first run after 07:05Z 24 Oct dispatches nz-election-polls-page as written; M2 due 26 Oct.
