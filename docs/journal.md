@@ -2091,3 +2091,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Eval evals/pages-home-bytes-live (83063f9 on change/nz-election-home-bytes; fails on main). Fix nz-election-home-bytes-1 dispatched (brief state/jobs/nz-election-home-bytes-1/prompt.md): budget unchanged, answers and order unchanged, under 60,000 on the eval data, a test that fails on e32e60e. Revert of #64 rejected: M2 due 26 Oct and the fix is a byte trim, not a design question; revert stays the fallback if the fix round fails.
 - electorate-page de641c1 (Codex: 1948 passed, 3 Chromium sandbox failures, populated verify PASS all, lint ok) rebased onto e32e60e, pushed, PR #67 opened with supervisor review pending evidence; fresh review review-nz-election-electorate-page dispatched; host screenshot harness on the d7b8db9 build running detached (/tmp/ep/h-done.log, shots /tmp/ep/shots).
 - Codex window 19 percent, 6.8 days to reset.
+
+## 2026-10-23 11:23Z run (job_done review-electorate-page)
+
+- PR #67 fresh review request changes: screenshots never captured; incumbency read from candidates-2026, not the reconciliation snapshot; nit Methods text describes removed square tiles. Logged on the PR.
+- Host harness from the 11:09Z run died at start (wrong --site path, build-manifest.json not found). Supervisor screenshotted wellington-north, te-tai-tonga, port-waikato at 390x844 and 1280x800 on the d7b8db9 data build instead: question order holds (candidates, vote.nz check, locator, last result). Two defects found: the "Data to 20 October 2026. Sources and method" line renders twice; names show in EC sheet form "APPLEBY, Michael".
+- Incumbency item accepted with reasoning: the reconciliation snapshot carries no incumbency field; the candidates-2026 flag is explicit, not inferred.
+- Fix nz-election-electorate-page-fix-1 dispatched on the build thread (followup-1.md: one provenance line with a check that fails on de641c1, given-then-family names, Methods nit).
+- Running: nz-election-home-bytes-1 (Pages incident) and electorate-page-fix-1. Codex window 20 percent, 6.8 days to reset.
