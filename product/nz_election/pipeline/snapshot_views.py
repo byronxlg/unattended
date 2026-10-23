@@ -1,6 +1,7 @@
 """Presentation of reviewed snapshots, with attribution kept reachable in Methods."""
 from html import escape
 from functools import cache
+import re
 from . import snapshots
 from .build import PREFIX, config, table, link, label
 from .home_charts import colour, fallback
@@ -38,16 +39,46 @@ def result(row, envs):
                 margin=winner['votes']-ranked[1]['votes'])
 
 
+def person_name(name):
+    """Present EC sheet names without changing punctuation or mixed-case spelling."""
+    surname, comma, given = name.partition(',')
+    def case(part):
+        def word(match):
+            value = match[0]
+            if value.isupper():
+                return value.title()
+            for prefix in ('Mc', 'Mac'):
+                if value.startswith(prefix) and value[len(prefix):].isupper():
+                    return prefix + value[len(prefix):].title()
+            return value
+        return re.sub(r"[^\W\d_]+", word, part)
+    if comma:
+        return case(given.strip()) + ' ' + case(surname.strip())
+    return case(name.strip())
+
+
 def winner_name(row, held):
     # Use the explicit incumbent flag and seat/party IDs, never fuzzy name joins.
     incumbents = [c for c in load('candidates-2026')
                   if c['electorate_slug'] == row['slug']
                   and c.get('party_id') == held['party_id']
                   and c.get('sitting_electorate_mp')]
+    reconciliation = next((r for r in load('candidate-reconciliation-2026')
+                           if r['electorate_slug'] == row['slug']), {})
+    candidates = reconciliation.get('matched', []) + reconciliation.get('added_by_ec', [])
     if len(incumbents) == 1:
-        return incumbents[0]['name']
-    surname, comma, given = held['name'].partition(',')
-    return (given.strip() + ' ' + surname.strip()).title() if comma else surname.title()
+        incumbent = incumbents[0]
+        matched = [c for c in candidates if c['snapshot_party'] == incumbent['party']
+                   and incumbent['name'] in (c['snapshot_name'], c['ec_name'])]
+        if len(matched) == 1:
+            return matched[0]['snapshot_name']
+        return person_name(incumbent['name'])
+    # Exact released record matches cover returning candidates without an incumbent flag.
+    matched = [c for c in candidates if c['ec_name'] == held['name']
+               and c['party'] == held.get('party')]
+    if len(matched) == 1:
+        return matched[0]['snapshot_name']
+    return person_name(held['name'])
 
 
 def footnote(name, date='19 October 2026'):
@@ -120,17 +151,25 @@ def map_graphic(envs, selected=None, *, hexagons=False):
 
 def sources(envs):
     content = ''
-    for name, title in [('map','Electorate tile map'), ('leaders','Party leaders'), ('candidates-2026','2026 candidates'), ('enrolment-snapshot','Electorate enrolment'), ('history','Election history'), ('positions','Coalition positions'), ('port-waikato','Port Waikato by-election')]:
+    for name, title in [('boundaries-2025','Electorate locators'), ('candidate-reconciliation-2026','EC candidate reconciliation'), ('map','Electorate tile map'), ('leaders','Party leaders'), ('candidates-2026','2026 candidates'), ('enrolment-snapshot','Electorate enrolment'), ('history','Election history'), ('positions','Coalition positions'), ('port-waikato','Port Waikato by-election')]:
         stem = {'map':'hexmap','enrolment-snapshot':'enrolment','port-waikato':'port-waikato-2023'}.get(name,name)
         rows = load(stem)
         content += f'<section id="home-{name}"><h2>{title}</h2>'
+        if name == 'boundaries-2025':
+            content += '<p>Stats NZ, CC BY 4.0. Projected from the simplified 2025 boundary snapshot and rounded to locator pixels. All general electorates form the national outline; the selected boundary is highlighted. Locator only, not a legal boundary or address lookup. <a href="https://creativecommons.org/licenses/by/4.0/">Licence</a>.</p>'
+        if name == 'candidates-2026':
+            content += '<p>Electorate cards display the reconciled snapshot names in given-then-family form, retaining the source family-name order. Affiliations and list ranks come from the <a href="#home-candidate-reconciliation-2026">reviewed reconciliation</a>. Incumbent labels use only the explicit sitting electorate MP flag linked by that reconciliation. The accompanying <a href="#home-boundaries-2025">2025 boundary locators and their sources</a> are described above.</p>'
         if name == 'map':
-            content += '<p>Tiles from the reviewed hexmap snapshot, drawn as hexagons on home and squares on detail pages. Colour uses the 2023 result on the original boundaries, not a prediction for 2026. For changed seats, the first named predecessor in the reviewed correspondence supplies the original result. This is historical context, not an allocation of votes to new boundaries. Margins are votes, not percentages. Port Waikato uses the November by-election.</p>'
+            content += '<p>Tiles from the reviewed hexmap snapshot are drawn as hexagons on home. Electorate detail pages use the simplified Stats NZ 2025 boundary locators described above. Colour uses the 2023 result on the original boundaries, not a prediction for 2026. For changed seats, the first named predecessor in the reviewed correspondence supplies the original result. This is historical context, not an allocation of votes to new boundaries. Margins are votes, not percentages. Port Waikato uses the November by-election.</p>'
             content += '<p>Result colours and vote majorities: <a href="#records-baseline-2023">Electoral Commission 2023 results and licence</a>; <a href="#home-port-waikato">Port Waikato by-election snapshot and licence</a>.</p>'
             for entry in envs.get('baseline-2023', {}).get('source', []):
                 content += '<p>' + link(entry['url'], 'Electoral Commission results') + '. ' + escape(entry['licence']) + '</p>'
             entry = load('port-waikato-2023')[0]
             content += '<p>' + link(entry['source_url'], 'Port Waikato by-election results') + '. ' + escape(entry['licence']) + '</p>'
+        if name == 'candidate-reconciliation-2026':
+            content += '<p>EC sheet spellings are retained in source records; candidate cards display the reconciled snapshot names. Affiliations are used verbatim. Absent-from-EC entries are omitted. List ranks come from the linked EC party list; no missing rank is inferred.</p>'
+            for row in rows:
+                content += '<p>' + escape(row['electorate_slug']) + ': ' + link(row['party_list_source_url'], 'EC party list') + '. Retrieved ' + escape(row.get('party_list_retrieved_at', row['retrieved_at'])) + '.</p>'
         if name == 'history':
             content += table('General election history', ['Year', 'Party', 'Vote share', 'Seats'], [[str(r['year']), escape(r['party']), r['party_vote_share'] + '%', str(r['seats'])] for r in rows], source='source-history-snapshot') + '<div class="source-note" id="source-history-snapshot"><p>Electoral Commission, sources below.</p><p class="source-actions">' + link(rows[0]['source_url'], 'Election results') + '</p></div>'
         for row in rows:

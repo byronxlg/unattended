@@ -535,7 +535,7 @@ def main():
                 nojs.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
                 for route in routes:
                     path = route['path']
-                    if width == 360 and path not in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'campaign/', 'downloads/', 'methods/', 'electorates/wellington-north/', 'electorates/te-tai-tonga/'}:
+                    if width == 360 and path not in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'campaign/', 'downloads/', 'methods/', 'electorates/wellington-north/', 'electorates/te-tai-tonga/', 'electorates/port-waikato/'}:
                         continue
                     page = context.new_page()
                     url = origin + PREFIX + 'nz-election/' + path
@@ -607,11 +607,18 @@ def main():
                         map_images.append(dict(state='map-selected-focus', path=state_name,
                                                viewport=dict(width=width, height=height),
                                                sha256=hashlib.sha256((args.out / state_name).read_bytes()).hexdigest()))
+                    if path.startswith('electorates/') and path != 'electorates/':
+                        assert page.locator('.electorate-locator').count() == 1
+                        if width == 390 and not page.locator('.electorate-night').count():
+                            vote_answer_check(page.locator('.race-cards'), dict(width=width, height=height))
+                            vote_answer_check(page.locator('.enrolled-electorate'), dict(width=width, height=height))
+                            if page.locator('.electorate-policy').count():
+                                assert page.locator('.electorate-policy').bounding_box()['y'] < 2 * height
                     if path == 'electorates/wellington-north/':
                         if has_baseline:
-                            page.locator('.original-results summary').click()
-                            assert 'Wellington Central (2023)' in page.locator('main').inner_text()
-                            page.locator('.original-results summary').click()
+                            assert 'Wellington Central (2023)' in page.locator('.original-results').inner_text()
+                            assert page.locator('.result-bars').is_visible()
+                            assert page.locator('.original-results details').count() == 0
                         else:
                             assert page.locator('.original-results').count() == 0
                     if path == 'electorates/te-tai-tonga/':
@@ -639,7 +646,7 @@ def main():
                 assert len(captured) == len(set(captured)) == expected_count
                 assert set(captured) == {PREFIX + 'nz-election/' + r['path'] for r in routes}
         if not args.og_only and has_geography and has_baseline:
-            assert len(manifest) + len(additional) == 305 + len(ADVANCE_STATES) * len(ADVANCE_SIZES) + 6 + len(NIGHT_STATES) * len(NIGHT_SIZES), 'IMAGE_INVENTORY'
+            assert len(manifest) + len(additional) == 306 + len(ADVANCE_STATES) * len(ADVANCE_SIZES) + 6 + len(NIGHT_STATES) * len(NIGHT_SIZES), 'IMAGE_INVENTORY'
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()

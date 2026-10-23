@@ -45,15 +45,19 @@ def check_site(site, envs):
             require(page(envs, built) in html, 'night packaged results or absent countdown')
         if path.startswith('electorates/') and path != 'electorates/':
             row = next(r for r in envs.get('electorates', {}).get('data', config('electorates')) if path == 'electorates/' + r['slug'] + '/')
-            require('id="candidates-title"' in html and 'class="electorate-top"' in html, 'electorate overview and candidate anchor')
-            if envs.get('baseline-2023', {}).get('data'):
-                require('class="tile-map"' in html and 'id="source-map"' in html
-                        and 'class="chart-data"' in html and 'class="map-key"' in html,
-                        'electorate map, exact values, legend and provenance')
-            else:
-                require('class="tile-map"' not in html, 'absent nationwide result map omitted')
+            from .electorate_pages import candidate_cards
+            from .electorate_locator import locator, LOCATOR_BYTE_CAP
+            require(candidate_cards(row) in html, 'reconciled candidates and explicit incumbent flags')
+            require('class="electorate-page"' in html, 'electorate overview')
+            graphic = locator(row)
+            require(graphic in html and len(graphic.encode()) < LOCATOR_BYTE_CAP,
+                    '2025 boundary locator within byte cap')
+            require('id="source-boundaries-2025"' in html and 'CC BY 4.0' in html, 'locator provenance')
+            require(html.index('class="race-cards"') < html.index('class="enrolled-electorate"'), 'candidate-first order')
+            require('class="tile-map"' not in html and 'Local polls' not in html and '<h2>Enrolment' not in html,
+                    'only accepted page answers')
             require('id="source-baseline-2023"' in html, 'baseline fragment preserved')
-            require('incumbent' not in html.lower(), 'no inferred incumbents')
+
 
 
 def check_images(site):

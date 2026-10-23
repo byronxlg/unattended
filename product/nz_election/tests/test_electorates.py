@@ -15,12 +15,12 @@ def test_original_names_and_successor_comparisons():
     rows, _, _ = baseline.load()
     row = next(r for r in config('electorates') if r['slug'] == 'wellington-north')
     html = detail(row, {})
-    assert row['boundary_note'] in html
+    assert 'class="electorate-locator"' in html and 'not a legal boundary' in html
     env = dict(data=rows['baseline-2023'], source=[], run_url='offline-verification')
     html = detail(row, {'baseline-2023': env})
-    for old in rows['baseline-2023']:
-        if old['old_electorate_id'] in row['baseline_ids']:
-            assert old['old_name'] + ' (2023)' in html
+    old = next(r for r in rows['baseline-2023'] if r['old_electorate_id'] == row['baseline_ids'][0])
+    assert old['old_name'] + ' (2023)' in html
+    assert '2023 boundaries' in html and 'class="result-bars"' in html
     assert 'class="local-margin"' not in detail(dict(row, baseline_ids=[], mapping_status='unresolved'), {})
     assert 'not been moved or added together' in html
 
@@ -73,37 +73,13 @@ def test_local_unknown_table_fails():
     assert electorate_polls.parse('No local tables in this source.', '2026-10-17T00:00:00Z') == []
 
 
-def test_local_poll_regions_have_distinct_names():
-    from copy import deepcopy
-    from html.parser import HTMLParser
+def test_local_polls_are_outside_accepted_page_answers():
     from product.nz_election.pipeline.electorate_pages import detail
-
-    class Tables(HTMLParser):
-        def __init__(self):
-            super().__init__()
-            self.regions, self.sources = [], []
-
-        def handle_starttag(self, tag, attrs):
-            attrs = dict(attrs)
-            if attrs.get('role') == 'region':
-                self.regions.append(attrs['aria-label'])
-            if tag == 'table':
-                self.sources.append(attrs.get('aria-describedby'))
-
     poll = next(p for p in electorate_polls.load()[0]['electorate-polls'] if p['electorate_id'])
     row = next(r for r in config('electorates') if r['id'] == poll['electorate_id'])
-    other = deepcopy(poll)
-    other['id'] += '-second-report'
-    other['poll_id'] = other['id']
-    env = dict(data=[poll, other], source=[], run_url='offline-verification')
-    for measure in ('party_vote', 'candidate_vote'):
-        other['measure'] = measure
-        parsed = Tables()
-        parsed.feed(detail(row, {'electorate-polls': env}))
-        assert len(parsed.regions) == len(set(parsed.regions)) == 2
-        assert all(poll['pollster'] in name and poll['boundary_basis']['fieldwork_label'] in name
-                   for name in parsed.regions)
-        assert parsed.sources == ['source-electorate-polls', 'source-electorate-polls']
+    html = detail(row, {'electorate-polls': dict(data=[poll], source=[], run_url='offline-verification')})
+    assert 'Local polls' not in html and poll['pollster'] not in html
+    assert 'class="race-cards"' in html and 'class="electorate-locator"' in html
 
 
 def test_71_pages_and_missing_data(tmp_path):
@@ -129,7 +105,7 @@ def test_71_pages_and_missing_data(tmp_path):
     assert 'candidate votes' not in html and 'class="local-margin"' not in html
     from product.nz_election.tools.check_visible_text import check_absent_text
     check_absent_text(html)
-    assert 'Auckland Central (2023)' in html and 'party votes' in html
+    assert 'class="original-results"' not in html and 'party votes' not in html
     row = next(r for r in config('electorates') if r['slug'] == 'te-tai-tonga')
     html = detail(row, {})
     assert 'Standing in 2026' in html and 'class="tile-map"' not in html

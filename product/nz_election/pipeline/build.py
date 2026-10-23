@@ -626,9 +626,11 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                                built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.')
             if slug in {'', 'polls/', 'methods/'}:
                 page_html = page_html.replace('</head>', f'<link rel="stylesheet" href="{PREFIX}party-links.css"></head>')
+            if slug.startswith('electorates/') and slug != 'electorates/':
+                page_html = page_html.replace('</head>', f'<link rel="stylesheet" href="{PREFIX}electorate.css"></head>')
             if slug == 'parties/':
                 page_html = page_html.replace('</head>', f'<link rel="stylesheet" href="{PREFIX}parties.css"></head>')
-            if slug == 'vote/':
+            if slug == 'vote/' or slug.startswith('electorates/') and slug != 'electorates/':
                 # Navigation follows the task so first-screen actions stay on EC services.
                 header = re.search(r'<header>.*?</header>', page_html, flags=re.S)[0]
                 page_html = page_html.replace(header, '').replace('<footer>', header + '<footer>')
@@ -648,6 +650,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
         (stage / 'night-live.json').write_text(json.dumps(live_package(envs)))
         shutil.copyfile(PRODUCT / 'web/night-parser.mjs', stage / 'night-parser.mjs')
         shutil.copyfile(PRODUCT / 'web/coalitions.mjs', stage / 'coalitions.mjs')
+        shutil.copyfile(PRODUCT / 'web/electorate.css', stage / 'electorate.css')
         shutil.copyfile(PRODUCT / 'web/styles.css', stage / 'styles.css')
         shutil.copytree(PRODUCT / 'web/fonts', stage / 'fonts')
         shutil.copytree(PRODUCT / 'web/people', stage / 'people')
