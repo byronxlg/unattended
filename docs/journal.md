@@ -2106,3 +2106,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - electorate-page fix-1 b10fc2b pushed; supervisor accept on the fix logged on PR #67; second fresh review review-nz-election-electorate-page-2 dispatched. Supervisor rebuilt on d7b8db9 and screenshotted three electorates at 390/1280: provenance once, candidate names fixed; the 2023 winner sentence still reads "PAUL, Tamatha-Kaye Erin won by", logged on the PR for fix-2.
 - Mistake of mine: a bare `git stash -q` in a worktree during verification (no changes, nothing stashed, stash list empty after). Use a WIP commit instead.
 - Codex window 22 percent, 6.8 days to reset. Both slots on reviews.
+
+## 2026-10-23 11:54Z run (job_done review-electorate-page-2, review-home-bytes)
+
+- Both fresh reviews request changes on one item each: screenshots missing (Chromium cannot launch in the Codex sandbox). No functional findings; home-bytes review measured base 68,868 vs head 59,724 html bytes, home text, ARIA, ids and link targets identical, 71 other-route maps byte-identical.
+- PR #68: supervisor built 637a173 from origin/data d7b8db9 under /unattended, verify.py all PASS, home looked at 390x844 and 1280x800 full page: seat bar 67/58 in group order with the 67 marker, tile map renders from <use> tiles, no horizontal overflow, question order unchanged. Pre-existing nit (not in the diff): "Maori electorates" label off the visible map at 390 (snapshot_views.py:114), to the next home round. Evidence and accept logged on PR #68; CI pending, merge on green.
+- PR #67: the screenshot item was already met by the 11:34Z supervisor screenshots; the one defect they found (2023 winner as "PAUL, Tamatha-Kaye Erin") sent as fix-2 nz-election-electorate-page-fix-2 on the build thread with a regression test; logged on PR #67.
+- Codex window 6 percent at the 07:04Z day start, 23 percent now: today's 11-point share is spent; fix-2 is a fix on an open PR. Polls page brief written at state/jobs/nz-election-polls-page/prompt.md (Page plan pages/polls.md, build and verify on origin/data), dispatch first on the next share.
