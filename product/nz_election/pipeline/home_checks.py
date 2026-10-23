@@ -3,7 +3,7 @@ from .build import config, PREFIX
 from .home import watch_rows
 from product.nz_election.tests.design_checks import Document, provenance
 
-MODULES = ('seats', 'polls', 'trend', 'electorates', 'leaders', 'thresholds', 'markets', 'more')
+MODULES = ('dates', 'seats', 'polls', 'electorates')
 
 
 def check_site(site, envs):
@@ -12,12 +12,16 @@ def check_site(site, envs):
     polls = (site / 'polls/index.html').read_text()
     provenance(home)
     provenance(polls)
-    positions = [home.index(f'id="{name}"') for name in MODULES]
-    require(positions == sorted(positions), 'home module order')
-    more = home.split('<section id="more"')[1].split('</section>')[0]
-    require(f'href="{PREFIX}night/"' in more, 'election night in More')
-    require(home.count('<h1') == 1 and ('Who is favoured to form the next government?' in home or 'New Zealand votes on 7 November' in home), 'home heading')
-    require('coalitions.mjs' not in home and ('How have the polls moved?' in home) == bool(envs.get('averages', {}).get('data')), 'home trend without interactive explorer')
+    from .home import night_summary
+    from .build import home_presentation
+    import json
+    built = json.loads((site / 'build-manifest.json').read_text())['data']['built_at']
+    top = 'night-summary' if night_summary(envs, built) else 'seats' if home_presentation(envs, built)['result'] else None
+    expected_modules = ['dates'] + ([top] if top else []) + (['polls'] if envs.get('averages', {}).get('data') or envs.get('polls', {}).get('data') else []) + ['electorates']
+    actual_modules = [a['id'] for tag, a in Document(home).nodes if tag == 'section']
+    require(actual_modules == expected_modules, 'home module order')
+    require(home.count('<h1') == 1, 'home heading')
+    require('coalitions.mjs' not in home and ('id="trend"' in home) == bool(envs.get('averages', {}).get('data')), 'home trend without interactive explorer')
     ids = {a['id'] for _, a in Document(polls).nodes if 'id' in a}
     require({'main', 'seats', 'polls', 'explorer', 'source-seats', 'source-thresholds'} <= ids, 'poll anchors')
     if 'polls' in envs:

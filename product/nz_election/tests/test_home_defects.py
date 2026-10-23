@@ -10,7 +10,7 @@ from product.nz_election.tests.test_home import populated  # noqa: F401
 
 
 def section(html, identity):
-    return html.split(f'<section id="{identity}"', 1)[1].split('</section>', 1)[0]
+    return html.split(f'id="{identity}"', 1)[1].split('</section>', 1)[0]
 
 
 def records(html):
@@ -20,7 +20,8 @@ def records(html):
 
 def test_5_threshold_status_uses_share(populated):
     envs, site = populated
-    rows = records(section((site / 'index.html').read_text(), 'thresholds'))
+    from product.nz_election.pipeline.home import thresholds
+    rows = records(thresholds(envs))
     average = envs['averages']['data'][-1]['descriptive']
     for row in rows[1:]:
         party = next(p for p in average if escape(label(p)) == row[0])
@@ -33,8 +34,8 @@ def test_5_threshold_status_uses_share(populated):
 def test_6_latest_includes_qualifying_parties_in_trend_order(populated):
     envs, site = populated
     html = (site / 'index.html').read_text()
-    latest = records(section(html, 'polls'))
-    trend = records(section(html, 'trend'))
+    latest = records(section(html, 'latest-polls'))
+    trend = records(section(html, 'trend').split('<div id="latest-polls"')[0])
     selected = sorted(envs['polls']['data'], key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:3]
     wins = envs['seats']['data']['assumptions']['electorate_wins']
     expected = [p for p in ('nat', 'lab', 'grn', 'act', 'nzf', 'tpm', 'opp')
@@ -52,7 +53,7 @@ def test_7_pollster_source_names_and_text_face(populated):
     from product.nz_election.pipeline.build import config
     names = {v: k for k, v in config('party-map')['pollsters'].items()}
     polls = sorted(envs['polls']['data'], key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:3]
-    cells = records(section((site / 'index.html').read_text(), 'polls'))[1:]
+    cells = records(section((site / 'index.html').read_text(), 'latest-polls'))[1:]
     assert [r[0].split('<br>')[0] for r in cells] == [escape(names[p['pollster']]) for p in polls]
     assert '.home-module td:first-child{font-family:inherit;font-size:16px}' in (site / 'styles.css').read_text()
 
@@ -69,7 +70,8 @@ def test_8_electorate_baseline_and_text_links(populated):
 
 def test_9_market_propositions_before_prices(populated):
     envs, site = populated
-    html = section((site / 'index.html').read_text(), 'markets')
+    html = section((site / 'methods/index.html').read_text(), 'markets')
+    assert html.count('data-market-id="') == 4
     assert 'Leading market choices: price for Yes' in html
     for row in re.findall(r'<tr data-market-id="([^"]+)">(.*?)</tr>', html):
         market = next(m for m in envs['markets']['data'] if m['id'] == row[0])

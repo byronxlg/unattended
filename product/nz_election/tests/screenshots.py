@@ -74,7 +74,7 @@ def home_mark_geometry(page):
     markers = page.locator('.poll-marker > *').evaluate_all("""els=>els.map(e=>{
       const r=e.getBoundingClientRect();return {width:r.width,height:r.height,ratio:r.width/r.height};
     })""")
-    if page.locator('#polls .home-chart').count():
+    if page.locator('#latest-polls .home-chart').count():
         assert markers and all(0.9 <= m['ratio'] <= 1.1 for m in markers), 'HOME_POLL_MARKER_SHAPE: ' + str(markers)
     if page.locator('#trend .home-chart').count():
         offsets = page.locator('#trend').evaluate("""e=>{
@@ -85,6 +85,32 @@ def home_mark_geometry(page):
         }""")
         assert all(abs(offset) <= 0.5 for offset in offsets), 'HOME_TREND_DATE_POSITION: ' + str(offsets)
     return markers
+
+
+def assert_picker_targets(targets):
+    assert targets, 'HOME_PICKER_TARGET: no electorate links measured'
+    bad = [t for t in targets if t['width'] < 24 or t['height'] < 24]
+    assert not bad, 'HOME_PICKER_TARGET: ' + str(bad)
+
+
+def picker_target_check(page):
+    if not page.locator('.home-picker').count():
+        return []
+    links = page.locator('.home-picker svg a')
+    targets = links.evaluate_all("""els=>els.map(e=>{
+      const r=e.getBoundingClientRect();
+      return {name:e.getAttribute('aria-label'),width:r.width,height:r.height};
+    })""")
+    assert_picker_targets(targets)
+    return targets
+
+
+def home_question_check(page):
+    if page.viewport_size != {'width': 390, 'height': 844} or not page.locator('#seats.home-hero').count():
+        return
+    for selector in ('#dates', '#seats .seat-answer', '#seats .strip', '#seats .poll-change'):
+        box = page.locator(selector).bounding_box()
+        assert box and box['y'] >= 0 and box['y'] + box['height'] <= 844, 'HOME_QUESTION_FOLD: ' + selector + ' ' + str(box)
 
 
 def night_target_check(page):
@@ -163,6 +189,8 @@ def check_page(page, url, site, origin):
     assert all(contrast(c, paper) >= 3 for c in boundaries), 'BOUNDARY_CONTRAST'
     targets = page.locator('a:not(svg a),summary,button,input').evaluate_all('els=>els.filter(e=>e.getClientRects().length).map(e=>e.getBoundingClientRect().height)')
     assert all(height >= 44 for height in targets), 'SMALL_TARGET'
+    picker_target_check(page)
+    home_question_check(page)
     night_target_check(page)
     page.keyboard.press('Tab')
     focused = page.evaluate('''()=>{const e=document.activeElement,s=getComputedStyle(e);return {text:e.textContent,width:s.outlineWidth,color:s.outlineColor,top:e.getBoundingClientRect().top}}''')
@@ -539,7 +567,7 @@ def main():
                             page.screenshot(path=str(args.out / anchor_name))
                             map_images.append(dict(state='parties-first-anchor', path=anchor_name,
                                                    viewport=viewport))
-                    if path == '' and width in (390, 1280) and page.locator('#markets').count():
+                    if path == 'methods/' and width in (390, 1280) and page.locator('#markets').count():
                         page.locator('#markets').screenshot(path=str(args.out / f'markets-module-{width}.png'))
                         (args.out / f'markets-module-{width}.json').write_text(json.dumps(page.locator('#markets').bounding_box()))
                     plain = nojs.new_page()

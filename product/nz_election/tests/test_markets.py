@@ -153,10 +153,11 @@ def test_home_market_summary_and_all_page_filtering(tmp_path):
         check_markup(page.read_text(), envs['markets']['data'])
     chosen = [r for _, r in leaders(envs['markets']['data']) if r]
     assert len(chosen) == 4 and all(eligible(r) for r in chosen)
-    html = (site / 'index.html').read_text()
+    assert 'id="markets"' not in (site / 'index.html').read_text()
+    html = (site / 'methods/index.html').read_text()
     assert all(label in html for label in ('Will Christopher Luxon be the next Prime Minister?', 'Will Green Party be part of the next Government?', 'Will the National Party win 35-39 seats?', 'Will the Labour Party win 35-39 seats?'))
     assert html.count('data-market-id=') == 4
-    assert html.count('href="https://polymarket.com/event/') == 0
+    assert (site / 'index.html').read_text().count('href="https://polymarket.com/event/') == 0
     assert (site / 'methods/index.html').read_text().count('href="https://polymarket.com/event/') == 4
     for row in envs['markets']['data']:
         row['question'] = 'Will Person A win?'

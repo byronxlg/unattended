@@ -55,12 +55,13 @@ def panel(envs, built):
         body += '<p>Not available: ' + escape(status.get('message') or 'no validated market observations') + '.</p>'
     else:
         selected = leaders(env['data'])
-        body += '<p>Highest Yes price per event, not a forecast. Government membership contracts are independent.</p>'
+        body += '<p>Leading market choices: price for Yes, highest per event. Not a forecast; government membership contracts are independent.</p>'
         observed = min(r['observed_at'] for r in env['data'])
         stale = status.get('state') == 'stale' or overdue(status.get('last_success_at'), built, 'daily')
-        body += '<p>' + ('Update overdue or failed. ' if stale else '') + 'Observed <time datetime="' + observed + '">' + compact_time(observed) + '</time>.</p>'
+        body += '<p>' + ('Update overdue or failed. ' if stale else '') + 'Observed <time datetime="' + observed + '">' + compact_time(observed) + '</time>.'
         if overdue(observed, built, 'daily'):
-            body += '<p>Source observations are more than 36 hours old.</p>'
+            body += ' Source observations are more than 36 hours old.'
+        body += '</p>'
         for family, title in [('next-pm', 'Next prime minister'), ('government-membership', 'Government membership'), ('seat-bands', 'Seat bands')]:
             body += '<figure aria-describedby="source-markets"><table aria-describedby="source-markets"><caption>' + title + ' / Market price (Yes)</caption><tbody>'
             for event, row in selected:
@@ -71,7 +72,7 @@ def panel(envs, built):
                     body += '<tr><th scope="row">' + name + '</th><td>No priced contracts</td></tr>'
                     continue
                 name = label(row)
-                body += '<tr data-market-id="' + row['id'] + '"><th scope="row">' + escape(name) + (' (closed)' if row['closed'] else '') + '</th><td>' + market_price(yes(row)['price']) + '</td></tr>'
+                body += '<tr data-market-id="' + row['id'] + '"><th scope="row">' + escape(question(row)) + (' (closed)' if row['closed'] else '') + '</th><td>' + market_price(yes(row)['price']) + '</td></tr>'
                 rules_name = {'next-pm': 'PM rules', 'government-membership': 'Government rules'}.get(family, ('National' if 'national' in event['slug'] else 'Labour') + ' seat rules')
                 actions += link('https://polymarket.com/event/' + event['slug'], rules_name)
                 amounts += '<p>' + escape(name) + ': volume ' + market_money(row['volume']) + '; liquidity ' + market_money(row['liquidity']) + '. Observed ' + escape(row['observed_at']) + '.</p>'

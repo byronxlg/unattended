@@ -27,7 +27,8 @@ def test_populated_public_routes_and_map(populated):
     assert 'Nelson&#x27;s boundaries and name are unchanged from 2020.' in nelson
     assert 'BOYACK-MAYER, Rachel Elizabeth' in (site / 'methods/index.html').read_text()
     assert 'stroke-width="3.5"' in html
-    assert 'home-leaders' in html and 'people/christopher-luxon.webp' in html
+    assert 'home-leaders' not in html
+    assert 'people/christopher-luxon.webp' in (site / 'parties/index.html').read_text()
     for c in load('leaders'):
         if c.get('photo'):
             assert c['photo']['source_url'].replace('&', '&amp;') in (site / 'methods/index.html').read_text()

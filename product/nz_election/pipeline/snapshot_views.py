@@ -79,7 +79,7 @@ def people():
     return content + '</div>'
 
 
-def map_graphic(envs, selected=None):
+def map_graphic(envs, selected=None, *, hexagons=False):
     rows = {r['slug']: r for r in config('electorates')}
     cells = load('hexmap')
     width = (max(c['x'] for c in cells)+1)*26
@@ -95,13 +95,25 @@ def map_graphic(envs, selected=None):
         rect = (f'<rect x="{c["x"]*26+2}" y="{c["y"]*26+2}" width="22" height="22" '
                 f'fill="{fill}" fill-opacity="{opacity:.2f}"'
                 + (' stroke="var(--ink)" stroke-width="3"' if selected == row['slug'] else '') + '/>')
+        if hexagons:
+            x, y = c['x']*26, c['y']*26
+            rect = (f'<polygon points="{x+6},{y} {x+20},{y} {x+26},{y+13} {x+20},{y+26} {x+6},{y+26} {x},{y+13}" '
+                    f'fill="{fill}" fill-opacity="{opacity:.2f}"/>')
         if selected:
             marks += '<g><title>' + escape(title) + '</title>' + rect + '</g>'
         else:
             marks += f'<a href="{PREFIX}electorates/{row["slug"]}/" aria-label="{escape(title)}"><title>{escape(title)}</title>{rect}</a>'
         records.append([escape(row['name']), escape(held['party']) if held else '', f'{held["margin"]:,}' if held else ''])
     graphic = (f'<svg class="tile-map" viewBox="0 0 {width} {height}" role="{"img" if selected else "group"}" aria-label="2023 holders on original boundaries; schematic 2025 locations" aria-describedby="source-map">{marks}</svg>')
+    if hexagons:
+        maori = [c for c in cells if c['group'] == 'maori']
+        top = min(c['y'] for c in maori)*26-42
+        graphic = ('<div class="picker-map" tabindex="0" role="region" aria-label="Electorate map; scroll horizontally for Māori electorates">'
+                   f'<div style="position:relative;width:{width}px;margin:auto">' + graphic
+                   + f'<span class="chart-label" style="position:absolute;right:2px;top:{top}px;text-align:right">Māori<br>electorates</span></div></div>')
     legend = '<div class="map-key">' + ''.join(f'<span><i style="background:{colour(p)}"></i>{escape(label(p))}</span>' for p in ['nat','lab','grn','act','tpm']) + '</div>'
+    if hexagons:
+        legend += '<p>Margin shading: light at 0 votes, solid at 8,800 or more.</p>'
     return graphic + legend + '<p class="map-caption">Darker tiles mean larger 2023 margins. Locations are schematic; Māori seats sit in a separate column. For changed boundaries, tiles show the named 2023 predecessor, not a recalculated result.</p>' + fallback(table('2023 holders on original boundaries', ['Electorate', 'Party', 'Margin'], records, source='source-map'))
 
 
@@ -112,7 +124,7 @@ def sources(envs):
         rows = load(stem)
         content += f'<section id="home-{name}"><h2>{title}</h2>'
         if name == 'map':
-            content += '<p>Square tiles from the reviewed hexmap snapshot. Colour uses the 2023 result on the original boundaries, not a prediction for 2026. For changed seats, the first named predecessor in the reviewed correspondence supplies the original result. This is historical context, not an allocation of votes to new boundaries. Margins are votes, not percentages. Port Waikato uses the November by-election.</p>'
+            content += '<p>Tiles from the reviewed hexmap snapshot, drawn as hexagons on home and squares on detail pages. Colour uses the 2023 result on the original boundaries, not a prediction for 2026. For changed seats, the first named predecessor in the reviewed correspondence supplies the original result. This is historical context, not an allocation of votes to new boundaries. Margins are votes, not percentages. Port Waikato uses the November by-election.</p>'
             content += '<p>Result colours and vote majorities: <a href="#records-baseline-2023">Electoral Commission 2023 results and licence</a>; <a href="#home-port-waikato">Port Waikato by-election snapshot and licence</a>.</p>'
             for entry in envs.get('baseline-2023', {}).get('source', []):
                 content += '<p>' + link(entry['url'], 'Electoral Commission results') + '. ' + escape(entry['licence']) + '</p>'
