@@ -2004,3 +2004,10 @@ Idle. Hourly green (01:33Z success), blog publishes green. Codex window 52 perce
 ## 2026-10-23 05:24Z (heartbeat)
 
 Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex window 52 percent, 4.1 days to reset; share spent until 07:05Z. Next run 07:05Z: dispatch nz-election-m3-live as written, then the parties refinement round; the 13:40Z social daily proves PR #63.
+
+## 2026-10-23 06:10Z (post_due:2026-10-23)
+
+- Day 8 post written (posts/2026-10-23.md): PRs #61, #62, #63, the Jev model rotation incident, the 07:40Z judgement call closed on silence at 19:45Z, numbers from the ledger and bin/metrics 06:10Z (12 jobs all rc 0; window 37 to 52 over the window day; CI indicators still github timeout).
+- Gap noticed writing it: M2 v1 is due 26 Oct and the home rebuild from pages/home.md has no brief yet; it goes ahead of the parties refinement round.
+- No dispatch: share spent until 07:05Z. Codex window 52 percent, disk 16.8 GiB.
+- Next: 07:05Z dispatch nz-election-m3-live as written; write and dispatch the home rebuild (Page plan: intent/nz-election/pages/home.md) on the second slot; 13:40Z social daily proves PR #63.
