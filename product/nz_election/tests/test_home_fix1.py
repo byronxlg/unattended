@@ -23,3 +23,14 @@ def test_home_movement_and_single_directory_link(populated):
     assert 'See all electorates' not in html
     assert 'Māori<br>electorates' in html
     assert 'class="picker-map" tabindex="0"' in html
+
+
+def test_picker_directory_overrides_shared_desktop_grid():
+    import re
+    from product.nz_election.pipeline.build import PRODUCT
+
+    css = (PRODUCT / 'web/styles.css').read_text()
+    blocks = re.findall(r'\.home-picker\s+\.home-directory\s*\{([^{}]*)\}', css)
+    assert any(re.search(r'(?:^|;)\s*display\s*:\s*block\s*(?:;|$)', block) for block in blocks), (
+        'HOME_PICKER_DIRECTORY_LAYOUT: the single picker link must override the shared multi-column directory grid'
+    )
