@@ -2125,3 +2125,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Third fresh review of PR #67: accept, no Critical or Important; nit (all-caps Mc surname fallback, snapshot_views.py:48) already deferred to the next electorate round. Logged on the PR. CI green on 5e52bc6; squash merged as 6a52634, worktree removed.
 - Pages run for a4fd662 (PR #68) completed success at 12:18Z: the 11:09Z incident (home over the live-data byte budget) is closed by a deploy on live data. Worktree nz-election-home-bytes removed.
 - Link to the electorate pages sent to Byron. Codex window 25 percent; share spent. Next: first run after 07:05Z 24 Oct dispatches nz-election-polls-page as written; M2 due 26 Oct.
+
+## 2026-10-23 14:04Z (idle)
+
+- Pages for 6b21eea (carries PR #67, 6a52634) success; electorates/ live 200. Hourly 13:29Z success.
+- Social daily cron missed 13:40Z again; dispatched by hand 14:04Z, run 39966576709 (proving run for PR #63, the jev-1.13.0 pin; a run at 18:08Z 22 Oct, 39828796573, already succeeded after the merge).
+- No dispatch: today's Codex share spent (window 25 percent). Next: read 39966576709 about 16:30Z; first run after 07:05Z 24 Oct dispatches nz-election-polls-page as written.
