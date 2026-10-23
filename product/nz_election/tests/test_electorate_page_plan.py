@@ -25,7 +25,7 @@ def test_first_screen_order_and_all_locators():
         provenance(html)
 
 
-def test_ec_spelling_ranks_and_only_explicit_incumbents():
+def test_reconciled_display_names_ranks_order_and_only_explicit_incumbents():
     for row in config('electorates'):
         html = detail(row, {})
         rec = next(r for r in snapshot_views.load('candidate-reconciliation-2026') if r['electorate_slug'] == row['slug'])
@@ -33,11 +33,17 @@ def test_ec_spelling_ranks_and_only_explicit_incumbents():
         candidates = rec['matched'] + rec['added_by_ec']
         assert html.count('<li style="--party:') == len(candidates)
         for c in candidates:
-            assert '<strong>' + escape(c['ec_name']) + '</strong>' in html
+            assert '<strong>' + escape(c['snapshot_name']) + '</strong>' in html
             if 'list_rank' in c:
                 assert f'List {c["list_rank"]}' in html
         assert html.count('class="incumbent"') == sum(bool(originals.get((c['snapshot_name'], c['snapshot_party']), {}).get('sitting_electorate_mp')) for c in candidates)
-    assert 'HARFORD, Joshua' in detail(seat(), {}) and 'Josh Harford' not in detail(seat(), {})
+        from product.nz_election.pipeline.content_checks import Tree
+        cards = html.split('<ul class="race-cards"', 1)[1].split('</ul>', 1)[0]
+        names = [n.text for n in Tree(cards).nodes if n.tag == 'strong']
+        assert names == [c['snapshot_name'] for c in candidates]
+    assert '<strong>Michael Appleby</strong>' in detail(seat(), {})
+    assert 'APPLEBY, Michael' not in detail(seat(), {})
+    assert 'Josh Harford' in detail(seat(), {}) and 'HARFORD, Joshua' not in detail(seat(), {})
 
 
 def test_policy_link_only_when_present(monkeypatch):
@@ -121,3 +127,26 @@ def test_electorate_policy_snapshot_contract(tmp_path, monkeypatch):
             write(bad)
             with pytest.raises(ValueError):
                 snapshots.load('policy-links')
+
+
+def test_no_repeated_adjacent_electorate_provenance():
+    from product.nz_election.pipeline.content_checks import Tree, check_sources
+    for row in config('electorates'):
+        html = detail(row, {})
+        tree = Tree(html)
+        for parent in tree.nodes:
+            children = [n for n in parent.children if not isinstance(n, str)]
+            for left, right in zip(children, children[1:]):
+                if all('source-note' in n.attrs.get('class', '').split() for n in (left, right)):
+                    assert ' '.join(left.text.split()) != ' '.join(right.text.split()), 'REPEATED_ADJACENT_PROVENANCE'
+        assert html.count('Data to 20 October 2026.') == 1
+        check_sources(html)
+        provenance(html)
+
+
+def test_methods_describe_current_detail_graphic_and_names():
+    html = snapshot_views.sources({})
+    assert 'squares on detail pages' not in html
+    assert 'Electorate detail pages use the simplified Stats NZ 2025 boundary locators' in html
+    assert 'candidate cards display the reconciled snapshot names' in html
+    assert 'href="#home-boundaries-2025"' in html

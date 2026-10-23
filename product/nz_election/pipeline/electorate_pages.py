@@ -71,7 +71,7 @@ def candidate_cards(row):
     for c in reconciliation['matched'] + reconciliation['added_by_ec']:
         # The reconciliation explicitly records the source identity; no fuzzy name join.
         original = originals.get((c['snapshot_name'], c['snapshot_party']), {})
-        cards += (f'<li style="--party:{colour(parties.get(c["party"]))}"><strong>' + escape(c['ec_name'])
+        cards += (f'<li style="--party:{colour(parties.get(c["party"]))}"><strong>' + escape(c['snapshot_name'])
                   + '</strong><p>' + escape(c['party']) + '</p><p>'
                   + (f'List {c["list_rank"]}' if 'list_rank' in c else '')
                   + (' <span class="incumbent">Incumbent</span>' if original.get('sitting_electorate_mp') else '') + '</p></li>')
@@ -158,7 +158,8 @@ def detail(row, envs, built=None):
                 '<figure class="locator-card" aria-describedby="source-boundaries-2025">' + locator(row)
                 + '<figcaption>2025 locator, not a legal boundary. Stats NZ, CC BY 4.0.</figcaption></figure>')
     content += policy_link(row)
-    content += footnote('candidates-2026', '20 October 2026') + footnote('boundaries-2025', '20 October 2026')
+    # Both descriptions share one visible note and retain their existing source anchors.
+    content += '<div id="source-boundaries-2025">' + footnote('candidates-2026', '20 October 2026') + '</div>'
     content += previous_result(row, envs, built)
     # Preserve inbound provenance fragments without displaying empty modules.
     for stem in ['electorates', 'candidates', 'baseline-2023', 'enrolment', 'electorate-polls']:

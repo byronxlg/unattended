@@ -126,16 +126,16 @@ def sources(envs):
         if name == 'boundaries-2025':
             content += '<p>Stats NZ, CC BY 4.0. Projected from the simplified 2025 boundary snapshot and rounded to locator pixels. All general electorates form the national outline; the selected boundary is highlighted. Locator only, not a legal boundary or address lookup. <a href="https://creativecommons.org/licenses/by/4.0/">Licence</a>.</p>'
         if name == 'candidates-2026':
-            content += '<p>Electorate cards use the released EC spelling, affiliations and ranks from the <a href="#home-candidate-reconciliation-2026">reviewed reconciliation</a>. Incumbent labels use only the explicit sitting electorate MP flag linked by that reconciliation.</p>'
+            content += '<p>Electorate cards display the reconciled snapshot names in given-then-family form, retaining the source family-name order. Affiliations and list ranks come from the <a href="#home-candidate-reconciliation-2026">reviewed reconciliation</a>. Incumbent labels use only the explicit sitting electorate MP flag linked by that reconciliation. The accompanying <a href="#home-boundaries-2025">2025 boundary locators and their sources</a> are described above.</p>'
         if name == 'map':
-            content += '<p>Tiles from the reviewed hexmap snapshot, drawn as hexagons on home and squares on detail pages. Colour uses the 2023 result on the original boundaries, not a prediction for 2026. For changed seats, the first named predecessor in the reviewed correspondence supplies the original result. This is historical context, not an allocation of votes to new boundaries. Margins are votes, not percentages. Port Waikato uses the November by-election.</p>'
+            content += '<p>Tiles from the reviewed hexmap snapshot are drawn as hexagons on home. Electorate detail pages use the simplified Stats NZ 2025 boundary locators described above. Colour uses the 2023 result on the original boundaries, not a prediction for 2026. For changed seats, the first named predecessor in the reviewed correspondence supplies the original result. This is historical context, not an allocation of votes to new boundaries. Margins are votes, not percentages. Port Waikato uses the November by-election.</p>'
             content += '<p>Result colours and vote majorities: <a href="#records-baseline-2023">Electoral Commission 2023 results and licence</a>; <a href="#home-port-waikato">Port Waikato by-election snapshot and licence</a>.</p>'
             for entry in envs.get('baseline-2023', {}).get('source', []):
                 content += '<p>' + link(entry['url'], 'Electoral Commission results') + '. ' + escape(entry['licence']) + '</p>'
             entry = load('port-waikato-2023')[0]
             content += '<p>' + link(entry['source_url'], 'Port Waikato by-election results') + '. ' + escape(entry['licence']) + '</p>'
         if name == 'candidate-reconciliation-2026':
-            content += '<p>EC spellings and affiliations are used verbatim. Absent-from-EC entries are omitted. List ranks come from the linked EC party list; no missing rank is inferred.</p>'
+            content += '<p>EC sheet spellings are retained in source records; candidate cards display the reconciled snapshot names. Affiliations are used verbatim. Absent-from-EC entries are omitted. List ranks come from the linked EC party list; no missing rank is inferred.</p>'
             for row in rows:
                 content += '<p>' + escape(row['electorate_slug']) + ': ' + link(row['party_list_source_url'], 'EC party list') + '. Retrieved ' + escape(row.get('party_list_retrieved_at', row['retrieved_at'])) + '.</p>'
         if name == 'history':
