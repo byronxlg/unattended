@@ -218,7 +218,11 @@ def hero(envs, built, presentation):
             parties = list(reversed(parties))
         content += f'<span class="segment bloc-fill-{token}" style="width:{Decimal(n)*100/total:.6f}%;order:{order}">'
         for party in parties:
-            content += ''.join(f'<span class="seat" style="background:{colour(party)}" title="{escape(label(party))}"></span>' for _ in range(result['seats'].get(party, 0)))
+            count = result['seats'].get(party, 0)
+            if count:
+                # Share metadata without changing the one-block-per-seat flex layout.
+                content += (f'<span style="display:contents;--seat-colour:{colour(party)}" title="{escape(label(party))}">'
+                            + '<span class="seat"></span>' * count + '</span>')
         if key == 'neutral':
             content += '<span class="seat"></span>' * (total-sum(result['seats'].values()))
         content += '</span>'

@@ -100,12 +100,14 @@ def trend_chart(averages, parties, *, maximum=None, polls=(), previous=None):
                 lower.append(f'{x:.1f},{y(min(observations)):.1f}')
         if upper:
             marks += f'<polygon points="{" ".join(upper + list(reversed(lower)))}" fill="{colour(party)}" fill-opacity="0.1"/>'
+        marks += f'<g fill="{colour(party)}" fill-opacity="0.3">'
         for poll in polls:
             day = date.fromisoformat(poll['fieldwork_end'])
             value = poll['shares'].get(party)
             if start <= day <= date.fromisoformat(averages[-1]['date']) and value is not None:
                 x = Decimal((day-start).days)*330/days
-                marks += f'<circle cx="{x:.1f}" cy="{y(Decimal(value)/poll["scale"]):.1f}" r="2" fill="{colour(party)}" fill-opacity="0.3"/>'
+                marks += f'<circle cx="{x:.1f}" cy="{y(Decimal(value)/poll["scale"]):.1f}" r="2"/>'
+        marks += '</g>'
         for a in averages:
             d = a['descriptive'].get(party, {})
             if d.get('value') is None:
