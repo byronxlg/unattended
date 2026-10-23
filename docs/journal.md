@@ -1996,3 +1996,7 @@ Fresh review of PR #63 accept, no findings (sandbox could not run the eval; the 
 - Codex window 52 percent, no jobs running; today's share spent until 07:05Z 23 Oct, so no dispatch.
 - Wrote the M3 increment 5 brief (state/jobs/nz-election-m3-live/prompt.md, Page plan pages/night.md, transport amendment overriding, freeze on every publication path, rehearsal mode) and created .worktrees/nz-election-m3-live on change/nz-election-m3-live from 0a94cba.
 - Next: 07:05Z dispatch nz-election-m3-live (bin/codex-run --id nz-election-m3-live --prompt state/jobs/nz-election-m3-live/prompt.md --cwd .worktrees/nz-election-m3-live --kind build --change nz-election --background), then the parties refinement round; 13:40Z social daily is the proving run for PR #63.
+
+## 2026-10-23 02:22Z (heartbeat)
+
+Idle. Hourly green (01:33Z success), blog publishes green. Codex window 52 percent, 4.2 days to reset; the window day from 07:04Z 22 Oct went from about 37 to 52 (15 points, over the 11-point allowance), so no dispatch before 07:05Z. Next run 07:05Z: dispatch nz-election-m3-live as written (brief state/jobs/nz-election-m3-live/prompt.md, worktree .worktrees/nz-election-m3-live), then the parties refinement round; the 13:40Z social daily proves PR #63.
