@@ -2161,3 +2161,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Hourly runs 18:16Z and 18:24Z success.
 - No dispatch: today's Codex share spent (27 percent of the window).
 - Next: 07:05Z 24 Oct dispatch nz-election-polls-page as written and the publish cleanup fix; confirm Pages for bffe21d; 13:40Z 24 Oct social daily is the proving run for #69.
+
+## 2026-10-23 21:29Z (heartbeat)
+
+- Idle check. No new issues or Byron words. Pages for bffe21d confirmed by the e0b7935 deploy (success 18:27Z); NZ election daily 19:32Z success; hourly 19:58Z success, next hourly in progress 21:28Z.
+- No dispatch: Codex window 27 percent with 6.4 days left, today's share (window day from 07:04Z) spent.
+- Next: 07:05Z 24 Oct dispatch nz-election-polls-page as written and the publish cleanup fix (publish.py:62); 13:40Z 24 Oct social daily proves #69. next-run-after stays 07:05Z.
