@@ -99,7 +99,10 @@ def page(envs, built, facts=None):
             content += '<figcaption>' + escape(leader['name']) + '<small>' + escape(leader['role']) + '</small></figcaption></figure>'
             content += f'<div class="source-note party-credit" id="{identity}"><p class="source-actions">'
             if photo:
-                content += link(photo['source_url'], photo['author']) + ' / ' + link(photo['licence_url'], photo['licence']) + '. ' + escape(photo['changes'])
+                attribution = ' / '.join(link(url, text) for url, text in (
+                    (photo['source_url'], photo['author']),
+                    (photo['licence_url'], photo['licence'])) if text)
+                content += '. '.join(part for part in (attribution, escape(photo['changes'])) if part)
             else:
                 content += link(leader['source_url'], 'Leader record')
             content += '</p></div>'
