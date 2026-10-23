@@ -2059,3 +2059,14 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - m3-live fix-3 b7ac47e: harness race (synchronous fetch 1 ms before the assertion timestamp), clock held, exact-one-fetch kept. Host night_browser.py PASS (60 images). CI on 727561e had failed the same assertion (2020 passed, 2 errors), so the race predates fix-2. Pushed, supervisor note on PR #65, second fresh review review-nz-election-m3-live-2 dispatched; host full suite running in /tmp/m3-live-f3 (suite.log, done.log).
 - No judgement call. Codex window 13 percent, 6.9 days left, allowance about 13 points; disk 21.7 GiB.
 - Next: on job_done merge #65 if accept and CI green on b7ac47e; host-verify home-plan fix-4 (check-review.py at 360/390/1280, home 1280 looked at), merge #64 before M2 26 Oct, link to Byron; parties refinement round after.
+
+## 2026-10-23 09:43Z (job_done nz-election-home-plan-fix-4, review-nz-election-m3-live-2)
+
+- review-nz-election-m3-live-2 (PR #65, b7ac47e): accept, no findings; logged on PR #65. Host night_browser.py PASS (60 images) from the last run.
+- home-plan fix-4 f2adca9 (picker directory full width at 1280, regression fails on 801c204): host check-review.py exit 0, PASS home and methods at 360/390/1280 on before, after and night (picker 71 links, minimum 26 x 26); home 1280 fold looked at. Pushed, supervisor accept logged on PR #64, third fresh review review-nz-election-home-plan-3 dispatched: accept, no findings, question test at 390 read from the screenshot; logged.
+- No judgement call. Codex window 14 percent, 6.9 days left, allowance about 12 points; disk 19.4 GiB.
+- PR #65 m3-live (increment 5, live night transport) CI green on b7ac47e (27m57s), squash merged as bafb92d, worktree removed.
+- PR #64 home-plan CI red on 801c204 and f2adca9: test_design.py token pairings (fix-3 shortened :root tokens to three-digit hex; the test reads six). Not merged; fix-5 nz-election-home-plan-fix-5 dispatched on the build thread (six-digit tokens, no budget or test change). Logged on PR #64.
+- nz-election-parties-refine dispatched in .worktrees/nz-election-parties-refine (Page plan pages/parties.md; per-source licence from the PR #61 third review, empty-part caption joins).
+- What went wrong: the supervisor accepted fix-3 and fix-4 on check-review.py alone and did not read CI on 801c204, which was already red. Read `gh run list --branch` for every pushed fix before accepting the next one.
+- Next: on job_done fix-5 run test_design.py and check-review.py on the host, push, merge #64 on CI green (M2 due 26 Oct), link to Byron; parties-refine host-verify, PR, fresh review; confirm Pages for bafb92d.
