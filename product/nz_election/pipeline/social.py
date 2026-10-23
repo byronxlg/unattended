@@ -117,7 +117,7 @@ def decode(raw):
 
 # Only locally defined codes may reach logs; exception messages can contain secrets.
 DIAGNOSTIC_CODES = frozenset({
-    'SOCIAL_COLLECTION_FAILED', 'SOCIAL_TRANSPORT_FAILED', 'SOCIAL_INVALID_PAGE',
+    'SOCIAL_COLLECTION_FAILED', 'SOCIAL_COLLECTION_RETRY', 'SOCIAL_TRANSPORT_FAILED', 'SOCIAL_INVALID_PAGE',
     'SOCIAL_QUERY_TOO_LONG', 'SOCIAL_UPSTREAM_FAILED',
     'SOCIAL_RESPONSE_LIMIT', 'SOCIAL_INVALID_RESPONSE', 'SOCIAL_CLASSIFICATION_FAILED',
     'SOCIAL_INVALID_CLASSIFICATION', 'SOCIAL_BUDGET_DAY_CHANGED', 'SOCIAL_FROZEN',
@@ -199,12 +199,22 @@ def collect(day, ledger, run, *, key, send, sleep, now=utc_now, checkpoint=lambd
     diagnostic = {} if diagnostic is None else diagnostic
     diagnostic['post_windows'] = []
     posts, provenance = [], []
+    retries = []
+    def report_retries(final=None):
+        # A terminal diagnostic already identifies retries with the same status.
+        for retry in retries:
+            if final is None or (retry['window'], retry['http_status']) != (final['window'], final['http_status']):
+                print_diagnostic(retry)
+        retries.clear()
     for window_index, (start, end, query) in enumerate(hourly_queries(day, diagnostic)):
         for attempt in range(3):
             diagnostic.update(window=window_index, attempt=attempt + 1, http_status=None, code=None)
             allocated = run['allocation']
             used = run['requests'] * RESERVATION
             if (allocated and used + RESERVATION > allocated) or (not allocated and sum(r['reserved'] for r in ledger if r['day'] == run['day']) + RESERVATION > CAP):
+                # An incomplete run retains worst-case charges for every attempt.
+                run['spent'] = run['requests'] * RESERVATION
+                report_retries()
                 return posts, provenance, True
             instant = now()
             # Leave room for the bounded HTTP timeout before the budget day closes.
@@ -241,9 +251,13 @@ def collect(day, ledger, run, *, key, send, sleep, now=utc_now, checkpoint=lambd
                 diagnostic['code'] = 'SOCIAL_TRANSPORT_FAILED'
                 status, raw = 503, b''
             if status in {429, 500, 502, 503, 504} and attempt < 2:
+                retries.append({k: diagnostic[k] for k in ('window', 'attempt', 'http_status')})
+                retries[-1]['code'] = 'SOCIAL_COLLECTION_RETRY'
                 continue
             if status != 200:
+                report_retries(diagnostic)
                 raise ValueError('SOCIAL_COLLECTION_FAILED')
+            report_retries()
             body = decode(raw)
             batch = body.get('tweets')
             if body.get('status') == 'error' or not isinstance(batch, list) or len(batch) > 20 or type(body.get('has_next_page')) is not bool:
@@ -423,13 +437,22 @@ def validate_row(row, stem):
                 raise ValueError('INVALID_SOCIAL_PROBABILITY')
     prov = row['provenance']
     keys(prov, ('query', 'windows', 'fixture'))
-    if prov['query'] != QUERY or type(prov['fixture']) is not bool or not isinstance(prov['windows'], list) or len(prov['windows']) != 24:
+    if prov['query'] != QUERY or type(prov['fixture']) is not bool or not isinstance(prov['windows'], list) or not 1 <= len(prov['windows']) <= 24:
         raise ValueError('INVALID_SOCIAL_PROVENANCE')
-    for w, (start, end) in zip(prov['windows'], windows(row['day'])):
+    expected = windows(row['day'])
+    previous = -1
+    for w in prov['windows']:
         keys(w, ('start_epoch', 'end_epoch', 'retrieved_at', 'page_limit'))
-        if w['start_epoch'] != start or w['end_epoch'] != end or type(w['page_limit']) is not bool:
+        pair = (w['start_epoch'], w['end_epoch'])
+        if any(type(v) is not int for v in pair) or pair not in expected or type(w['page_limit']) is not bool:
             raise ValueError('INVALID_SOCIAL_WINDOW')
+        index = expected.index(pair)
+        if index <= previous:
+            raise ValueError('INVALID_SOCIAL_WINDOW')
+        previous = index
         export.timestamp(w['retrieved_at'])
+    if sample['returned'] > 20 * len(prov['windows']) or sample['capped_windows'] != sum(w['page_limit'] for w in prov['windows']):
+        raise ValueError('INVALID_SOCIAL_TOTAL')
 
 
 def validate_ledger(rows):
@@ -500,6 +523,8 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                     message += ('showing data through ' + last_day) if last_day else 'no earlier sample is published.'
                 else:
                     message = ('Offline verification; synthetic data, not live data.' if fixture else 'Time-stratified X sample; not a complete count.') if record else 'Previous data retained; collection pending or unavailable.'
+                if record is not None:
+                    message += f" {len(record['provenance']['windows'])} of 24 hours sampled."
                 # A skipped collection is not a handled failure for publication or readers.
                 status_error = None if budget_spent and error == 'SOCIAL_CREDIT_CAP' else error
                 status = dict(id='status-social', source_ref=[], observed_at=now, dataset='social', state=('stale' if error or record is None else 'fresh') if success else 'unavailable', last_attempt_at=now, last_success_at=success, last_good_run_url=run_url if record else prior.get('last_good_run_url'), error_code=status_error, message=message)
@@ -519,7 +544,7 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                     return 'budget-spent'
             else:
                 posts, provenance, limited = collect(day, ledger, run, key=x_key, send=send, sleep=sleep, now=clock_now or (lambda: now), checkpoint=save, diagnostic=diagnostic)
-                if limited:
+                if limited and not provenance:
                     error = 'SOCIAL_CREDIT_CAP'
                 else:
                     classified, exclusions = classify(posts, key=jev_key, send=send, diagnostic=diagnostic, enforce_bound=True)

@@ -226,11 +226,10 @@ def test_spent_day_cli_exits_zero_without_transport_or_ledger_changes(tmp_path, 
 
 @pytest.mark.parametrize('published', [False, True])
 @pytest.mark.parametrize('reserved', [False, True])
-def test_mid_run_cap_stays_fatal_and_retains_sample(tmp_path, monkeypatch, published, reserved):
+def test_mid_run_cap_publishes_fetched_empty_windows(tmp_path, monkeypatch, published, reserved):
     out = tmp_path / 'data'
     if published:
         fixture(out)
-    old = (out / 'social/daily.json').read_bytes() if published else None
     now = '2026-10-18T03:00:00Z'
     reservation = social.refresh_social(out, DAY, now=now, reserve=True) if reserved else None
     calls = []
@@ -241,19 +240,20 @@ def test_mid_run_cap_stays_fatal_and_retains_sample(tmp_path, monkeypatch, publi
     monkeypatch.setattr(social, 'transport', send)
     monkeypatch.setattr(social.clock, 'sleep', lambda _: None)
     monkeypatch.setattr(social.sys, 'argv', ['social', '--out', str(out), '--day', DAY, '--now', now] + (['--reservation', reservation] if reserved else []))
-    with pytest.raises(SystemExit, match='^FAIL social: SOCIAL_CREDIT_CAP$'):
-        social.main()
+    social.main()
     assert len(calls) == 24
     envs = export.validate_bundle(out)
     run = next(r for r in envs['social/credits']['data'] if r['day'] == '2026-10-18')
-    assert (run['reserved'], run['spent'], run['requests'], run['closed']) == (7560, 660, 24, True)
+    assert (run['reserved'], run['spent'], run['requests'], run['closed']) == (7560, 7560, 24, True)
     status = next(r for r in envs['status']['data'] if r['dataset'] == 'social')
-    assert status['error_code'] == 'SOCIAL_CREDIT_CAP'
-    assert status['message'] == 'Collection limit reached; ' + ('showing data through 2026-10-16' if published else 'no earlier sample is published.')
-    if published:
-        assert (out / 'social/daily.json').read_bytes() == old
-    else:
-        assert not (out / 'social/daily.json').exists()
+    assert status['error_code'] is None
+    assert status['state'] == 'fresh'
+    assert '23 of 24 hours sampled' in status['message']
+    record = envs['social/daily']['data'][0]
+    assert len(record['provenance']['windows']) == 23
+    assert record['sample']['returned'] == 0
+    assert all(v['withheld'] for v in record['attitude'].values())
+
 
 
 @pytest.mark.parametrize('reserve', [False, True])

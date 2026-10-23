@@ -31,7 +31,7 @@ def test_social_cap_publication_exit(tmp_path, monkeypatch, published, spent_bef
             calls.append(1)
             return (503, b'') if len(calls) == 1 else (200, b'{"tweets":[],"has_next_page":false}')
         assert social.refresh_social(out, DAY, now='2026-10-18T03:00:00Z', send=send,
-                                     sleep=lambda _: None) == 'SOCIAL_CREDIT_CAP'
+                                     sleep=lambda _: None) == 'ok'
         assert len(calls) == 24
     expected = publisher.status_of(export.validate_bundle(out), 'social')
     real_publish = publisher.publish
@@ -42,17 +42,20 @@ def test_social_cap_publication_exit(tmp_path, monkeypatch, published, spent_bef
     monkeypatch.delenv('GITHUB_STEP_SUMMARY', raising=False)
     for name in ('GIT_CONFIG_COUNT', 'GIT_CONFIG_KEY_0', 'GIT_CONFIG_VALUE_0'):
         monkeypatch.setenv(name, '')
-    if spent_before_run:
-        publisher.main()
-    else:
-        with pytest.raises(SystemExit, match='^FAIL refresh: handled failure status published$'):
-            publisher.main()
+    publisher.main()
     status = json.loads(git(remote, 'show', 'data:' + str(DATA / 'status.json')).stdout)['data'][0]
     assert status == expected
-    assert status['error_code'] == (None if spent_before_run else 'SOCIAL_CREDIT_CAP')
-    assert status['state'] == ('stale' if published else 'unavailable')
-    assert status['last_success_at'] == (NOW if published else None)
-    assert status['message'] == ("Day's collection cap was already spent; " if spent_before_run else 'Collection limit reached; ') + ('showing data through 2026-10-16' if published else 'no earlier sample is published.')
-    for name, content in before.items():
-        if spent_before_run or name.startswith('social/daily'):
+    assert status['error_code'] is None
+    if spent_before_run:
+        assert status['state'] == ('stale' if published else 'unavailable')
+        assert status['last_success_at'] == (NOW if published else None)
+        assert status['message'] == "Day's collection cap was already spent; " + ('showing data through 2026-10-16' if published else 'no earlier sample is published.')
+        for name, content in before.items():
             assert git(remote, 'show', 'data:' + str(DATA / name)).stdout == content
+    else:
+        assert status['state'] == 'fresh'
+        assert status['last_success_at'] == '2026-10-18T03:00:00Z'
+        assert '23 of 24 hours sampled' in status['message']
+        daily = json.loads(git(remote, 'show', 'data:' + str(DATA / 'social/daily.json')).stdout)['data'][0]
+        assert len(daily['provenance']['windows']) == 23
+        assert daily['sample']['returned'] == 0
