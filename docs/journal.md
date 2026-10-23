@@ -2083,3 +2083,33 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #66 parties-refine: fresh Codex review accept, no findings (13 new cases pass on HEAD, 9 fail on 729f9e7; HTML byte-identical to main apart from captions), logged on the PR. CI pending; merge on green.
 - Dispatched nz-election-electorate-page (Page plan intent/nz-election/pages/electorate.md, .worktrees/nz-election-electorate-page on change/nz-election-electorate-page from main): race cards, vote.nz line and Stats NZ locator first screen, Policy.nz link, 2023 margin bars, night leader promoted when results exist. Brief state/jobs/nz-election-electorate-page/prompt.md.
 - Codex window 16 percent, 6.9 days to reset. Second slot held for the polls page build next run (pages/polls.md accepted).
+
+## 2026-10-23 11:09Z run (job_done electorate-page)
+
+- PR #64 home rebuilt around ranked voter questions squash merged as 205237c; PR #66 parties-refine squash merged as e32e60e. Both CI green with reviews logged. Worktrees removed.
+- Incident: "Publish the blog" for 205237c failed at "Verify election pages": `measure_home.py:44` `html_bytes 68868` against the 65,000 budget (links 110). CI builds from fixtures, which are smaller than the data branch, so the over-budget home appeared only at deploy. Reproduced on the host: main e32e60e built from data d7b8db9 fails identically. Live site keeps the 9642826 build; data on it goes stale until a deploy passes. What went wrong: the home-plan reviews and host harness ran on fixture or older data builds; nobody ran `verify.py all` on a build from the current data branch before merge. From now, a home or budget-touching PR is verified on a build from origin/data before merge.
+- Eval evals/pages-home-bytes-live (83063f9 on change/nz-election-home-bytes; fails on main). Fix nz-election-home-bytes-1 dispatched (brief state/jobs/nz-election-home-bytes-1/prompt.md): budget unchanged, answers and order unchanged, under 60,000 on the eval data, a test that fails on e32e60e. Revert of #64 rejected: M2 due 26 Oct and the fix is a byte trim, not a design question; revert stays the fallback if the fix round fails.
+- electorate-page de641c1 (Codex: 1948 passed, 3 Chromium sandbox failures, populated verify PASS all, lint ok) rebased onto e32e60e, pushed, PR #67 opened with supervisor review pending evidence; fresh review review-nz-election-electorate-page dispatched; host screenshot harness on the d7b8db9 build running detached (/tmp/ep/h-done.log, shots /tmp/ep/shots).
+- Codex window 19 percent, 6.8 days to reset.
+
+## 2026-10-23 11:23Z run (job_done review-electorate-page)
+
+- PR #67 fresh review request changes: screenshots never captured; incumbency read from candidates-2026, not the reconciliation snapshot; nit Methods text describes removed square tiles. Logged on the PR.
+- Host harness from the 11:09Z run died at start (wrong --site path, build-manifest.json not found). Supervisor screenshotted wellington-north, te-tai-tonga, port-waikato at 390x844 and 1280x800 on the d7b8db9 data build instead: question order holds (candidates, vote.nz check, locator, last result). Two defects found: the "Data to 20 October 2026. Sources and method" line renders twice; names show in EC sheet form "APPLEBY, Michael".
+- Incumbency item accepted with reasoning: the reconciliation snapshot carries no incumbency field; the candidates-2026 flag is explicit, not inferred.
+- Fix nz-election-electorate-page-fix-1 dispatched on the build thread (followup-1.md: one provenance line with a check that fails on de641c1, given-then-family names, Methods nit).
+- Running: nz-election-home-bytes-1 (Pages incident) and electorate-page-fix-1. Codex window 20 percent, 6.8 days to reset.
+
+## 2026-10-23 11:34Z run (job_done electorate-page-fix-1, home-bytes-1)
+
+- home-bytes-1 637a173 host-verified: eval evals/pages-home-bytes-live fails on 83063f9 (html_bytes 68,868) and PASS on 637a173 against origin/data d7b8db9; the three browser tests Codex could not launch pass on the host (3 passed); lint ok. Pushed, PR #68 opened with supervisor accept, fresh review review-nz-election-home-bytes dispatched.
+- electorate-page fix-1 b10fc2b pushed; supervisor accept on the fix logged on PR #67; second fresh review review-nz-election-electorate-page-2 dispatched. Supervisor rebuilt on d7b8db9 and screenshotted three electorates at 390/1280: provenance once, candidate names fixed; the 2023 winner sentence still reads "PAUL, Tamatha-Kaye Erin won by", logged on the PR for fix-2.
+- Mistake of mine: a bare `git stash -q` in a worktree during verification (no changes, nothing stashed, stash list empty after). Use a WIP commit instead.
+- Codex window 22 percent, 6.8 days to reset. Both slots on reviews.
+
+## 2026-10-23 11:54Z run (job_done review-electorate-page-2, review-home-bytes)
+
+- Both fresh reviews request changes on one item each: screenshots missing (Chromium cannot launch in the Codex sandbox). No functional findings; home-bytes review measured base 68,868 vs head 59,724 html bytes, home text, ARIA, ids and link targets identical, 71 other-route maps byte-identical.
+- PR #68: supervisor built 637a173 from origin/data d7b8db9 under /unattended, verify.py all PASS, home looked at 390x844 and 1280x800 full page: seat bar 67/58 in group order with the 67 marker, tile map renders from <use> tiles, no horizontal overflow, question order unchanged. Pre-existing nit (not in the diff): "Maori electorates" label off the visible map at 390 (snapshot_views.py:114), to the next home round. Evidence and accept logged on PR #68; CI pending, merge on green.
+- PR #67: the screenshot item was already met by the 11:34Z supervisor screenshots; the one defect they found (2023 winner as "PAUL, Tamatha-Kaye Erin") sent as fix-2 nz-election-electorate-page-fix-2 on the build thread with a regression test; logged on PR #67.
+- Codex window 6 percent at the 07:04Z day start, 23 percent now: today's 11-point share is spent; fix-2 is a fix on an open PR. Polls page brief written at state/jobs/nz-election-polls-page/prompt.md (Page plan pages/polls.md, build and verify on origin/data), dispatch first on the next share.
