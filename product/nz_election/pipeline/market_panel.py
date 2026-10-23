@@ -55,7 +55,7 @@ def panel(envs, built):
         body += '<p>Not available: ' + escape(status.get('message') or 'no validated market observations') + '.</p>'
     else:
         selected = leaders(env['data'])
-        body += '<p>Highest Yes price per event, not a forecast. Government membership contracts are independent.</p>'
+        body += '<p>Leading market choices: price for Yes. Highest Yes price per event, not a forecast. Government membership contracts are independent.</p>'
         observed = min(r['observed_at'] for r in env['data'])
         stale = status.get('state') == 'stale' or overdue(status.get('last_success_at'), built, 'daily')
         body += '<p>' + ('Update overdue or failed. ' if stale else '') + 'Observed <time datetime="' + observed + '">' + compact_time(observed) + '</time>.</p>'

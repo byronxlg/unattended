@@ -51,9 +51,9 @@ def source(envs, stem, built=None, *, full=False):
     status = next((s for s in envs.get('status', {}).get('data', []) if s['dataset'] == family), None)
     if status and (status['state'] != 'fresh' or (built and status['last_success_at'] and
             overdue(status['last_success_at'], built, 'daily'))):
-        band = f'<p class="state">Update overdue. Last checked {compact_time(status["last_success_at"])}. Showing previous data. <a href="{PREFIX}downloads/">Update details</a>.</p>'
+        band = f'<div class="state"><p>Update overdue. Last checked {compact_time(status["last_success_at"])}. Showing previous data.</p><p class="source-actions"><a href="{PREFIX}downloads/">Update details</a></p></div>'
         if status.get('error_code'):
-            band = f'<p class="state">The {compact_time(status["last_attempt_at"])} update failed; showing previous data from {compact_time(status["last_success_at"])}. <a href="{PREFIX}downloads/">Update details</a>.</p>'
+            band = f'<div class="state"><p>The {compact_time(status["last_attempt_at"])} update failed; showing previous data from {compact_time(status["last_success_at"])}.</p><p class="source-actions"><a href="{PREFIX}downloads/">Update details</a></p></div>'
         result = result.replace('<div>', band + '<div>', 1)
     return result + '</div></div>'
 

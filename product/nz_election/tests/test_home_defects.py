@@ -70,8 +70,8 @@ def test_8_electorate_baseline_and_text_links(populated):
 
 def test_9_market_propositions_before_prices(populated):
     envs, site = populated
-    from product.nz_election.pipeline.home import market_graphic
-    html = market_graphic(envs)
+    html = section((site / 'methods/index.html').read_text(), 'markets')
+    assert html.count('data-market-id="') == 4
     assert 'Leading market choices: price for Yes' in html
     for row in re.findall(r'<tr data-market-id="([^"]+)">(.*?)</tr>', html):
         market = next(m for m in envs['markets']['data'] if m['id'] == row[0])

@@ -136,7 +136,7 @@ def module(name, heading, dek, graphic, publisher, date, route, action):
         return f'<span id="{name}"></span>'
     return (f'<section id="{name}" class="home-module"><h2>{heading}</h2><p class="dek">{dek}</p>'
             f'<figure id="home-{name}" aria-describedby="source-{name}">{graphic}</figure>'
-            f'<p><a href="{PREFIX}{route}">{action}</a></p>' + footnote(name, publisher, date) + '</section>')
+            + (f'<p><a href="{PREFIX}{route}">{action}</a></p>' if action else '') + footnote(name, publisher, date) + '</section>')
 
 
 def voting_dates(built, rows=None):
@@ -201,7 +201,7 @@ def hero(envs, built, presentation):
     answer = ('exactly enough seats to govern' if difference == 0 else
               f'{difference} more than the {result["assumed_majority"]} needed' if difference > 0 else f'{-difference} short of the {result["assumed_majority"]} needed')
     content = f'<p class="seat-answer">Governing parties: {totals[0][1]} seats, {answer}.</p>'
-    content += '<p class="seat-dek">Poll average using 2023 groups, not who forms government.</p>'
+    content += '<p class="poll-change" aria-describedby="source-trend">' + poll_change(envs) + '</p>'
     content += '<div class="topline">' + ''.join(
         f'<p aria-label="{key.title()} {n} seats" class="bloc-{groups[key]["token"]}">{key.title()} <strong>{n}</strong></p>' for key, n in totals) + '</div>'
     total = result['assumed_house']
@@ -224,7 +224,7 @@ def hero(envs, built, presentation):
         content += '</span>'
     content += f'<span class="majority" style="left:{Decimal(result["assumed_majority"])*100/total:.6f}%"></span></div>'
     content += (f'<p class="seat-dek" aria-label="{result["assumed_majority"]} seats are needed in the assumed '
-                f'{total}-seat House, including {result["overhang"]} overhang seats.">{total} seats, including {result["overhang"]} overhang.</p>')
+                f'{total}-seat House, including {result["overhang"]} overhang seats.">{total} seats, including {result["overhang"]} overhang. 2023 groups, not who forms government.</p>')
     if remainder:
         content += f'<p class="bloc-neutral">{remainder} seats outside these groups or unassigned</p>'
     averages = envs.get('averages', {}).get('data', [])
@@ -351,6 +351,7 @@ def poll_change(envs):
 
 def page(envs, built, presentation):
     from .snapshot_views import map_graphic, footnote as snapshot_note
+    night = night_summary(envs, built)
     state, _ = seat_module(envs, built, presentation)
     if 'polls' not in envs:
         state = ''
@@ -365,13 +366,13 @@ def page(envs, built, presentation):
             graphic += '<div id="trend">' + trend_graphic(envs) + footnote('trend', 'Wikipedia contributors', updated(envs, 'polls', built)) + '</div>'
         if envs.get('polls', {}).get('data'):
             graphic += '<div id="latest-polls"><h3>Dated latest polls</h3>' + latest_polls(envs) + '</div>'
-        modules += module('polls', 'What changed in the latest polls?', poll_change(envs), graphic, 'Wikipedia contributors', updated(envs, 'polls', built), 'polls/', 'See all polls and averages')
+        modules += module('polls', 'What changed in the latest polls?', 'Equal-weight 30-day averages, not a forecast.' if presentation['result'] and not night else poll_change(envs), graphic, 'Wikipedia contributors', updated(envs, 'polls', built), 'polls/', 'See all polls and averages')
     graphic = '<div class="home-picker"><div>' + map_graphic(envs, hexagons=True) + snapshot_note('map') + '</div><div><h3>Find your electorate</h3>'
     if watch_rows(envs):
         graphic += '<p>Closest 2023 margins on unchanged boundaries</p>' + closest(envs)
     graphic += f'<ul class="home-directory"><li><a href="{PREFIX}electorates/">Browse all electorates and candidates</a></li></ul></div></div>'
-    modules += module('electorates', 'Who is standing where I live?', 'Choose an electorate for its candidates. Map colours show 2023 holders, not 2026 predictions.', graphic, 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', 'See all electorates')
-    top = night_summary(envs, built) or hero(envs, built, presentation)
+    modules += module('electorates', 'Who is standing where I live?', 'Choose an electorate for its candidates. Map colours show 2023 holders, not 2026 predictions.', graphic, 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', '')
+    top = night or hero(envs, built, presentation)
     if not top:
         top = '<h1>New Zealand votes on 7 November</h1>'
     return render('home', dates=voting_dates(built), hero=top, state=state, modules=modules)

@@ -293,7 +293,7 @@ def seat_module(envs, built, presentation=None):
     if 'polls' not in envs:
         status = next((r for r in envs.get('status', {}).get('data', []) if r['dataset'] == 'polls'), None)
         failed = f' The {compact_time(status["last_attempt_at"])} update failed.' if status and status.get('error_code') else ''
-        state = '<div class="state"><p>No data yet. Polls are checked hourly.' + failed + ' <a href="https://github.com/byronxlg/unattended/actions">Update details</a>.</p></div>'
+        state = '<div class="state"><p>No data yet. Polls are checked hourly.' + failed + '</p><p class="source-actions"><a href="https://github.com/byronxlg/unattended/actions">Update details</a>.</p></div>'
         return state, render('seat-module', picture=seat_topline(None) + f'<p><a href="{PREFIX}methods/">Read how seats are calculated.</a></p>', source=presentation['source'], thresholds='<p id="source-thresholds">Threshold watch not available: no published polls.</p>')
     polls, average, seats = envs['polls']['data'], envs['averages']['data'][-1], envs['seats']['data']
     status = next(s for s in envs['status']['data'] if s['dataset'] == 'polls')
@@ -303,9 +303,9 @@ def seat_module(envs, built, presentation=None):
     update = link(envs['status']['run_url'], 'Update details') if safe_url(envs['status']['run_url']) else f'<a href="{PREFIX}downloads/">Update details</a>'
     last = max(p['fieldwork_end'] for p in polls)
     if status.get('error_code'):
-        state = f'<div class="state"><p>The {compact_time(status["last_attempt_at"])} update failed; showing previous data from {compact_time(status["last_success_at"])}. {update}</p></div>'
+        state = f'<div class="state"><p>The {compact_time(status["last_attempt_at"])} update failed; showing previous data from {compact_time(status["last_success_at"])}. </p><p class="source-actions">{update}</p></div>'
     elif stale:
-        state = f'<div class="state"><p>Update overdue. Last checked {compact_time(checked)}. Showing polls to {observation_label(last)}. {update}</p></div>'
+        state = f'<div class="state"><p>Update overdue. Last checked {compact_time(checked)}. Showing polls to {observation_label(last)}. </p><p class="source-actions">{update}</p></div>'
     if presentation['result']:
         dates = [(p['fieldwork_start'], p['fieldwork_end']) for p in presentation['selected']]
         first, end = min(a for a, b in dates), max(b for a, b in dates)

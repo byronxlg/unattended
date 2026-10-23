@@ -96,8 +96,8 @@ def map_graphic(envs, selected=None, *, hexagons=False):
                 f'fill="{fill}" fill-opacity="{opacity:.2f}"'
                 + (' stroke="var(--ink)" stroke-width="3"' if selected == row['slug'] else '') + '/>')
         if hexagons:
-            x, y = c['x']*26+2, c['y']*26+2
-            rect = (f'<polygon points="{x+5},{y} {x+17},{y} {x+22},{y+11} {x+17},{y+22} {x+5},{y+22} {x},{y+11}" '
+            x, y = c['x']*26, c['y']*26
+            rect = (f'<polygon points="{x+6},{y} {x+20},{y} {x+26},{y+13} {x+20},{y+26} {x+6},{y+26} {x},{y+13}" '
                     f'fill="{fill}" fill-opacity="{opacity:.2f}"/>')
         if selected:
             marks += '<g><title>' + escape(title) + '</title>' + rect + '</g>'
@@ -105,6 +105,12 @@ def map_graphic(envs, selected=None, *, hexagons=False):
             marks += f'<a href="{PREFIX}electorates/{row["slug"]}/" aria-label="{escape(title)}"><title>{escape(title)}</title>{rect}</a>'
         records.append([escape(row['name']), escape(held['party']) if held else '', f'{held["margin"]:,}' if held else ''])
     graphic = (f'<svg class="tile-map" viewBox="0 0 {width} {height}" role="{"img" if selected else "group"}" aria-label="2023 holders on original boundaries; schematic 2025 locations" aria-describedby="source-map">{marks}</svg>')
+    if hexagons:
+        maori = [c for c in cells if c['group'] == 'maori']
+        top = min(c['y'] for c in maori)*26-42
+        graphic = ('<div class="picker-map" tabindex="0" role="region" aria-label="Electorate map; scroll horizontally for Māori electorates">'
+                   f'<div style="position:relative;width:{width}px;margin:auto">' + graphic
+                   + f'<span class="chart-label" style="position:absolute;right:2px;top:{top}px;text-align:right">Māori<br>electorates</span></div></div>')
     legend = '<div class="map-key">' + ''.join(f'<span><i style="background:{colour(p)}"></i>{escape(label(p))}</span>' for p in ['nat','lab','grn','act','tpm']) + '</div>'
     if hexagons:
         legend += '<p>Margin shading: light at 0 votes, solid at 8,800 or more.</p>'
