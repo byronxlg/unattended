@@ -1,0 +1,6 @@
+Fix-5 on PR #64 (branch change/nz-election-home-plan, head f2adca9). CI is red since 801c204:
+`product/nz_election/tests/test_design.py::test_all_token_and_party_pairings[light]` and `[night]` fail (2 failed, 2010 passed). Cause: 801c204 shortened the `:root{}` design tokens in `product/nz_election/web/styles.css` to three-digit hex (`--paper:#FFF`, `--ink:#222`, `--rule:#777` and others), and the test reads tokens with `--(\w+):(#[0-9A-Fa-f]{6})`, so paper, ink and surface drop out of the token set.
+
+Do: restore every `:root{}` token to six-digit hex (values unchanged). If that pushes a CSS byte budget over, recover the bytes elsewhere in rules you changed on this branch; do not change a budget, a threshold, or test_design.py (it is on main at the base, protected). Keep the fix-1 to fix-4 behaviour (picker targets, Methods market height, candidate-record 48 px links, full-width picker directory).
+
+Done: `uv run --with pytest pytest -q product/nz_election/tests` passes with the count stated (Chromium-dependent errors in your sandbox listed separately); `test_design.py` passes; `bin/lint` prints `lint ok`; rebuild the before, after and night review builds as in fix-4 so the host can rerun check-review.py. Commit in the worktree, do not push, do not commit last.md or artifacts/.
