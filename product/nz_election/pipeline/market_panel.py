@@ -55,12 +55,13 @@ def panel(envs, built):
         body += '<p>Not available: ' + escape(status.get('message') or 'no validated market observations') + '.</p>'
     else:
         selected = leaders(env['data'])
-        body += '<p>Leading market choices: price for Yes. Highest Yes price per event, not a forecast. Government membership contracts are independent.</p>'
+        body += '<p>Leading market choices: price for Yes, highest per event. Not a forecast; government membership contracts are independent.</p>'
         observed = min(r['observed_at'] for r in env['data'])
         stale = status.get('state') == 'stale' or overdue(status.get('last_success_at'), built, 'daily')
-        body += '<p>' + ('Update overdue or failed. ' if stale else '') + 'Observed <time datetime="' + observed + '">' + compact_time(observed) + '</time>.</p>'
+        body += '<p>' + ('Update overdue or failed. ' if stale else '') + 'Observed <time datetime="' + observed + '">' + compact_time(observed) + '</time>.'
         if overdue(observed, built, 'daily'):
-            body += '<p>Source observations are more than 36 hours old.</p>'
+            body += ' Source observations are more than 36 hours old.'
+        body += '</p>'
         for family, title in [('next-pm', 'Next prime minister'), ('government-membership', 'Government membership'), ('seat-bands', 'Seat bands')]:
             body += '<figure aria-describedby="source-markets"><table aria-describedby="source-markets"><caption>' + title + ' / Market price (Yes)</caption><tbody>'
             for event, row in selected:
