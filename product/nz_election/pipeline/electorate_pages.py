@@ -86,7 +86,7 @@ def policy_link(row):
 
 
 def previous_result(row, envs, built):
-    from .snapshot_views import load, footnote
+    from .snapshot_views import load, footnote, result, winner_name, person_name
     from .home_charts import colour
     if row['slug'] == 'port-waikato':
         votes, name, note = load('port-waikato-2023'), row['name'], footnote('port-waikato')
@@ -103,17 +103,20 @@ def previous_result(row, envs, built):
     ranked = sorted(votes, key=lambda v: -v['votes'])
     margin = ranked[0]['votes'] - ranked[1]['votes']
     total = sum(v['votes'] for v in votes)
+    held = result(row, envs)
+    display_names = [winner_name(row, held) if i == 0 and held else person_name(v['name'])
+                     for i, v in enumerate(ranked)]
     aliases = {'National Party': 'nat', 'Labour Party': 'lab', 'Green Party': 'grn',
                'ACT New Zealand': 'act', 'Te Pāti Māori': 'tpm', 'New Zealand First Party': 'nzf'}
     content = '<section class="original-results"><h2>Who won last time?</h2><p>' + escape(name) + ' (2023)'
     content += (' by-election' if row['slug'] == 'port-waikato' else '') + '</p>'
     if row['mapping_status'] != 'unchanged':
         content += '<p>2023 boundaries. These votes have not been moved or added together to fit the 2025 boundaries.</p>'
-    content += '<p class="local-margin">' + (escape(ranked[0]['name']) + f' won by <strong>{margin:,}</strong> votes.' if margin else 'Tied on votes; no sole winner.') + '</p>'
+    content += '<p class="local-margin">' + (escape(display_names[0]) + f' won by <strong>{margin:,}</strong> votes.' if margin else 'Tied on votes; no sole winner.') + '</p>'
     content += f'<figure class="result-bars" aria-describedby="{source_id}">'
-    for v in ranked:
+    for v, display_name in zip(ranked, display_names):
         share = Decimal(v['votes']) * 100 / total
-        content += ('<div class="result-bar"><p><strong>' + escape(v['name']) + '</strong> ' + escape(v['party'])
+        content += ('<div class="result-bar"><p><strong>' + escape(display_name) + '</strong> ' + escape(v['party'])
                     + f' <span>{share:.1f}% ({v["votes"]:,} votes)</span></p>'
                     + f'<div style="width:{share:.4f}%;background:{colour(v.get("party_id") or aliases.get(v["party"]))}"></div></div>')
     return content + '<figcaption>Share of valid candidate votes.</figcaption></figure>' + note + '</section>'

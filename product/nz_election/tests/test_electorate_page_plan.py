@@ -150,3 +150,51 @@ def test_methods_describe_current_detail_graphic_and_names():
     assert 'Electorate detail pages use the simplified Stats NZ 2025 boundary locators' in html
     assert 'candidate cards display the reconciled snapshot names' in html
     assert 'href="#home-boundaries-2025"' in html
+
+
+from product.nz_election.tests.test_home import populated  # noqa: F401
+
+
+def assert_readable_person_names(html):
+    import re
+    from product.nz_election.pipeline.content_checks import Tree
+    names = [n.text for n in Tree(html).nodes if n.tag == 'strong'
+             or 'local-margin' in n.attrs.get('class', '').split()]
+    assert names
+    for name in names:
+        assert not re.search(r"\b[A-ZĀĒĪŌŪ][A-ZĀĒĪŌŪ'’-]*,\s", name), 'EC_SHEET_PERSON_NAME: ' + name
+
+
+def test_no_ec_sheet_person_names_on_electorate_pages(populated):
+    _, site = populated
+    pages = list((site / 'electorates').glob('*/index.html'))
+    assert len(pages) == 71
+    for path in pages:
+        assert_readable_person_names(path.read_text())
+    wellington = (site / 'electorates/wellington-north/index.html').read_text()
+    assert 'Tamatha Paul won by' in wellington
+    assert '<strong>Tamatha Paul</strong>' in wellington
+    port = (site / 'electorates/port-waikato/index.html').read_text()
+    assert 'Andrew Bayly won by' in port
+
+
+@pytest.mark.parametrize(('source', 'expected'), [
+    ('PAUL, Tamatha-Kaye Erin', 'Tamatha-Kaye Erin Paul'),
+    ('TE WHĀNAU-SMITH, Hēmi-James', 'Hēmi-James Te Whānau-Smith'),
+    ("O’NEILL, Mary-Anne", 'Mary-Anne O’Neill'),
+    ('McDonald, Hana', 'Hana McDonald'),
+    ('McANULTY, Kieran', 'Kieran McAnulty'),
+    ('MacLEOD, David', 'David MacLeod'),
+    ('Van AMERSFOORT, Jan', 'Jan Van Amersfoort'),
+    ('de JONGE, Hēmi', 'Hēmi de Jonge'),
+    ('Hana McDonald', 'Hana McDonald'),
+])
+def test_historical_person_name_conversion(source, expected):
+    assert snapshot_views.person_name(source) == expected
+
+
+def test_shared_winner_helper_prefers_reconciled_name():
+    assert snapshot_views.winner_name(seat(), {'name': 'PAUL, Tamatha-Kaye Erin', 'party_id': 'grn'}) == 'Tamatha Paul'
+    # Matching a current candidate requires exact source evidence, never a similar name.
+    assert snapshot_views.winner_name(seat(), {'name': 'HAGUE, Matthew', 'party': 'ACT New Zealand', 'party_id': 'act'}) == 'Matthew Hague'
+    assert snapshot_views.winner_name(seat(), {'name': 'HAGUE, Another', 'party': 'ACT New Zealand', 'party_id': 'act'}) == 'Another Hague'

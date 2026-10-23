@@ -1,6 +1,7 @@
 """Presentation of reviewed snapshots, with attribution kept reachable in Methods."""
 from html import escape
 from functools import cache
+import re
 from . import snapshots
 from .build import PREFIX, config, table, link, label
 from .home_charts import colour, fallback
@@ -38,16 +39,46 @@ def result(row, envs):
                 margin=winner['votes']-ranked[1]['votes'])
 
 
+def person_name(name):
+    """Present EC sheet names without changing punctuation or mixed-case spelling."""
+    surname, comma, given = name.partition(',')
+    def case(part):
+        def word(match):
+            value = match[0]
+            if value.isupper():
+                return value.title()
+            for prefix in ('Mc', 'Mac'):
+                if value.startswith(prefix) and value[len(prefix):].isupper():
+                    return prefix + value[len(prefix):].title()
+            return value
+        return re.sub(r"[^\W\d_]+", word, part)
+    if comma:
+        return case(given.strip()) + ' ' + case(surname.strip())
+    return case(name.strip())
+
+
 def winner_name(row, held):
     # Use the explicit incumbent flag and seat/party IDs, never fuzzy name joins.
     incumbents = [c for c in load('candidates-2026')
                   if c['electorate_slug'] == row['slug']
                   and c.get('party_id') == held['party_id']
                   and c.get('sitting_electorate_mp')]
+    reconciliation = next((r for r in load('candidate-reconciliation-2026')
+                           if r['electorate_slug'] == row['slug']), {})
+    candidates = reconciliation.get('matched', []) + reconciliation.get('added_by_ec', [])
     if len(incumbents) == 1:
-        return incumbents[0]['name']
-    surname, comma, given = held['name'].partition(',')
-    return (given.strip() + ' ' + surname.strip()).title() if comma else surname.title()
+        incumbent = incumbents[0]
+        matched = [c for c in candidates if c['snapshot_party'] == incumbent['party']
+                   and incumbent['name'] in (c['snapshot_name'], c['ec_name'])]
+        if len(matched) == 1:
+            return matched[0]['snapshot_name']
+        return person_name(incumbent['name'])
+    # Exact released record matches cover returning candidates without an incumbent flag.
+    matched = [c for c in candidates if c['ec_name'] == held['name']
+               and c['party'] == held.get('party')]
+    if len(matched) == 1:
+        return matched[0]['snapshot_name']
+    return person_name(held['name'])
 
 
 def footnote(name, date='19 October 2026'):
