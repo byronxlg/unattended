@@ -443,13 +443,19 @@ def load_party_details(name):
     for row in rows:
         _require(isinstance(row, dict), 'Invalid party record')
         p = row.get('party_id')
-        _require(isinstance(p, str) and p in parties and p not in seen, 'Invalid party identity')
-        seen.add(p)
+        electorate = row.get('electorate_slug') if name == 'policy-links' else None
+        if name == 'policy-links' and 'electorate_slug' in row:
+            _require(isinstance(electorate, str) and electorate in {r['slug'] for r in config('electorates')}
+                     and 'party_id' not in row and electorate not in seen, 'Invalid electorate identity')
+            seen.add(electorate)
+        else:
+            _require(isinstance(p, str) and p in parties and p not in seen, 'Invalid party identity')
+            seen.add(p)
         _require(_url(row.get('source_url')), 'Invalid party source')
         source = urlsplit(row['source_url'])
         _timestamp(row.get('retrieved_at'))
         if name == 'policy-links':
-            _require(set(row) <= {'party_id', 'url', 'source_url', 'licence',
+            _require(set(row) <= {'party_id', 'electorate_slug', 'url', 'source_url', 'licence',
                                   'source_locator', 'retrieved_at'}, 'Policy records must be links only')
             _require(source.scheme == 'https' and source.netloc == 'policy.nz',
                      'Invalid policy source')
@@ -459,7 +465,8 @@ def load_party_details(name):
             if 'source_locator' in row:
                 _require(_text(row['source_locator']), 'Invalid policy source locator')
             _require(isinstance(row.get('url'), str) and re.fullmatch(
-                r'https://policy\.nz/2026/party-vote/parties/[a-z0-9]+(?:-[a-z0-9]+)*',
+                (r'https://policy\.nz/2026/electorate-vote/' + re.escape(electorate) if electorate else
+                 r'https://policy\.nz/2026/party-vote/parties/[a-z0-9]+(?:-[a-z0-9]+)*'),
                 row['url']) is not None, 'Invalid policy URL')
         else:
             _require(source.scheme == 'https'
