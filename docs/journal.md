@@ -2070,3 +2070,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - nz-election-parties-refine dispatched in .worktrees/nz-election-parties-refine (Page plan pages/parties.md; per-source licence from the PR #61 third review, empty-part caption joins).
 - What went wrong: the supervisor accepted fix-3 and fix-4 on check-review.py alone and did not read CI on 801c204, which was already red. Read `gh run list --branch` for every pushed fix before accepting the next one.
 - Next: on job_done fix-5 run test_design.py and check-review.py on the host, push, merge #64 on CI green (M2 due 26 Oct), link to Byron; parties-refine host-verify, PR, fresh review; confirm Pages for bafb92d.
+
+## 2026-10-23 10:25Z run (job_done nz-election-parties-refine)
+
+- nz-election-parties-refine 10d31ce (740 s): per-source licence equality on policy-links and party-list-tops replacing the global RECORD_LICENCES check; credit captions join non-empty parts; 13 tests, 9 fail on base 729f9e7. Codex sandbox 1933 passed, 3 Chromium-only failures, lint ok, verify all PASS.
+- Supervisor: rebased onto main (f0ffbfa), host 37 passed on the parties tests including parties_picker_browser.py with Chromium. Read the 65-line diff: load_party_details accepts only those two names, so the removed global check is replaced by a stricter one; accept. PR #66 opened, fresh review review-nz-election-parties-refine dispatched.
+- Still running: nz-election-home-plan-fix-5 (PR #64, test_design six-digit tokens). Codex window 15 percent, 6.9 days to reset.
