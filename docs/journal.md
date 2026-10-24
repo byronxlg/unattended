@@ -2471,3 +2471,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
   Pushed, supervisor accept logged, second fresh review review-nz-election-night-deployed-2 dispatched.
 - Next: on job_done merge #76 and #77 if accept and CI green; then the phase 5 items left from the m3 gap research;
   first run after 01:00Z 27 Oct: capture the EC advance file.
+
+## 2026-10-24 21:48Z run (job_done review-nz-election-harden-2, review-nz-election-night-deployed-2)
+
+- PR #77 harden second fresh review: request changes, one Important (check_workflow_history.py:53, hourly successes 03:00 to 21:00 NZ on three days pass though overnight gaps are six hours; midnight splits the gap). Supervisor error: the fix-1 brief's policy said "from the day start and to the day end". Logged in state/mistakes.jsonl. fix-2 dispatched on the build thread (gaps across midnight, regression failing on a67a6fa).
+- PR #76 night-deployed second fresh review: request changes, one Important (night_deployed.py:243 night-data-transport passes with zero responses in any phase; page errors do not fail probe mode). Accepted with an adjustment: zero requests before polls close is correct, so the check is made phase-aware (before close: countdown state, no page errors; from close: one validated response required); page errors fail every mode. fix-2 dispatched on the build thread.
+- Both logged on the PRs. CI pending on both heads. Codex window 28 percent, 6.4 days to reset.
+- Next run on job_done: host-verify each (test_harden.py; test_night_deployed.py with host Chromium), push, third fresh review, merge on CI green.
