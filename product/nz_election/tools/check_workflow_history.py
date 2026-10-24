@@ -9,8 +9,10 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[3]
 POLICY = (
-    'Hourly: gaps between successful runs, including day boundaries, must be at most 3 hours; '
-    'every failure must be followed by a success within 2 hours, including across midnight. '
+    'Hourly: gaps between consecutive successful runs are measured across midnight and must be at most 3 hours. '
+    'Use the last success before each day and first success after it within the window; '
+    'use window start/end only when no such success exists. '
+    'Every failure must be followed by a success within 2 hours, including across midnight. '
     'Daily: the last run of the day must conclude success; a successful rerun reports recovery. '
     'Counts are reported, not required. Times and ordering use run creation timestamps.'
 )
@@ -40,7 +42,7 @@ def hourly_workflow(root, filename):
     return any(len(cron.split()) == 5 and cron.split()[1] == '*' for cron in crons)
 
 
-def day_result(runs, start, end, hourly, later_successes=()):
+def day_result(runs, start, end, hourly, later_successes=(), *, gap_start=None, gap_end=None):
     runs = sorted(runs, key=lambda r: r[0])
     successes = [stamp for stamp, run in runs
                  if run['status'] == 'completed' and run['conclusion'] == 'success']
@@ -50,7 +52,8 @@ def day_result(runs, start, end, hourly, later_successes=()):
                         for success in [*successes, *later_successes]) for stamp in failures)
     reasons = []
     if hourly:
-        boundaries = [start, *successes, end]
+        boundaries = [gap_start if gap_start is not None else start, *successes,
+                      gap_end if gap_end is not None else end]
         gap = max(b - a for a, b in zip(boundaries, boundaries[1:]))
         if gap > timedelta(hours=3):
             reasons.append(f'success gap {gap.total_seconds() / 3600:g} hours exceeds 3 hours')
@@ -72,6 +75,7 @@ def check_history(days, *, runner=subprocess.run, now=None, root=ROOT):
     ok = True
     for filename, name in scheduled_workflows(root):
         hourly = hourly_workflow(root, filename)
+        daily_runs = []
         for day in dates:
             start = datetime.combine(day, time.min, NZ).astimezone(timezone.utc)
             end = datetime.combine(day + timedelta(days=1), time.min, NZ).astimezone(timezone.utc)
@@ -97,8 +101,19 @@ def check_history(days, *, runner=subprocess.run, now=None, root=ROOT):
                         selected.append((stamp, run))
                     elif hourly and end <= stamp <= query_end and run['status'] == 'completed' and run['conclusion'] == 'success':
                         later_successes.append(stamp)
+            daily_runs.append((day, start, end, selected, later_successes))
+        # Collect the whole window before reporting so midnight cannot split a real gap.
+        window_successes = sorted(stamp for _, _, _, selected, _ in daily_runs
+                                  for stamp, run in selected
+                                  if run['status'] == 'completed' and run['conclusion'] == 'success')
+        for day, start, end, selected, later_successes in daily_runs:
+            gap_start = max((stamp for stamp in window_successes if stamp < start),
+                            default=daily_runs[0][1])
+            gap_end = min((stamp for stamp in window_successes if stamp >= end),
+                          default=daily_runs[-1][2])
             successes, failures, recovered, reasons = day_result(
-                selected, start, end, hourly, later_successes)
+                selected, start, end, hourly, later_successes,
+                gap_start=gap_start, gap_end=gap_end)
             cron = any(r['event'] == 'schedule' for _, r in selected)
             note = '' if cron else ('; cron did not fire, workflow_dispatch covered it' if successes else '; cron did not fire')
             counts = f'{len(selected)} runs, {successes} successes, {failures} failures, {recovered} recovered'

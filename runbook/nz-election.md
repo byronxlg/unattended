@@ -78,11 +78,16 @@ workflow discovered in `.github/workflows/`. It covers the last three complete
 Pacific/Auckland calendar days, excluding today. It reports run, success, failure
 and recovery counts plus the reason for every failed workflow/day.
 
-- Hourly workflow: gaps between consecutive successful runs, including from day
-  start and to day end, must never exceed 3 hours. Every failure must be followed
-  by a success within 2 hours, including across midnight. The query includes a
-  2-hour lookahead for recovery; those later runs do not count toward this day's
-  run totals or successful-run gaps. Run counts are reported, not required,
+- Hourly workflow: gaps between consecutive successful runs are measured across
+  midnight and must never exceed 3 hours. Each day's boundaries are the last
+  success before it and the first success after it within the checked window.
+  When no such success exists, use the window start or end respectively. Only
+  the first day with no earlier data may use its own start; the last day uses
+  its end. For example, 21:00 followed by 03:00 is a six-hour gap, not two
+  three-hour gaps. Every failure must be followed by a success within 2 hours, including across midnight. The query includes a
+  2-hour lookahead for recovery; runs beyond the checked window do not extend
+  the gap boundaries. Runs outside a day never count toward that day's totals.
+  Run counts are reported, not required,
   because GitHub can drop scheduled runs. Schedules with `*` in the cron hour field
   use this policy.
 - Daily workflows: the last run of the day must have concluded success. A failure

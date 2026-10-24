@@ -269,8 +269,9 @@ def test_history_help_states_policy(capsys):
     with pytest.raises(SystemExit) as exc:
         history.main(['--help'])
     assert exc.value.code == 0
-    out = capsys.readouterr().out
-    for phrase in ('3 hours', '2 hours', 'last run', 'creation timestamps'):
+    out = ' '.join(capsys.readouterr().out.split())
+    for phrase in ('3 hours', '2 hours', 'last run', 'creation timestamps',
+                   'gaps between consecutive successful runs are measured across midnight'):
         assert phrase in out
 
 
@@ -295,3 +296,37 @@ def test_hourly_next_day_success_does_not_fill_day_gap(workflows, capsys):
     assert history.main(['--days', '1'], runner=lambda *a, **k: result(json.dumps(runs)), now=NOW,
                         root=hourly_root(workflows)) == 1
     assert 'success gap 6 hours exceeds 3 hours' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('hours,passes', [
+    ([3, 6, 9, 12, 15, 18, 21], False),
+    ([0, 3, 6, 9, 12, 15, 18, 21], True),
+])
+def test_fix_round2_three_day_midnight_gaps(workflows, capsys, hours, passes):
+    start = datetime(2026, 10, 21, 11, tzinfo=timezone.utc)
+    records = [run_record((start + timedelta(days=day, hours=hour)).isoformat())
+               for day in range(3) for hour in hours]
+
+    def runner(cmd, **kwargs):
+        lower, upper = cmd[cmd.index('--created') + 1].split('..')
+        return result(json.dumps([run for run in reversed(records)
+                                  if datetime.fromisoformat(lower) <= datetime.fromisoformat(run['createdAt'])
+                                  <= datetime.fromisoformat(upper)]))
+
+    assert history.main(['--days', '3'], runner=runner, now=NOW, root=hourly_root(workflows)) == int(not passes)
+    out = capsys.readouterr().out
+    lines = [line for line in out.splitlines() if 'Example hourly' in line]
+    assert len(lines) == 3
+    assert all(f'{len(hours)} runs, {len(hours)} successes, 0 failures' in line for line in lines)
+    if not passes:
+        assert all(line.startswith('FAIL') and 'success gap 6 hours exceeds 3 hours' in line for line in lines)
+
+
+def test_hourly_gap_crosses_empty_day(workflows, capsys):
+    start = datetime(2026, 10, 21, 11, tzinfo=timezone.utc)
+    records = [run_record((start + timedelta(days=day, hours=hour)).isoformat())
+               for day in (0, 2) for hour in range(0, 24, 3)]
+    assert history.main(['--days', '3'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=NOW, root=hourly_root(workflows)) == 1
+    out = capsys.readouterr().out
+    assert out.count('success gap 27 hours exceeds 3 hours') == 3
