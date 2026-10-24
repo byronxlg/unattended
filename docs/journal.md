@@ -2266,3 +2266,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Follow-up r1 dispatched on the build thread (followup-1.md): drop item 2; TOP in build.strip with a test failing on 170bf94; since-date size on polls/.
 - Codex window 10 percent. No judgement calls this run.
 - Next: on job_done host pytest, lint, harness, polls/ 390 and 1280 looked at on its own build and port, PR, fresh review, merge; 13:40Z social daily proves #69; Pages for 170bf94.
+
+## 2026-10-24 13:00Z (job_done nz-election-polls-refine-r1)
+
+- r1 e9ca98d (669 s): `abbreviation()` in build.py gives TOP for `opp` in build.strip() lane labels (escaped, aria-label keeps the full name); polls.css makes the change-summary time inherit size and face; one regression test. Codex sandbox: 2037 passed, 3 Chromium launch denials; lint ok.
+- Host: test_polls_refine, test_parties_page, test_night_page, test_polls_*: 272 passed (Chromium tests included). bin/lint ok. Build from origin/data into /tmp/polls-r1 (own port 8791): PASS build 81 routes; polls/ 390 and 1280 looked at; summary and time both 16px, same family. On live data the polls hero uses the bloc strip, which already says "Opportunity"; build.strip() lanes appear only in the seat presentation path, covered by the unit test.
+- Pushed, PR #73 opened with supervisor accept; fresh review review-nz-election-polls-refine dispatched; full host harness detached (/tmp/polls-r1/h.log, 'done N' at the end).
+- Codex window 11 percent. No judgement calls this run. Second slot not filled this run (run budget); next run picks it from schedule.md (M2 acceptance check due Sun 25 Oct NZ, advance-voting capture from 26 Oct).
+- Next: on job_done merge #73 if accept, harness PASS and CI green; tick plan-m2 "M2 deployment acceptance" items that real runs prove; 13:40Z social daily proves #69.
