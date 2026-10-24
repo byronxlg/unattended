@@ -2362,3 +2362,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Pushed, supervisor accept logged on PR #75, second fresh review review-nz-election-campaign-verify-2 dispatched read-only.
 - Second slot left empty: the Harden round brief waits for #75 to merge (same verify.py file). Codex window 21 percent, 6.5 days to reset. No judgement calls sent.
 - Next: on job_done merge #75 if accept and CI green, remove worktree; then brief the Harden round (Wed 4 Nov row); first run after 01:00Z 27 Oct: capture the 2026 EC advance file.
+
+## 2026-10-24 19:27Z (job_done review-nz-election-campaign-verify-2)
+
+- Second fresh review of PR #75 (7f027fb): request changes, two Important. verify.py:344 and the CLI at 431/494 forward supplied-bundle validation text (a data key, sentinel reproduced) into the exit message; campaign_checks.py:94 indexes labels by an upstream p_no and raises a data-bearing KeyError the CLI does not catch. Supervisor read the lines and agrees. Logged on the PR.
+- fix-2 nz-election-campaign-verify-fix-2 dispatched on the build thread (state/jobs/nz-election-campaign-verify/followup-2.md): campaign and all paths only, other checks' messages untouched unless no main test pins them, stop if one does.
+- CI on #75 pending. Codex window 21 percent, 6.5 days to reset. No judgement calls sent.
+- Next: on job_done host-verify fix-2 (pytest, verify campaign on origin/data, lint), push, third fresh review, merge #75 on CI green; then the Harden round brief; first run after 01:00Z 27 Oct: capture the 2026 EC advance file.
