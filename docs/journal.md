@@ -2318,3 +2318,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Pages: Publish the blog success on 31b71cb and 7b2a780; CI success on both.
 - Codex window 15 percent, 6.6 days to reset. No judgement calls sent.
 - Next: on job_done merge #74 if accept and CI green, remove the worktree; M2 acceptance check (due 26 Oct NZ).
+
+## 2026-10-24 18:05Z (job_done review-nz-election-explorer-retire)
+
+- Fresh review of PR #74 (explorer retire, ff4aaab): accept, no findings; read-only probes PASS, full pytest unavailable in its sandbox (host 2027 passed recorded 17:31Z). Logged on the PR. CI run 40117753268 still in progress at 18:00Z; not merged this run.
+- M2 deployment acceptance ticked in plan-m2.md (schedule row Sun 25 Oct): daily success 20 to 23 Oct (39484613874, 39663178648, 39840576223, 40012162765), hourly success after daily (40110212811), Pages success 40117790231, seven routes 200 live, live home at 390 and 1280 screenshotted on the host and looked at (Government 67, Opposition 58, 67 needed of 132; nit: "Change since 2026-10-24" ISO beside "24 Oct 2026" prose, to the next home round). The enrol line already switches to "Enrolment closed on" after 25 Oct (home.py:157).
+- Dispatched research-nz-election-advance-source (read-only): the 2026 EC advance-voting statistics URL, fetchability from a non-browser client, format against advance.py, fetch vs hand capture. First figures expected 27 Oct NZ; advance.py ingests committed captures only.
+- Codex window 16 percent, 6.5 days to reset. No judgement calls sent.
+- Next: merge #74 on CI green, remove the worktree; read the research and either capture the first 2026 advance file by hand or brief a daily fetch; schedule row Fri 30 Oct (archive replays 2017/2020/2023 on /night/, verify.py night and waterfall PASS on the deployed data).
