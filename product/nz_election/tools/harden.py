@@ -34,12 +34,19 @@ def verification_error(output, families):
     return None
 
 
+def result_error(output):
+    for line in output.splitlines():
+        if re.match(r'^\s*(?:SKIP|FAIL)\b', line):
+            return 'reported ' + line.strip()
+    return None
+
+
 def main(argv=None, *, runner=subprocess.run, root=ROOT):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data', required=True, type=Path)
     parser.add_argument('--site', required=True, type=Path)
     parser.add_argument('--offline', action='store_true')
-    parser.add_argument('--history', action='store_true')
+    parser.add_argument('--history', action='store_true', help='required for PASS; otherwise a clean run is PARTIAL (exit 1)')
     args = parser.parse_args(argv)
     first = None
 
@@ -54,7 +61,7 @@ def main(argv=None, *, runner=subprocess.run, root=ROOT):
             result = runner(command, cwd=root, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             output = result.stdout or ''
             print(output, end='' if output.endswith('\n') else '\n', flush=True)
-            error = f'exit {result.returncode}' if result.returncode else validate(output) if validate else None
+            error = f'exit {result.returncode}' if result.returncode else result_error(output) or (validate(output) if validate else None)
             if error:
                 fail(step, error)
             else:
@@ -62,7 +69,11 @@ def main(argv=None, *, runner=subprocess.run, root=ROOT):
         except (OSError, ValueError) as exc:
             fail(step, str(exc))
 
-    evals = sorted((root / 'evals').glob('*/check.sh'))
+    directories = sorted(p for p in (root / 'evals').glob('*') if p.is_dir())
+    for directory in directories:
+        if not (directory / 'check.sh').is_file():
+            fail('eval ' + directory.name, 'missing check.sh')
+    evals = [p / 'check.sh' for p in directories if (p / 'check.sh').is_file()]
     if not evals:
         fail('eval discovery', 'no check.sh files')
     for check in evals:
@@ -89,8 +100,9 @@ def main(argv=None, *, runner=subprocess.run, root=ROOT):
             first = first or 'workflow history (SKIP)'
         else:
             run('workflow history', ['uv', 'run', str(root / 'product/nz_election/tools/check_workflow_history.py'), '--days', '3'])
-    print('FAIL harden: ' + first if first else 'PASS harden', flush=True)
-    return int(first is not None)
+    outcome = 'PASS harden' if args.history else 'PARTIAL harden (history not checked)'
+    print('FAIL harden: ' + first if first else outcome, flush=True)
+    return int(first is not None or not args.history)
 
 
 if __name__ == '__main__':

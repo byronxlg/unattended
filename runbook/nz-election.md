@@ -58,24 +58,43 @@ bin/nz-election-harden --data <bundle> --site <site> --history
 uv run product/nz_election/tools/check_workflow_history.py --days 3
 ```
 
-The gate discovers every `evals/*/check.sh`, then runs `verify.py all`, requiring
+Every directory under `evals/` must contain `check.sh`; a missing script fails
+with the eval name. The gate discovers and runs these scripts, then runs `verify.py all`, requiring
 one explicit PASS for every registered family, including night, waterfall and
 campaign, before the final `PASS all`. A polls-only bundle cannot satisfy Harden.
 It then runs the social, social fix-round and night-operation freeze tests.
 Checks continue after failures; the last line is `PASS harden` or
 `FAIL harden: <first failing step>`, with exit status 0 or 1 respectively.
+A SKIP or FAIL result line fails its step even when the process exits zero.
 Read earlier output for all failures, including missing family lines.
 
-History is opt-in with `--history`; omit it for local tests. For a full milestone
-record use it, or attach the standalone history result. The history command
-uses authenticated `gh run list` on main for every scheduled workflow discovered
-in `.github/workflows/`. It covers the last three complete Pacific/Auckland
-calendar days, excluding today, and reports successes and failures per workflow
-and day. Cancelled, skipped and other completed non-success runs count as failures;
-pending runs are not successes. At least one scheduled or manually dispatched
-success per day is required. Failures remain visible even when a retry passes.
-A day without a cron run that is covered by `workflow_dispatch` is explicitly
-flagged for investigation. Missing days, API errors and truncated history fail.
+History is enabled with `--history` and is required for milestone PASS. Without
+it, an otherwise clean run prints `PARTIAL harden (history not checked)` and exits
+1. Failures still print `FAIL harden`. A standalone history result does not change
+a PARTIAL gate result; run the gate with `--history` for the milestone record.
+
+The history command uses authenticated `gh run list` on main for every scheduled
+workflow discovered in `.github/workflows/`. It covers the last three complete
+Pacific/Auckland calendar days, excluding today. It reports run, success, failure
+and recovery counts plus the reason for every failed workflow/day.
+
+- Hourly workflow: gaps between consecutive successful runs, including from day
+  start and to day end, must never exceed 3 hours. Every failure must be followed
+  by a success within 2 hours, including across midnight. The query includes a
+  2-hour lookahead for recovery; those later runs do not count toward this day's
+  run totals or successful-run gaps. Run counts are reported, not required,
+  because GitHub can drop scheduled runs. Schedules with `*` in the cron hour field
+  use this policy.
+- Daily workflows: the last run of the day must have concluded success. A failure
+  followed by a successful rerun that day is reported as a recovery. An earlier
+  success cannot hide a later failed or pending run.
+
+Day membership, run order and gaps use GitHub `createdAt` timestamps, measured in
+elapsed time across NZ daylight-saving transitions. Cancelled, skipped and other
+completed non-success runs count as failures; pending runs are not successes.
+Scheduled and manually dispatched runs both count. A day without a cron run that
+has a `workflow_dispatch` success is flagged for investigation; the same daily or
+hourly policy still applies. Missing days, API errors and truncated history fail.
 
 `--offline` skips the remote-data eval `pages-home-bytes-live` with a reason;
 if combined with `--history`, history is also skipped. Every SKIP prevents an
