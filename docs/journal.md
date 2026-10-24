@@ -2209,3 +2209,12 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Second slot: coalitions_browser.py still fails on main 8a8d484 (check_unassigned_after_unavailable_allocation, fieldset stays hidden, timeout), reproduced on the host; nz-election-coalitions-fix-1 dispatched in .worktrees/nz-election-coalitions-fix (fix product or drifted fixture, no assertion loosened).
 - Window 4 percent at 07:29Z.
 - Next: on review job_done, fix-1 for PR #71 on the build thread with both lists plus the review's; harness result on the PR; coalitions fix host-verify; M2 v1 due 26 Oct; 13:40Z social daily proves #69.
+
+## 2026-10-24 08:00Z (job_done review-nz-election-polls-page)
+
+- PR #71 fresh review: request changes. Important: question 2 fails at 390x844 (only National's change readable above the fold; screenshots.py:323 checks only the trend's top); trend label connectors read as falling series (home_charts.py:133). Nit: double period after 'Wikipedia contributors.'. Logged on the PR.
+- Host harness on 280b2c2 stopped at NO_JS_CONTENT_MISMATCH (screenshots.py:592, route not printed).
+- nz-election-polls-page-fix-1 dispatched on the build thread with all three lists (followup-1.md): connectors separated from data with a failing-on-280b2c2 check, footnote period, change summary above the 390 fold with a check, NO_JS assertion names its route and the page fixed, not the assertion.
+- nz-election-coalitions-fix-1 78a9b94 (654 s): fixture routed data beside polls/, client fetches beside its module; 'Seats are unavailable' live text restored. Host: coalitions_browser.py PASS coalition browser. PR #72 opened with supervisor accept. First fresh review dispatched with a bare REVIEW.md prompt (supervisor error), killed; review-nz-election-coalitions-fix-2 dispatched with a proper brief, including whether the live string trips the absent-text rule.
+- Window 4 percent.
+- Next: on job_done, merge #72 if accept and CI green; host-verify polls fix-1 (browser tests, harness rerun on an origin/data build, 390 question test), second fresh review, merge #71 before M2 26 Oct, link to Byron; 13:40Z social daily proves #69.
