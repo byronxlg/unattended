@@ -48,3 +48,62 @@ The complete list remains a download only; no full-list route is published. Amou
 optional disclosure, with one rules link per event. The screenshot gate requires a maximum
 844 px module height at width 390 and rejects unpriced/placeholder contracts on every page.
 The existing M1/social recovery guide is `product/nz_election/runbook.md`.
+
+## Harden gate
+
+Run from the checkout root with the bundle and rendered site being accepted:
+
+```sh
+bin/nz-election-harden --data <bundle> --site <site> --history
+uv run product/nz_election/tools/check_workflow_history.py --days 3
+```
+
+Every directory under `evals/` must contain `check.sh`; a missing script fails
+with the eval name. The gate discovers and runs these scripts, then runs `verify.py all`, requiring
+one explicit PASS for every registered family, including night, waterfall and
+campaign, before the final `PASS all`. A polls-only bundle cannot satisfy Harden.
+It then runs the social, social fix-round and night-operation freeze tests.
+Checks continue after failures; the last line is `PASS harden` or
+`FAIL harden: <first failing step>`, with exit status 0 or 1 respectively.
+A SKIP or FAIL result line fails its step even when the process exits zero.
+Read earlier output for all failures, including missing family lines.
+
+History is enabled with `--history` and is required for milestone PASS. Without
+it, an otherwise clean run prints `PARTIAL harden (history not checked)` and exits
+1. Failures still print `FAIL harden`. A standalone history result does not change
+a PARTIAL gate result; run the gate with `--history` for the milestone record.
+
+The history command uses authenticated `gh run list` on main for every scheduled
+workflow discovered in `.github/workflows/`. It covers the last three complete
+Pacific/Auckland calendar days, excluding today. It reports run, success, failure
+and recovery counts plus the reason for every failed workflow/day.
+
+- Hourly workflow: gaps between consecutive successful runs are measured across
+  midnight and must never exceed 3 hours. Each day's boundaries are the last
+  success before it and the first success after it within the checked window.
+  When no such success exists, use the window start or end respectively. Only
+  the first day with no earlier data may use its own start; the last day uses
+  its end. For example, 21:00 followed by 03:00 is a six-hour gap, not two
+  three-hour gaps. Every failure must be followed by a success within 2 hours, including across midnight. The query includes a
+  2-hour lookahead for recovery; runs beyond the checked window do not extend
+  the gap boundaries. Runs outside a day never count toward that day's totals.
+  Run counts are reported, not required,
+  because GitHub can drop scheduled runs. Schedules with `*` in the cron hour field
+  use this policy.
+- Daily workflows: the last run of the day must have concluded success. A failure
+  followed by a successful rerun that day is reported as a recovery. An earlier
+  success cannot hide a later failed or pending run.
+
+Day membership, run order and gaps use GitHub `createdAt` timestamps, measured in
+elapsed time across NZ daylight-saving transitions. Cancelled, skipped and other
+completed non-success runs count as failures; pending runs are not successes.
+Scheduled and manually dispatched runs both count. A day without a cron run that
+has a `workflow_dispatch` success is flagged for investigation; the same daily or
+hourly policy still applies. Missing days, API errors and truncated history fail.
+
+`--offline` skips the remote-data eval `pages-home-bytes-live` with a reason;
+if combined with `--history`, history is also skipped. Every SKIP prevents an
+overall PASS. Newly added evals run by default; register any new network eval in
+`tools/harden.py` before using it offline. Save the date, code SHA, bundle/site
+identity, full command output and last line in the daily acceptance record.
+Offline fixture results demonstrate the checks, not live milestone acceptance.
