@@ -6,6 +6,7 @@ Neither family is currently exported in the daily data bundle.
 """
 from collections import Counter
 from datetime import date
+from functools import wraps
 import gzip
 import json
 import re
@@ -26,14 +27,48 @@ COVERAGE = 'CAMPAIGN_COVERAGE'
 PROVENANCE = 'CAMPAIGN_PROVENANCE'
 ABSENT = 'CAMPAIGN_ABSENT'
 ADVANCE = 'CAMPAIGN_ADVANCE'
+DATA = 'CAMPAIGN_DATA'
+CODES = frozenset({DONATION_ROWS, DONATION_DATES, DONATION_INDEX, NO_TOTAL_FUNDING,
+                   FINAL_POLL, OFFICIAL_ERRORS, COVERAGE, PROVENANCE, ABSENT, ADVANCE, DATA})
+INPUT_ERRORS = (ValueError, TypeError, LookupError, AttributeError, ArithmeticError,
+                OSError, StopIteration)
+
+
+class CampaignError(ValueError):
+    """A typed boundary prevents upstream strings impersonating owned codes."""
+
+    def __init__(self, code):
+        self.code = code if code in CODES else DATA
+        super().__init__(self.code)
+
+
+def guard(code):
+    def decorate(check):
+        @wraps(check)
+        def checked(*args, **kwargs):
+            try:
+                return check(*args, **kwargs)
+            except CampaignError:
+                raise
+            except INPUT_ERRORS:
+                raise CampaignError(code) from None
+        return checked
+    return decorate
+
+
+@guard(DATA)
+def validate_bundle(directory):
+    from . import export
+    return export.validate_bundle(directory)
 
 
 def require(condition, invariant):
     """Only owned invariant codes cross the campaign reporting boundary."""
     if not condition:
-        raise ValueError(invariant)
+        raise CampaignError(invariant)
 
 
+@guard(NO_TOTAL_FUNDING)
 def no_total_funding(value):
     """Allow the funding disclaimer, never a derived funding field or claim."""
     if isinstance(value, dict):
@@ -56,7 +91,7 @@ def checked_load(loader, path, fallback, codes):
         return loader(path)
     except (ValueError, TypeError, KeyError, AttributeError, OverflowError) as error:
         code = str(error).split(':')[0]
-        raise ValueError(codes.get(code, fallback)) from None
+        raise CampaignError(codes.get(code, fallback)) from None
 
 
 # Exact EC short names in the archived 2020/2023 party reference files.
@@ -76,6 +111,7 @@ EC_PARTIES = {
 }
 
 
+@guard(OFFICIAL_ERRORS)
 def check_official(data):
     from .fixtures import captures
     from .xml_parser import document
@@ -98,6 +134,7 @@ def check_official(data):
                 OFFICIAL_ERRORS)
 
 
+@guard(FINAL_POLL)
 def check_candidate_sources(data, directory):
     from .poll_parser import tables, split_markup, cell, clean, MONTHS
     observed = Counter()
@@ -134,6 +171,7 @@ def check_candidate_sources(data, directory):
             require(row['fieldwork_end'] == end, FINAL_POLL)
 
 
+@guard(DATA)
 def check_snapshots(directory=None):
     directory = snapshots.SNAPSHOTS if directory is None else directory
     donation_path = directory / 'donations.json'
@@ -164,7 +202,7 @@ def check_snapshots(directory=None):
     try:
         check_candidate_sources(poll_data, directory)
     except (ValueError, KeyError, TypeError, IndexError, StopIteration):
-        raise ValueError(FINAL_POLL) from None
+        raise CampaignError(FINAL_POLL) from None
     return rows, records
 
 
@@ -175,11 +213,12 @@ def descendants(node):
             yield from descendants(child)
 
 
+@guard(ABSENT)
 def check_markup(html, rows, year='2026'):
     try:
         check_absent_text(html, 'campaign parties')
     except ValueError:
-        raise ValueError(ABSENT) from None
+        raise CampaignError(ABSENT) from None
     tree = Tree(html)
     no_total_funding(tree.root.text)
     notes = {n.attrs.get('id'): n for n in tree.nodes

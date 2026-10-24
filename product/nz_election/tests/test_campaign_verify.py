@@ -304,3 +304,87 @@ def test_campaign_failure_redacts_delegated_exception(tmp_path, monkeypatch, tar
         raise ValueError(MARKER)
     monkeypatch.setattr(verify if target == 'verify_advance' else parties_page, target, broken)
     assert_safe_failure(code, lambda: verify.verify_campaign({}, tmp_path))
+
+
+@pytest.fixture
+def sentinel_bundle(tmp_path):
+    data = tmp_path / 'supplied'
+    verify.refresh(data, now='2026-10-17T01:00:00Z')
+    path = data / 'status.json'
+    env = json.loads(path.read_text())
+    env['data'] = {MARKER: {'observed_at': 'not-a-timestamp'}}
+    path.write_text(json.dumps(env))
+    return data
+
+
+def test_supplied_bundle_key_redacted_by_campaign(sentinel_bundle, tmp_path):
+    assert_safe_failure('CAMPAIGN_DATA', lambda: verify.verify_campaign(
+        {}, tmp_path, data=sentinel_bundle))
+
+
+@pytest.mark.parametrize('check', ['campaign', 'all'])
+def test_supplied_bundle_key_redacted_by_cli(sentinel_bundle, check):
+    result = subprocess.run([sys.executable, str(Path(verify.__file__)), check,
+                             '--data', str(sentinel_bundle)], capture_output=True, text=True)
+    assert result.returncode == 1
+    assert MARKER not in result.stdout + result.stderr
+    assert result.stderr == f'FAIL {check}: CAMPAIGN_DATA\n'
+    assert 'Traceback' not in result.stderr
+
+
+def test_other_single_check_keeps_bundle_error(sentinel_bundle):
+    result = subprocess.run([sys.executable, str(Path(verify.__file__)), 'polls',
+                             '--data', str(sentinel_bundle)], capture_output=True, text=True)
+    assert result.returncode == 1
+    assert result.stderr == f'FAIL polls: INVALID_TIMESTAMP: envelope.data.{MARKER}.observed_at\n'
+
+
+def test_unknown_official_party_number_is_owned_failure(monkeypatch):
+    from product.nz_election.pipeline import fixtures
+    captures = fixtures.captures
+    def changed(*args, **kwargs):
+        raw = captures(*args, **kwargs)
+        path = 'ec-2020-xml/election.xml'
+        raw[path] = raw[path].replace(b'<party p_no="5">',
+                                     ('<party p_no="' + MARKER + '">').encode(), 1)
+        return raw
+    monkeypatch.setattr(fixtures, 'captures', changed)
+    assert_safe_failure(c.OFFICIAL_ERRORS, c.check_snapshots)
+
+
+@pytest.mark.parametrize('check', ['campaign', 'all'])
+@pytest.mark.parametrize('error_type', [ValueError, KeyError, TypeError, OverflowError])
+def test_cli_redacts_downstream_exceptions(monkeypatch, check, error_type):
+    def fail():
+        raise error_type('CAMPAIGN_OFFICIAL_ERRORS: ' + MARKER)
+    monkeypatch.setattr(verify, 'main', fail)
+    monkeypatch.setattr(sys, 'argv', ['verify.py', check])
+    with pytest.raises(SystemExit) as raised:
+        verify.cli()
+    assert str(raised.value) == f'FAIL {check}: CAMPAIGN_DATA'
+
+
+def test_cli_preserves_owned_failure(monkeypatch):
+    def fail():
+        raise c.CampaignError(c.OFFICIAL_ERRORS)
+    monkeypatch.setattr(verify, 'main', fail)
+    monkeypatch.setattr(sys, 'argv', ['verify.py', 'campaign'])
+    with pytest.raises(SystemExit) as raised:
+        verify.cli()
+    assert str(raised.value) == 'FAIL campaign: CAMPAIGN_OFFICIAL_ERRORS'
+
+
+@pytest.mark.parametrize('value', ['', None, [], {}, 1.5, 10**100, MARKER])
+def test_official_lookup_shape_is_owned_failure(value):
+    assert_safe_failure(c.OFFICIAL_ERRORS, lambda: c.check_official(
+        {'official_results': [{'year': 2020, 'parties': value}]}))
+
+
+@pytest.mark.parametrize('error_type', [KeyError, IndexError, TypeError, ValueError,
+                                       AttributeError, OverflowError])
+def test_candidate_source_boundary_redacts_implicit_errors(monkeypatch, error_type):
+    def fail(*args, **kwargs):
+        raise error_type(MARKER)
+    monkeypatch.setattr(c.gzip, 'decompress', fail)
+    data = json.loads((snapshots.SNAPSHOTS / 'pollster-record.json').read_text())
+    assert_safe_failure(c.FINAL_POLL, lambda: c.check_candidate_sources(data, snapshots.SNAPSHOTS))

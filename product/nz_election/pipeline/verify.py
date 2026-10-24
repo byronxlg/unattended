@@ -14,7 +14,7 @@ import threading
 
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from product.nz_election.pipeline import export
+from product.nz_election.pipeline import export, campaign_checks as campaign
 from product.nz_election.pipeline.average import trend, threshold_watch, select_window
 from product.nz_election.pipeline.build import build, config
 from product.nz_election.pipeline.models import ParseDrift
@@ -335,18 +335,18 @@ def verify_advance(envs, root, *, data=None):
     require(all((data / ('advance-voting' + ext)).read_bytes() == raw for ext, raw in before.items()), 'advance last-good bytes')
 
 
+@campaign.guard(campaign.DATA)
 def verify_campaign(envs, root, *, data=None, site=None):
-    from product.nz_election.pipeline import campaign_checks as campaign
     from product.nz_election.pipeline.parties_page import page
     rows, _ = campaign.check_snapshots()
     if data is not None:
-        require(data.is_dir(), 'CAMPAIGN_DATA: supplied directory does not exist')
-        envs = export.validate_bundle(data)
+        campaign.require(data.is_dir(), campaign.DATA)
+        envs = campaign.validate_bundle(data)
     campaign.no_total_funding(envs)
     try:
         verify_advance(envs, root, data=data)
     except ValueError:
-        raise ValueError(campaign.ADVANCE) from None
+        raise campaign.CampaignError(campaign.ADVANCE) from None
     # These facts are code-owned snapshots, not daily exports. Use exactly the
     # supplied daily bundle for rendering, without replacing it with fixtures.
     built = '2026-10-25T00:00:00Z'
@@ -357,7 +357,7 @@ def verify_campaign(envs, root, *, data=None, site=None):
             html = (site / 'parties/index.html').read_text()
             built = json.loads((site / 'build-manifest.json').read_text())['data']['built_at']
     except (KeyError, TypeError, ValueError, OSError):
-        raise ValueError(campaign.ABSENT) from None
+        raise campaign.CampaignError(campaign.ABSENT) from None
     campaign.check_markup(html, rows, built[:4])
     from product.nz_election.pipeline.parties_page import load, supplemental
     absent = {**{n: load(n) for n in ('leaders', 'positions')},
@@ -428,7 +428,8 @@ def main():
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
         envs = export.validate_bundle(root / 'data')
         if args.data:
-            supplied = export.validate_bundle(args.data)
+            supplied = (campaign.validate_bundle(args.data) if args.check in {'campaign', 'all'}
+                        else export.validate_bundle(args.data))
             if args.check in {'candidates', 'electorates', 'all'}:
                 # Unpublished families render empty states; published families retain their checks.
                 if 'candidates' in supplied:
@@ -487,8 +488,19 @@ def main():
             print('PASS all')
 
 
-if __name__ == '__main__':
+def cli():
     try:
         main()
-    except ValueError as exc:
-        raise SystemExit('FAIL ' + sys.argv[1] + ': ' + str(exc)) from None
+    except campaign.INPUT_ERRORS as exc:
+        check = sys.argv[1]
+        if check in {'campaign', 'all'}:
+            reason = exc.code if isinstance(exc, campaign.CampaignError) else campaign.DATA
+        elif isinstance(exc, ValueError):
+            reason = str(exc)
+        else:
+            raise
+        raise SystemExit('FAIL ' + check + ': ' + reason) from None
+
+
+if __name__ == '__main__':
+    cli()
