@@ -45,9 +45,9 @@ Party percentages are checked against summed valid party votes using the supplie
 special votes remain raw statistics, not evidence for a preliminary-to-final specials component.
 
 The page provides paused replay controls and no-JS national tables. The browser XML parser
-implements the archive contract; live-feed operation remains a later increment.
-Before live use, establish timezone evidence, check HTTPS availability and browser CORS separately,
-and capture validated references before accepting results. This package makes no live availability claim.
+implements the archive contract. Live operation uses the validated Actions acquisition and
+same-origin packaged JSON described below. Browser CORS evidence and deployed rehearsals are
+recorded separately; local fixture proofs make no live availability claim.
 
 Verification with `verify.py night --data <directory>` checks that supplied bundle and fails with
 `MISSING_NIGHT_FAMILY` if its night index is absent. Without `--data`, verification builds fixtures.
@@ -251,3 +251,47 @@ or the full screenshot harness for the exact expanded state registry.
 A failed renderer/browser launch is an acceptance gap, not permission to skip screenshots.
 The supervisor must inspect fresh, selected, hidden/resumed, stale, fallback, changed-reference,
 pre-close and post-close images at 390x844 and 1280x800 before release.
+
+
+## Deployed acceptance
+
+Run the three separate modes for the 30 October and 6 November acceptance records:
+
+```sh
+uv run --with playwright python product/nz_election/tests/night_deployed.py --probe
+uv run --with playwright python product/nz_election/tests/night_deployed.py --rehearse --speed 60
+uv run --with playwright python product/nz_election/tests/night_deployed.py --faults
+```
+
+The default product root is `https://byronxlg.com/unattended/nz-election/`.
+`--origin https://another-host.example` preserves that prefix; `--base-url` overrides the
+complete product root, for example `http://127.0.0.1:8000/unattended/nz-election/` served by
+`python -m http.server 8000 --directory <served>`. Build into `<served>/unattended/nz-election`
+for this ordinary static server (do not name the server directory `site`, a reserved build path).
+No credentials are required.
+
+Each invocation writes `artifacts/nz-election/deployed/<mode>-<UTC stamp>/record.json` even
+on failure. Keep artifacts untracked. The last stdout line is `PASS deployed-<mode>` or
+`FAIL deployed-<mode>: <check>`; failure exits nonzero. Read `checks` for PASS/FAIL reasons,
+`requests`, `failed_requests` and `night_data_responses` for transport evidence, `phases`
+for actual wall seconds, and `screenshots` for paths relative to the record directory.
+`code_sha` and `data_sha` come from the served build manifest when exposed, otherwise remain
+null with the provenance response recorded. Browser/version, origin and UTC bounds identify
+what was tested. Inspect the start/middle/end phone and desktop screenshots before acceptance.
+
+Probe never intercepts requests or changes time/security. It records the dated fallback and
+all observed same-origin night JSON responses, using the existing envelope/row validators or
+the deployed NightLive package validator. Before polls close, zero page data requests is expected
+and explicitly recorded, not a claim that live polling was exercised. The four ordinary in-page
+CORS fetches record readable HTTP responses or browser failures. CORS failure is expected;
+network/TLS failures are not proof of a missing CORS header, so retain the console evidence.
+A local base URL still probes the real official URLs; only the offline pytest fixture substitutes
+local feed URLs. Replay uses real elapsed time, pauses at the middle frame for screenshots,
+resumes to the golden endpoint, resets, and selects all three final archives. Its console errors
+and official-feed requests must be empty.
+
+Faults alone installs a simulated post-close clock and intercepts packaged JSON. Its initial
+package is explicitly labelled offline fixture data, validated through the existing night
+pipeline. It then tests HTTP failure and an unchanged package aging past 15 minutes, retaining
+the exact last-good HTML and showing Stale. This is client resilience evidence, never evidence
+of a real published live cycle or an Actions acquisition rehearsal.
