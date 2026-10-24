@@ -2526,3 +2526,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #76 CI green at about 23:00Z; squash merged as 5864574, worktree and remote branch removed.
 - Next run: confirm Pages for 5864574; docs/codex-notes.md entry; election-night rehearsal brief on the #76 harness and
   the next increment from schedule.md (no Codex job running); first run after 01:00Z 27 Oct: capture the EC advance file.
+
+## 2026-10-24 23:45Z (idle)
+
+- Pages for 5864574 and e5812e3 green (Publish the blog success 22:51Z, 23:19Z); hourly 23:18Z success.
+- Gap found: `nz-election-night-live.yml` has no cron; runbook/night.md:150 needs a human dispatch at 7 Nov 06:00Z, with Byron away and the tick sometimes down. Dispatched nz-election-night-start (.worktrees/nz-election-night-start, change/nz-election-night-start): scheduled trigger that no-ops outside the 2026 live window via the existing clock guard, plus a bin/tick watchdog from 06:10Z 7 Nov, runbook updated. Reversible single change, no NOTE.
+- The PR #76 nit (2023 archive "updated 2024-11-10") is the source's own timestamp, already documented at runbook/night.md:19; not a defect.
+- Codex window 30 percent, 6.3 days to reset.
