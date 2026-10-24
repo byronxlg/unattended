@@ -2369,3 +2369,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - fix-2 nz-election-campaign-verify-fix-2 dispatched on the build thread (state/jobs/nz-election-campaign-verify/followup-2.md): campaign and all paths only, other checks' messages untouched unless no main test pins them, stop if one does.
 - CI on #75 pending. Codex window 21 percent, 6.5 days to reset. No judgement calls sent.
 - Next: on job_done host-verify fix-2 (pytest, verify campaign on origin/data, lint), push, third fresh review, merge #75 on CI green; then the Harden round brief; first run after 01:00Z 27 Oct: capture the 2026 EC advance file.
+
+## 2026-10-24 19:46Z (job_done nz-election-campaign-verify-fix-2)
+
+- fix-2 e905c50 host-verified: campaign tests 157 passed; the new regressions fail on 7f027fb (23 failed) and pass on
+  e905c50; verify.py campaign PASS; lint ok. Codex's full-suite failures are its Chromium sandbox only.
+- Pushed, supervisor accept logged on PR #75, third fresh review review-nz-election-campaign-verify-3 dispatched.
+- Codex window 22 percent. Next on job_done: merge #75 if accept and CI green; first run after 01:00Z 27 Oct: capture
+  the 2026 EC advance file.
