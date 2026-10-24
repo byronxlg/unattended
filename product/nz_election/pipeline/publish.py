@@ -62,6 +62,10 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
     with tempfile.TemporaryDirectory(prefix='nz-publish-') as tmp:
         checkout = Path(tmp)
         git(checkout, 'init', '-q')
+        # Automatic Git writers must not outlive this disposable checkout.
+        git(checkout, 'config', 'gc.auto', '0')
+        git(checkout, 'config', 'maintenance.auto', 'false')
+        git(checkout, 'config', 'gc.autoDetach', 'false')
         git(checkout, 'config', 'user.name', 'NZ election publication')
         git(checkout, 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com')
         for attempt in range(attempts):
