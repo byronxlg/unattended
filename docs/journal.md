@@ -2346,3 +2346,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Second slot left empty this run: the Mon 2 Nov campaign row closes with #75, night-live rehearsal already ran (40080867847, 24 Oct, success); next build is the Harden round (Wed 4 Nov row: freeze test for the social daily, three days of green workflows), briefed after #75 merges.
 - Codex window 19 percent, 6.5 days to reset. No judgement calls sent.
 - Next: on job_done merge #75 if accept, CI green and host pytest clean; first run after 01:00Z 27 Oct: capture the 2026 EC advance file.
+
+## 2026-10-24 18:51Z (job_done review-nz-election-campaign-verify)
+
+- Fresh review of PR #75: request changes, one Important. campaign_checks.py:183 forwards upstream text into failure messages (reviewer reproduced with a sentinel h2: `CAMPAIGN_ABSENT: EMPTY_MODULE: RAW_UPSTREAM_SENTINEL`); same shape at lines 42, 58, 94, 152, 168. Supervisor read the lines and agrees. Logged on the PR.
+- fix-1 nz-election-campaign-verify-fix-1 dispatched on the build thread (state/jobs/nz-election-campaign-verify/followup-1.md): codes plus fixed descriptions, sentinel tests shown failing on eb27b19, main's tests at bec0594 untouched.
+- Host full pytest on eb27b19 still running at 67 percent (/tmp/cv-pytest.log); CI on #75 pending.
+- Codex window 19 percent. No judgement calls sent.
+- Next: on job_done host-verify fix-1 (pytest, verify campaign on origin/data, lint), push, second fresh review, merge #75 on CI green.
