@@ -132,9 +132,12 @@ def check_unassigned_after_unavailable_allocation(browser, site):
     from coalition_unassigned_cases import unassigned_inputs
     from product.nz_election.pipeline.build import explorer
     from product.nz_election.pipeline import export
+    from product.nz_election.tools.check_visible_text import check_absent_text
+    from html import escape
 
     server, origin = serve(site)
-    url = origin + PREFIX + 'nz-election/polls/'
+    base = origin + PREFIX + 'nz-election/'
+    url = base + 'polls/'
     try:
         for no_eligible in (False, True):
             average, seats = unassigned_inputs(no_eligible)
@@ -144,14 +147,15 @@ def check_unassigned_after_unavailable_allocation(browser, site):
             seats_raw = export.canonical(seats_env)
             envs = dict(averages=dict(data=[average]), seats=seats_env,
                         manifest=dict(data=[dict(path='seats.json', sha256=export.digest(seats_raw.encode()))]))
-            html = ('<!doctype html><html><head><link rel="stylesheet" href="' + url + 'styles.css">'
+            html = ('<!doctype html><html><head><link rel="stylesheet" href="' + base + 'styles.css">'
                     '</head><body><main><h1>Synthetic allocation regression</h1>' + explorer(envs) +
                     '</main></body></html>')
             ctx = context(browser, origin)
             try:
                 ctx.route(url, lambda route: route.fulfill(content_type='text/html', body=html))
-                ctx.route(url + 'data/averages.json', lambda route: route.fulfill(content_type='application/json', body=averages_raw))
-                ctx.route(url + 'data/seats.json', lambda route: route.fulfill(content_type='application/json', body=seats_raw))
+                # The client resolves data beside its module, not beside the polls page.
+                ctx.route(base + 'data/averages.json', lambda route: route.fulfill(content_type='application/json', body=averages_raw))
+                ctx.route(base + 'data/seats.json', lambda route: route.fulfill(content_type='application/json', body=seats_raw))
                 page = ctx.new_page()
                 page.goto(url, wait_until='networkidle')
                 root = page.locator('#coalition-explorer')
@@ -162,7 +166,9 @@ def check_unassigned_after_unavailable_allocation(browser, site):
                 assert root.locator('[data-picture] .strip').count() == (0 if no_eligible else 1)
                 count = root.locator('[data-count="b"]')
                 count.fill('1'); count.press('Tab')
-                assert 'Seats are unavailable' in root.locator('[data-live]').inner_text()
+                live_text = root.locator('[data-live]').inner_text()
+                check_absent_text(escape(live_text), 'coalition runtime data-live')
+                assert 'A tie prevents a seat count. Adjust the electorate seats assumed to change which parties qualify, or use different poll inputs.' in live_text
                 assert root.locator('[data-picture]').inner_text() == ''
                 assert unassigned.inner_text().startswith('70 electorate seats unassigned.')
                 count.fill('0'); count.press('Tab')
