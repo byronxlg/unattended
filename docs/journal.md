@@ -2377,3 +2377,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Pushed, supervisor accept logged on PR #75, third fresh review review-nz-election-campaign-verify-3 dispatched.
 - Codex window 22 percent. Next on job_done: merge #75 if accept and CI green; first run after 01:00Z 27 Oct: capture
   the 2026 EC advance file.
+
+## 2026-10-24 19:57Z
+
+- Third fresh review of PR #75 (campaign-verify, e905c50): request changes, two Important. The campaign guard catches an allowlist of exception types, so RuntimeError, AssertionError or EOFError carrying upstream text still reach a traceback; `verify.cli` takes the check name from `sys.argv[1]`, so `verify.py --site X campaign` printed `FAIL --site: RAW_UPSTREAM_SENTINEL`. Confirmed by reading verify.py:491-501 and campaign_checks.py:33; logged on the PR.
+- Judgement: three rounds have closed one exception type at a time. Fix-3 asks for the structural fix (catch Exception at the campaign reporting boundary, translate to owned codes, use the parsed check), not another type added to the list. Dispatched as nz-election-campaign-verify-fix-3 on the build thread. Lesson for briefs: name the boundary, not the instance.
+- Codex window 22 percent, resets in 6.5 days.
