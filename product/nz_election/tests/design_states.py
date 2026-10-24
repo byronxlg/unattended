@@ -1,25 +1,23 @@
-"""Fixtures cover all twelve design states, including explorer rejection variants."""
+"""Fixtures cover the live server-rendered design states."""
 from copy import deepcopy
 import re
 
-from product.nz_election.pipeline import export, coalitions
+from product.nz_election.pipeline import export
 from product.nz_election.pipeline.build import build, config
 from product.nz_election.pipeline.daily_refresh import daily_refresh
 from product.nz_election.pipeline.refresh import refresh
 from product.nz_election.pipeline.models import ParseDrift
 
 STATES = ('unavailable', 'stale', 'incomplete', 'earlier-coherent-window',
-          'coalition-edit', 'coalition-vacancy', 'invalid-count', 'invalid-link',
-          'changed-inputs', 'missing-baseline', 'unresolved', 'validation-error',
+          'missing-baseline', 'unresolved', 'validation-error',
           'no-data', 'allocation-tie', 'source-conflict', 'offline')
-CATEGORIES = {'loading': 'coalition-edit', 'no-data': 'no-data', 'overdue': 'stale',
+CATEGORIES = {'no-data': 'no-data', 'overdue': 'stale',
               'failed': 'validation-error', 'unavailable': 'unavailable', 'seats-unavailable': 'incomplete',
-              'explorer-rejection': 'invalid-count', 'allocation-tie': 'allocation-tie',
+              'allocation-tie': 'allocation-tie',
               'source-conflict': 'source-conflict', 'missing': 'missing-baseline',
               'unmatched': 'unresolved', 'offline': 'offline'}
-COHERENT = {'earlier-coherent-window', 'coalition-edit', 'coalition-vacancy',
-            'invalid-count', 'invalid-link', 'changed-inputs'}
 
+COHERENT = {'earlier-coherent-window'}
 
 def fixture(root, state):
     data, site = root / (state + '-data'), root / state
@@ -43,14 +41,6 @@ def fixture(root, state):
         daily_refresh(data, now='2026-10-17T01:00:00Z')
     build(data, site / 'nz-election', built='2026-10-17T12:00:00Z' if state in {'stale', 'validation-error'} else '2026-10-17T01:00:00Z')
     route = 'polls/' if state in COHERENT else ''
-    if state in COHERENT - {'earlier-coherent-window'}:
-        # Exercise retained explorer code on an isolated harness document.
-        from product.nz_election.pipeline.build import polls_page
-        target = site / 'nz-election/polls/index.html'
-        html = target.read_text()
-        envs = export.validate_bundle(data)
-        body = polls_page(envs, '2026-10-17T01:00:00Z', full_sources=True)
-        target.write_text(re.sub(r'(<main[^>]*>).*?(</main>)', lambda m: m[1] + '<h1>Explorer verification</h1>' + body + m[2], html, flags=re.S))
     if state in {'missing-baseline', 'source-conflict'}:
         from product.nz_election.pipeline.electorate_pages import detail
         row = next(r for r in config('electorates') if r['slug'] == 'auckland-central')
@@ -68,12 +58,6 @@ def fixture(root, state):
         target.write_text(html)
     if state == 'unresolved':
         route = 'electorates/'
-    if state == 'invalid-link':
-        route = 'polls/#coalition=invalid'
-    if state == 'changed-inputs':
-        envs = export.validate_bundle(data)
-        inputs = coalitions.inputs(envs['averages']['data'][-1], envs['seats']['data'], 'b' * 64)
-        route = 'polls/' + coalitions.encode(inputs['initial'])
     if state == 'offline':
         route = 'downloads/'
     if state == 'allocation-tie':

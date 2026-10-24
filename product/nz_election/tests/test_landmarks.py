@@ -3,15 +3,15 @@ from pathlib import Path
 
 import pytest
 
-from product.nz_election.pipeline.landmark_checks import check_page, check_site, rendered_page
+from product.nz_election.pipeline.landmark_checks import check_page, check_site
 from product.nz_election.tests.design_checks import Document
 from product.nz_election.tests.test_home import populated
 
 
-def test_all_routes_after_client_startup(populated):
+def test_all_server_rendered_routes(populated):
     _, site = populated
     assert check_site(site) == 81
-    polls = rendered_page(site, (site / 'polls/index.html').read_text())
+    polls = (site / 'polls/index.html').read_text()
     names = [attrs['aria-label'] for _, attrs in Document(polls).nodes if attrs.get('role') == 'region']
     assert names == ['Ten most recent national polls; reported party vote percent']
     assert '<caption>Ten most recent national polls; reported party vote percent</caption>' in polls

@@ -21,11 +21,13 @@ def check_site(site, envs):
     actual_modules = [a['id'] for tag, a in Document(home).nodes if tag == 'section']
     require(actual_modules == expected_modules, 'home module order')
     require(home.count('<h1') == 1, 'home heading')
-    require('coalitions.mjs' not in home and ('id="trend"' in home) == bool(envs.get('averages', {}).get('data')), 'home trend without interactive explorer')
+    require('<script' not in home and ('id="trend"' in home) == bool(envs.get('averages', {}).get('data')), 'home trend without interactive explorer')
     ids = {a['id'] for _, a in Document(polls).nodes if 'id' in a}
     require({'main', 'seats', 'polls', 'explorer', 'source-seats', 'source-thresholds'} <= ids, 'poll anchors')
+    require({'coalition-explorer', 'coalition-title', 'source-history', 'source-average', 'source-grouping', 'source-trend'} <= ids,
+            'legacy fragment inventory: resolves even without poll data')
+    require('<script' not in polls and '<fieldset' not in polls, 'polls answers are server-rendered')
     if 'polls' in envs:
-        require({'coalition-explorer', 'coalition-title', 'source-history', 'source-average'} <= ids, 'legacy fragment inventory')
         require(all({r['id'], 'source-' + r['id']} <= ids for r in envs['polls']['data']), 'published poll fragment inventory')
     for _, attrs in Document(polls).nodes:
         if attrs.get('href', '').startswith('#'):

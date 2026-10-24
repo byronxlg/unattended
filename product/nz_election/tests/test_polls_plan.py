@@ -18,7 +18,7 @@ def test_answer_order_and_marks(populated):
     assert sections == ['polls', 'trend', 'seats', 'thresholds', 'recent-polls']
     assert 'methods/#average' in html
     assert html.index('id="recent-polls"') < html.index('class="polls-method"')
-    assert 'coalitions.mjs' not in html and '<fieldset' not in html
+    assert '<script' not in html and '<fieldset' not in html
     assert '<circle ' in html and 'fill-opacity="0.3"' in html
     assert 'stroke-dasharray="4 3"' in html and 'class="majority"' in html
     average = envs['averages']['data'][-1]

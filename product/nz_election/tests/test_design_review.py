@@ -1,26 +1,9 @@
 """Regressions from the fresh-context design review."""
 import json
-from pathlib import Path
-import subprocess
-
-import pytest
 
 from product.nz_election.pipeline import export
-from product.nz_election.pipeline.build import build, config, home_presentation, polls_page, strip
+from product.nz_election.pipeline.build import build, home_presentation, polls_page
 from product.nz_election.pipeline.refresh import refresh
-
-
-@pytest.mark.parametrize('extra', [0, 2, 17])
-def test_client_server_strip_dom_and_accessibility_parity(extra):
-    seats = dict(seats=dict(nat=47, lab=35, grn=15, act=10, nzf=9, tpm=4+extra),
-                 entitlements=dict(nat=47, lab=35, grn=15, act=10, nzf=9, tpm=4),
-                 assumed_house=120+extra, assumed_majority=(120+extra)//2+1, overhang=extra)
-    labels = {p: dict(name=c['label'], colour=c['colour']) for p, c in config('party-colours').items()}
-    module = Path(__file__).resolve().parents[1] / 'web/coalitions.mjs'
-    script = "import {stripHTML} from " + json.dumps(module.as_uri()) + ";import fs from 'node:fs';const x=JSON.parse(fs.readFileSync(0,'utf8'));process.stdout.write(stripHTML(x.seats,x.labels));"
-    actual = subprocess.run(['node', '--input-type=module', '-e', script], input=json.dumps(dict(seats=seats, labels=labels)), text=True, capture_output=True, check=True)
-    # Exact markup includes all text, ARIA names, styles, table cells and open seat section.
-    assert actual.stdout == strip(seats)
 
 
 def test_empty_thirty_day_window_builds(tmp_path):

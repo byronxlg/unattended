@@ -1,4 +1,26 @@
-# Coalition explorer contract
+# Retired coalition explorer
+
+The interactive explorer left all routes in PR #71 (170bf94). Its client, controls,
+browser checks and synthetic screenshot states are now retired. The contract
+below is historical.
+
+Replacement invariants: polls answers render on the server; legacy fragments resolve
+even without data; rendered tables keep provenance, unique region names and keyboard
+access. Python coalition calculations, build.strip and TOP labels remain. Night
+still imports allocator.mjs through night-seats.mjs. Share-state interaction and
+client/server strip parity no longer apply because no explorer is rendered.
+
+## Replacement checks
+
+| Retired check | Current invariant |
+| --- | --- |
+| verify_coalitions explorer markup | Script-free polls, no fieldset, preserved explorer/source IDs; static majority and server calculations still checked |
+| home_checks legacy inventory | All legacy IDs exist with or without data; published poll IDs still resolve; home and polls need no client scripts |
+| landmark_checks client startup adapter | All 81 rendered routes retain image roles, provenance, unique region names and named keyboard-scroll targets |
+| Client strip parity and browser states | No client strip or controls remain; server strip/TOP tests stay, staged modules and allowlist are pinned |
+| Screenshot explorer states | Live data-availability states remain; static-text comparison now includes all polls content |
+
+## Historical coalition explorer contract
 
 The explorer uses only the published averages and seats envelopes. Its fingerprint is
 SHA-256 of the concatenated averages.json and seats.json hexadecimal SHA-256 hashes.
