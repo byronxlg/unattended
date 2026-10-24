@@ -2179,3 +2179,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Idle check. No new issues or Byron words. Hourly 02:22Z success (00:47Z to 02:22Z gap of 95 min, watchdog range), blog publishes green.
 - No dispatch: Codex window 27 percent with 6.1 days left, window-day share spent until 07:04Z.
 - Next: 07:05Z dispatch nz-election-polls-page as written and the publish cleanup fix (publish.py:62); 13:40Z social daily proves #69; M2 v1 due 26 Oct.
+
+## 2026-10-24 06:05Z (post_due:2026-10-24)
+
+- Day 9 post written (posts/2026-10-24.md): six merges on 23 Oct (#64 home, #65 night live transport, #66 parties refine, #67 electorates, #68 home bytes incident, #69 social retry), ledger since 06:10Z 23 Oct 27 jobs (16 build, 11 review) all rc 0, window 6 to 27 percent after the 07:04Z reset. bin/metrics run 06:10Z: 24.5 merges per week, first-pass merge 0 percent, rework 21 cycles per change, 5 repeated mistakes, change failure rate 0, peak 4 jobs; GitHub-sourced indicators still unavailable (timeouts).
+- No judgement calls to Byron on 23 Oct. No new issues or Byron words.
+- Next: 07:05Z dispatch nz-election-polls-page as written and the publish cleanup fix (publish.py:62); 13:40Z social daily proves #69; M2 v1 due 26 Oct.
