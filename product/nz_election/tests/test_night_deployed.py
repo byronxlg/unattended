@@ -149,6 +149,8 @@ def probe_evidence(monkeypatch, tmp_path, mode):
         return dict(status=503 if mode == 'http' else 200,
                     raw=b'' if mode == 'empty' else captured[url.rsplit('/', 1)[-1]])
     def evaluate(script, url):
+        if url.endswith('night-live.mjs'):
+            return schedule_result(False)
         if mode.startswith('readable'):
             raw = captured[url.rsplit('/', 1)[-1]]
             if mode == 'readable-count' and url.endswith('election.xml'):
@@ -162,7 +164,7 @@ def probe_evidence(monkeypatch, tmp_path, mode):
     page = SimpleNamespace(goto=lambda url: None, wait_for_load_state=lambda state: None,
                            evaluate=evaluate, locator=lambda selector: SimpleNamespace(
                                inner_text=lambda: 'Final snapshot 2023-11-03 Official results',
-                               get_attribute=lambda name: None))
+                               get_attribute=lambda name: None, is_visible=lambda: True))
     monkeypatch.setattr(deployed, 'host_fetch', acquire, raising=False)
     monkeypatch.setattr(deployed, 'pictures', lambda *args: None)
     deployed.probe(page, record.data['base_url'], record, [])
@@ -214,3 +216,82 @@ def test_fault_fixture_stays_under_record(tmp_path):
     assert pack['available']
     night.validate(record.out / 'fault-fixture')
     assert (record.out / 'fault-fixture/night/index.json').is_file()
+
+
+
+def schedule_result(after):
+    from datetime import datetime
+    opening = datetime.fromisoformat('2026-11-07T06:00:00+00:00').timestamp() * 1000
+    return dict(status=200, source=(Path(__file__).parents[1] / 'web/night-live.mjs').read_text(),
+                now_ms=opening if after else opening - 1)
+
+
+@pytest.mark.parametrize('case,after,expected', [
+    ('zero', True, False), ('valid', True, True), ('pageerror', False, False), ('clean', False, True),
+    ('console', False, False), ('pageerror', True, False), ('console', True, False),
+    ('no-countdown', False, False), ('no-vote-link', False, False),
+    ('pending', True, False), ('pending-with-valid', True, False),
+    ('pre-close-response', True, False), ('http-error', True, False), ('invalid-json', True, False),
+    ('late-pageerror', False, False),
+])
+def test_probe_phase_acceptance(monkeypatch, tmp_path, case, after, expected):
+    from types import SimpleNamespace
+    from product.nz_election.tests import night_deployed as deployed
+    base = 'https://site.example/product/'
+    record = deployed.Record('probe', base, tmp_path)
+    schedule = schedule_result(after)
+    def evaluate(script, url):
+        assert url == base + 'night-live.mjs'
+        assert 'import(' not in script, 'Schedule inspection must not initialize the page'
+        return schedule
+    def locator(selector):
+        visible = not (case == 'no-countdown' and 'countdown' in selector or
+                       case == 'no-vote-link' and 'vote/' in selector)
+        return SimpleNamespace(inner_text=lambda: 'Final snapshot 2023-11-03 Official results',
+                               get_attribute=lambda key: None, is_visible=lambda: visible)
+    page = SimpleNamespace(goto=lambda url: None, wait_for_load_state=lambda state: None,
+                           locator=locator, evaluate=evaluate)
+    def add_error(kind):
+        record.data['console_errors'].append(dict(kind=kind, text='Night initialization failed',
+                                                  location=dict(url=base + 'night-live.mjs')))
+    if case in {'pageerror', 'console'}:
+        add_error(case)
+    def cors(*args, **kwargs):
+        if case == 'late-pageerror':
+            add_error('pageerror')
+    monkeypatch.setattr(deployed, 'pictures', lambda *args: None)
+    monkeypatch.setattr(deployed, 'cors_probe', cors)
+    responses = []
+    if case in {'valid', 'pending-with-valid', 'pre-close-response', 'http-error', 'invalid-json'}:
+        def body():
+            if case == 'invalid-json':
+                raise ValueError('Invalid JSON')
+            return dict(available=False)
+        response = SimpleNamespace(url=base + 'night-live.json', status=503 if case == 'http-error' else 200,
+                                   ok=case != 'http-error', json=body,
+                                   request=SimpleNamespace(timing=dict(startTime=schedule_result(True)['now_ms'] -
+                                                                      (1 if case == 'pre-close-response' else 0))))
+        responses.append(response)
+        record.data['requests'].append(dict(url=response.url, status=response.status, state='finished'))
+    if case in {'pending', 'pending-with-valid'}:
+        record.data['requests'].append(dict(url=base + 'night-live.json', status=None, state='pending'))
+    deployed.probe(page, base, record, responses)
+    checks = {c['check']: c for c in record.data['checks']}
+    assert (checks['night-data-transport']['status'] == 'PASS') is expected
+    assert record.write()[1] is not expected
+    assert record.data['probe_phase']['name'] == ('after-close' if after else 'before-close')
+    assert record.data['probe_phase']['schedule_url'] == base + 'night-live.mjs'
+    if 'pageerror' in case or case == 'console':
+        assert checks['page-errors']['status'] == 'FAIL'
+        assert record.data['unexpected_page_errors'][0]['text'] == 'Night initialization failed'
+
+
+@pytest.mark.parametrize('mode', ['probe', 'rehearse', 'faults'])
+@pytest.mark.parametrize('kind', ['pageerror', 'console'])
+def test_unexpected_errors_fail_each_mode(tmp_path, mode, kind):
+    from product.nz_election.tests.night_deployed import page_errors
+    record = Record(mode, 'https://site.example/', tmp_path)
+    record.data['console_errors'].append(dict(kind=kind, text='script failure',
+                                              location=dict(url='https://site.example/night-live.mjs')))
+    assert page_errors(record)
+    assert record.write()[1]

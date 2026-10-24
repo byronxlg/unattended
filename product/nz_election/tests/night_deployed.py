@@ -67,20 +67,24 @@ def observe(context, record):
     entries = {}
     def request(req):
         record.data['urls'].append(req.url)
-        entry = dict(url=req.url, method=req.method, resource_type=req.resource_type, status=None)
+        entry = dict(url=req.url, method=req.method, resource_type=req.resource_type, status=None, state='pending')
         entries[req] = entry
         record.data['requests'].append(entry)
     def response(res):
         responses.append(res)
         if res.request in entries:
             entries[res.request]['status'] = res.status
+    def finished(req):
+        if req in entries:
+            entries[req]['state'] = 'finished'
+    context.on('requestfinished', finished)
     context.on('request', request)
     context.on('response', response)
     context.on('requestfailed', lambda req: record.data.setdefault('failed_requests', []).append(
         dict(url=req.url, failure=req.failure)))
     context.on('page', lambda page: (
         page.on('pageerror', lambda error: record.data['console_errors'].append(dict(kind='pageerror', text=str(error)))),
-        page.on('console', lambda msg: record.data['console_errors'].append(dict(kind='console', text=msg.text)) if msg.type == 'error' else None)))
+        page.on('console', lambda msg: record.data['console_errors'].append(dict(kind='console', text=msg.text, location=msg.location)) if msg.type == 'error' else None)))
     return responses
 
 
@@ -152,6 +156,12 @@ def cors_probe(page, record, *, feed_root=FEED, acquire=None):
             return {outcome:'readable', status:r.status, text:await r.text()};
           } catch(e) {return {outcome:'blocked-or-network-error', name:e.name, error:String(e)}}
         }''', url)
+        for error in record.data['console_errors'][offset:]:
+            location = error.get('location', {}).get('url', '')
+            if error['kind'] == 'console' and not urlsplit(location).path.endswith(('.js', '.mjs')) and (
+                    url in error['text'] and 'blocked by CORS policy' in error['text'] or
+                    location == url and error['text'].startswith('Failed to load resource:')):
+                error['expected'] = 'explicit CORS evidence fetch'
         item = dict(url=url, browser={k:v for k,v in browser.items() if k != 'text'})
         evidence[filename] = item
         if browser['outcome'] == 'readable':
@@ -207,6 +217,42 @@ def cors_probe(page, record, *, feed_root=FEED, acquire=None):
             record.check(name, item['status'] == 'PASS', reason)
 
 
+def probe_phase(page, base):
+    url = urljoin(base, 'night-live.mjs')
+    # Reading the schedule must not execute a module and repair a broken page init.
+    result = page.evaluate('''async url => {
+      const response = await fetch(url, {credentials:'omit', signal:AbortSignal.timeout(20000)});
+      return {status:response.status, source:await response.text(), now_ms:Date.now()};
+    }''', url)
+    match = re.search(r"export const OPEN = Date.parse\('([^']+)'\);", result['source'])
+    if result['status'] != 200 or not match:
+        raise ValueError('NIGHT_SCHEDULE_UNAVAILABLE')
+    opening = datetime.fromisoformat(match[1].replace('Z', '+00:00'))
+    opening_ms = opening.timestamp() * 1000
+    return dict(name='before-close' if result['now_ms'] < opening_ms else 'after-close',
+                schedule_url=url, opening_utc=match[1], opening_ms=opening_ms,
+                observed_utc=datetime.fromtimestamp(result['now_ms'] / 1000, timezone.utc).isoformat())
+
+
+def page_errors(record, expected_resources=()):
+    unexpected = []
+    for error in record.data['console_errors']:
+        expected_resource = (error['kind'] == 'console' and
+                             error.get('location', {}).get('url') in expected_resources and
+                             error['text'].startswith('Failed to load resource:'))
+        if error['kind'] == 'pageerror' or not (error.get('expected') or expected_resource):
+            unexpected.append(error)
+    record.data['unexpected_page_errors'] = unexpected
+    record.check('page-errors', not unexpected, json.dumps(unexpected))
+    return unexpected
+
+
+def night_data_url(url, base):
+    path = urlsplit(url).path
+    return origin(url) == origin(base) and (path.endswith('/night-live.json') or
+                                           '/data/night/' in path and path.endswith('.json'))
+
+
 def probe(page, base, record, responses, feed_root=FEED):
     started = time.monotonic()
     page.goto(urljoin(base, 'night/'))
@@ -224,12 +270,14 @@ def probe(page, base, record, responses, feed_root=FEED):
     record.check('page-same-origin', all(origin(r['url']) == origin(base) for r in requests), json.dumps(requests))
     pictures(page, record, 'fallback')
     cors_probe(page, record, feed_root=feed_root)
+    phase = probe_phase(page, base)
+    record.data['probe_phase'] = phase
     seen = []
     for response in list(responses):
-        path = urlsplit(response.url).path
-        if origin(response.url) != origin(base) or not (path.endswith('/night-live.json') or '/data/night/' in path and path.endswith('.json')):
+        if not night_data_url(response.url, base):
             continue
-        item = dict(url=response.url, status=response.status, parses=False, validates=False)
+        item = dict(url=response.url, status=response.status, parses=False, validates=False,
+                    started_ms=response.request.timing['startTime'])
         try:
             response.json()
             item['parses'] = True
@@ -240,9 +288,18 @@ def probe(page, base, record, responses, feed_root=FEED):
         record.check('night-data-' + str(len(seen)), response.ok and item['validates'], json.dumps(item))
         seen.append(item)
     record.data['night_data_responses'] = seen
-    failures = [r for r in record.data.get('failed_requests', []) if origin(r['url']) == origin(base) and ('/data/night/' in r['url'] or '/night-live.json' in r['url'])]
-    record.check('night-data-transport', not failures, json.dumps(failures) if failures else
-                 f'{len(seen)} page JSON responses; before polls close, zero requests is expected')
+    failures = [r for r in record.data.get('failed_requests', []) if night_data_url(r['url'], base)]
+    pending = [r for r in record.data['requests'] if night_data_url(r['url'], base) and r.get('state') != 'finished']
+    errors = page_errors(record)
+    before_state = (page.locator('.night-page > .countdown').is_visible() and
+                    page.locator('.night-page a[href$="vote/"]').is_visible())
+    valid_after_open = [r for r in seen if 200 <= r['status'] < 300 and r['validates'] and
+                        r['started_ms'] >= phase['opening_ms']]
+    acceptable = (before_state if phase['name'] == 'before-close' else bool(valid_after_open))
+    record.check('night-data-transport', acceptable and not failures and not pending and not errors,
+                 json.dumps(dict(phase=phase['name'], before_close_state=before_state,
+                                 valid_after_open=len(valid_after_open), responses=len(seen),
+                                 failed_requests=failures, pending_requests=pending, page_errors=errors)))
     record.phase('probe', started)
 
 
@@ -364,6 +421,7 @@ def run(mode, base, root=Path('artifacts/nz-election/deployed'), speed=60):
                 provenance(page, base, record)
     except Exception as exc:
         record.check('execution', False, str(exc))
+    page_errors(record, (urljoin(base, 'night-live.json'),) if mode == 'faults' else ())
     record.phase('total', started)
     line, failed = record.write()
     print(str(record.out / 'record.json'))

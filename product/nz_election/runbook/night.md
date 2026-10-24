@@ -282,7 +282,12 @@ what was tested. Inspect the start/middle/end phone and desktop screenshots befo
 Probe never intercepts requests or changes time/security. It records the dated fallback and
 all observed same-origin night JSON responses, using the existing envelope/row validators or
 the deployed NightLive package validator. Before polls close, zero page data requests is expected
-and explicitly recorded, not a claim that live polling was exercised. The four ordinary in-page
+and accepted only with a visible countdown and vote link and no unexpected page errors.
+`probe_phase` records before/after close using the deployed module's OPEN schedule and the
+browser clock, without executing the module. From close, a completed, successful, validated
+night JSON response requested after opening is required; zero or pending responses fail.
+Unexpected page errors fail every mode and are listed in `unexpected_page_errors`; expected
+CORS diagnostics and injected fault HTTP errors remain separately recorded. The four ordinary in-page
 CORS fetches validate readable HTTP 200 XML through the existing reference and election parsers.
 A blocked fetch passes only with a URL-specific browser CORS diagnostic and an independent
 host read returning a non-empty, valid upstream body. Host reads use the existing bounded feed
