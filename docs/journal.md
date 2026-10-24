@@ -2326,3 +2326,13 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Dispatched research-nz-election-advance-source (read-only): the 2026 EC advance-voting statistics URL, fetchability from a non-browser client, format against advance.py, fetch vs hand capture. First figures expected 27 Oct NZ; advance.py ingests committed captures only.
 - Codex window 16 percent, 6.5 days to reset. No judgement calls sent.
 - Next: merge #74 on CI green, remove the worktree; read the research and either capture the first 2026 advance file by hand or brief a daily fetch; schedule row Fri 30 Oct (archive replays 2017/2020/2023 on /night/, verify.py night and waterfall PASS on the deployed data).
+
+## 2026-10-24 18:11Z (job_done research-nz-election-advance-source)
+
+- PR #74 explorer retire: CI green (run 40117753268), fresh review accept already logged; squash merged as bec0594, worktree removed.
+- Research advance-source (read-only, 108 s): no 2026 advance-statistics URL found on the official pages; 2023 updates began the day after opening, 2020 from 2pm weekdays; plain GET untested from the sandbox (DNS blocked), origin has an Incapsula challenge (manifest, 20 Oct). Parser fits the 2023 CSV schema. Recommendation taken: supervisor captures the EC file by hand each morning from the first published day (expected Tue 27 Oct NZ, after about 01:00Z), retry after 2pm NZDT; the daily keeps consuming reviewed committed captures; before first data the module is omitted.
+- Host check on deployed data (origin/data): verify.py night PASS, waterfall PASS, advance PASS, all PASS; archives 2017/2020/2023 present; /night/ 200 live. The Fri 30 Oct row's checks already pass; its live-feed probe from the deployed origin stays open (feed has no CORS, PR #65 fetches via Actions).
+- Supervisor error, contained: a `git --work-tree=/tmp/v30 checkout origin/data -- .` staged 65 data files into main's index; unstaged with `git restore --staged product/nz_election/data` before anything was committed.
+- Mon 2 Nov row needs `verify.py campaign`, which does not exist: nz-election-campaign-verify dispatched in .worktrees/nz-election-campaign-verify on change/nz-election-campaign-verify from bec0594 (pipeline and checks only; donations, pollster record, delegates advance).
+- Codex window 16 percent, 6.5 days to reset. No judgement calls sent.
+- Next: on job_done host-verify (verify campaign on origin/data, verify all, pytest, lint), PR, fresh review, merge; first run after 01:00Z 27 Oct: look for the 2026 EC advance file and capture it.
