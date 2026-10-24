@@ -2243,3 +2243,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Noticed on polls/ 1280 (not this fix's scope): the NAT segment is drawn as two blue blocks (43 total, so likely a sub-split) and The Opportunity Party reads "OPP 7" (the open TOP label nit). Both to the next polls round.
 - nz-election-night-live.yml had never run. Rehearsal dispatched by hand (run 40080867847, rehearsal=true: demo acquisition to artifact only, no publication or chaining), the first real Actions proof for plan-m3 increment 5 transport.
 - Codex window 9 percent. No judgement calls this run.
+
+## 2026-10-24 09:22Z (job_done review-nz-election-polls-page-3)
+
+- PR #71 third fresh review: request changes, one Important, evidence only: the supplied screenshots showed "What do the polls tell us?" and strip heights 72/120, but the a538aae build starts "Who is ahead in the polls?" and its hero strip should be 120/144. The reviewer was right and the error was mine: my 09:08Z measurements and screenshots came from a stale http.server on :8767 (cwd /tmp/ep/serve, started 00:43Z), not the a538aae build. Supervisor mistake logged in state/mistakes.jsonl.
+- Re-measured on the a538aae build served from its own directory (:8770): one .home-hero strip, 120 px at 390 and 144 px at 1280, matching screenshots.py:208. polls/ looked at 390 and 1280: averages first, change second, per pages/polls.md. The full host harness on that build (/tmp/polls-fix2/h.log) is past polls/ at all three widths and still running on the other routes. Logged on PR #71 with supervisor accept.
+- PR #71 CI (run 40080824174) was still in the Tests step at 09:44Z, 35 min in (usual 20 to 24). Not merged this run. nz-election-night-live.yml rehearsal run 40080867847: success.
+- Codex window 10 percent. No judgement calls this run.
+- Next: merge #71 on CI green (rerun if the Tests step timed out), check the harness 'done' line, send Byron the link before M2 on 26 Oct; 13:40Z social daily proves #69.
