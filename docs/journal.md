@@ -2490,3 +2490,16 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
   dispatched (also asked whether the phase clock can be faked by the page).
 - Next run on job_done: merge #76 and #77 if accept and CI green; then the phase 5 items left from the m3 gap research
   (docs/codex-notes.md entry, rehearsal); first run after 01:00Z 27 Oct: capture the EC advance file.
+
+## 2026-10-24 22:12Z run (job_done review-nz-election-harden-3, review-nz-election-night-deployed-3)
+
+- No new issue from Byron. Codex window 30.0 percent, 6.4 days to reset.
+- PR #77 harden third fresh review: accept, no findings (overnight regression PASS on a67a6fa, FAIL on 736eb4f). Supervisor
+  accept logged; CI pending at 22:15Z, merge on green next run.
+- PR #76 night-deployed third fresh review: request changes, one Important (night_deployed.py:225 decides the phase from
+  the page's Date.now(), which page code can override; zero responses after close could pass). Confirmed by reading
+  probe_phase. fix-3 nz-election-night-deployed-fix-3 dispatched on the build thread (host clock decides, regression with
+  page clock pre-close and host clock post-close must fail on 2ff2d4f). Logged on both PRs.
+- Next run on job_done: host-verify fix-3 (test_night_deployed.py with host Chromium, lint), push, fourth fresh review,
+  merge #76; merge #77 on CI green; then docs/codex-notes.md entry and the rehearsal; first run after 01:00Z 27 Oct:
+  capture the EC advance file.
