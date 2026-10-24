@@ -2200,3 +2200,12 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Pushed, PR #70 opened with supervisor accept; fresh review review-nz-election-publish-cleanup dispatched read-only.
 - nz-election-polls-page still running. Window 3 percent after the reset.
 - Next: merge #70 on accept and CI green; polls page on job_done (live-data build, harness, question test at 390); M2 v1 due 26 Oct; 13:40Z social daily proves #69.
+
+## 2026-10-24 07:40Z (job_done nz-election-polls-page, review-nz-election-publish-cleanup)
+
+- PR #70 publish cleanup: fresh review accept (no findings, static review, tests blocked in its sandbox), CI green, squash merged as 8a8d484, worktree and branch removed. Proving: the next CI runs that touch publish.py tests.
+- nz-election-polls-page 280b2c2 (1439 s; Page plan pages/polls.md): Codex sandbox live-data build PASS 81 routes, verify all PASS, lint ok, 2024 passed with 3 Chromium denials. Host: test_polls_plan.py, test_parties_page.py and the two night browser tests 19 passed; polls/ looked at 390 and 1280 on the origin/data build. Question test: Q1 bars above the 390 fold, Q2 trend starts below it, order 1, 2, 3, 5, 4, 6 as planned. Defects seen: trend label leader lines run from each series' end down to stacked labels, so ACT, Opportunity and Te Pati Maori read as falling below zero after 24 Oct; caption "Wikipedia contributors.." double period. Pushed, PR #71 opened, supervisor request changes logged, fresh review review-nz-election-polls-page dispatched. Full host screenshot harness detached (/tmp/polls-page-h.log). One combined fix-1 after the review.
+- Codex notes the live allocation is 132 to 133 seats with overhang, 67 needed; it kept the majority from the shared seat helper, accepted.
+- Second slot: coalitions_browser.py still fails on main 8a8d484 (check_unassigned_after_unavailable_allocation, fieldset stays hidden, timeout), reproduced on the host; nz-election-coalitions-fix-1 dispatched in .worktrees/nz-election-coalitions-fix (fix product or drifted fixture, no assertion loosened).
+- Window 4 percent at 07:29Z.
+- Next: on review job_done, fix-1 for PR #71 on the build thread with both lists plus the review's; harness result on the PR; coalitions fix host-verify; M2 v1 due 26 Oct; 13:40Z social daily proves #69.
