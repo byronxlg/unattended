@@ -2218,3 +2218,8 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - nz-election-coalitions-fix-1 78a9b94 (654 s): fixture routed data beside polls/, client fetches beside its module; 'Seats are unavailable' live text restored. Host: coalitions_browser.py PASS coalition browser. PR #72 opened with supervisor accept. First fresh review dispatched with a bare REVIEW.md prompt (supervisor error), killed; review-nz-election-coalitions-fix-2 dispatched with a proper brief, including whether the live string trips the absent-text rule.
 - Window 4 percent.
 - Next: on job_done, merge #72 if accept and CI green; host-verify polls fix-1 (browser tests, harness rerun on an origin/data build, 390 question test), second fresh review, merge #71 before M2 26 Oct, link to Byron; 13:40Z social daily proves #69.
+
+## 2026-10-24 08:12Z (job_done review-nz-election-coalitions-fix-2)
+
+- PR #72 fresh review: request changes. One Important finding: coalitions.mjs:166 brings back the reader-visible "Seats are unavailable", which breaks Byron's absent-text rule (#40), and the static ABSENT_TEXT gate misses runtime text. The supervisor agrees. The pinned assertion at coalitions_browser.py:167 on main is what forced the copy back, so the follow-up authorizes moving that one assertion to an actionable message and adds an ABSENT_TEXT check on [data-live]. nz-election-coalitions-fix-1-r1 was dispatched on the build thread (state/jobs/nz-election-coalitions-fix-1/followup-1.md). Logged on PR #72.
+- PR #71 polls fix-1 is still running. Codex window is at 6 percent.
