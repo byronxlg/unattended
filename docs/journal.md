@@ -2383,3 +2383,13 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Third fresh review of PR #75 (campaign-verify, e905c50): request changes, two Important. The campaign guard catches an allowlist of exception types, so RuntimeError, AssertionError or EOFError carrying upstream text still reach a traceback; `verify.cli` takes the check name from `sys.argv[1]`, so `verify.py --site X campaign` printed `FAIL --site: RAW_UPSTREAM_SENTINEL`. Confirmed by reading verify.py:491-501 and campaign_checks.py:33; logged on the PR.
 - Judgement: three rounds have closed one exception type at a time. Fix-3 asks for the structural fix (catch Exception at the campaign reporting boundary, translate to owned codes, use the parsed check), not another type added to the list. Dispatched as nz-election-campaign-verify-fix-3 on the build thread. Lesson for briefs: name the boundary, not the instance.
 - Codex window 22 percent, resets in 6.5 days.
+
+## 2026-10-24 20:18Z (job_done nz-election-campaign-verify-fix-3)
+
+- fix-3 c8091e1 host-verified: campaign tests 181 passed; the new regressions fail on e905c50 (20 failed) and pass on
+  c8091e1; verify.py campaign PASS; lint ok. Codex left last.md uncommitted in the worktree; moved out, not committed.
+- Pushed, supervisor accept logged on PR #75, fourth fresh review review-nz-election-campaign-verify-4 dispatched.
+- Main: verify.py night PASS, verify.py waterfall PASS (M3 night client gates, due 30 Oct); night-live workflow last ran
+  24 Oct 09:09Z success.
+- Second slot left empty this run: no brief ready; next run writes the Harden-row brief (schedule.md, 4 Nov).
+- Codex window 23 percent, resets in 6.5 days.
