@@ -2442,3 +2442,20 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
   'done N' at the end). Fresh review review-nz-election-harden dispatched.
 - Next: on job_done merge #76 and #77 if accept, CI green and (for #77) the gate log ends PASS; post the gate result on
   #77; then the phase 5 items left from the m3 gap research; first run after 01:00Z 27 Oct: capture the EC advance file.
+
+## 2026-10-24 21:22Z run (job_done review-nz-election-harden, review-nz-election-night-deployed)
+
+- No new issue from Byron. Codex window 27.0 percent, 6.4 days to reset.
+- PR #77 harden: online gate on the origin/data build ended `PASS harden`, `done 0`. Fresh review request changes,
+  four Important, all confirmed: a missing eval drops out of discovery; an eval printing SKIP with exit 0 passes;
+  without --history the gate prints the same PASS; one success plus 23 failures passes a day of history (the
+  question I put to the review on the social daily 1 success 1 failure). Judgement (single change, no line): history
+  policy is hourly no gap over 3 h between successes and every failure recovered within 2 h; dailies pass on the
+  day's last run concluding success. Alternative rejected: requiring 24 runs a day, which GitHub's dropped crons
+  would fail on healthy days. nz-election-harden-fix-1 dispatched on the build thread.
+- PR #76 night-deployed: fresh review request changes, three Important, all confirmed: CORS check passes on any
+  network failure; manifest fetch failure records no failure; fixture staging in the system temp dir.
+  nz-election-night-deployed-fix-1 dispatched on the build thread; host --probe after.
+- Both reviews logged on the PRs. CI pending on both.
+- Next: on job_done host-verify each (pytest, lint, night --probe on the host, harden gate online), push, second
+  fresh review, merge on CI green; first run after 01:00Z 27 Oct: capture the EC advance file.
