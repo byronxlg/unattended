@@ -345,8 +345,8 @@ def verify_campaign(envs, root, *, data=None, site=None):
     campaign.no_total_funding(envs)
     try:
         verify_advance(envs, root, data=data)
-    except ValueError as error:
-        raise ValueError(campaign.ADVANCE + ': ' + str(error)) from None
+    except ValueError:
+        raise ValueError(campaign.ADVANCE) from None
     # These facts are code-owned snapshots, not daily exports. Use exactly the
     # supplied daily bundle for rendering, without replacing it with fixtures.
     built = '2026-10-25T00:00:00Z'
@@ -356,8 +356,8 @@ def verify_campaign(envs, root, *, data=None, site=None):
         else:
             html = (site / 'parties/index.html').read_text()
             built = json.loads((site / 'build-manifest.json').read_text())['data']['built_at']
-    except (KeyError, TypeError, ValueError, OSError) as error:
-        raise ValueError(campaign.ABSENT + ': parties render: ' + str(error)) from None
+    except (KeyError, TypeError, ValueError, OSError):
+        raise ValueError(campaign.ABSENT) from None
     campaign.check_markup(html, rows, built[:4])
     from product.nz_election.pipeline.parties_page import load, supplemental
     absent = {**{n: load(n) for n in ('leaders', 'positions')},

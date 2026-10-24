@@ -152,7 +152,7 @@ def test_advance_delegated(tmp_path, monkeypatch):
     def fail(envs, root, **kwargs):
         raise ValueError('test advance failure')
     monkeypatch.setattr(verify, 'verify_advance', fail)
-    with pytest.raises(ValueError, match='^' + c.ADVANCE + ': test advance failure'):
+    with pytest.raises(ValueError, match='^' + c.ADVANCE + '$'):
         verify.verify_campaign({}, tmp_path)
 
 
@@ -205,7 +205,7 @@ def test_supplied_site_checked(tmp_path, monkeypatch):
     (site / 'parties').mkdir(parents=True)
     (site / 'parties/index.html').write_text('<p>Not reported</p>')
     (site / 'build-manifest.json').write_text(json.dumps({'data': {'built_at': '2026-10-25T00:00:00Z'}}))
-    with pytest.raises(ValueError, match='^' + c.ABSENT + ': ABSENT_TEXT'):
+    with pytest.raises(ValueError, match='^' + c.ABSENT + '$'):
         verify.verify_campaign({}, tmp_path, site=site)
 
 
@@ -215,13 +215,13 @@ def test_unrenderable_optional_date_has_named_failure(tmp_path, monkeypatch):
     def broken(*args, **kwargs):
         raise KeyError('received')
     monkeypatch.setattr(parties_page, 'page', broken)
-    with pytest.raises(ValueError, match='^' + c.ABSENT + ': parties render:'):
+    with pytest.raises(ValueError, match='^' + c.ABSENT + '$'):
         verify.verify_campaign({}, tmp_path)
 
 
 def test_omitted_candidate_cannot_change_final_poll(copied):
     edit(copied, 'pollster-record', lambda d: d['candidates'].pop(0))
-    with pytest.raises(ValueError, match='^' + c.FINAL_POLL + ': candidate ledger'):
+    with pytest.raises(ValueError, match='^' + c.FINAL_POLL + '$'):
         c.check_snapshots(copied)
 
 
@@ -230,5 +230,77 @@ def test_fieldwork_end_bound_to_source_label(copied):
         row = data['candidates'][0]
         row['fieldwork_end'] = '2014-10-13'
     edit(copied, 'pollster-record', change)
-    with pytest.raises(ValueError, match='^' + c.FINAL_POLL + ': fieldwork end'):
+    with pytest.raises(ValueError, match='^' + c.FINAL_POLL + '$'):
         c.check_snapshots(copied)
+
+
+MARKER = 'RAW_UPSTREAM_SENTINEL'
+
+
+def assert_safe_failure(code, operation):
+    with pytest.raises(ValueError) as raised:
+        operation()
+    assert code in str(raised.value)
+    assert MARKER not in str(raised.value)
+    assert str(raised.value) == code
+
+
+def test_campaign_failure_redacts_empty_heading():
+    assert_safe_failure(c.ABSENT, lambda: c.check_markup(
+        '<section><h2>' + MARKER + '</h2></section>', []))
+
+
+def test_campaign_failure_redacts_funding_key():
+    assert_safe_failure(c.NO_TOTAL_FUNDING, lambda: c.no_total_funding(
+        {'total_funding_' + MARKER: '1'}))
+
+
+@pytest.mark.parametrize('exception', [ValueError, TypeError, KeyError, AttributeError, OverflowError])
+@pytest.mark.parametrize('prefix,code', [('donations_count_mismatch: ', c.DONATION_INDEX),
+                                       ('', c.DONATION_ROWS)])
+def test_campaign_failure_redacts_loader_exception(exception, prefix, code):
+    def loader(path):
+        raise exception(prefix + MARKER)
+    # KeyError quotes its message, so it follows the fallback path.
+    expected = c.DONATION_ROWS if exception is KeyError else code
+    assert_safe_failure(expected, lambda: c.checked_load(
+        loader, None, c.DONATION_ROWS, {'donations_count_mismatch': c.DONATION_INDEX}))
+
+
+def test_campaign_failure_redacts_ec_party_label(monkeypatch):
+    from product.nz_election.pipeline import fixtures
+    captures = fixtures.captures
+    def changed(*args, **kwargs):
+        raw = captures(*args, **kwargs)
+        path = 'ec-2020-xml/parties.xml'
+        raw[path] = raw[path].replace(b'<short_name>ACT New Zealand</short_name>',
+                                     ('<short_name>' + MARKER + '</short_name>').encode())
+        return raw
+    monkeypatch.setattr(fixtures, 'captures', changed)
+    data = json.loads((snapshots.SNAPSHOTS / 'pollster-record.json').read_text())
+    assert_safe_failure(c.OFFICIAL_ERRORS, lambda: c.check_official(data))
+
+
+def test_campaign_failure_redacts_donation_row_id(copied):
+    edit(copied, 'donations', lambda d: d['records'][0].update(
+        id=MARKER, disclosed='2026-10-20'))
+    assert_safe_failure(c.DONATION_DATES, lambda: c.check_snapshots(copied))
+
+
+@pytest.mark.parametrize('prefix', ['', c.FINAL_POLL + ': '])
+@pytest.mark.parametrize('exception', [ValueError, KeyError, TypeError, IndexError, StopIteration])
+def test_campaign_failure_redacts_candidate_exception(monkeypatch, exception, prefix):
+    def broken(*args):
+        raise exception(prefix + MARKER)
+    monkeypatch.setattr(c, 'check_candidate_sources', broken)
+    assert_safe_failure(c.FINAL_POLL, c.check_snapshots)
+
+
+@pytest.mark.parametrize('target,code', [('verify_advance', c.ADVANCE), ('page', c.ABSENT)])
+def test_campaign_failure_redacts_delegated_exception(tmp_path, monkeypatch, target, code):
+    from product.nz_election.pipeline import parties_page
+    monkeypatch.setattr(verify, 'verify_advance', lambda *args, **kwargs: None)
+    def broken(*args, **kwargs):
+        raise ValueError(MARKER)
+    monkeypatch.setattr(verify if target == 'verify_advance' else parties_page, target, broken)
+    assert_safe_failure(code, lambda: verify.verify_campaign({}, tmp_path))

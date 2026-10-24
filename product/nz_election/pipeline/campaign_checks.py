@@ -28,9 +28,10 @@ ABSENT = 'CAMPAIGN_ABSENT'
 ADVANCE = 'CAMPAIGN_ADVANCE'
 
 
-def require(condition, invariant, detail):
+def require(condition, invariant):
+    """Only owned invariant codes cross the campaign reporting boundary."""
     if not condition:
-        raise ValueError(invariant + ': ' + detail)
+        raise ValueError(invariant)
 
 
 def no_total_funding(value):
@@ -39,7 +40,7 @@ def no_total_funding(value):
         for key, item in value.items():
             normalized = re.sub(r'[^a-z]', '', key.lower())
             require(not ('total' in normalized and 'funding' in normalized),
-                    NO_TOTAL_FUNDING, key)
+                    NO_TOTAL_FUNDING)
             no_total_funding(item)
     elif isinstance(value, list):
         for item in value:
@@ -47,7 +48,7 @@ def no_total_funding(value):
     elif isinstance(value, str):
         text = re.sub(r'<[^>]*>', ' ', value)
         require(not re.search(r'\btotal\s+(?:party\s+)?funding\s*(?:is|of|:|=)?\s*(?:NZD|\$|[0-9])', text, re.I),
-                NO_TOTAL_FUNDING, 'derived funding claim')
+                NO_TOTAL_FUNDING)
 
 
 def checked_load(loader, path, fallback, codes):
@@ -55,7 +56,7 @@ def checked_load(loader, path, fallback, codes):
         return loader(path)
     except (ValueError, TypeError, KeyError, AttributeError, OverflowError) as error:
         code = str(error).split(':')[0]
-        raise ValueError(codes.get(code, fallback) + ': ' + str(error)) from None
+        raise ValueError(codes.get(code, fallback)) from None
 
 
 # Exact EC short names in the archived 2020/2023 party reference files.
@@ -91,10 +92,10 @@ def check_official(data):
         votes = {}
         for row in election.findall('./partystatus/party'):
             label = labels[row.attrib['p_no']]
-            require(label in EC_PARTIES, OFFICIAL_ERRORS, 'unknown EC party: ' + label)
+            require(label in EC_PARTIES, OFFICIAL_ERRORS)
             votes[EC_PARTIES[label]] = row.findtext('votes')
         require({p['party_id']: p['votes'] for p in result['parties']} == votes,
-                OFFICIAL_ERRORS, f'{year}: shares must use archived official party votes')
+                OFFICIAL_ERRORS)
 
 
 def check_candidate_sources(data, directory):
@@ -121,16 +122,16 @@ def check_candidate_sources(data, directory):
                 fieldwork = clean(cell(cells[1 - label_index])[1])
                 observed[source['year'], label, fieldwork] += 1
     actual = Counter((r['year'], r['pollster'], r['fieldwork_label']) for r in data['candidates'])
-    require(actual == observed, FINAL_POLL, 'candidate ledger must account for every captured national poll')
+    require(actual == observed, FINAL_POLL)
     for row in data['candidates']:
         if row.get('fieldwork_precision') == 'day':
             # Only the end is used for selection; retain source typos in starts
             # and disjoint fieldwork spans without silently correcting them.
             match = re.search(r'([0-9]{1,2}) ([A-Za-z]+) ([0-9]{4})$', row['fieldwork_label'])
             require(match and match[2][:3] in MONTHS and any(d in row['fieldwork_label'] for d in ('-', '–')),
-                    FINAL_POLL, 'documented fieldwork range required')
+                    FINAL_POLL)
             end = date(int(match[3]), MONTHS[match[2][:3]], int(match[1])).isoformat()
-            require(row['fieldwork_end'] == end, FINAL_POLL, 'fieldwork end must match captured label')
+            require(row['fieldwork_end'] == end, FINAL_POLL)
 
 
 def check_snapshots(directory=None):
@@ -149,23 +150,21 @@ def check_snapshots(directory=None):
             # needs an explicit reviewed note explaining the source observation.
             if field in row and row[field] == row['retrieved_at'][:10]:
                 require(snapshots._text(row.get('date_note')) and row[field] in row['date_note'],
-                        DONATION_DATES, row['id'] + ': acquisition date requires source evidence')
+                        DONATION_DATES)
     records = checked_load(pollster_scorecard.load_pollster_record, poll_path, FINAL_POLL, {
         **{'scorecard_' + k: OFFICIAL_ERRORS for k in ('official', 'error', 'mean', 'decimal')},
         **{'scorecard_' + k: COVERAGE for k in ('coverage', 'absent_comparable_input', 'skip')},
     })
-    require({2020, 2023} <= {r['year'] for r in records}, COVERAGE, '2020 and 2023 required')
+    require({2020, 2023} <= {r['year'] for r in records}, COVERAGE)
     require(all(r['source_locator'].startswith('National party vote table ') for r in records),
-            FINAL_POLL, 'national party-vote scope required')
+            FINAL_POLL)
     poll_data = json.loads(poll_path.read_text())
     no_total_funding(poll_data)
     check_official(poll_data)
     try:
         check_candidate_sources(poll_data, directory)
-    except (ValueError, KeyError, TypeError, IndexError, StopIteration) as error:
-        if str(error).startswith(FINAL_POLL + ':'):
-            raise
-        raise ValueError(FINAL_POLL + ': captured national table: ' + str(error)) from None
+    except (ValueError, KeyError, TypeError, IndexError, StopIteration):
+        raise ValueError(FINAL_POLL) from None
     return rows, records
 
 
@@ -179,8 +178,8 @@ def descendants(node):
 def check_markup(html, rows, year='2026'):
     try:
         check_absent_text(html, 'campaign parties')
-    except ValueError as error:
-        raise ValueError(ABSENT + ': ' + str(error)) from None
+    except ValueError:
+        raise ValueError(ABSENT) from None
     tree = Tree(html)
     no_total_funding(tree.root.text)
     notes = {n.attrs.get('id'): n for n in tree.nodes
@@ -195,40 +194,40 @@ def check_markup(html, rows, year='2026'):
         if node.tag == 'figure':
             refs = node.attrs.get('aria-describedby', '').split()
             require(refs and all(ref in notes and notes[ref].text.strip() and sourced(notes[ref]) for ref in refs),
-                    PROVENANCE, 'figure source reference')
+                    PROVENANCE)
     blocks = [n for n in tree.nodes if 'party-donations' in n.attrs.get('class', '').split()]
     from .parties_page import ordered, largest_donors
     from .build import observation_label
     groups = {p: [r for r in rows if r['party_id'] == p and r.get('received', '')[:4] == year]
               for p in ordered([])}
     groups = {p: group for p, group in groups.items() if group}
-    require(len(blocks) == len(groups), ABSENT, 'donation modules must have backing rows')
+    require(len(blocks) == len(groups), ABSENT)
     for party, group in groups.items():
         sections = [n for n in tree.nodes if n.tag == 'section' and n.attrs.get('id') == party]
-        require(len(sections) == 1, ABSENT, 'party section required')
+        require(len(sections) == 1, ABSENT)
         matches = [n for n in descendants(sections[0]) if n in blocks]
-        require(len(matches) == 1, ABSENT, 'one donation module per party with returns')
+        require(len(matches) == 1, ABSENT)
         block = matches[0]
         total = sum((Decimal(r['amount_nzd']) for r in group), Decimal(0))
         require(block.attrs.get('data-total') == f'{total:.2f}'
                 and block.attrs.get('data-count') == str(len(group))
                 and f'NZD {total:,.2f}' in block.text
                 and f'{len(group)} declared returns' in block.text,
-                ABSENT, 'visible donation count and sum must match source rows')
+                ABSENT)
         actions = [n for n in descendants(block) if n.tag == 'p'
                    and 'source-actions' in n.attrs.get('class', '').split()]
         require(any(n.tag == 'a' and n.attrs.get('href') == group[0]['source_url']
                     for action in actions for n in descendants(action))
                 and 'Copyright Electoral Commission' in block.text
                 and 'not total party funding' in block.text,
-                PROVENANCE, 'donation source, attribution and scope')
+                PROVENANCE)
         donors = largest_donors(group)
         amounts = re.findall(r'NZD ([0-9][0-9,]*(?:\.[0-9]+)?)', block.text)
         require(amounts == ['20,000', f'{total:,.2f}']
                 + [f'{donor["amount"]:,.2f}' for _, donor in donors],
-                ABSENT, 'every displayed donation amount must have backing rows')
+                ABSENT)
         for name, donor in donors:
             require(name + f': NZD {donor["amount"]:,.2f}' in block.text,
-                    ABSENT, 'donor figure must match source rows')
+                    ABSENT)
             require(all(observation_label(day) in block.text for day in donor['dates']),
-                    ABSENT, 'receipt date must match source rows')
+                    ABSENT)
