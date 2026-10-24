@@ -134,7 +134,8 @@ def check_unassigned_after_unavailable_allocation(browser, site):
     from product.nz_election.pipeline import export
 
     server, origin = serve(site)
-    url = origin + PREFIX + 'nz-election/polls/'
+    base = origin + PREFIX + 'nz-election/'
+    url = base + 'polls/'
     try:
         for no_eligible in (False, True):
             average, seats = unassigned_inputs(no_eligible)
@@ -144,14 +145,15 @@ def check_unassigned_after_unavailable_allocation(browser, site):
             seats_raw = export.canonical(seats_env)
             envs = dict(averages=dict(data=[average]), seats=seats_env,
                         manifest=dict(data=[dict(path='seats.json', sha256=export.digest(seats_raw.encode()))]))
-            html = ('<!doctype html><html><head><link rel="stylesheet" href="' + url + 'styles.css">'
+            html = ('<!doctype html><html><head><link rel="stylesheet" href="' + base + 'styles.css">'
                     '</head><body><main><h1>Synthetic allocation regression</h1>' + explorer(envs) +
                     '</main></body></html>')
             ctx = context(browser, origin)
             try:
                 ctx.route(url, lambda route: route.fulfill(content_type='text/html', body=html))
-                ctx.route(url + 'data/averages.json', lambda route: route.fulfill(content_type='application/json', body=averages_raw))
-                ctx.route(url + 'data/seats.json', lambda route: route.fulfill(content_type='application/json', body=seats_raw))
+                # The client resolves data beside its module, not beside the polls page.
+                ctx.route(base + 'data/averages.json', lambda route: route.fulfill(content_type='application/json', body=averages_raw))
+                ctx.route(base + 'data/seats.json', lambda route: route.fulfill(content_type='application/json', body=seats_raw))
                 page = ctx.new_page()
                 page.goto(url, wait_until='networkidle')
                 root = page.locator('#coalition-explorer')
