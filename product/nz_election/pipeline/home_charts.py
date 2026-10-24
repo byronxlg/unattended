@@ -130,7 +130,7 @@ def trend_chart(averages, parties, *, maximum=None, polls=(), previous=None):
             continue
         position = max(py, last_position+44)
         last_position = position
-        marks += f'<path d="M{x:.1f} {py:.1f}L350 {position:.1f}" stroke="{colour(party)}" fill="none"/>'
+        marks += f'<path class="trend-label-tick" d="M342 {position:.1f}H350" stroke="var(--grey)" fill="none" aria-hidden="true"/>'
         delta = ''
         before = (previous or {}).get('descriptive', {}).get(party, {})
         after = averages[-1]['descriptive'].get(party, {})

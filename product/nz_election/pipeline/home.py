@@ -121,6 +121,7 @@ def social(envs, built):
 
 
 def footnote(name, publisher, updated):
+    publisher = publisher.rstrip('. ')
     return (f'<div class="source-note home-footnote" id="source-{name}">'
             f'<p class="source-actions">{publisher}. {updated} '
             f'<a href="{PREFIX}methods/#home-{name}">Sources and method</a></p></div>')

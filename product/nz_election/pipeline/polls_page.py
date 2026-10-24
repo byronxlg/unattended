@@ -36,6 +36,24 @@ def threshold_sentences(average):
                    'an electorate win can qualify it for list seats below 5%.</p>' for p, d in rows)
 
 
+def change_summary(first, latest):
+    ranked = sorted(((p, d) for p, d in latest['descriptive'].items()
+                     if p != 'others' and d.get('value') is not None),
+                    key=lambda row: -Fraction(row[1]['value'], row[1]['scale']))
+    leaders = {p for p, _ in ranked[:2]} | {'nat', 'lab'}
+    changes = []
+    for party, after in ranked:
+        before = first['descriptive'].get(party, {})
+        if party not in leaders or before.get('value') is None:
+            continue
+        delta = Decimal(after['value']) / after['scale'] - Decimal(before['value']) / before['scale']
+        changes.append(f'<span data-change-party="{party}">{escape(label(party))} {delta:+.1f} points</span>')
+    if not changes:
+        return ''
+    return ('<p class="poll-change-summary" aria-describedby="source-trend">' + '; '.join(changes)
+            + f' since <time datetime="{first["date"]}">{observation_label(first["date"])}</time>.</p>')
+
+
 def page(envs, built, presentation):
     polls = envs.get('polls', {}).get('data', [])
     averages = envs.get('averages', {}).get('data', [])
@@ -54,7 +72,8 @@ def page(envs, built, presentation):
     parties = [p for p in average.get('descriptive', {}) if p != 'others' and any(
         a['descriptive'].get(p, {}).get('value') is not None for a in selected)]
     if parties:
-        content += '<section id="trend" class="home-module"><h2>Has support changed?</h2><figure aria-describedby="source-trend">'
+        content += '<section id="trend" class="home-module"><h2>Has support changed?</h2>'
+        content += change_summary(selected[0], average) + '<figure aria-describedby="source-trend">'
         content += trend_chart(selected, parties, polls=polls, previous=selected[0]) + '</figure>'
         content += footnote('trend', 'Wikipedia contributors.', '') + '</section>'
     else:

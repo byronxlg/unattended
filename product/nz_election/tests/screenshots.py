@@ -318,6 +318,18 @@ def polls_fold_check(page):
     assert page.locator('.average-bars').bounding_box()['y'] + page.locator('.average-bars').bounding_box()['height'] <= 844, 'POLLS_AVERAGES_FOLD'
     caption = page.locator('#source-average').bounding_box()
     assert caption['y'] + caption['height'] <= 844, 'POLLS_DATE_FOLD'
+    summary = page.locator('.poll-change-summary')
+    assert summary.count() == 1, 'POLLS_CHANGE_SUMMARY_REQUIRED'
+    for party in ('nat', 'lab'):
+        answer = summary.locator(f'[data-change-party="{party}"]')
+        assert answer.count() == 1 and 'points' in answer.inner_text(), f'POLLS_CHANGE_ANSWER: {party}'
+        box = answer.bounding_box()
+        assert box and box['y'] >= 0 and box['y'] + box['height'] <= 844, f'POLLS_CHANGE_FOLD: {party}: {box}'
+        assert answer.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)') >= 14, 'POLLS_CHANGE_READABLE'
+    date = summary.locator('time')
+    assert date.count() == 1 and date.get_attribute('datetime'), 'POLLS_CHANGE_DATE'
+    box = date.bounding_box()
+    assert box and box['y'] >= 0 and box['y'] + box['height'] <= 844, 'POLLS_CHANGE_DATE_FOLD'
     assert page.locator('#trend .trend-layout').bounding_box()['y'] < 844, 'POLLS_TREND_START'
     if page.locator('#seats .strip').count():
         box = page.locator('#seats .strip').bounding_box()
@@ -589,7 +601,7 @@ def main():
                         (args.out / f'markets-module-{width}.json').write_text(json.dumps(page.locator('#markets').bounding_box()))
                     plain = nojs.new_page()
                     plain.goto(url, wait_until='networkidle')
-                    assert static_text(plain) == text, 'NO_JS_CONTENT_MISMATCH'
+                    assert static_text(plain) == text, f'NO_JS_CONTENT_MISMATCH: route={path or "/"} width={width}'
                     assert plain.locator('.desktop-nav').is_visible(), 'NO_JS_NAVIGATION_FAILED'
                     manifest.append(dict(route=PREFIX + 'nz-election/' + path, viewport=dict(width=width, height=height),
                                          path=name, sha256=hashlib.sha256(target.read_bytes()).hexdigest(),

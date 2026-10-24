@@ -74,6 +74,19 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
             f'<p class="source-actions"><a href="{PREFIX}data/{path}">{"Snapshot JSON (Packaged by the site)" if row.get("packaging_label") else "Snapshot JSON"}</a><a href="{PREFIX}data/{path[:-5]}.csv">{"CSV (Packaged by the site)" if row.get("packaging_label") else "CSV"}</a><a href="{RESULTS}">Official results</a><a href="{LAW}">Electoral Act s197</a></p></div>')
 
 
+def live_status(built, retrieval):
+    now = datetime.fromisoformat(built.replace('Z', '+00:00'))
+    opening = datetime.fromisoformat('2026-11-07T06:00:00+00:00')
+    if now < opening:
+        return 'Results start at 19:00 NZDT on 7 November.'
+    if not retrieval or datetime.fromisoformat(retrieval.replace('Z', '+00:00')) < opening:
+        return 'Showing the dated packaged snapshot; check official results.'
+    age = (now - datetime.fromisoformat(retrieval.replace('Z', '+00:00'))).total_seconds()
+    if age >= 900:
+        return f'Stale: last complete cycle retrieved {escape(retrieval)}. Check official results.'
+    return f'Preliminary results. Packaged by the site at {escape(retrieval)}.'
+
+
 def page(envs, built):
     sequences = envs.get('night/index', {}).get('data', [])
     pre_close = datetime.fromisoformat(built.replace('Z', '+00:00')) < datetime.fromisoformat('2026-11-07T19:00:00+13:00')
@@ -108,12 +121,13 @@ def page(envs, built):
     retrieval = ''
     if default['id'] == 'live':
         retrieval = envs[default['snapshot_paths'][0][:-5]]['data'][0]['retrieved_at']
+    status = live_status(built, retrieval)
     controls = ('<div id="night-controls" hidden><button type="button" id="night-play">Play</button> '
                 '<button type="button" id="night-reset">Reset</button> <label for="night-speed">Speed</label> '
                 '<select id="night-speed"><option value="1">1x</option><option value="10">10x</option><option value="60">60x</option></select>'
                 '<span id="night-clock" aria-live="off">Paused</span>'
                 '<span id="night-announcement" role="status" aria-live="polite" aria-atomic="true"></span></div>')
-    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + '<p id="night-live-status" role="status"></p>' + controls + f'<div id="night-snapshot" data-retrieved-at="{escape(retrieval)}">' + selected.replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ') + '</div>'
+    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + f'<p id="night-live-status" role="status">{status}</p>' + controls + f'<div id="night-snapshot" data-retrieved-at="{escape(retrieval)}">' + selected.replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ') + '</div>'
             '<p>2026: Preliminary; official results due 27 November.</p>' + links +
             ''.join(f'<template id="sequence-{s["id"]}">{p}</template>' for s, p in zip(sequences, panels)) +
             f'</div><script type="module" src="{PREFIX}night.mjs"></script><script type="module" src="{PREFIX}night-live.mjs"></script>')

@@ -10,7 +10,7 @@ export class NightLive {
   invalidate() { this.generation++; }
   notice() {
     this.status(this.now() < OPEN ? 'Results start at 19:00 NZDT on 7 November.' : !this.last ?
-      'Live updates unavailable. Showing the dated packaged snapshot; check official results.' :
+      'Showing the dated packaged snapshot; check official results.' :
       this.now() - Date.parse(this.last.retrieved_at) >= STALE ?
       `Stale: last complete cycle retrieved ${this.last.retrieved_at}. Check official results.` :
       `Preliminary results. Packaged by the site at ${this.last.retrieved_at}.`);
