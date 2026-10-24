@@ -123,6 +123,11 @@ def label(p):
     return config('party-colours').get(p, {}).get('label', 'Others' if p == 'others' else p)
 
 
+def abbreviation(p):
+    # Wikipedia's OPP source header is not the party's reader abbreviation.
+    return 'TOP' if p == 'opp' else p.upper()
+
+
 def party_link(p):
     from product.nz_election.pipeline.parties_page import party_link as anchor
     return anchor(p)
@@ -241,7 +246,7 @@ def strip(seats, note=''):
             if abs(line_left - line_anchor) > .01 or line_row:
                 side = 'right' if line_anchor > line_left else 'left'
                 labels.append(f'<span class="label-connector {mode}" aria-hidden="true" style="left:{min(line_left, line_anchor):.6f}%;width:{abs(line_left-line_anchor):.6f}%;height:{6+line_row*21}px;border-{side}:1px solid var(--ink)"></span>')
-        labels.append(f'<div class="lane" role="group" data-party="{p}" style="--row:{row};--left:{left:.6f}%;--large-left:{large_left:.6f}%" aria-label="{escape(label(p))}: {n} calculated seats"><span>{p.upper()}</span> <strong>{n}</strong></div>')
+        labels.append(f'<div class="lane" role="group" data-party="{p}" style="--row:{row};--left:{left:.6f}%;--large-left:{large_left:.6f}%" aria-label="{escape(label(p))}: {n} calculated seats"><span>{escape(abbreviation(p))}</span> <strong>{n}</strong></div>')
         records.append([party_link(p), str(base), str(extra), str(n)])
     marker = Decimal(seats['assumed_majority']) * 100 / total
     return (note + '<figure class="seat-figure" aria-describedby="source-seats"><div class="strip" role="img" '
