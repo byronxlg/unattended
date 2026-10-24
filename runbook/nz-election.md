@@ -48,3 +48,38 @@ The complete list remains a download only; no full-list route is published. Amou
 optional disclosure, with one rules link per event. The screenshot gate requires a maximum
 844 px module height at width 390 and rejects unpriced/placeholder contracts on every page.
 The existing M1/social recovery guide is `product/nz_election/runbook.md`.
+
+## Harden gate
+
+Run from the checkout root with the bundle and rendered site being accepted:
+
+```sh
+bin/nz-election-harden --data <bundle> --site <site> --history
+uv run product/nz_election/tools/check_workflow_history.py --days 3
+```
+
+The gate discovers every `evals/*/check.sh`, then runs `verify.py all`, requiring
+one explicit PASS for every registered family, including night, waterfall and
+campaign, before the final `PASS all`. A polls-only bundle cannot satisfy Harden.
+It then runs the social, social fix-round and night-operation freeze tests.
+Checks continue after failures; the last line is `PASS harden` or
+`FAIL harden: <first failing step>`, with exit status 0 or 1 respectively.
+Read earlier output for all failures, including missing family lines.
+
+History is opt-in with `--history`; omit it for local tests. For a full milestone
+record use it, or attach the standalone history result. The history command
+uses authenticated `gh run list` on main for every scheduled workflow discovered
+in `.github/workflows/`. It covers the last three complete Pacific/Auckland
+calendar days, excluding today, and reports successes and failures per workflow
+and day. Cancelled, skipped and other completed non-success runs count as failures;
+pending runs are not successes. At least one scheduled or manually dispatched
+success per day is required. Failures remain visible even when a retry passes.
+A day without a cron run that is covered by `workflow_dispatch` is explicitly
+flagged for investigation. Missing days, API errors and truncated history fail.
+
+`--offline` skips the remote-data eval `pages-home-bytes-live` with a reason;
+if combined with `--history`, history is also skipped. Every SKIP prevents an
+overall PASS. Newly added evals run by default; register any new network eval in
+`tools/harden.py` before using it offline. Save the date, code SHA, bundle/site
+identity, full command output and last line in the daily acceptance record.
+Offline fixture results demonstrate the checks, not live milestone acceptance.
