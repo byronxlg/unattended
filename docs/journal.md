@@ -2336,3 +2336,13 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Mon 2 Nov row needs `verify.py campaign`, which does not exist: nz-election-campaign-verify dispatched in .worktrees/nz-election-campaign-verify on change/nz-election-campaign-verify from bec0594 (pipeline and checks only; donations, pollster record, delegates advance).
 - Codex window 16 percent, 6.5 days to reset. No judgement calls sent.
 - Next: on job_done host-verify (verify campaign on origin/data, verify all, pytest, lint), PR, fresh review, merge; first run after 01:00Z 27 Oct: look for the 2026 EC advance file and capture it.
+
+## 2026-10-24 18:35Z (job_done nz-election-campaign-verify)
+
+- Codex eb27b19 (1215 s): campaign_checks.py, verify.py campaign wired into all, 95 tests. Its sandbox could not run Chromium (1 failed, 2 errors, same on base).
+- Host: `verify.py campaign` and `verify.py all` PASS on the live data branch 4735455 (git archive, data root product/nz_election/data; first attempt pointed --data at the checkout root and correctly failed UNSAFE_DATA_PATH, supervisor error, not a defect); 95 passed; lint ok. Full host pytest running detached (/tmp/cv-pytest.log, 'done N' at the end).
+- git push failed twice on DNS (Could not resolve host: github.com) while `gh` worked; succeeded on retry a minute later. Transient.
+- PR #75 opened, supervisor accept pending fresh review and full pytest logged, fresh review review-nz-election-campaign-verify dispatched read-only.
+- Second slot left empty this run: the Mon 2 Nov campaign row closes with #75, night-live rehearsal already ran (40080867847, 24 Oct, success); next build is the Harden round (Wed 4 Nov row: freeze test for the social daily, three days of green workflows), briefed after #75 merges.
+- Codex window 19 percent, 6.5 days to reset. No judgement calls sent.
+- Next: on job_done merge #75 if accept, CI green and host pytest clean; first run after 01:00Z 27 Oct: capture the 2026 EC advance file.
