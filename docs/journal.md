@@ -2404,3 +2404,23 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Codex window 23 percent, 6.4 days to reset.
 - Next: merge #75 on CI green, remove the worktree; read the gap research and brief the first
   increment; first run after 01:00Z 27 Oct: capture the 2026 EC advance file.
+
+## 2026-10-24 20:41Z (job_done research-nz-election-m3-gaps)
+
+- Gap research read: replay, archives, freeze and night/waterfall verifiers are done; missing are
+  deployed-origin evidence (probe, dated fallback, timed 60x rehearsal on the live site), a
+  repeatable all-evals plus verify-all run, and a complete three-day scheduled-workflow window.
+  Its proof URL used byronxlg.github.io; the live origin is byronxlg.com/unattended (200).
+- PR #75 campaign-verify: CI green (25 min), squash merged as b89ae38, worktree removed.
+- Dispatched nz-election-night-deployed (.worktrees/nz-election-night-deployed, from e2c76be):
+  product/nz_election/tests/night_deployed.py with --probe (same-origin JSON plus an unmodified
+  CORS fetch to media.election.net.nz as evidence), --rehearse --speed 60 (golden 2,851,211 votes,
+  House 122) and a separate --faults mode; record.json per run; runbook/night.md section.
+- Dispatched nz-election-harden (.worktrees/nz-election-harden, stacked on the #75 branch, now
+  merged; rebase onto main at review): bin/nz-election-harden (all evals discovered, verify all with
+  explicit family lines, freeze tests) and tools/check_workflow_history.py --days 3. Files disjoint
+  from the night job by brief.
+- Codex window 24 percent, 6.4 days to reset.
+- Next: on job_done host-verify each (night_deployed against the live origin from the host, since the
+  sandbox may block network), PR, fresh review, merge; first run after 01:00Z 27 Oct: capture the
+  2026 EC advance file.
