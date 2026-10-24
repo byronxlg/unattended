@@ -57,8 +57,9 @@ def test_live_capture_seats_and_published_derivations(tmp_path):
     assert 'others-remainder-0-to-10-v1' in (data / 'averages.csv').read_text()
     site = build(data, tmp_path / 'site/nz-election', built='2026-10-19T01:00:00Z')
     polls = (site / 'polls/index.html').read_text()
-    assert polls.count('Others derived:') == len({d['poll_id'] for d in derived})
     methods = (site / 'methods/index.html').read_text()
+    assert methods.count('Others derived:') == len({d['poll_id'] for d in derived})
+    assert 'Others includes derived remainders.' in polls
     assert 'Affected pollsters: Anacta, Talbot Mills.' in methods
     home = (site / 'index.html').read_text()
     assert 'Government 67 seats' in home
@@ -158,17 +159,16 @@ def test_derived_input_disclosure_on_every_affected_module(tmp_path):
         assert expected in module and f'href="{target}"' in module
         assert expected in VisibleText(module).text
     site = build(data, tmp_path / 'output', built=built)
-    for route in ('methods/index.html', 'polls/index.html', 'og/home.html', 'og/polls.html'):
+    for route in ('methods/index.html', 'og/home.html', 'og/polls.html'):
         html = (site / route).read_text()
         assert expected in html and f'href="{target}"' in html
     home = (site / 'index.html').read_text()
     for anchor in ('seats', 'trend', 'thresholds'):
         assert f'methods/#home-{anchor}' in home
     polls = (site / 'polls/index.html').read_text()
-    for heading, end in [('Which parties are near the 5 percent threshold?', '</section>'),
-                         ('What is the average party vote?', '</section>')]:
-        module = polls.split(heading, 1)[1].split(end, 1)[0]
-        assert expected in module
+    assert 'Others includes derived remainders.' in polls
+    assert 'methods/#source-average' in polls and 'methods/#home-seats' in polls
+    assert 'Others are derived as the remainder of reported shares.' in polls
     methods = (site / 'methods/index.html').read_text().split('id="derived-polls"', 1)[1].split('</section>', 1)[0]
     affected = {d['poll_id'] for a in envs['averages']['data'] for d in a['derivations']}
     assert set(re.findall(r'href="/unattended/nz-election/polls/#source-([^"]+)"', methods)) == affected

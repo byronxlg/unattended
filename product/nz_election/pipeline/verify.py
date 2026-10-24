@@ -39,7 +39,7 @@ def verify_polls(envs, root):
     page = build(root / 'data', root / 'rendered') / 'polls/index.html'
     html = page.read_text()
     from product.nz_election.pipeline.scripts import validate_scripts
-    require('How have the polls moved?' in html and validate_scripts(html), 'static poll history')
+    require('Has support changed?' in html and 'What did the latest polls find?' in html and validate_scripts(html), 'static poll history')
     coherent = next(a for a in reversed(envs['averages']['data']) if a['coherent'])
     from product.nz_election.pipeline.build import strip
     seats = project(coherent)

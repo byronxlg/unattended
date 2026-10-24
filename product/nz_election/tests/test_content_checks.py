@@ -53,7 +53,7 @@ def test_absent_sample_has_empty_cell(populated):
         poll['sample'] = None
     html = polls_page(envs, NOW)
     tree = Tree(html)
-    history = next(n for n in tree.nodes if n.tag == 'table' and 'All national 2026' in n.text)
+    history = next(n for n in tree.nodes if n.tag == 'table' and 'Ten most recent national polls' in n.text)
     rows = [n for n in history.children if not isinstance(n, str)]
     def samples(node):
         if node.tag == 'tr':
@@ -62,5 +62,5 @@ def test_absent_sample_has_empty_cell(populated):
                 assert cells[2].text == ''
                 return 1
         return sum(samples(c) for c in node.children if not isinstance(c, str))
-    assert sum(samples(row) for row in rows) == len(envs['polls']['data'])
+    assert sum(samples(row) for row in rows) == min(10, len(envs['polls']['data']))
     assert 'Not reported' not in html

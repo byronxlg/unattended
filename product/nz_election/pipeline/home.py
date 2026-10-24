@@ -190,7 +190,7 @@ def night_summary(envs, built):
             + f'<p><a href="{PREFIX}night/">Election night results</a></p></section>')
 
 
-def hero(envs, built, presentation):
+def hero(envs, built, presentation, *, heading=None, show_change=True):
     from .home_charts import colour
     result = presentation['result']
     if not result:
@@ -201,7 +201,8 @@ def hero(envs, built, presentation):
     answer = ('exactly enough seats to govern' if difference == 0 else
               f'{difference} more than the {result["assumed_majority"]} needed' if difference > 0 else f'{-difference} short of the {result["assumed_majority"]} needed')
     content = f'<p class="seat-answer">Governing parties: {totals[0][1]} seats, {answer}.</p>'
-    content += '<p class="poll-change" aria-describedby="source-trend">' + poll_change(envs) + '</p>'
+    if show_change:
+        content += '<p class="poll-change" aria-describedby="source-trend">' + poll_change(envs) + '</p>'
     content += '<div class="topline">' + ''.join(
         f'<p aria-label="{key.title()} {n} seats" class="bloc-{groups[key]["token"]}">{key.title()} <strong>{n}</strong></p>' for key, n in totals) + '</div>'
     total = result['assumed_house']
@@ -233,7 +234,8 @@ def hero(envs, built, presentation):
         content += f'<p class="bloc-neutral">{remainder} seats outside these groups or unassigned</p>'
     averages = envs.get('averages', {}).get('data', [])
     stamp = 'Average ' + observation_label(averages[-1]['date']) if averages else ''
-    return ('<section id="seats" class="home-hero"><h1 class="chart-data">Who is favoured to form the next government?</h1>'
+    title = '<h2>' + escape(heading) + '</h2>' if heading else '<h1 class="chart-data">Who is favoured to form the next government?</h1>'
+    return ('<section id="seats" class="home-hero">' + title +
             '<figure id="home-seats" aria-describedby="source-seats">' + content + '</figure>'
             + footnote('seats', stamp, '') + '</section>')
 

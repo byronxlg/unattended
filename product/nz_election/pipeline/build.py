@@ -340,19 +340,10 @@ def seat_module(envs, built, presentation=None):
 
 def polls_page(envs, built, presentation=None, *, full_sources=False):
     presentation = presentation if presentation is not None else home_presentation(envs, built)
+    if not full_sources:
+        from product.nz_election.pipeline.polls_page import page
+        return page(envs, built, presentation)
     state, picture = seat_module(envs, built, presentation)
-    if not full_sources and not presentation['result']:
-        picture = '<span id="source-seats"></span>'
-        from product.nz_election.pipeline.home import thresholds, footnote, updated
-        graphic = thresholds(envs) if 'seats' in envs else ''
-        if graphic:
-            picture += '<section><h2>Which parties are near the 5 percent threshold?</h2>' + graphic + footnote('thresholds', 'Wikipedia contributors', updated(envs, 'polls', built)) + '</section>'
-        else:
-            picture += '<span id="source-thresholds"></span>'
-        for tie in envs.get('seats', {}).get('data', {}).get('unresolved_ties', []):
-            names = [label(p) for p in tie.get('candidates', [])]
-            if names:
-                picture += '<p>Tie for the last seat between ' + escape(' and '.join(names)) + '; shown unassigned.</p>'
     if 'polls' not in envs:
         return render('polls', state='', picture=picture, explorer='', details='')
     polls, average = envs['polls']['data'], envs['averages']['data'][-1]
@@ -361,17 +352,15 @@ def polls_page(envs, built, presentation=None, *, full_sources=False):
     details += table('Descriptive shares and coverage', ['Party', 'Share', 'Polls'],
                      [[party_link(p), display(d['value'], d['scale']), str(len(d['poll_ids']))]
                       for p, d in average['descriptive'].items() if d['value'] is not None], source='source-average')
-    if full_sources and average['missing']:
+    if average['missing']:
         details += '<p>Missing observations:</p><ul>' + ''.join(f'<li>{escape(m["poll_id"])}: {escape(label(m["party_id"]))}</li>' for m in average['missing']) + '</ul>'
-    if full_sources and average['exclusions']:
+    if average['exclusions']:
         details += '<ul>' + ''.join(f'<li>{escape(e["poll_id"])}: {escape(e["reason"])}</li>' for e in average['exclusions']) + '</ul>'
     details += derivation_note(average)
     details += source_note(envs['averages'], 'source-average', 'averages.json',
                            calculation='Available poll shares averaged with equal weight by this site.',
                            contributing_polls=presentation['selected'])
     details += '</section></div>'
-    if not full_sources and not any(d['value'] is not None for d in average['descriptive'].values()):
-        details = '<span id="source-average"></span>'
     parties = list(config('party-map')['headers'].values())
     history, row_notes = [], []
     for poll in sorted(polls, key=lambda p: (p['fieldwork_end'], p['id']), reverse=True):
@@ -387,24 +376,11 @@ def polls_page(envs, built, presentation=None, *, full_sources=False):
                         *[display(poll['shares'][p], poll['scale']) if poll['shares'].get(p) is not None else '' for p in parties], refs])
     details += '<h2>How have the polls moved?</h2>' + table('All national 2026 observations in the source revision; scroll for all parties',
                                             ['Pollster', 'Fieldwork', 'Sample'] + [label(p) for p in parties] + ['Reports'], history, source='source-history')
-    if full_sources:
-        details += source_note(envs['polls'], 'source-history', 'polls.json').rstrip()[:-6] + '<div><p><strong>Individual poll sources and fieldwork dates</strong></p>' + ''.join(row_notes) + '</div></div>'
-    else:
-        note = source_note(envs['polls'], 'source-history', 'polls.json').split('</p>', 1)[0]
-        aliases = ''.join(f'<span id="source-{escape(p["id"], quote=True)}"></span>' for p in polls)
-        details += note.replace('class="source-note"', 'class="source-note home-footnote route-note"') + '</p><p class="source-actions">' + aliases + f'<a href="{PREFIX}methods/#source-history">Sources and method</a></p></div>'
+    details += source_note(envs['polls'], 'source-history', 'polls.json').rstrip()[:-6] + '<div><p><strong>Individual poll sources and fieldwork dates</strong></p>' + ''.join(row_notes) + '</div></div>'
 
     details += f'<p><a href="{PREFIX}data/averages.json">Daily average series and exact inputs</a></p>'
-    if not full_sources:
-        def compact(match):
-            identity, paragraph = match.group(1), match.group(2)
-            return (f'<div class="source-note home-footnote route-note" id="{identity}"><p>{paragraph}</p>'
-                    f'<p class="source-actions"><a href="{PREFIX}methods/#{identity}">Sources and method</a></p></div>')
-        pattern = r'<div[^>]*class="source-note"[^>]*id="(source-(?:average|thresholds))"[^>]*>\s*<p>(.*?)</p>.*?</div>'
-        picture = re.sub(pattern, compact, picture, flags=re.S)
-        details = re.sub(pattern, compact, details, flags=re.S)
     return render('polls', state=state, picture=picture,
-                  explorer=explorer(envs, not presentation['stale']) if presentation['result'] or full_sources else '<span id="coalition-explorer"></span><span id="coalition-title"></span>', details=details)
+                  explorer=explorer(envs, not presentation['stale']), details=details)
 
 
 def methods_page(stage, built, sha, run_url, envs=None):
@@ -613,8 +589,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
             target.mkdir(parents=True, exist_ok=True)
             title = ('New Zealand votes on 7 November 2026' if slug == '' else
                      'Proof of concept: what X says about the parties' if slug == 'social/poc/' else route['label'])
-            heading = ('' if slug in {'', 'vote/', 'parties/'} else
-                       '<h1>What do the polls tell us?</h1>' + ('<p aria-describedby="source-seats">' + escape(home['title']) + '</p>' if home['result'] else '') if slug == 'polls/' else
+            heading = ('' if slug in {'', 'vote/', 'parties/', 'polls/'} else
                        '<h1>' + escape({'night/': 'Election night results', 'electorates/': 'Who is standing in your electorate?', 'methods/': 'How are these numbers calculated?', 'downloads/': 'Where does the data come from?', 'campaign/': 'What is happening in the campaign?', 'social/poc/': 'What are people posting about the parties?'}.get(slug, title)) + '</h1>')
             title, description = summary(route, envs, home, built)
             key = route_key(slug)
@@ -626,6 +601,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                                built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.')
             if slug in {'', 'polls/', 'methods/'}:
                 page_html = page_html.replace('</head>', f'<link rel="stylesheet" href="{PREFIX}party-links.css"></head>')
+            if slug == 'polls/':
+                page_html = page_html.replace('</head>', f'<link rel="stylesheet" href="{PREFIX}polls.css"></head>')
             if slug.startswith('electorates/') and slug != 'electorates/':
                 page_html = page_html.replace('</head>', f'<link rel="stylesheet" href="{PREFIX}electorate.css"></head>')
             if slug == 'parties/':
@@ -640,6 +617,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
             shutil.copyfile(PRODUCT / 'web' / asset, stage / asset)
         for page in stage.rglob('*.html'):
             validate_scripts(page.read_text())
+        shutil.copyfile(PRODUCT / 'web/polls.css', stage / 'polls.css')
         shutil.copyfile(PRODUCT / 'web/party-links.css', stage / 'party-links.css')
         shutil.copyfile(PRODUCT / 'web/parties.css', stage / 'parties.css')
         shutil.copyfile(PRODUCT / 'web/night.css', stage / 'night.css')

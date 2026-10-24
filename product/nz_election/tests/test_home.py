@@ -251,7 +251,7 @@ def test_poll_budget_rejects_oversized_dependency(populated, tmp_path, extra_byt
     before = transfer_bytes(site)[0]
     # Deterministic incompressible padding exercises the transferred-byte limit.
     padding = base64.b64encode(random.Random(0).randbytes(extra_bytes)).decode('ascii')
-    dependency = site / 'coalitions.mjs'
+    dependency = site / 'polls.css'
     dependency.write_text(dependency.read_text() + '\n/*' + padding + '*/\n')
     assert transfer_bytes(site)[0] == before
     with pytest.raises(AssertionError, match=f'{failure}: polls/index.html:'):

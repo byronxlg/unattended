@@ -60,15 +60,16 @@ def test_incomplete_vector_withholds_seats(tmp_path):
     html = (out / 'polls/index.html').read_text()
     assert 'class="strip"' not in html
     assert 'Incomplete party coverage' in (out / 'methods/index.html').read_text()
-    assert 'Missing observations' not in html and 'How have the polls moved?' in html
+    assert 'Missing observations' not in html and 'Has support changed?' in html
     assert 'Missing observations' in (out / 'methods/index.html').read_text()
 
 
 def test_source_html_escaped(tmp_path):
     path = data(tmp_path)
     def inject(rows):
-        rows[0]['pollster'] = '<script>alert(1)</script>'
-        rows[0]['reference_urls'] = ['javascript:alert(1)', 'https://example.invalid/?q="<bad>']
+        row = max(rows, key=lambda p: (p['fieldwork_end'], p['id']))
+        row['pollster'] = '<script>alert(1)</script>'
+        row['reference_urls'] = ['javascript:alert(1)', 'https://example.invalid/?q="<bad>']
     rewrite(path, inject)
     site = build(path, tmp_path / 'output')
     html = (site / 'polls/index.html').read_text()

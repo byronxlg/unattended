@@ -117,10 +117,9 @@ def test_real_first_view_budget(built_design):
         assert total < 100_000, f'FIRST_VIEW_GZIP_BYTES: {page}: {total}: {files}'
         assert {f'fonts/{name}.woff2' for name in ('libre-franklin-400', 'libre-franklin-700', 'jetbrains-mono-400')} <= files.keys()
         assert {'favicon.svg', 'icon-180.png', 'manifest.webmanifest', page, 'styles.css'} <= files.keys()
-        if page == 'index.html':
-            assert not explorer_assets & files.keys()
-        else:
-            assert explorer_assets <= files.keys()
+        assert not explorer_assets & files.keys()
+        if page == 'polls/index.html':
+            assert 'polls.css' in files
         assert not any('2025' in name for name in files), page
     assert not list(site.rglob('axe*'))
 

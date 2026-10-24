@@ -13,9 +13,9 @@ def test_all_routes_after_client_startup(populated):
     assert check_site(site) == 81
     polls = rendered_page(site, (site / 'polls/index.html').read_text())
     names = [attrs['aria-label'] for _, attrs in Document(polls).nodes if attrs.get('role') == 'region']
-    assert names.count('Theoretical seats and overhang') == 1
-    assert names.count('Scenario seats and overhang') == 1
-    assert '<caption>Scenario seats and overhang</caption>' in polls
+    assert names == ['Ten most recent national polls; reported party vote percent']
+    assert '<caption>Ten most recent national polls; reported party vote percent</caption>' in polls
+    assert '<fieldset' not in polls
 
 
 def test_duplicate_region_rejected():
