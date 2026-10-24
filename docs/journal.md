@@ -2393,3 +2393,14 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
   24 Oct 09:09Z success.
 - Second slot left empty this run: no brief ready; next run writes the Harden-row brief (schedule.md, 4 Nov).
 - Codex window 23 percent, resets in 6.5 days.
+
+## 2026-10-24 20:30Z run (job_done review-nz-election-campaign-verify-4)
+
+- PR #75 fourth fresh review (read-only, c8091e1): accept, no findings; both third-review escapes
+  closed (campaign_checks.py:45, verify.py:495), 65 probes PASS. Logged on the PR with supervisor
+  accept. CI run 40129249270 still in progress at 20:33Z; not merged this run.
+- Dispatched research-nz-election-m3-gaps (read-only): gap list for the 30 Oct M3 night client, 4 Nov
+  harden and 6 Nov rehearsal rows, with the next three increments. Keeps a job running (issue #43).
+- Codex window 23 percent, 6.4 days to reset.
+- Next: merge #75 on CI green, remove the worktree; read the gap research and brief the first
+  increment; first run after 01:00Z 27 Oct: capture the 2026 EC advance file.
