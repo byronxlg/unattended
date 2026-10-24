@@ -2300,3 +2300,12 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Hourly last success 12:48Z; the bin/tick watchdog covers it at 90 min.
 - Codex window 13 percent, 6.7 days to reset.
 - Next: merge #73 on CI green, confirm Pages, link to Byron; coalitions_browser stale-check follow-up (retire or retarget; whether the explorer returns follows pages/polls.md); M2 acceptance check (due 26 Oct NZ); read social run 40101097707 about 16:30Z.
+
+## 2026-10-24 17:09Z (heartbeat)
+
+- PR #73 polls refinement: CI green (run 40100135699), second fresh review accept already logged; squash merged as 31b71cb, worktree removed.
+- Social daily 40101097707 (by hand, proving run for PR #69): success, PASS social, published 16:18Z (sha 9d7a776) with per-post exclusions (check=sum) within the bound; no retry spent the allocation, so the partial-day path was not exercised. Scheduled 16:54Z social daily success. Hourly 16:09Z success.
+- Stale run marker state/jobs/review-nz-election-coalitions-fix/running removed (PR #72 merged).
+- Decision (reversible, one change): retire the dead coalition explorer client path rather than bring it back; pages/polls.md does not list the explorer. nz-election-explorer-retire dispatched in .worktrees/nz-election-explorer-retire on change/nz-election-explorer-retire from 31b71cb (fragments kept, verify checks retargeted with named invariants).
+- Codex window 13 percent, 6.6 days to reset. No judgement calls sent.
+- Next: on job_done host-verify (pytest, lint, verify all, harness BROKEN_FRAGMENT clean, no route loads coalitions.mjs), PR, fresh review, merge; Pages for 31b71cb and link to Byron; M2 acceptance check (due 26 Oct NZ).
