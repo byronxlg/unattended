@@ -217,7 +217,11 @@ def cors_probe(page, record, *, feed_root=FEED, acquire=None):
             record.check(name, item['status'] == 'PASS', reason)
 
 
-def probe_phase(page, base):
+def host_now():
+    return datetime.now(timezone.utc)
+
+
+def probe_phase(page, base, *, now=None):
     url = urljoin(base, 'night-live.mjs')
     # Reading the schedule must not execute a module and repair a broken page init.
     result = page.evaluate('''async url => {
@@ -229,9 +233,11 @@ def probe_phase(page, base):
         raise ValueError('NIGHT_SCHEDULE_UNAVAILABLE')
     opening = datetime.fromisoformat(match[1].replace('Z', '+00:00'))
     opening_ms = opening.timestamp() * 1000
-    return dict(name='before-close' if result['now_ms'] < opening_ms else 'after-close',
+    observed = (now or host_now)().astimezone(timezone.utc)
+    return dict(name='before-close' if observed < opening else 'after-close',
                 schedule_url=url, opening_utc=match[1], opening_ms=opening_ms,
-                observed_utc=datetime.fromtimestamp(result['now_ms'] / 1000, timezone.utc).isoformat())
+                clock_source='host-utc', observed_utc=observed.isoformat(),
+                page_now_ms=result.get('now_ms'))
 
 
 def page_errors(record, expected_resources=()):
@@ -253,7 +259,7 @@ def night_data_url(url, base):
                                            '/data/night/' in path and path.endswith('.json'))
 
 
-def probe(page, base, record, responses, feed_root=FEED):
+def probe(page, base, record, responses, feed_root=FEED, *, now=None):
     started = time.monotonic()
     page.goto(urljoin(base, 'night/'))
     page.wait_for_load_state('networkidle')
@@ -270,7 +276,7 @@ def probe(page, base, record, responses, feed_root=FEED):
     record.check('page-same-origin', all(origin(r['url']) == origin(base) for r in requests), json.dumps(requests))
     pictures(page, record, 'fallback')
     cors_probe(page, record, feed_root=feed_root)
-    phase = probe_phase(page, base)
+    phase = probe_phase(page, base, now=now)
     record.data['probe_phase'] = phase
     seen = []
     for response in list(responses):

@@ -284,7 +284,8 @@ all observed same-origin night JSON responses, using the existing envelope/row v
 the deployed NightLive package validator. Before polls close, zero page data requests is expected
 and accepted only with a visible countdown and vote link and no unexpected page errors.
 `probe_phase` records before/after close using the deployed module's OPEN schedule and the
-browser clock, without executing the module. From close, a completed, successful, validated
+host's Python UTC clock, without executing the module. The page's `Date.now()` value is recorded
+as informational `page_now_ms` only and cannot decide the phase. From close, a completed, successful, validated
 night JSON response requested after opening is required; zero or pending responses fail.
 Unexpected page errors fail every mode and are listed in `unexpected_page_errors`; expected
 CORS diagnostics and injected fault HTTP errors remain separately recorded. The four ordinary in-page

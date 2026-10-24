@@ -167,7 +167,7 @@ def probe_evidence(monkeypatch, tmp_path, mode):
                                get_attribute=lambda name: None, is_visible=lambda: True))
     monkeypatch.setattr(deployed, 'host_fetch', acquire, raising=False)
     monkeypatch.setattr(deployed, 'pictures', lambda *args: None)
-    deployed.probe(page, record.data['base_url'], record, [])
+    deployed.probe(page, record.data['base_url'], record, [], now=lambda: host_instant(False))
     return [c for c in record.data['checks'] if c['check'].startswith('cors-evidence-')], record
 
 
@@ -275,7 +275,7 @@ def test_probe_phase_acceptance(monkeypatch, tmp_path, case, after, expected):
         record.data['requests'].append(dict(url=response.url, status=response.status, state='finished'))
     if case in {'pending', 'pending-with-valid'}:
         record.data['requests'].append(dict(url=base + 'night-live.json', status=None, state='pending'))
-    deployed.probe(page, base, record, responses)
+    deployed.probe(page, base, record, responses, now=lambda: host_instant(after))
     checks = {c['check']: c for c in record.data['checks']}
     assert (checks['night-data-transport']['status'] == 'PASS') is expected
     assert record.write()[1] is not expected
@@ -295,3 +295,50 @@ def test_unexpected_errors_fail_each_mode(tmp_path, mode, kind):
                                               location=dict(url='https://site.example/night-live.mjs')))
     assert page_errors(record)
     assert record.write()[1]
+
+
+
+def host_instant(after):
+    from datetime import datetime, timezone
+    return datetime.fromtimestamp(schedule_result(after)['now_ms'] / 1000, timezone.utc)
+
+
+def test_overridden_page_clock_cannot_hide_post_close_transport(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+    from datetime import datetime, timezone
+    from product.nz_election.tests import night_deployed as deployed
+    base = 'https://site.example/product/'
+    record = deployed.Record('probe', base, tmp_path)
+    real_now = datetime(2026, 11, 7, 6, 1, tzinfo=timezone.utc)
+    # Override the default host clock, so this same test exercises the old implementation.
+    monkeypatch.setattr(deployed, 'host_now', lambda: real_now, raising=False)
+    monkeypatch.setattr(deployed, 'pictures', lambda *args: None)
+    monkeypatch.setattr(deployed, 'cors_probe', lambda *args, **kwargs: None)
+    page = SimpleNamespace(goto=lambda url: None, wait_for_load_state=lambda state: None,
+                           evaluate=lambda script, url: schedule_result(False),
+                           locator=lambda selector: SimpleNamespace(
+                               inner_text=lambda: 'Final snapshot 2023-11-03 Official results',
+                               get_attribute=lambda key: None, is_visible=lambda: True))
+    deployed.probe(page, base, record, [])
+    check = next(c for c in record.data['checks'] if c['check'] == 'night-data-transport')
+    assert check['status'] == 'FAIL'
+    assert record.write()[1]
+    phase = record.data['probe_phase']
+    assert phase['name'] == 'after-close'
+    assert phase['clock_source'] == 'host-utc'
+    assert phase['observed_utc'] == real_now.isoformat()
+    assert phase['page_now_ms'] < phase['opening_ms']
+
+
+@pytest.mark.parametrize('after', [False, True])
+@pytest.mark.parametrize('page_time', [None, -1, 0, 10**20, 'invalid', {}])
+def test_phase_uses_injected_host_clock(after, page_time):
+    from types import SimpleNamespace
+    from product.nz_election.tests.night_deployed import probe_phase
+    result = schedule_result(not after)
+    result['now_ms'] = page_time
+    phase = probe_phase(SimpleNamespace(evaluate=lambda *args: result), 'https://site.example/',
+                        now=lambda: host_instant(after))
+    assert phase['name'] == ('after-close' if after else 'before-close')
+    assert phase['observed_utc'] == host_instant(after).isoformat()
+    assert phase['page_now_ms'] == page_time
