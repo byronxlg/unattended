@@ -272,19 +272,23 @@ No credentials are required.
 
 Each invocation writes `artifacts/nz-election/deployed/<mode>-<UTC stamp>/record.json` even
 on failure. Keep artifacts untracked. The last stdout line is `PASS deployed-<mode>` or
-`FAIL deployed-<mode>: <check>`; failure exits nonzero. Read `checks` for PASS/FAIL reasons,
+`FAIL deployed-<mode>: <check>`; failure exits nonzero. INCONCLUSIVE checks also prevent PASS and exit nonzero. Read `checks` for reasons,
 `requests`, `failed_requests` and `night_data_responses` for transport evidence, `phases`
 for actual wall seconds, and `screenshots` for paths relative to the record directory.
-`code_sha` and `data_sha` come from the served build manifest when exposed, otherwise remain
-null with the provenance response recorded. Browser/version, origin and UTC bounds identify
+`code_sha` and `data_sha` require an HTTP 200 build manifest with both SHAs containing exactly
+40 hexadecimal characters. Missing, malformed or unavailable provenance fails acceptance. Browser/version, origin and UTC bounds identify
 what was tested. Inspect the start/middle/end phone and desktop screenshots before acceptance.
 
 Probe never intercepts requests or changes time/security. It records the dated fallback and
 all observed same-origin night JSON responses, using the existing envelope/row validators or
 the deployed NightLive package validator. Before polls close, zero page data requests is expected
 and explicitly recorded, not a claim that live polling was exercised. The four ordinary in-page
-CORS fetches record readable HTTP responses or browser failures. CORS failure is expected;
-network/TLS failures are not proof of a missing CORS header, so retain the console evidence.
+CORS fetches validate readable HTTP 200 XML through the existing reference and election parsers.
+A blocked fetch passes only with a URL-specific browser CORS diagnostic and an independent
+host read returning a non-empty, valid upstream body. Host reads use the existing bounded feed
+fetcher and never substitute bytes into the browser. DNS, TLS, timeout, unreachable or empty
+upstream responses are INCONCLUSIVE with reasons; missing CORS diagnostics also remain
+INCONCLUSIVE. Invalid readable responses fail acceptance.
 A local base URL still probes the real official URLs; only the offline pytest fixture substitutes
 local feed URLs. Replay uses real elapsed time, pauses at the middle frame for screenshots,
 resumes to the golden endpoint, resets, and selects all three final archives. Its console errors
@@ -292,6 +296,6 @@ and official-feed requests must be empty.
 
 Faults alone installs a simulated post-close clock and intercepts packaged JSON. Its initial
 package is explicitly labelled offline fixture data, validated through the existing night
-pipeline. It then tests HTTP failure and an unchanged package aging past 15 minutes, retaining
+pipeline and retained beneath the record directory in `fault-fixture/`. It then tests HTTP failure and an unchanged package aging past 15 minutes, retaining
 the exact last-good HTML and showing Stale. This is client resilience evidence, never evidence
 of a real published live cycle or an Actions acquisition rehearsal.

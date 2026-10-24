@@ -9,13 +9,13 @@ import json
 from pathlib import Path
 import re
 import sys
-import tempfile
 import time
 from urllib.parse import urljoin, urlsplit
 
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from product.nz_election.pipeline import export, night
+from product.nz_election.pipeline import export, night, xml_parser
+from product.nz_election.pipeline.fetch import night_xml
 from product.nz_election.tests.night_browser import launch_chromium, SIZES
 
 FEED = 'https://media.election.net.nz/xml/'
@@ -42,12 +42,15 @@ class Record:
         self.data['checks'].append(dict(check=name, status='PASS' if passed else 'FAIL', reason=reason))
         return passed
 
+    def inconclusive(self, name, reason):
+        self.data['checks'].append(dict(check=name, status='INCONCLUSIVE', reason=reason))
+
     def phase(self, name, start):
         self.data['phases'].append(dict(phase=name, wall_seconds=round(time.monotonic() - start, 3)))
 
     def write(self):
         self.data['end_utc'] = utc()
-        failures = [c['check'] for c in self.data['checks'] if c['status'] == 'FAIL']
+        failures = [c['check'] for c in self.data['checks'] if c['status'] != 'PASS']
         self.data['status'] = 'FAIL' if failures else 'PASS'
         (self.out / 'record.json').write_text(json.dumps(self.data, indent=2) + '\n')
         return ('FAIL deployed-' + self.data['mode'] + ': ' + ', '.join(failures) if failures
@@ -83,16 +86,21 @@ def observe(context, record):
 
 def provenance(page, base, record):
     result = page.evaluate('''async url => {
-      try { const r = await fetch(url, {credentials:'omit'});
+      try { const r = await fetch(url, {credentials:'omit', signal:AbortSignal.timeout(20000)});
         return {status:r.status, body:await r.json()};
       } catch(e) {return {error:String(e)}}
     }''', urljoin(base, 'build-manifest.json'))
     record.data['provenance'] = result
-    body = result.get('body', {}).get('data', {})
+    envelope = result.get('body')
+    body = envelope.get('data') if isinstance(envelope, dict) else None
     if isinstance(body, list):
-        body = body[0] if body else {}
-    if isinstance(body, dict):
-        record.data.update(code_sha=body.get('code_sha'), data_sha=body.get('data_sha'))
+        body = body[0] if len(body) == 1 else None
+    valid = (result.get('status') == 200 and isinstance(body, dict) and
+             all(isinstance(body.get(key), str) and re.fullmatch(r'[0-9a-fA-F]{40}', body[key])
+                 for key in ('code_sha', 'data_sha')))
+    record.check('provenance', bool(valid), json.dumps(result))
+    if valid:
+        record.data.update(code_sha=body['code_sha'], data_sha=body['data_sha'])
 
 
 def pictures(page, record, state):
@@ -126,6 +134,79 @@ def validate_response(page, response, base):
     return 'Accepted by export.validate_envelope and night.validate_row'
 
 
+def host_fetch(url):
+    """Independent, bounded read: never proxy these bytes into the browser."""
+    root, filename = url.rsplit('/', 1)
+    # The existing fetcher permits only reviewed roots and returns bytes only on HTTP 200.
+    return dict(status=200, raw=night_xml(root + '/', filename))
+
+
+def cors_probe(page, record, *, feed_root=FEED, acquire=None):
+    acquire = acquire or host_fetch
+    evidence, bodies = {}, {}
+    for filename in NATIONAL:
+        url = urljoin(feed_root, filename)
+        offset = len(record.data['console_errors'])
+        browser = page.evaluate('''async url => {
+          try {const r = await fetch(url, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(20000)});
+            return {outcome:'readable', status:r.status, text:await r.text()};
+          } catch(e) {return {outcome:'blocked-or-network-error', name:e.name, error:String(e)}}
+        }''', url)
+        item = dict(url=url, browser={k:v for k,v in browser.items() if k != 'text'})
+        evidence[filename] = item
+        if browser['outcome'] == 'readable':
+            raw = browser['text'].encode('utf-8')
+            item.update(status='PASS', reason='Readable browser response')
+            if browser['status'] != 200:
+                item.update(status='FAIL', reason=f"Browser HTTP {browser['status']}")
+        else:
+            item.update(status='INCONCLUSIVE', reason='Browser failure without confirmed CORS blocking')
+            diagnostics = [e['text'] for e in record.data['console_errors'][offset:]
+                           if url in e['text'] and 'cors' in e['text'].lower()]
+            item['cors_diagnostics'] = diagnostics
+            try:
+                host = acquire(url)
+                raw = host['raw']
+                item['host'] = dict(status=host['status'], bytes=len(raw))
+                if host['status'] != 200 or not raw.strip():
+                    raise ValueError(f"Upstream HTTP {host['status']}, {len(raw)} bytes")
+            except Exception as exc:
+                item['reason'] = 'Upstream reachability unconfirmed: ' + str(exc)
+                continue
+            if diagnostics and browser.get('name') == 'TypeError':
+                item.update(status='PASS', reason='Browser CORS diagnostic and independently reachable upstream')
+        item['bytes'] = len(raw)
+        try:
+            xml_parser.document(raw, filename.removesuffix('.xml'))
+            bodies[filename] = raw
+        except ValueError as exc:
+            item.update(status='FAIL', reason='Invalid XML: ' + str(exc))
+    # Reuse the complete reference/result contract, including cross-file relationships.
+    try:
+        refs = xml_parser.references(*(bodies[name + '.xml'] for name in ('parties', 'electorates', 'candidates')))
+    except KeyError:
+        for item in evidence.values():
+            if item['status'] == 'PASS':
+                item.update(status='INCONCLUSIVE', reason='Complete reference set unavailable for validation')
+    except ValueError as exc:
+        for item in evidence.values():
+            if item['status'] == 'PASS':
+                item.update(status='FAIL', reason='Invalid reference set: ' + str(exc))
+    else:
+        if 'election.xml' in bodies:
+            try:
+                xml_parser.election(bodies['election.xml'], refs)
+            except ValueError as exc:
+                evidence['election.xml'].update(status='FAIL', reason='Invalid election: ' + str(exc))
+    record.data['cors_evidence'] = list(evidence.values())
+    for filename, item in evidence.items():
+        name, reason = 'cors-evidence-' + filename, json.dumps(item)
+        if item['status'] == 'INCONCLUSIVE':
+            record.inconclusive(name, reason)
+        else:
+            record.check(name, item['status'] == 'PASS', reason)
+
+
 def probe(page, base, record, responses, feed_root=FEED):
     started = time.monotonic()
     page.goto(urljoin(base, 'night/'))
@@ -142,17 +223,7 @@ def probe(page, base, record, responses, feed_root=FEED):
     requests = list(record.data['requests'])
     record.check('page-same-origin', all(origin(r['url']) == origin(base) for r in requests), json.dumps(requests))
     pictures(page, record, 'fallback')
-    record.data['cors_evidence'] = []
-    for filename in NATIONAL:
-        url = urljoin(feed_root, filename)
-        evidence = page.evaluate('''async url => {
-          try {const r = await fetch(url, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(20000)});
-            const text = await r.text(); return {url, outcome:'readable', status:r.status, bytes:new TextEncoder().encode(text).length};
-          } catch(e) { return {url, outcome:'blocked-or-network-error', error:String(e)}; }
-        }''', url)
-        record.data['cors_evidence'].append(evidence)
-        record.check('cors-evidence-' + filename, True, json.dumps(evidence) +
-                     '; failure is expected; browser console distinguishes CORS from network/TLS errors')
+    cors_probe(page, record, feed_root=feed_root)
     seen = []
     for response in list(responses):
         path = urlsplit(response.url).path
@@ -227,23 +298,22 @@ def rehearse(page, base, record, speed=60):
     record.check('console-errors', not record.data['console_errors'], json.dumps(record.data['console_errors']))
 
 
-def fault_package():
+def fault_package(record_dir):
     from product.nz_election.pipeline import night_live
     from product.nz_election.pipeline.night_page import live_package
     from product.nz_election.tests.night_live_cases import Clock, captures
     clock = Clock()
     cycle = night_live.cycle(acquire=captures().__getitem__, now=clock.now)
-    with tempfile.TemporaryDirectory() as tmp:
-        root = Path(tmp)
-        night.prepare(root, night_live.loaded(cycle), 'offline-verification', 'a' * 40, cycle['retrieved_at'])
-        envs = {p.relative_to(root).as_posix()[:-5]: json.loads(p.read_text()) for p in root.rglob('*.json')}
-        pack = live_package(envs)
+    root = Path(record_dir) / 'fault-fixture'
+    night.prepare(root, night_live.loaded(cycle), 'offline-verification', 'a' * 40, cycle['retrieved_at'])
+    envs = {p.relative_to(root).as_posix()[:-5]: json.loads(p.read_text()) for p in root.rglob('*.json')}
+    pack = live_package(envs)
     pack['html'] = '<p>Fault injection: offline verification fixture, not live results.</p>' + pack['html']
     return pack
 
 
 def faults(page, base, record):
-    pack = fault_package()
+    pack = fault_package(record.out)
     instant = datetime.fromisoformat(pack['retrieved_at'].replace('Z', '+00:00'))
     page.clock.install(time=instant)
     state = {'fail': False}
