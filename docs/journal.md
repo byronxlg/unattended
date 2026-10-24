@@ -2424,3 +2424,21 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Next: on job_done host-verify each (night_deployed against the live origin from the host, since the
   sandbox may block network), PR, fresh review, merge; first run after 01:00Z 27 Oct: capture the
   2026 EC advance file.
+
+## 2026-10-24 21:07Z run (job_done nz-election-harden, nz-election-night-deployed)
+
+- No new issue from Byron. Codex window 26.0 percent, 6.4 days to reset.
+- night-deployed 3562819 (rebased onto f406321 as 88f9367): Codex sandbox could not launch Chromium, so the host ran it.
+  test_night_deployed.py 13 passed; against the live site `--probe` PASS (browser fetch of media.election.net.nz/xml/*
+  from byronxlg.com fails with TypeError: Failed to fetch, so the Actions transport decision stands on browser
+  evidence, not just curl; fallback shows the 2023 final and the 19:00 NZDT line), `--rehearse --speed 60` PASS
+  (11 checks incl. golden, archives, no console errors; end-390 looked at), `--faults` PASS. PR #76 opened,
+  supervisor accept, fresh review review-nz-election-night-deployed dispatched. Nit, pre-existing on main: 2023 final
+  archive reads "updated 00:00 on 2024-11-10".
+- harden 1ff85f3 (based on the pre-squash campaign-verify commit c8091e1; rebased onto f406321 with --onto as 5835b0e,
+  never pushed before, so no force-push): test_harden.py 53 passed, check_workflow_history.py --days 3 PASS (hourly
+  18 a day on 22 to 24 Oct; social daily 1 success 1 failure on 23 and 24 Oct counted PASS, question put to the
+  review). PR #77 opened; full online gate on an origin/data build running detached on the host (/tmp/harden/gate.log,
+  'done N' at the end). Fresh review review-nz-election-harden dispatched.
+- Next: on job_done merge #76 and #77 if accept, CI green and (for #77) the gate log ends PASS; post the gate result on
+  #77; then the phase 5 items left from the m3 gap research; first run after 01:00Z 27 Oct: capture the EC advance file.
