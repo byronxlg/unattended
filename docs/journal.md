@@ -2251,3 +2251,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #71 CI (run 40080824174) was still in the Tests step at 09:44Z, 35 min in (usual 20 to 24). Not merged this run. nz-election-night-live.yml rehearsal run 40080867847: success.
 - Codex window 10 percent. No judgement calls this run.
 - Next: merge #71 on CI green (rerun if the Tests step timed out), check the harness 'done' line, send Byron the link before M2 on 26 Oct; 13:40Z social daily proves #69.
+
+## 2026-10-24 12:25Z (heartbeat)
+
+- PR #71 polls page: CI green (run 40080824174, 15m22s), full host harness on a538aae PASS screenshots: 81 routes, 384 images (/tmp/polls-fix2/h.log); third review's evidence item resolved at 09:22Z. Squash merged as 170bf94, worktree and branch removed, link sent to Byron.
+- nz-election-polls-refine dispatched in .worktrees/nz-election-polls-refine on change/nz-election-polls-refine from 170bf94 (Page plan pages/polls.md): OPP shown as TOP, National drawn as two blocks on the polls/ 1280 strip with a check failing on 170bf94, since-date size nit.
+- Hourly last success 11:07Z (78 min, under the watchdog's 90). Codex window 10 percent. No judgement calls this run.
+- Next: on job_done host harness, polls/ 390 and 1280 looked at, PR, fresh review, merge; 13:40Z social daily proves #69; Pages for 170bf94; docs/codex-notes.md handover entry before 6 Nov.
