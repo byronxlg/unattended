@@ -140,8 +140,11 @@ def verify_coalitions(envs, root):
     require(vacancy['vacancies'] > 0 and vacancy['occupiedHouse'] == 120 + vacancy['overhang'] - vacancy['vacancies'], 'list vacancies')
     page = build(root / 'data', root / 'coalition-site') / 'polls/index.html'
     html = page.read_text()
-    require('<fieldset hidden disabled>' not in html and 'id="coalition-explorer"' in html and 'source-seats' in html,
-            'stale explorer omitted with fragments preserved')
+    from product.nz_election.tests.design_checks import Document
+    ids = {a['id'] for _, a in Document(html).nodes if 'id' in a}
+    require({'coalition-explorer', 'coalition-title', 'source-seats', 'source-average', 'source-history'} <= ids,
+            'retired explorer and source fragments remain resolvable')
+    require('<fieldset' not in html and '<script' not in html, 'polls are server-rendered without interactive controls')
     require('Seats needed for a majority' in strip(seats), 'static majority retained')
 
 
@@ -417,7 +420,7 @@ def main():
             from product.nz_election.pipeline.disclosure_checks import check_site as check_disclosures
             print(f'PASS disclosures: {check_disclosures(product)} non-home routes')
             from product.nz_election.pipeline.landmark_checks import check_site as check_landmarks
-            print(f'PASS landmarks: {check_landmarks(product)} routes including client-rendered tables')
+            print(f'PASS landmarks: {check_landmarks(product)} routes including server-rendered tables')
             from product.nz_election.pipeline.market_budget_checks import check_site as check_market_budgets
             print(f'PASS market budgets: {check_market_budgets(product)} routes')
             from product.nz_election.pipeline.source_budget_checks import check_site as check_source_budgets

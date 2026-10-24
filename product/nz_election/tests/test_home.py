@@ -46,7 +46,7 @@ def test_home_module_order(populated):
     assert positions == sorted(positions)
     assert [a['id'] for tag, a in Document(html).nodes if tag == 'section'] == list(MODULES)
     assert html.count('<h1') == 1 and 'Who is favoured to form the next government?' in html
-    assert 'coalitions.mjs' not in html and 'What changed in the latest polls?' in html
+    assert '<script' not in html and 'What changed in the latest polls?' in html
     provenance(html)
 
 
@@ -218,8 +218,8 @@ def test_screenshot_count_inventory():
     from product.nz_election.tests.design_states import STATES
     routes = len(config('routes')) + len(config('electorates'))
     assert routes == 81
-    assert len(STATES) * 2 + 1 == 33
-    assert 2 * routes + 11 + 33 + 13 + 4 + routes + 1 == 305
+    assert len(STATES) * 2 + 1 == 23
+    assert 2 * routes + 11 + 23 + 13 + 4 + routes + 1 == 295
 
 
 def test_supplied_home_verifier_rejects_missing_fragments(populated, tmp_path):

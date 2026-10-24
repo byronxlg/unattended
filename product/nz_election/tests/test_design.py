@@ -109,7 +109,7 @@ def test_absent_routes_have_source_targets(tmp_path):
 
 def test_real_first_view_budget(built_design):
     _, site = built_design
-    explorer_assets = {'coalitions.mjs', 'allocator.mjs', 'data/averages.json', 'data/seats.json'}
+    explorer_assets = {'allocator.mjs', 'data/averages.json', 'data/seats.json'}
     for page in ('index.html', 'polls/index.html'):
         css = (site / 'styles.css').stat().st_size
         total, files = transfer_bytes(site, page)
@@ -118,6 +118,7 @@ def test_real_first_view_budget(built_design):
         assert {f'fonts/{name}.woff2' for name in ('libre-franklin-400', 'libre-franklin-700', 'jetbrains-mono-400')} <= files.keys()
         assert {'favicon.svg', 'icon-180.png', 'manifest.webmanifest', page, 'styles.css'} <= files.keys()
         assert not explorer_assets & files.keys()
+        assert not any(name.endswith('.mjs') for name in files)
         if page == 'polls/index.html':
             assert 'polls.css' in files
         assert not any('2025' in name for name in files), page
@@ -161,9 +162,9 @@ def test_staleness_boundaries(cadence, seconds):
     assert overdue(None, start.isoformat(), cadence)
 
 
-def test_twelve_state_fixtures(tmp_path):
+def test_live_state_fixtures(tmp_path):
     from product.nz_election.tests.design_states import STATES, COHERENT, CATEGORIES, fixture
-    assert len(CATEGORIES) == 12 and set(CATEGORIES.values()) <= set(STATES)
+    assert len(CATEGORIES) == 10 and set(CATEGORIES.values()) <= set(STATES)
     assert len(STATES) == len(set(STATES))
     for state in STATES:
         site, route = fixture(tmp_path, state)

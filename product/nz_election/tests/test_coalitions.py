@@ -1,4 +1,4 @@
-"""Cross-runtime state rejection and exact conditional seat contracts."""
+"""Server state rejection and exact conditional seat contracts."""
 from copy import deepcopy
 import json
 from pathlib import Path
@@ -8,14 +8,12 @@ from urllib.parse import quote
 import pytest
 from product.nz_election.pipeline import coalitions as c, export
 from product.nz_election.pipeline.average import trend
-from product.nz_election.pipeline.build import build, strip
+from product.nz_election.pipeline.build import build
 from product.nz_election.pipeline.fixtures import golden
 from product.nz_election.pipeline.allocator import allocate
 from product.nz_election.pipeline.refresh import refresh
 from product.nz_election.pipeline.seats import project
-from product.nz_election.pipeline.scripts import validate_scripts
-
-RUNNER = Path(__file__).with_name('coalitions_runner.mjs')
+from product.nz_election.pipeline.scripts import SCRIPT_ALLOWLIST, validate_scripts
 
 
 @pytest.fixture
@@ -25,7 +23,7 @@ def request_data(tmp_path):
     return dict(average=envs['averages']['data'][-1], seats=envs['seats']['data'], fingerprint='a' * 64)
 
 
-def parity(requests):
+def evaluate(requests):
     expected = []
     for req in requests:
         try:
@@ -37,12 +35,10 @@ def parity(requests):
             expected.append(dict(result=result))
         except ValueError as exc:
             expected.append(dict(error=str(exc)))
-    actual = subprocess.run(['node', str(RUNNER)], input=json.dumps(requests), text=True, capture_output=True, check=True).stdout
-    assert actual == export.canonical(expected)
     return expected
 
 
-def test_scenario_python_js_parity(request_data):
+def test_server_scenarios(request_data):
     data = c.inputs(**request_data)
     requests = [request_data]
     for party in data['parties']:
@@ -51,11 +47,11 @@ def test_scenario_python_js_parity(request_data):
             state['selected'] = [party]
             state['counts'] = {p: n if p == party else '0' for p in data['parties']}
             requests.append(dict(request_data, state=state))
-    parity(requests)
+    assert all('result' in result for result in evaluate(requests))
 
 
 def test_unknown_capacity_stays_conditional(request_data):
-    r = parity([request_data])[0]['result']
+    r = evaluate([request_data])[0]['result']
     assert r['occupied_house'] is r['vacancies'] is r['majority'] is None
     assert r['capacity_checked'] is False
     assert r['assumed_majority'] == r['assumed_house'] // 2 + 1
@@ -69,7 +65,7 @@ def test_no_preselected_coalition(request_data):
     assert r['unassigned_electorates'] == 71 - sum(request_data['seats']['assumptions']['electorate_wins'].values())
 
 
-def test_invalid_state_error_parity(request_data):
+def test_invalid_state_error_evaluate(request_data):
     data = c.inputs(**request_data)
     state, parties = data['initial'], data['parties']
     hashes = ['', None, 4, [], {}, '#coalition=', '#coalition=null', '#coalition=%ZZ', '#coalition=%FF', '#coalition=' + 'x' * 8193]
@@ -86,21 +82,21 @@ def test_invalid_state_error_parity(request_data):
     hashes += ['#coalition=' + quote(export.canonical(value), safe='') for value in bad]
     raw = export.canonical(state)
     hashes += ['#coalition=' + quote(raw.replace('"version":1', '"version":1,"version":1'), safe='')]
-    results = parity([dict(op='decode', hash=h, parties=parties) for h in hashes])
+    results = evaluate([dict(op='decode', hash=h, parties=parties) for h in hashes])
     assert all(r == {'error': c.ERROR} for r in results)
-    assert all(r == {'error': c.ERROR} for r in parity([dict(request_data, state=s) for s in [None, {}, [], '', 1, True]]))
+    assert all(r == {'error': c.ERROR} for r in evaluate([dict(request_data, state=s) for s in [None, {}, [], '', 1, True]]))
 
 
 def test_hash_round_trip(request_data):
     data = c.inputs(**request_data)
     state = data['initial']
-    assert parity([dict(op='decode', hash=c.encode(state), parties=data['parties'])])[0]['result'] == state
+    assert evaluate([dict(op='decode', hash=c.encode(state), parties=data['parties'])])[0]['result'] == state
 
 
 def test_fingerprint_mismatch_warns(request_data):
     state = c.inputs(**request_data)['initial']
     state['fingerprint'] = 'b' * 64
-    assert parity([dict(request_data, state=state)])[0]['result'] == {'warning': 'INPUT_FINGERPRINT_MISMATCH', 'applied': False}
+    assert evaluate([dict(request_data, state=state)])[0]['result'] == {'warning': 'INPUT_FINGERPRINT_MISMATCH', 'applied': False}
 
 
 def test_incomplete_average_disables_explorer(request_data):
@@ -111,14 +107,14 @@ def test_incomplete_average_disables_explorer(request_data):
     r = deepcopy(request_data); r['average']['shares'].pop('nat'); requests.append(r)
     r = deepcopy(request_data); r['average']['descriptive']['nat']['poll_ids'].pop(); requests.append(r)
     r = deepcopy(request_data); r['average']['shares']['nat'] = None; requests.append(r)
-    assert all(r == {'error': 'INCOMPLETE_COALITION_INPUT'} for r in parity(requests))
+    assert all(r == {'error': 'INCOMPLETE_COALITION_INPUT'} for r in evaluate(requests))
 
 
 def test_overhang(request_data):
     data = c.inputs(**request_data)
     state = deepcopy(data['initial'])
     state['counts'] = {p: '71' if p == 'tpm' else '0' for p in data['parties']}
-    r = parity([dict(request_data, state=state)])[0]['result']
+    r = evaluate([dict(request_data, state=state)])[0]['result']
     assert r['overhang'] > 0 and r['assumed_house'] == 120 + r['overhang']
 
 
@@ -127,18 +123,19 @@ def test_real_candidate_vacancies():
     source['lists'] = {p: list(ws) for p, ws in source['electorateWinners'].items() if ws}
     r = allocate(source)
     assert r['vacancies'] > 0 and r['occupiedHouse'] == 120 + r['overhang'] - r['vacancies']
-    runner = RUNNER.with_name('allocator_runner.mjs')
+    runner = Path(__file__).with_name('allocator_runner.mjs')
     actual = subprocess.run(['node', str(runner)], input=json.dumps([source]), capture_output=True, text=True, check=True)
     assert json.loads(actual.stdout) == [{'result': r}]
 
 
 def test_script_allowlist():
-    assert validate_scripts('<script type="module" src="/unattended/nz-election/coalitions.mjs"></script>')
-    for html in ['<script>alert(1)</script>', '<script type="module" src="https://example.com/coalitions.mjs"></script>',
-                 '<script type="module" src="/unattended/nz-election/coalitions.mjs">alert(1)</script>',
+    assert SCRIPT_ALLOWLIST == {'allocator.mjs', 'electorates.mjs', 'night.mjs', 'night-live.mjs'}
+    assert validate_scripts('<script type="module" src="/unattended/nz-election/allocator.mjs"></script>')
+    for html in ['<script>alert(1)</script>', '<script type="module" src="https://example.com/allocator.mjs"></script>',
+                 '<script type="module" src="/unattended/nz-election/allocator.mjs">alert(1)</script>',
                  '<script type="module" src="/unattended/nz-election/other.mjs"></script>',
-                 '<script type="module" src="//evil/coalitions.mjs"></script>',
-                 '<script type="module" src="/unattended/nz-election/coalitions.mjs" onload="x"></script>']:
+                 '<script type="module" src="//evil/allocator.mjs"></script>',
+                 '<script type="module" src="/unattended/nz-election/allocator.mjs" onload="x"></script>']:
         with pytest.raises(ValueError, match='UNSAFE_SCRIPT'):
             validate_scripts(html)
 
@@ -146,18 +143,17 @@ def test_script_allowlist():
 def test_static_content_preserved(tmp_path, request_data):
     out = build(tmp_path / 'data', tmp_path / 'output', built='2026-10-17T01:00:00Z')
     html = (out / 'polls/index.html').read_text()
-    from product.nz_election.pipeline.build import home_presentation, explorer
+    from product.nz_election.pipeline.build import home_presentation
     from product.nz_election.pipeline.home import hero
     envs = export.validate_bundle(tmp_path / 'data')
     home = home_presentation(envs, '2026-10-17T01:00:00Z')
     assert html.count('class="seat"') == home['result']['assumed_house']
     assert 'class="strip"' in hero(envs, '2026-10-17T01:00:00Z', home)
-    assert '<fieldset' not in html and 'coalitions.mjs' not in html
+    assert '<fieldset' not in html and '<script' not in html
     assert 'id="coalition-explorer"' in html
-    controls = explorer(envs)
-    assert '<fieldset hidden disabled>' in controls and 'requires JavaScript' in controls
-    assert 'source-seats' in controls and 'data-select="others"' not in controls
-    assert 'data-select="nat" checked' not in controls
+    assert {p.name for p in out.glob('*.mjs')} == {
+        'allocator.mjs', 'electorates.mjs', 'night.mjs', 'night-live.mjs',
+        'night-parser.mjs', 'night-seats.mjs'}
 
 
 def test_tied_scenario_withholds_totals():
@@ -172,9 +168,9 @@ def test_tied_scenario_withholds_totals():
     average['shares'] = {'a': 239, 'b': 1, 'others': 0}
     average['denominator'] = 240
     request = dict(average=average, seats=seats, fingerprint='a' * 64, state=state)
-    r = parity([request])[0]['result']
+    r = evaluate([request])[0]['result']
     assert r['seats'] is None and r['selected_total'] is None and r['unresolved_ties']
     average['shares'] = {'a': 0, 'b': 0, 'others': 100}
     average['denominator'] = 100
     state['counts']['b'] = '0'
-    assert parity([request])[0]['result']['seats'] is None
+    assert evaluate([request])[0]['result']['seats'] is None

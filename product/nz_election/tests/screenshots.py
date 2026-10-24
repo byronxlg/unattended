@@ -226,7 +226,7 @@ def check_page(page, url, site, origin):
 
 def static_text(page):
     return page.locator('main').evaluate("""el=>{
-      const copy=el.cloneNode(true); copy.querySelector('#coalition-explorer')?.remove(); copy.querySelector('.electorate-search')?.remove();
+      const copy=el.cloneNode(true); copy.querySelector('.electorate-search')?.remove();
       return copy.textContent;
     }""")
 
@@ -250,18 +250,6 @@ def state_images(browser, out):
                     context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
                     page = context.new_page()
                     check_page(page, origin + PREFIX + 'nz-election/' + route_path, site, origin)
-                    if state in ('invalid-link', 'changed-inputs'):
-                        # The skip-link check replaces the scenario hash with #main.
-                        page.goto(origin + PREFIX + 'nz-election/' + route_path, wait_until='networkidle')
-                    if state == 'invalid-count':
-                        root_control = page.locator('[data-count="nat"]')
-                        root_control.fill('72')
-                        root_control.press('Tab')
-                        expect(page.locator('[data-warning]')).to_contain_text('last valid result is shown')
-                    if state == 'invalid-link':
-                        expect(page.locator('[data-warning]')).to_contain_text('This coalition link is invalid.')
-                    if state == 'changed-inputs':
-                        expect(page.locator('[data-warning]')).to_contain_text('This link uses different poll inputs.')
                     if state == 'missing-baseline':
                         assert page.locator('.local-margin').count() == 0
                     if state == 'unresolved':
@@ -274,9 +262,6 @@ def state_images(browser, out):
                         assert 'fixture run' in page.locator('main').inner_text()
                     if state == 'validation-error':
                         assert 'update failed; showing previous data' in page.locator('main').inner_text()
-                    if state.startswith('coalition-'):
-                        from coalitions_browser import edit_state
-                        edit_state(page, state)
                     if state in COHERENT:
                         assert page.locator('main .seat-module .seat-figure .strip, .polls-page .home-hero .strip').count() == 1, 'COHERENT_STRIP_REQUIRED'
                         for box in page.locator('.lane').all():
@@ -675,7 +660,7 @@ def main():
                 assert len(captured) == len(set(captured)) == expected_count
                 assert set(captured) == {PREFIX + 'nz-election/' + r['path'] for r in routes}
         if not args.og_only and has_geography and has_baseline:
-            assert len(manifest) + len(additional) == 306 + len(ADVANCE_STATES) * len(ADVANCE_SIZES) + 6 + len(NIGHT_STATES) * len(NIGHT_SIZES), 'IMAGE_INVENTORY'
+            assert len(manifest) + len(additional) == 296 + len(ADVANCE_STATES) * len(ADVANCE_SIZES) + 6 + len(NIGHT_STATES) * len(NIGHT_SIZES), 'IMAGE_INVENTORY'
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()

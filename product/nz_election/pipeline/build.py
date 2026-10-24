@@ -260,39 +260,6 @@ def strip(seats, note=''):
 
 
 
-def explorer(envs, available=True):
-    note = 'The explorer requires JavaScript and complete matching poll inputs. Published seats remain above.'
-    attrs, controls = '', ''
-    try:
-        if not available:
-            raise ValueError('UPDATE_OVERDUE')
-        average_hash = envs['seats']['input_hashes']['averages.json']
-        seats_hash = next(e['sha256'] for e in envs['manifest']['data'] if e['path'] == 'seats.json')
-        fingerprint = export.digest((average_hash + seats_hash).encode())
-        data = coalitions.inputs(envs['averages']['data'][-1], envs['seats']['data'], fingerprint)
-        attrs = f' data-averages="{average_hash}" data-seats="{seats_hash}" data-fingerprint="{fingerprint}"'
-        for p in data['parties']:
-            colour = config('party-colours').get(p, {}).get('colour', '#595959')
-            controls += (f'<div class="coalition-row" data-party-row="{p}" data-name="{escape(label(p))}" data-colour="{colour}" data-abbreviation="{escape(abbreviation(p))}">'
-                         f'<label><input type="checkbox" data-select="{p}"> {escape(label(p))}</label>'
-                         f'<label class="electorate-count">Electorate seats assumed for {escape(label(p))}'
-                         f'<input type="text" inputmode="numeric" maxlength="2" data-count="{p}" value="{data["initial"]["counts"][p]}"></label></div>')
-    except (KeyError, ValueError):
-        note = ('The explorer is unavailable because the poll inputs are incomplete. Published information remains above.' if available else
-                'The explorer is unavailable while the poll update is overdue. Previous poll observations remain above.')
-    return (f'<section id="coalition-explorer" aria-labelledby="coalition-title"{attrs}>'
-            '<h2 id="coalition-title">Choose parties</h2>'
-            f'<p data-note>{note}</p>' + derivation_note((envs.get('averages', {}).get('data') or [{}])[-1]) + '<fieldset hidden disabled><legend>Choose parties and electorate seats assumed</legend>'
-            + controls + '<div class="coalition-actions"><button type="button" data-reset>Reset</button>'
-            '<button type="button" data-share>Share this scenario</button></div></fieldset>'
-            '<p data-warning role="status"></p><div data-results hidden><p data-live aria-describedby="source-seats" aria-live="polite" aria-atomic="true"></p>'
-            '<p data-unassigned aria-describedby="source-seats"></p><p>List capacity not checked. Vacancies and the occupied House are unknown; '
-            'the majority requirement is assumed.</p><div data-picture></div>'
-            f'<p><a href="{PREFIX}data/averages.json">Poll inputs</a> <a href="{PREFIX}data/seats.json">Seat assumptions</a> '
-            f'<a href="#source-seats">Sources and method</a></p></div></section>'
-            f'<script type="module" src="{PREFIX}coalitions.mjs"></script>')
-
-
 def seat_module(envs, built, presentation=None):
     presentation = presentation if presentation is not None else home_presentation(envs, built)
     if 'polls' not in envs:
@@ -385,7 +352,7 @@ def polls_page(envs, built, presentation=None, *, full_sources=False):
 
     details += f'<p><a href="{PREFIX}data/averages.json">Daily average series and exact inputs</a></p>'
     return render('polls', state=state, picture=picture,
-                  explorer=explorer(envs, not presentation['stale']), details=details)
+                  explorer='', details=details)
 
 
 def methods_page(stage, built, sha, run_url, envs=None):
@@ -632,7 +599,6 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
         from product.nz_election.pipeline.night_page import live_package
         (stage / 'night-live.json').write_text(json.dumps(live_package(envs)))
         shutil.copyfile(PRODUCT / 'web/night-parser.mjs', stage / 'night-parser.mjs')
-        shutil.copyfile(PRODUCT / 'web/coalitions.mjs', stage / 'coalitions.mjs')
         shutil.copyfile(PRODUCT / 'web/electorate.css', stage / 'electorate.css')
         shutil.copyfile(PRODUCT / 'web/styles.css', stage / 'styles.css')
         shutil.copytree(PRODUCT / 'web/fonts', stage / 'fonts')

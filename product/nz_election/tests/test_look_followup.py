@@ -142,7 +142,7 @@ def test_derived_input_disclosure_on_every_affected_module(tmp_path):
             if not self.depth:
                 self.text += text
 
-    from product.nz_election.pipeline.build import derivation_note, home_presentation, explorer
+    from product.nz_election.pipeline.build import derivation_note, home_presentation
     from product.nz_election.pipeline.home import poll_figures
     data = tmp_path / 'data'
     built = '2026-10-19T01:00:00Z'
@@ -155,7 +155,7 @@ def test_derived_input_disclosure_on_every_affected_module(tmp_path):
     expected = f'Others derived as 100 minus the named parties for {n} of {m} polls; '
     target = '/unattended/nz-election/methods/#derived-polls'
     presentation = home_presentation(envs, built)
-    for module in (presentation['source'], poll_figures(envs, presentation), explorer(envs)):
+    for module in (presentation['source'], poll_figures(envs, presentation)):
         assert expected in module and f'href="{target}"' in module
         assert expected in VisibleText(module).text
     site = build(data, tmp_path / 'output', built=built)

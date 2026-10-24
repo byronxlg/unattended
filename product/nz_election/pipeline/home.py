@@ -395,7 +395,7 @@ def poll_inputs(polls):
 def sources(envs, built, presentation):
     """Keep the full previous home provenance together, behind each figure's link."""
     from .market_panel import panel
-    from .build import polls_page, explorer
+    from .build import polls_page
     _, seats = seat_module(envs, built, presentation)
     marker = '<div><p><strong>Threshold watch and legend</strong></p>'
     seat_body, found, threshold_body = seats.partition(marker)
@@ -411,7 +411,7 @@ def sources(envs, built, presentation):
     latest = sorted(all_polls, key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:3]
     sections = [('seats', 'Seat calculation and grouping', seat_body + selected),
                 ('polls', 'Latest poll inputs', poll_inputs(latest) + poll_figures(envs, presentation).replace('id="source-average"', 'id="source-home-average"').replace('aria-describedby="source-average"', 'aria-describedby="source-home-average"')),
-                ('trend', 'Poll trend inputs', trend_inputs + polls_page(envs, built, presentation, full_sources=True).replace(seats, '').replace(explorer(envs, not presentation['stale']) if 'polls' in envs else '', '')),
+                ('trend', 'Poll trend inputs', trend_inputs + polls_page(envs, built, presentation, full_sources=True).replace(seats, '')),
                 ('electorates', 'Closest electorate inputs', watch(envs) + family_note(envs, 'source-watch', ('electorates', 'baseline-2023', 'candidates'))),
                 ('thresholds', 'Threshold inputs', threshold_body + selected),
                 ('markets', 'Market observations and terms', panel(envs, built) + family_note(envs, 'source-market-metadata', ('markets',))),

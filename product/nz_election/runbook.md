@@ -308,12 +308,11 @@ uv run product/nz_election/pipeline/verify.py home-routes --data artifacts/nz-el
 uv run product/nz_election/pipeline/verify.py all --data artifacts/nz-election/data --site site
 uv run product/nz_election/tests/screenshots.py --site site --out artifacts/nz-election/screenshots
 uv run product/nz_election/tests/screenshots.py --site site --out artifacts/nz-election/og --og-only
-uv run product/nz_election/tests/coalitions_browser.py --site site
 ```
 
-Expected browser lines: `PASS screenshots: 79 routes, 296 images`,
-`PASS screenshots: 0 routes, 79 images`, `PASS coalition browser`. The total is
-158 + 9 + 33 + 13 + 4 + 79 = 296 manifest records; artifact copies are not counted.
+Both browser runs print `PASS screenshots` with route and image counts. The full
+run retains 23 data-availability state images; the ten explorer interaction images
+are retired. Exact inventory assertions remain in the harness and tests.
 The OG-only run writes all 79 PNGs under `site/nz-election/og/` and records image hashes
 in its screenshot manifest. Inspect Night and an electorate at 390 by 844 and 1280 by
 800, plus home, polls and electorate OG cards at their native 1200 by 630 size.
