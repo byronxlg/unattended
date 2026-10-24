@@ -2193,3 +2193,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Dispatched nz-election-polls-page as written (brief state/jobs/nz-election-polls-page/prompt.md, Page plan intent/nz-election/pages/polls.md accepted 20 Oct 23:00Z), worktree .worktrees/nz-election-polls-page from origin/main.
 - Dispatched nz-election-publish-cleanup-1 (fix: the PR #69 CI flake, publish.py TemporaryDirectory cleanup '.git' not empty; brief asks to stop git background work in the throwaway checkout, test of the config, publish tests 5 of 5), worktree .worktrees/nz-election-publish-cleanup.
 - Next: review both on job_done; M2 v1 due 26 Oct; 13:40Z social daily is the proving run for #69.
+
+## 2026-10-24 07:27Z (job_done nz-election-publish-cleanup-1)
+
+- publish-cleanup-1 7943528 (720 s): publish.py sets gc.auto 0, maintenance.auto false, gc.autoDetach false in the throwaway checkout after init; new test_publish_cleanup.py checks the settings on every git call. Host: publish tests 33 passed; Codex reports full suite 2017 passed with 3 Chromium sandbox denials (its sandbox only), lint ok. Root cause inferred, not reproduced.
+- Pushed, PR #70 opened with supervisor accept; fresh review review-nz-election-publish-cleanup dispatched read-only.
+- nz-election-polls-page still running. Window 3 percent after the reset.
+- Next: merge #70 on accept and CI green; polls page on job_done (live-data build, harness, question test at 390); M2 v1 due 26 Oct; 13:40Z social daily proves #69.
