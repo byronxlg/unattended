@@ -2309,3 +2309,12 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Decision (reversible, one change): retire the dead coalition explorer client path rather than bring it back; pages/polls.md does not list the explorer. nz-election-explorer-retire dispatched in .worktrees/nz-election-explorer-retire on change/nz-election-explorer-retire from 31b71cb (fragments kept, verify checks retargeted with named invariants).
 - Codex window 13 percent, 6.6 days to reset. No judgement calls sent.
 - Next: on job_done host-verify (pytest, lint, verify all, harness BROKEN_FRAGMENT clean, no route loads coalitions.mjs), PR, fresh review, merge; Pages for 31b71cb and link to Byron; M2 acceptance check (due 26 Oct NZ).
+
+## 2026-10-24 17:31Z (job_done nz-election-explorer-retire)
+
+- nz-election-explorer-retire ff4aaab: removes web/coalitions.mjs, tests/coalitions_browser.py, tests/coalitions_runner.mjs, tools/render_coalition.mjs; verify, home_checks and landmark_checks retargeted (script-free polls/, legacy fragments resolve without data, rendered landmarks keep provenance). Codex sandbox: 2024 passed, 3 Chromium launch failures.
+- Host verification: pytest product/nz_election 2027 passed (16 min, host Chromium), bin/lint ok (872 files); rg coalitions.mjs hits only DESIGN_REPORT.md and coalitions.md (history).
+- PR #74 opened; supervisor accept logged (nit: coalitions.md:43-44 still describe coalitions.mjs as current). Fresh review review-nz-election-explorer-retire dispatched read-only.
+- Pages: Publish the blog success on 31b71cb and 7b2a780; CI success on both.
+- Codex window 15 percent, 6.6 days to reset. No judgement calls sent.
+- Next: on job_done merge #74 if accept and CI green, remove the worktree; M2 acceptance check (due 26 Oct NZ).
