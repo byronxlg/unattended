@@ -2235,3 +2235,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #72 coalitions fix: second fresh review accept, no findings; logged on the PR; CI green; squash merged as 34583c6; worktree and branch removed.
 - PR #71 polls page: second fresh review request changes, one Important (visual verification incomplete; code findings resolved, 14 passed in its sandbox). Host full harness on 93696cc failed `STRIP_HEIGHT` at screenshots.py:209, last shot written home-1280x800, so home at 1280 or the next route. Both logged on the PR; fix-2 nz-election-polls-page-fix-2 dispatched on the build thread (followup-2.md: name the route, fix the page not the check, say whether main fails too; full harness PASS, polls/ 390 and 1280 looked at). M2 due 26 Oct.
 - Codex window 9 percent. No judgement calls this run.
+
+## 2026-10-24 09:08Z (job_done nz-election-polls-page-fix-2)
+
+- PR #71 polls fix-2 a538aae (746 s): one rule removed from `product/nz_election/web/polls.css` (route override forced the hero strip to 120 px where the harness expects 144 px at desktop); screenshots.py and tests unchanged. Codex could not launch Chromium.
+- Host, build from origin/data: PASS build 81 routes, verify PASS all; polls/ strips measured 72 px at 390 and 120 px at 1280, matching screenshots.py:208; polls/ 390 and 1280 looked at. Pushed; supervisor accept logged on PR #71; third fresh review review-nz-election-polls-page-3 dispatched; full host harness detached (/tmp/polls-fix2/h.log, 'done N' at the end).
+- Noticed on polls/ 1280 (not this fix's scope): the NAT segment is drawn as two blue blocks (43 total, so likely a sub-split) and The Opportunity Party reads "OPP 7" (the open TOP label nit). Both to the next polls round.
+- nz-election-night-live.yml had never run. Rehearsal dispatched by hand (run 40080867847, rehearsal=true: demo acquisition to artifact only, no publication or chaining), the first real Actions proof for plan-m3 increment 5 transport.
+- Codex window 9 percent. No judgement calls this run.
