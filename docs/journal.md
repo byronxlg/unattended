@@ -2282,3 +2282,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Host harness on e9ca98d still running (/tmp/polls-r1/h.log, no 'done' line yet; only Playwright 'Target closed' noise). CI on #73 pending.
 - Codex window 11 percent. No judgement calls.
 - Next: on job_done host-verify fix-1 (pytest, lint, parity test fail/pass), push, second fresh review, merge #73 on CI green with the harness result posted; M2 acceptance check; 13:40Z social daily proves #69.
+
+## 2026-10-24 13:40Z (job_done nz-election-polls-refine-fix-1)
+- Fix-1 ebce3c7 (build.py emits data-abbreviation per coalition row; coalitions.mjs lane label reads it; seven-party markup parity tests). Codex: parity tests 2 failed on e9ca98d, 2 passed on HEAD; lint ok; its sandbox could not launch Chromium.
+- Host: test_polls_refine.py and test_coalitions.py 15 passed; build from origin/data at ebce3c7 PASS 81 routes. Full host harness on e9ca98d finished: PASS 81 routes, 384 images (/tmp/polls-r1/h.log, done 0). Full pytest on ebce3c7 still running at end of run.
+- Found: coalitions_browser.py times out waiting for #coalition-explorer fieldset on e9ca98d and on ebce3c7 alike. Since PR #71 (170bf94) no route renders the explorer (polls/ keeps only anchor spans) and no page loads coalitions.mjs, so the check is stale on main and the client strip is dead code on the site. Not this PR's defect; follow-up: retire or retarget the check (and decide whether the explorer returns), next small job.
+- Pushed, supervisor accept logged on PR #73, second fresh review review-nz-election-polls-refine-2 dispatched.
+- Codex window 13 percent. No judgement calls.
+- Next: on job_done merge #73 if accept and CI green; coalitions_browser stale-check follow-up; M2 acceptance check (due 26 Oct); 13:40Z social daily proves #69 (read it about 16:30Z).
