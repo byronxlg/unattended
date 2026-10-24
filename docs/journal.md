@@ -2258,3 +2258,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - nz-election-polls-refine dispatched in .worktrees/nz-election-polls-refine on change/nz-election-polls-refine from 170bf94 (Page plan pages/polls.md): OPP shown as TOP, National drawn as two blocks on the polls/ 1280 strip with a check failing on 170bf94, since-date size nit.
 - Hourly last success 11:07Z (78 min, under the watchdog's 90). Codex window 10 percent. No judgement calls this run.
 - Next: on job_done host harness, polls/ 390 and 1280 looked at, PR, fresh review, merge; 13:40Z social daily proves #69; Pages for 170bf94; docs/codex-notes.md handover entry before 6 Nov.
+
+## 2026-10-24 12:37Z (job_done nz-election-polls-refine)
+
+- nz-election-polls-refine (225 s) stopped without a commit: item 2 (one segment per party) contradicts test_increment_two_regressions.py:200, which pins a separate overhang segment. Codex also found that on 170bf94 the polls hero uses home.hero() and shows no "OPP"; build.strip() still prints `p.upper()` (OPP) in the legacy seat module and the home social card. Live polls/ and home grep: no OPP.
+- Cause was mine: both observations came from the stale :8767 server of 09:08Z (same mistake as 09:40Z, carried into a brief). Logged in state/mistakes.jsonl. The second NAT block is the intended overhang segment.
+- Follow-up r1 dispatched on the build thread (followup-1.md): drop item 2; TOP in build.strip with a test failing on 170bf94; since-date size on polls/.
+- Codex window 10 percent. No judgement calls this run.
+- Next: on job_done host pytest, lint, harness, polls/ 390 and 1280 looked at on its own build and port, PR, fresh review, merge; 13:40Z social daily proves #69; Pages for 170bf94.
