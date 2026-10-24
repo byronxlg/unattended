@@ -196,7 +196,11 @@ def test_live_atomic_data_commit_and_queued_freeze(tmp_path):
 
 def test_live_workflow_contract():
     text = (ROOT / '.github/workflows/nz-election-night-live.yml').read_text()
-    assert 'workflow_dispatch:' in text and 'schedule:' not in text
+    assert 'workflow_dispatch:' in text and 'schedule:' in text
+    from product.nz_election.tests.test_workflows import workflow
+    triggers = workflow('nz-election-night-live.yml')[True]
+    assert set(triggers) == {'workflow_dispatch', 'schedule'}
+    assert triggers['schedule'] == [{'cron': '2 6 7 11 *'}, {'cron': '7 6 7 11 *'}]
     assert 'cancel-in-progress: false' in text and 'timeout-minutes: 350' in text
     assert 'secrets.' not in text
     assert 'inputs.rehearsal && always()' in text
@@ -408,3 +412,124 @@ def test_recovery_uses_one_cycle_without_acquiring_or_faking_freshness():
     assert not acquisitions and runner.last_good is None
     assert runner.tick() == 'retained'
     assert clock.seconds == 300 and runner.last_good is None
+
+
+@pytest.mark.parametrize('instant', [
+    '2026-11-06T10:29:59Z', '2026-11-07T05:59:59Z',
+    '2026-11-08T06:00:00Z', '2026-11-08T06:00:01Z', '2027-11-07T06:02:00Z',
+])
+@pytest.mark.parametrize('rehearsal', [False, True])
+def test_scheduled_outside_window_does_nothing(monkeypatch, instant, rehearsal):
+    from datetime import datetime
+    import sys
+    monkeypatch.setenv('GITHUB_EVENT_NAME', 'schedule')
+    monkeypatch.setattr(sys, 'argv', ['night_live.py'] + (['--rehearsal'] if rehearsal else []))
+    def forbidden(*args, **kwargs):
+        pytest.fail('closed scheduled run performed external work')
+    monkeypatch.setattr(night_live.fetch, 'night_xml', forbidden)
+    monkeypatch.setattr(night_live.subprocess, 'run', forbidden)
+    monkeypatch.setattr(night_live.subprocess, 'check_output', forbidden)
+    assert night_live.main(now=lambda: datetime.fromisoformat(instant)) == 0
+
+
+def test_scheduled_open_acquires_production(monkeypatch):
+    from datetime import datetime
+    import sys
+    class Acquired(BaseException):
+        pass
+    calls = []
+    def acquire(root, path):
+        calls.append((root, path))
+        raise Acquired
+    monkeypatch.setenv('GITHUB_EVENT_NAME', 'schedule')
+    for key in ('GITHUB_SERVER_URL', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID'):
+        monkeypatch.setenv(key, 'test')
+    monkeypatch.setattr(sys, 'argv', ['night_live.py', '--rehearsal'])
+    monkeypatch.setattr(night_live.Deployment, 'recover', lambda _: False)
+    monkeypatch.setattr(night_live.fetch, 'night_xml', acquire)
+    with pytest.raises(Acquired):
+        night_live.main(now=lambda: datetime.fromisoformat('2026-11-07T06:02:00Z'))
+    assert calls == [(night_live.fetch.NIGHT_ROOTS[0], 'electorates.xml')]
+
+
+@pytest.mark.parametrize('instant,eligible', [
+    ('2026-11-07T05:59:59Z', False), ('2026-11-07T06:00:00Z', False),
+    ('2026-11-07T06:09:59Z', False), ('2026-11-07T06:10:00Z', True),
+    ('2026-11-08T05:59:59Z', True), ('2026-11-08T06:00:00Z', False),
+    ('2027-11-07T06:10:00Z', False),
+])
+def test_night_watchdog_window(monkeypatch, instant, eligible):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    calls = []
+    def output(*args, **kwargs):
+        calls.append(args)
+        return b'[]'
+    monkeypatch.setattr(night_start.subprocess, 'check_output', output)
+    assert (night_start.main(lambda: datetime.fromisoformat(instant)) == 0) == eligible
+    assert bool(calls) == eligible
+
+
+@pytest.mark.parametrize('status,created,expected', [
+    ('completed', '2026-11-07T05:59:59Z', True),
+    ('completed', '2026-11-07T06:00:00Z', False),
+    ('completed', '2026-11-07T06:02:00Z', False),
+    ('queued', '2026-11-07T05:59:59Z', False),
+    ('in_progress', '2026-11-07T05:59:59Z', False),
+    ('waiting', '2026-11-07T05:59:59Z', False),
+])
+def test_night_watchdog_run_history(status, created, expected):
+    from datetime import datetime
+    from product.nz_election.pipeline.night_start import should_start
+    now = lambda: datetime.fromisoformat('2026-11-07T06:10:00Z')
+    assert should_start(now, [dict(status=status, createdAt=created)]) == expected
+
+
+def test_night_watchdog_query_failure_is_not_permission(monkeypatch):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    def failed(*args, **kwargs):
+        raise subprocess.CalledProcessError(1, 'gh')
+    monkeypatch.setattr(night_start.subprocess, 'check_output', failed)
+    assert night_start.main(lambda: datetime.fromisoformat('2026-11-07T06:10:00Z')) == 1
+
+
+def test_tick_wires_watchdog_before_supervisor_skip():
+    source = (ROOT / 'bin/tick').read_text()
+    assert 'uv run product/nz_election/pipeline/night_start.py' in source
+    assert 'gh workflow run nz-election-night-live.yml --ref main' in source
+    assert source.index('|| night_watchdog') < source.index('# 1. a supervisor already running?')
+
+
+def test_live_loop_stops_at_close_without_chaining(monkeypatch):
+    from datetime import datetime
+    import sys
+    instant = [datetime.fromisoformat('2026-11-08T05:59:59Z')]
+    monkeypatch.setenv('GITHUB_EVENT_NAME', 'schedule')
+    for key in ('GITHUB_SERVER_URL', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID'):
+        monkeypatch.setenv(key, 'test')
+    monkeypatch.setattr(sys, 'argv', ['night_live.py'])
+    def tick(_):
+        instant[0] = night_live.CLOSE
+        return 'retained'
+    monkeypatch.setattr(night_live.Runner, 'tick', tick)
+    monkeypatch.setattr(night_live.subprocess, 'run', lambda *a, **k: pytest.fail('chained after close'))
+    assert night_live.main(now=lambda: instant[0]) == 0
+
+
+@pytest.mark.parametrize('eligible', [0, 1])
+def test_tick_dispatch_and_log_only_when_eligible(eligible):
+    source = (ROOT / 'bin/tick').read_text()
+    function = source.split('night_watchdog() {', 1)[1].split('\n}\n', 1)[0]
+    script = '''
+uv() { return "$ELIGIBLE"; }
+gh() { printf 'dispatch: %s\\n' "$*"; }
+log() { printf '%s\\n' "$*"; }
+night_watchdog() { BODY
+}
+night_watchdog
+'''.replace('BODY', function.replace('>/dev/null 2>&1', ''))
+    result = subprocess.run(['bash', '-c', script], env={'ELIGIBLE': str(eligible)}, capture_output=True, text=True)
+    assert result.returncode == 0
+    assert result.stdout == (('dispatch: workflow run nz-election-night-live.yml --ref main\n'
+                              'watchdog: no night-live run since opening, dispatched\n') if eligible == 0 else '')
