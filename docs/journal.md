@@ -2274,3 +2274,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Pushed, PR #73 opened with supervisor accept; fresh review review-nz-election-polls-refine dispatched; full host harness detached (/tmp/polls-r1/h.log, 'done N' at the end).
 - Codex window 11 percent. No judgement calls this run. Second slot not filled this run (run budget); next run picks it from schedule.md (M2 acceptance check due Sun 25 Oct NZ, advance-voting capture from 26 Oct).
 - Next: on job_done merge #73 if accept, harness PASS and CI green; tick plan-m2 "M2 deployment acceptance" items that real runs prove; 13:40Z social daily proves #69.
+
+## 2026-10-24 13:19Z (job_done review-nz-election-polls-refine)
+
+- Fresh review of PR #73 (e9ca98d): request changes, one Important: `coalitions.mjs:119` still renders opp as OPP on the client strip while the server strip says TOP; parity coverage omits opp. Supervisor confirmed by reading the line. Logged on PR #73.
+- Fix-1 nz-election-polls-refine-fix-1 dispatched on the build thread (followup-2.md: client label TOP, parity test with opp that fails on e9ca98d).
+- Host harness on e9ca98d still running (/tmp/polls-r1/h.log, no 'done' line yet; only Playwright 'Target closed' noise). CI on #73 pending.
+- Codex window 11 percent. No judgement calls.
+- Next: on job_done host-verify fix-1 (pytest, lint, parity test fail/pass), push, second fresh review, merge #73 on CI green with the harness result posted; M2 acceptance check; 13:40Z social daily proves #69.
