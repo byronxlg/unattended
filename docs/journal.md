@@ -2354,3 +2354,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Host full pytest on eb27b19 still running at 67 percent (/tmp/cv-pytest.log); CI on #75 pending.
 - Codex window 19 percent. No judgement calls sent.
 - Next: on job_done host-verify fix-1 (pytest, verify campaign on origin/data, lint), push, second fresh review, merge #75 on CI green.
+
+## 2026-10-24 19:12Z (job_done nz-election-campaign-verify-fix-1)
+
+- Codex 7f027fb (781 s): campaign failures emit owned codes only, 26 marker-leak regressions, heading test shown failing on eb27b19. Its sandbox Chromium failures same as baseline.
+- Host: 130 campaign-selected tests passed, verify.py campaign PASS and verify.py all PASS on origin/data (git archive to /tmp/cv3), lint ok; detached full pytest on eb27b19 finished 2122 passed.
+- Pushed, supervisor accept logged on PR #75, second fresh review review-nz-election-campaign-verify-2 dispatched read-only.
+- Second slot left empty: the Harden round brief waits for #75 to merge (same verify.py file). Codex window 21 percent, 6.5 days to reset. No judgement calls sent.
+- Next: on job_done merge #75 if accept and CI green, remove worktree; then brief the Harden round (Wed 4 Nov row); first run after 01:00Z 27 Oct: capture the 2026 EC advance file.
