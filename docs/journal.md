@@ -2290,3 +2290,4 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Pushed, supervisor accept logged on PR #73, second fresh review review-nz-election-polls-refine-2 dispatched.
 - Codex window 13 percent. No judgement calls.
 - Next: on job_done merge #73 if accept and CI green; coalitions_browser stale-check follow-up; M2 acceptance check (due 26 Oct); 13:40Z social daily proves #69 (read it about 16:30Z).
+- 13:58Z addendum: full host pytest on ebce3c7: 2042 passed in 983 s.
