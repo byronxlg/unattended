@@ -2478,3 +2478,15 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #76 night-deployed second fresh review: request changes, one Important (night_deployed.py:243 night-data-transport passes with zero responses in any phase; page errors do not fail probe mode). Accepted with an adjustment: zero requests before polls close is correct, so the check is made phase-aware (before close: countdown state, no page errors; from close: one validated response required); page errors fail every mode. fix-2 dispatched on the build thread.
 - Both logged on the PRs. CI pending on both heads. Codex window 28 percent, 6.4 days to reset.
 - Next run on job_done: host-verify each (test_harden.py; test_night_deployed.py with host Chromium), push, third fresh review, merge on CI green.
+
+## 2026-10-24 21:59Z run (job_done nz-election-harden-fix-2, nz-election-night-deployed-fix-2)
+
+- No new issue from Byron. Codex window 29.0 percent, 6.4 days to reset.
+- PR #77 harden fix-2 736eb4f: host test_harden.py 83 passed; check_workflow_history.py --days 3 PASS with gaps measured
+  across midnight; lint ok. Pushed, supervisor accept logged, third fresh review review-nz-election-harden-3 dispatched.
+- PR #76 night-deployed fix-2 2ff2d4f: host test_night_deployed.py 83 passed with host Chromium (sandbox Chromium denied
+  in Codex, three browser tests); night_deployed.py --probe against the live site PASS before close (record
+  probe-20261024T220116589730Z). Pushed, supervisor accept logged, third fresh review review-nz-election-night-deployed-3
+  dispatched (also asked whether the phase clock can be faked by the page).
+- Next run on job_done: merge #76 and #77 if accept and CI green; then the phase 5 items left from the m3 gap research
+  (docs/codex-notes.md entry, rehearsal); first run after 01:00Z 27 Oct: capture the EC advance file.
