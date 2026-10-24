@@ -146,12 +146,18 @@ def test_script_allowlist():
 def test_static_content_preserved(tmp_path, request_data):
     out = build(tmp_path / 'data', tmp_path / 'output', built='2026-10-17T01:00:00Z')
     html = (out / 'polls/index.html').read_text()
-    from product.nz_election.pipeline.build import home_presentation
-    home = home_presentation(export.validate_bundle(tmp_path / 'data'), '2026-10-17T01:00:00Z')
-    assert strip(request_data['seats'], home['source']) in html
-    assert '<fieldset hidden disabled>' in html and 'requires JavaScript' in html
-    assert 'source-seats' in html and 'data-select="others"' not in html
-    assert 'data-select="nat" checked' not in html
+    from product.nz_election.pipeline.build import home_presentation, explorer
+    from product.nz_election.pipeline.home import hero
+    envs = export.validate_bundle(tmp_path / 'data')
+    home = home_presentation(envs, '2026-10-17T01:00:00Z')
+    assert html.count('class="seat"') == home['result']['assumed_house']
+    assert 'class="strip"' in hero(envs, '2026-10-17T01:00:00Z', home)
+    assert '<fieldset' not in html and 'coalitions.mjs' not in html
+    assert 'id="coalition-explorer"' in html
+    controls = explorer(envs)
+    assert '<fieldset hidden disabled>' in controls and 'requires JavaScript' in controls
+    assert 'source-seats' in controls and 'data-select="others"' not in controls
+    assert 'data-select="nat" checked' not in controls
 
 
 def test_tied_scenario_withholds_totals():

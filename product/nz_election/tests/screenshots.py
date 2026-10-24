@@ -106,7 +106,7 @@ def picker_target_check(page):
 
 
 def home_question_check(page):
-    if page.viewport_size != {'width': 390, 'height': 844} or not page.locator('#seats.home-hero').count():
+    if page.viewport_size != {'width': 390, 'height': 844} or page.locator('.polls-page').count() or not page.locator('#seats.home-hero').count():
         return
     for selector in ('#dates', '#seats .seat-answer', '#seats .strip', '#seats .poll-change'):
         box = page.locator(selector).bounding_box()
@@ -278,7 +278,7 @@ def state_images(browser, out):
                         from coalitions_browser import edit_state
                         edit_state(page, state)
                     if state in COHERENT:
-                        assert page.locator('main .seat-module .seat-figure .strip').count() == 1, 'COHERENT_STRIP_REQUIRED'
+                        assert page.locator('main .seat-module .seat-figure .strip, .polls-page .home-hero .strip').count() == 1, 'COHERENT_STRIP_REQUIRED'
                         for box in page.locator('.lane').all():
                             if box.is_visible():
                                 assert box.evaluate('(e)=>e.scrollWidth<=e.clientWidth'), 'STRIP_LABEL_OVERFLOW'
@@ -312,7 +312,34 @@ def legend_check(page):
     assert not overlaps, f'LEGEND_RULE_OVERLAP: {page.viewport_size["width"]}: {overlaps}'
 
 
+def polls_fold_check(page):
+    if not page.locator('.polls-page .average-bars').count():
+        return
+    assert page.locator('.average-bars').bounding_box()['y'] + page.locator('.average-bars').bounding_box()['height'] <= 844, 'POLLS_AVERAGES_FOLD'
+    caption = page.locator('#source-average').bounding_box()
+    assert caption['y'] + caption['height'] <= 844, 'POLLS_DATE_FOLD'
+    summary = page.locator('.poll-change-summary')
+    assert summary.count() == 1, 'POLLS_CHANGE_SUMMARY_REQUIRED'
+    for party in ('nat', 'lab'):
+        answer = summary.locator(f'[data-change-party="{party}"]')
+        assert answer.count() == 1 and 'points' in answer.inner_text(), f'POLLS_CHANGE_ANSWER: {party}'
+        box = answer.bounding_box()
+        assert box and box['y'] >= 0 and box['y'] + box['height'] <= 844, f'POLLS_CHANGE_FOLD: {party}: {box}'
+        assert answer.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)') >= 14, 'POLLS_CHANGE_READABLE'
+    date = summary.locator('time')
+    assert date.count() == 1 and date.get_attribute('datetime'), 'POLLS_CHANGE_DATE'
+    box = date.bounding_box()
+    assert box and box['y'] >= 0 and box['y'] + box['height'] <= 844, 'POLLS_CHANGE_DATE_FOLD'
+    assert page.locator('#trend .trend-layout').bounding_box()['y'] < 844, 'POLLS_TREND_START'
+    if page.locator('#seats .strip').count():
+        box = page.locator('#seats .strip').bounding_box()
+        assert box['y'] + box['height'] < 1688, 'POLLS_SEATS_ONE_SCROLL'
+
+
 def fold_check(page):
+    if page.locator('.polls-page').count():
+        polls_fold_check(page)
+        return None
     if not page.locator('.home-hero .strip,.seat-figure').count():
         return None
     assert page.locator('#source-seats.source-note').count() == 1, 'SOURCE_NOTE_REQUIRED'
@@ -545,6 +572,8 @@ def main():
                     assert page.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")
                     assert page.evaluate("[...document.querySelectorAll('*')].every(e=>getComputedStyle(e).animationName==='none')")
                     bottom = fold_check(page) if path == '' and width in (360, 390) else None
+                    if path == 'polls/' and width == 390:
+                        polls_fold_check(page)
                     name = (path.strip('/').replace('/', '--') or 'home') + f'-{width}x{height}.png'
                     target = args.out / name
                     page_height = page.evaluate('document.documentElement.scrollHeight')
@@ -572,7 +601,7 @@ def main():
                         (args.out / f'markets-module-{width}.json').write_text(json.dumps(page.locator('#markets').bounding_box()))
                     plain = nojs.new_page()
                     plain.goto(url, wait_until='networkidle')
-                    assert static_text(plain) == text, 'NO_JS_CONTENT_MISMATCH'
+                    assert static_text(plain) == text, f'NO_JS_CONTENT_MISMATCH: route={path or "/"} width={width}'
                     assert plain.locator('.desktop-nav').is_visible(), 'NO_JS_NAVIGATION_FAILED'
                     manifest.append(dict(route=PREFIX + 'nz-election/' + path, viewport=dict(width=width, height=height),
                                          path=name, sha256=hashlib.sha256(target.read_bytes()).hexdigest(),

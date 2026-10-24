@@ -43,6 +43,14 @@ def fixture(root, state):
         daily_refresh(data, now='2026-10-17T01:00:00Z')
     build(data, site / 'nz-election', built='2026-10-17T12:00:00Z' if state in {'stale', 'validation-error'} else '2026-10-17T01:00:00Z')
     route = 'polls/' if state in COHERENT else ''
+    if state in COHERENT - {'earlier-coherent-window'}:
+        # Exercise retained explorer code on an isolated harness document.
+        from product.nz_election.pipeline.build import polls_page
+        target = site / 'nz-election/polls/index.html'
+        html = target.read_text()
+        envs = export.validate_bundle(data)
+        body = polls_page(envs, '2026-10-17T01:00:00Z', full_sources=True)
+        target.write_text(re.sub(r'(<main[^>]*>).*?(</main>)', lambda m: m[1] + '<h1>Explorer verification</h1>' + body + m[2], html, flags=re.S))
     if state in {'missing-baseline', 'source-conflict'}:
         from product.nz_election.pipeline.electorate_pages import detail
         row = next(r for r in config('electorates') if r['slug'] == 'auckland-central')
@@ -75,6 +83,6 @@ def fixture(root, state):
         envs['seats']['data']['unresolved_ties'] = entitlement({'nat': 1, 'lab': 1}, ['nat', 'lab'], count=1)['unresolvedTies']
         target = site / 'nz-election/index.html'
         html = target.read_text()
-        body = polls_page(envs, '2026-10-17T01:00:00Z')
+        body = polls_page(envs, '2026-10-17T01:00:00Z', full_sources=True)
         target.write_text(re.sub(r'(<main[^>]*>).*?(</main>)', lambda m: m[1] + '<h1>No seat estimate available yet.</h1>' + body + m[2], html, flags=re.S))
     return site, route

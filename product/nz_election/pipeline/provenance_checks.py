@@ -55,13 +55,16 @@ def check_site(site, envs):
     note = next(n for n in polls.elements if n['attrs'].get('id') == 'source-history')
     assert any(n['attrs'].get('href') == PREFIX + 'methods/#source-history' for n in note['children']), 'PROVENANCE_LOCATION: poll footnote'
     assert 'source-history' in anchors
+    recent = sorted(envs['polls']['data'], key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:10]
+    table = next(n for n in polls.elements if n['attrs'].get('id') == 'recent-polls')
     for poll in envs['polls']['data']:
         record = anchors['source-' + poll['id']]
         assert record in anchors['source-history']['children'], 'PROVENANCE_LOCATION: records outside target'
         assert poll['pollster'] in record['text'] and 'Fieldwork ended' in record['text']
         for url in poll['reference_urls']:
             assert any(n['attrs'].get('href') == url for n in record['children']), 'PROVENANCE_LOCATION: missing poll report'
-            assert not any(n['attrs'].get('href') == url for n in polls.elements if n not in note['children']), 'PROVENANCE_LOCATION: poll report on route'
+            if poll in recent:
+                assert any(n['attrs'].get('href') == url for n in table['children']), 'PROVENANCE_LOCATION: recent poll report missing'
     assert checked, 'PROVENANCE_LOCATION: no electorate routes'
     return checked + 1
 
