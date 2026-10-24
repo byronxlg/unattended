@@ -14,7 +14,7 @@ import threading
 
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from product.nz_election.pipeline import export
+from product.nz_election.pipeline import export, campaign_checks as campaign
 from product.nz_election.pipeline.average import trend, threshold_watch, select_window
 from product.nz_election.pipeline.build import build, config
 from product.nz_election.pipeline.models import ParseDrift
@@ -306,10 +306,14 @@ def verify_markets(envs, root):
     require(all(r['observed_at'] in html and 'https://polymarket.com/event/' + e['slug'] in html for e, r in leaders(payloads['markets']) if r), 'market observation and rules')
 
 
-def verify_advance(envs, root):
+def verify_advance(envs, root, *, data=None):
     from product.nz_election.pipeline import advance
     from product.nz_election.pipeline.daily_refresh import daily_refresh
     from product.nz_election.pipeline.m3_checks import check_site
+    if data is not None:
+        supplied = export.validate_bundle(data)
+        if 'advance-voting' in supplied:
+            advance.validate(supplied['advance-voting']['data'])
     daily = advance.normalize([('2023-10-02', 10), ('2023-10-03', 20)], kind='daily', start='2023-10-02')
     require(daily[-1]['cumulative'] == 30, 'daily is not cumulative')
     gap = advance.normalize([('2023-10-02', 10), ('2023-10-04', 20)], kind='daily', start='2023-10-02')
@@ -329,6 +333,37 @@ def verify_advance(envs, root):
         raise ValueError('CAPTURE_HASH_MISMATCH')
     daily_refresh(data, loaders={'advance': fail})
     require(all((data / ('advance-voting' + ext)).read_bytes() == raw for ext, raw in before.items()), 'advance last-good bytes')
+
+
+@campaign.report_failure
+def verify_campaign(envs, root, *, data=None, site=None):
+    from product.nz_election.pipeline.parties_page import page
+    rows, _ = campaign.check_snapshots()
+    if data is not None:
+        campaign.require(data.is_dir(), campaign.DATA)
+        envs = campaign.validate_bundle(data)
+    campaign.no_total_funding(envs)
+    try:
+        verify_advance(envs, root, data=data)
+    except ValueError:
+        raise campaign.CampaignError(campaign.ADVANCE) from None
+    # These facts are code-owned snapshots, not daily exports. Use exactly the
+    # supplied daily bundle for rendering, without replacing it with fixtures.
+    built = '2026-10-25T00:00:00Z'
+    try:
+        if site is None:
+            html = page(envs, built)
+        else:
+            html = (site / 'parties/index.html').read_text()
+            built = json.loads((site / 'build-manifest.json').read_text())['data']['built_at']
+    except (KeyError, TypeError, ValueError, OSError):
+        raise campaign.CampaignError(campaign.ABSENT) from None
+    campaign.check_markup(html, rows, built[:4])
+    from product.nz_election.pipeline.parties_page import load, supplemental
+    absent = {**{n: load(n) for n in ('leaders', 'positions')},
+              **{n: supplemental(n) for n in ('policy-links', 'party-list-tops')},
+              'donations': []}
+    campaign.check_markup(page({}, built, facts=absent), [], built[:4])
 
 
 def verify_night(envs, root, *, data=None):
@@ -376,24 +411,29 @@ def verify_waterfall(envs, root, *, data=None):
                 require(night_seats.waterfall(None)['calculation'] is None, 'incomplete suppression')
 
 
-def main():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets', 'advance', 'night', 'waterfall'])
+    parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets', 'advance', 'night', 'waterfall', 'campaign'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
-    args = parser.parse_args()
+    return parser.parse_args(argv)
+
+
+def main(args=None):
+    args = parse_args() if args is None else args
     night_data = args.data
     if night_data is None and args.site:
         night_data = (args.site / 'nz-election' if (args.site / 'nz-election').is_dir() else args.site) / 'data'
     if args.check == 'night' and args.data and not (args.data / 'night/index.json').is_file():
         raise ValueError('MISSING_NIGHT_FAMILY')
-    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets, 'advance': verify_advance, 'night': verify_night, 'waterfall': verify_waterfall}
+    checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets, 'advance': verify_advance, 'night': verify_night, 'waterfall': verify_waterfall, 'campaign': verify_campaign}
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
         envs = export.validate_bundle(root / 'data')
         if args.data:
-            supplied = export.validate_bundle(args.data)
+            supplied = (campaign.validate_bundle(args.data) if args.check in {'campaign', 'all'}
+                        else export.validate_bundle(args.data))
             if args.check in {'candidates', 'electorates', 'all'}:
                 # Unpublished families render empty states; published families retain their checks.
                 if 'candidates' in supplied:
@@ -438,7 +478,12 @@ def main():
                 if name in {'night', 'waterfall'} and args.check == 'all' and night_data and not (night_data / 'night/index.json').is_file():
                     # The aggregate gate permits absent families, without claiming their validation.
                     continue
-                if name in {'night', 'waterfall'}:
+                if name == 'campaign':
+                    check(envs, root, data=args.data or (night_data if night_data and night_data.exists() else None),
+                          site=product if args.site else None)
+                elif name == 'advance':
+                    check(envs, root, data=args.data or (night_data if night_data and night_data.exists() else None))
+                elif name in {'night', 'waterfall'}:
                     check(envs, root, data=night_data)
                 else:
                     check(envs, root)
@@ -447,8 +492,20 @@ def main():
             print('PASS all')
 
 
-if __name__ == '__main__':
+def cli(argv=None):
+    args = parse_args(argv)
+    check = args.check
     try:
-        main()
-    except ValueError as exc:
-        raise SystemExit('FAIL ' + sys.argv[1] + ': ' + str(exc)) from None
+        main(args)
+    except Exception as exc:
+        if check in {'campaign', 'all'}:
+            reason = exc.code if isinstance(exc, campaign.CampaignError) else campaign.DATA
+        elif isinstance(exc, ValueError):
+            reason = str(exc)
+        else:
+            raise
+        raise SystemExit('FAIL ' + check + ': ' + reason) from None
+
+
+if __name__ == '__main__':
+    cli()
