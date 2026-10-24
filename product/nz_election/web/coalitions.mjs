@@ -116,7 +116,7 @@ export function stripHTML(result, labels, caption='Theoretical seats and overhan
         lanes+=`<span class="label-connector ${mode}" aria-hidden="true" style="left:${fixed(Math.min(pos.left,pos.anchor))}%;width:${fixed(Math.abs(pos.left-pos.anchor))}%;height:${6+pos.row*21}px;border-${side}:1px solid var(--ink)"></span>`;
       }
     }
-    lanes+=`<div class="lane" role="group" data-party="${htmlEscape(p)}" style="--row:${mobile[p].row};--left:${fixed(mobile[p].left)}%;--large-left:${fixed(desktop[p].left)}%" aria-label="${name}: ${n} calculated seats"><span>${htmlEscape(p.toUpperCase())}</span> <strong>${n}</strong></div>`;
+    lanes+=`<div class="lane" role="group" data-party="${htmlEscape(p)}" style="--row:${mobile[p].row};--left:${fixed(mobile[p].left)}%;--large-left:${fixed(desktop[p].left)}%" aria-label="${name}: ${n} calculated seats"><span>${htmlEscape(labels[p].abbreviation ?? p.toUpperCase())}</span> <strong>${n}</strong></div>`;
     const partyName=[...grouped,'opp'].includes(p)?`<a href="/unattended/nz-election/parties/#${htmlEscape(p)}">${name}</a>`:name;
     rows+=`<tr><td>${partyName}</td><td>${base}</td><td>${n-base}</td><td>${n}</td></tr>`;
   }
@@ -151,7 +151,7 @@ async function start(root) {
     if (seats.input_hashes['averages.json']!==root.dataset.averages) throw Error('Data mismatch');
     const data=inputs(averages.data.at(-1),seats.data,root.dataset.fingerprint);
     let state=structuredClone(data.initial);
-    const labels=Object.fromEntries([...root.querySelectorAll('[data-party-row]')].map(row=>[row.dataset.partyRow,{name:row.dataset.name,colour:row.dataset.colour}]));
+    const labels=Object.fromEntries([...root.querySelectorAll('[data-party-row]')].map(row=>[row.dataset.partyRow,{name:row.dataset.name,colour:row.dataset.colour,abbreviation:row.dataset.abbreviation}]));
     if (!same(Object.keys(labels),data.parties)) throw Error('Party mismatch');
     const warning=root.querySelector('[data-warning]'), live=root.querySelector('[data-live]'), output=root.querySelector('[data-picture]');
     const sync=()=>{

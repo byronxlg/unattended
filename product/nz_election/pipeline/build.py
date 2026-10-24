@@ -273,7 +273,7 @@ def explorer(envs, available=True):
         attrs = f' data-averages="{average_hash}" data-seats="{seats_hash}" data-fingerprint="{fingerprint}"'
         for p in data['parties']:
             colour = config('party-colours').get(p, {}).get('colour', '#595959')
-            controls += (f'<div class="coalition-row" data-party-row="{p}" data-name="{escape(label(p))}" data-colour="{colour}">'
+            controls += (f'<div class="coalition-row" data-party-row="{p}" data-name="{escape(label(p))}" data-colour="{colour}" data-abbreviation="{escape(abbreviation(p))}">'
                          f'<label><input type="checkbox" data-select="{p}"> {escape(label(p))}</label>'
                          f'<label class="electorate-count">Electorate seats assumed for {escape(label(p))}'
                          f'<input type="text" inputmode="numeric" maxlength="2" data-count="{p}" value="{data["initial"]["counts"][p]}"></label></div>')
