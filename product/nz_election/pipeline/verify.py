@@ -335,7 +335,7 @@ def verify_advance(envs, root, *, data=None):
     require(all((data / ('advance-voting' + ext)).read_bytes() == raw for ext, raw in before.items()), 'advance last-good bytes')
 
 
-@campaign.guard(campaign.DATA)
+@campaign.report_failure
 def verify_campaign(envs, root, *, data=None, site=None):
     from product.nz_election.pipeline.parties_page import page
     rows, _ = campaign.check_snapshots()
@@ -411,12 +411,16 @@ def verify_waterfall(envs, root, *, data=None):
                 require(night_seats.waterfall(None)['calculation'] is None, 'incomplete suppression')
 
 
-def main():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets', 'advance', 'night', 'waterfall', 'campaign'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
-    args = parser.parse_args()
+    return parser.parse_args(argv)
+
+
+def main(args=None):
+    args = parse_args() if args is None else args
     night_data = args.data
     if night_data is None and args.site:
         night_data = (args.site / 'nz-election' if (args.site / 'nz-election').is_dir() else args.site) / 'data'
@@ -488,11 +492,12 @@ def main():
             print('PASS all')
 
 
-def cli():
+def cli(argv=None):
+    args = parse_args(argv)
+    check = args.check
     try:
-        main()
-    except campaign.INPUT_ERRORS as exc:
-        check = sys.argv[1]
+        main(args)
+    except Exception as exc:
         if check in {'campaign', 'all'}:
             reason = exc.code if isinstance(exc, campaign.CampaignError) else campaign.DATA
         elif isinstance(exc, ValueError):

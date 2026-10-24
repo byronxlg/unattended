@@ -42,6 +42,19 @@ class CampaignError(ValueError):
         super().__init__(self.code)
 
 
+def report_failure(check):
+    """No ordinary exception may cross the campaign reporting boundary."""
+    @wraps(check)
+    def checked(*args, **kwargs):
+        try:
+            return check(*args, **kwargs)
+        except CampaignError:
+            raise
+        except Exception:
+            raise CampaignError(DATA) from None
+    return checked
+
+
 def guard(code):
     def decorate(check):
         @wraps(check)
@@ -171,7 +184,7 @@ def check_candidate_sources(data, directory):
             require(row['fieldwork_end'] == end, FINAL_POLL)
 
 
-@guard(DATA)
+@report_failure
 def check_snapshots(directory=None):
     directory = snapshots.SNAPSHOTS if directory is None else directory
     donation_path = directory / 'donations.json'

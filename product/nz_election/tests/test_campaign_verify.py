@@ -355,7 +355,7 @@ def test_unknown_official_party_number_is_owned_failure(monkeypatch):
 @pytest.mark.parametrize('check', ['campaign', 'all'])
 @pytest.mark.parametrize('error_type', [ValueError, KeyError, TypeError, OverflowError])
 def test_cli_redacts_downstream_exceptions(monkeypatch, check, error_type):
-    def fail():
+    def fail(*args):
         raise error_type('CAMPAIGN_OFFICIAL_ERRORS: ' + MARKER)
     monkeypatch.setattr(verify, 'main', fail)
     monkeypatch.setattr(sys, 'argv', ['verify.py', check])
@@ -365,7 +365,7 @@ def test_cli_redacts_downstream_exceptions(monkeypatch, check, error_type):
 
 
 def test_cli_preserves_owned_failure(monkeypatch):
-    def fail():
+    def fail(*args):
         raise c.CampaignError(c.OFFICIAL_ERRORS)
     monkeypatch.setattr(verify, 'main', fail)
     monkeypatch.setattr(sys, 'argv', ['verify.py', 'campaign'])
@@ -388,3 +388,43 @@ def test_candidate_source_boundary_redacts_implicit_errors(monkeypatch, error_ty
     monkeypatch.setattr(c.gzip, 'decompress', fail)
     data = json.loads((snapshots.SNAPSHOTS / 'pollster-record.json').read_text())
     assert_safe_failure(c.FINAL_POLL, lambda: c.check_candidate_sources(data, snapshots.SNAPSHOTS))
+
+
+@pytest.mark.parametrize('error_type', [RuntimeError, EOFError, AssertionError])
+@pytest.mark.parametrize('entry', ['snapshots', 'campaign'])
+def test_campaign_boundary_catches_all_exceptions(monkeypatch, tmp_path, error_type, entry):
+    def fail(*args, **kwargs):
+        raise error_type(MARKER)
+    if entry == 'snapshots':
+        records = c.pollster_scorecard.load_pollster_record(snapshots.SNAPSHOTS / 'pollster-record.json')
+        monkeypatch.setattr(c.pollster_scorecard, 'load_pollster_record', lambda *args: records)
+        monkeypatch.setattr(c.gzip, 'decompress', fail)
+    else:
+        monkeypatch.setattr(verify, 'verify_advance', fail)
+    operation = c.check_snapshots if entry == 'snapshots' else lambda: verify.verify_campaign({}, tmp_path)
+    assert_safe_failure(c.DATA, operation)
+
+
+@pytest.mark.parametrize('check', ['campaign', 'all'])
+@pytest.mark.parametrize('error_type', [RuntimeError, EOFError, AssertionError, OSError])
+@pytest.mark.parametrize('options_first', [False, True])
+def test_cli_boundary_uses_parsed_check(monkeypatch, tmp_path, check, error_type, options_first):
+    def fail(*args, **kwargs):
+        raise error_type(MARKER)
+    monkeypatch.setattr(Path, 'read_text', fail)
+    args = ['--site', str(tmp_path), check] if options_first else [check, '--site', str(tmp_path)]
+    monkeypatch.setattr(sys, 'argv', ['verify.py', *args])
+    with pytest.raises(SystemExit) as raised:
+        verify.cli()
+    message = str(raised.value)
+    assert MARKER not in message
+    assert message == f'FAIL {check}: CAMPAIGN_DATA'
+
+
+@pytest.mark.parametrize('error_type', [KeyboardInterrupt, SystemExit])
+def test_campaign_boundary_leaves_process_control_exceptions(monkeypatch, error_type):
+    def fail(*args, **kwargs):
+        raise error_type()
+    monkeypatch.setattr(c.gzip, 'decompress', fail)
+    with pytest.raises(error_type):
+        c.check_snapshots()
