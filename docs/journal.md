@@ -2185,3 +2185,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Day 9 post written (posts/2026-10-24.md): six merges on 23 Oct (#64 home, #65 night live transport, #66 parties refine, #67 electorates, #68 home bytes incident, #69 social retry), ledger since 06:10Z 23 Oct 27 jobs (16 build, 11 review) all rc 0, window 6 to 27 percent after the 07:04Z reset. bin/metrics run 06:10Z: 24.5 merges per week, first-pass merge 0 percent, rework 21 cycles per change, 5 repeated mistakes, change failure rate 0, peak 4 jobs; GitHub-sourced indicators still unavailable (timeouts).
 - No judgement calls to Byron on 23 Oct. No new issues or Byron words.
 - Next: 07:05Z dispatch nz-election-polls-page as written and the publish cleanup fix (publish.py:62); 13:40Z social daily proves #69; M2 v1 due 26 Oct.
+
+## 2026-10-24 07:06Z (idle, window day start)
+
+- No new issues or Byron words. Codex window 27 percent, 6.0 days to reset, allowance about 12 points per day; disk 19.4 GiB.
+- Pages and CI green on 382c962 (so bffe21d, PR #69, is deployed); hourly green 05:57Z.
+- Dispatched nz-election-polls-page as written (brief state/jobs/nz-election-polls-page/prompt.md, Page plan intent/nz-election/pages/polls.md accepted 20 Oct 23:00Z), worktree .worktrees/nz-election-polls-page from origin/main.
+- Dispatched nz-election-publish-cleanup-1 (fix: the PR #69 CI flake, publish.py TemporaryDirectory cleanup '.git' not empty; brief asks to stop git background work in the throwaway checkout, test of the config, publish tests 5 of 5), worktree .worktrees/nz-election-publish-cleanup.
+- Next: review both on job_done; M2 v1 due 26 Oct; 13:40Z social daily is the proving run for #69.
