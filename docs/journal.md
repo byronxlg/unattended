@@ -2503,3 +2503,14 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Next run on job_done: host-verify fix-3 (test_night_deployed.py with host Chromium, lint), push, fourth fresh review,
   merge #76; merge #77 on CI green; then docs/codex-notes.md entry and the rehearsal; first run after 01:00Z 27 Oct:
   capture the EC advance file.
+
+## 2026-10-24 22:23Z run (job_done nz-election-night-deployed-fix-3)
+
+- No new issue from Byron. Codex window 30.0 percent, 6.4 days to reset.
+- PR #76 night-deployed fix-3 3d63029: probe_phase now decides before/after close from an injectable host UTC clock; page
+  Date.now() is recorded only. Host: test_night_deployed.py 96 passed with host Chromium; the same suite against 2ff2d4f's
+  night_deployed.py fails 41 (host-clock regressions among them); lint ok. Pushed, supervisor accept logged on the PR,
+  fourth fresh review review-nz-election-night-deployed-4 dispatched.
+- PR #77 harden: CI still in progress at 22:27Z; merge on green next run.
+- Next run on job_done: merge #76 if accept and CI green, merge #77 on CI green; then docs/codex-notes.md entry and the
+  election-night rehearsal brief; first run after 01:00Z 27 Oct: capture the EC advance file.
