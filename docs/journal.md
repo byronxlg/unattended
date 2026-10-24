@@ -2514,3 +2514,15 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #77 harden: CI still in progress at 22:27Z; merge on green next run.
 - Next run on job_done: merge #76 if accept and CI green, merge #77 on CI green; then docs/codex-notes.md entry and the
   election-night rehearsal brief; first run after 01:00Z 27 Oct: capture the EC advance file.
+
+## 2026-10-24 22:36Z run (job_done review-nz-election-night-deployed-4)
+
+- No new issue from Byron. Codex window 30.0 percent, 6.4 days to reset; no Codex job running.
+- PR #76 night-deployed: fourth fresh review review-nz-election-night-deployed-4 accept, no findings (fix confirmed at
+  night_deployed.py:236; 2ff2d4f before-close PASS vs 3d63029 after-close FAIL on its probe; 24 host-boundary and
+  page-clock combinations pass). Logged on the PR with supervisor accept. CI on 3d63029 started 22:26Z, still running at
+  22:50Z.
+- PR #77 harden: CI green (check pass 24m57s), squash merged as b82f73f, worktree and branch removed.
+- PR #76 CI green at about 23:00Z; squash merged as 5864574, worktree and remote branch removed.
+- Next run: confirm Pages for 5864574; docs/codex-notes.md entry; election-night rehearsal brief on the #76 harness and
+  the next increment from schedule.md (no Codex job running); first run after 01:00Z 27 Oct: capture the EC advance file.
