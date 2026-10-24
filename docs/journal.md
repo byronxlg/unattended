@@ -2459,3 +2459,15 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Both reviews logged on the PRs. CI pending on both.
 - Next: on job_done host-verify each (pytest, lint, night --probe on the host, harden gate online), push, second
   fresh review, merge on CI green; first run after 01:00Z 27 Oct: capture the EC advance file.
+
+## 2026-10-24 21:33Z run (job_done nz-election-harden-fix-1, nz-election-night-deployed-fix-1)
+
+- No new issue from Byron. Codex window 28.0 percent, 6.4 days to reset.
+- PR #77 harden fix-1 a67a6fa: host test_harden.py 80 passed; check_workflow_history.py --days 3 PASS under the new
+  policy (hourly 18 a day 22 to 24 Oct; social daily 1 failure recovered on 23 and 24 Oct); lint ok. Pushed, supervisor
+  accept logged, second fresh review review-nz-election-harden-2 dispatched.
+- PR #76 night-deployed fix-1 36659a4: host test_night_deployed.py 62 passed with host Chromium (Codex sandbox could
+  not launch it); night_deployed.py --probe against the live site PASS (record probe-20261024T213656250078Z); lint ok.
+  Pushed, supervisor accept logged, second fresh review review-nz-election-night-deployed-2 dispatched.
+- Next: on job_done merge #76 and #77 if accept and CI green; then the phase 5 items left from the m3 gap research;
+  first run after 01:00Z 27 Oct: capture the EC advance file.
