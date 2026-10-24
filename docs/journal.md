@@ -2533,3 +2533,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Gap found: `nz-election-night-live.yml` has no cron; runbook/night.md:150 needs a human dispatch at 7 Nov 06:00Z, with Byron away and the tick sometimes down. Dispatched nz-election-night-start (.worktrees/nz-election-night-start, change/nz-election-night-start): scheduled trigger that no-ops outside the 2026 live window via the existing clock guard, plus a bin/tick watchdog from 06:10Z 7 Nov, runbook updated. Reversible single change, no NOTE.
 - The PR #76 nit (2023 archive "updated 2024-11-10") is the source's own timestamp, already documented at runbook/night.md:19; not a defect.
 - Codex window 30 percent, 6.3 days to reset.
+
+## 2026-10-24 23:55Z (job_done nz-election-night-start)
+
+- nz-election-night-start 5bc00f2 (179 s): two cron starts on 7 Nov (06:02Z, 06:07Z) in nz-election-night-live.yml, fail-closed decision script pipeline/night_start.py on night_live.require_open, bin/tick watchdog that dispatches night-live once if none since opening, runbook steps, new 8 Nov 06:00Z upper bound (Codex assumption, flagged for review).
+- Host: test_night_operation.py and test_workflows.py 51 passed, bash -n bin/tick ok, bin/lint ok. Stray last.md not committed.
+- PR #78 opened, supervisor accept logged with two questions (END naming, watchdog cost per tick); fresh review review-nz-election-night-start dispatched.
+- Second slot left empty this run: the next schedule item (advance-voting capture) waits on the EC file from 27 Oct NZ. Codex window 31 percent.
