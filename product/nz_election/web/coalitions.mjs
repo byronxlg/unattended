@@ -163,7 +163,12 @@ async function start(root) {
     const draw=()=>{
       const r=scenario(data,state);
       root.querySelector('[data-unassigned]').textContent=`${r.unassigned_electorates} electorate seats unassigned. 2023 electorate seats assumed; 2026 has different boundaries.`;
-      if (!r.seats) { live.textContent='Seats are unavailable'; output.replaceChildren(); return; }
+      if (!r.seats) {
+        live.textContent=r.unresolved_ties.length
+          ? 'A tie prevents a seat count. Adjust the electorate seats assumed to change which parties qualify, or use different poll inputs.'
+          : 'No party reaches 5% or has an electorate win. Assign an electorate win to a party with votes, or use different poll inputs.';
+        output.replaceChildren(); return;
+      }
       live.textContent=`Selected parties: ${r.selected_total} seats. Seats needed for a majority: ${r.assumed_majority}, assuming sufficient list candidates in a House of ${r.assumed_house}.`;
       picture(output,r,labels);
     };

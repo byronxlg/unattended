@@ -132,6 +132,8 @@ def check_unassigned_after_unavailable_allocation(browser, site):
     from coalition_unassigned_cases import unassigned_inputs
     from product.nz_election.pipeline.build import explorer
     from product.nz_election.pipeline import export
+    from product.nz_election.tools.check_visible_text import check_absent_text
+    from html import escape
 
     server, origin = serve(site)
     base = origin + PREFIX + 'nz-election/'
@@ -164,7 +166,9 @@ def check_unassigned_after_unavailable_allocation(browser, site):
                 assert root.locator('[data-picture] .strip').count() == (0 if no_eligible else 1)
                 count = root.locator('[data-count="b"]')
                 count.fill('1'); count.press('Tab')
-                assert 'Seats are unavailable' in root.locator('[data-live]').inner_text()
+                live_text = root.locator('[data-live]').inner_text()
+                check_absent_text(escape(live_text), 'coalition runtime data-live')
+                assert 'A tie prevents a seat count. Adjust the electorate seats assumed to change which parties qualify, or use different poll inputs.' in live_text
                 assert root.locator('[data-picture]').inner_text() == ''
                 assert unassigned.inner_text().startswith('70 electorate seats unassigned.')
                 count.fill('0'); count.press('Tab')
