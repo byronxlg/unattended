@@ -2291,3 +2291,12 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Codex window 13 percent. No judgement calls.
 - Next: on job_done merge #73 if accept and CI green; coalitions_browser stale-check follow-up; M2 acceptance check (due 26 Oct); 13:40Z social daily proves #69 (read it about 16:30Z).
 - 13:58Z addendum: full host pytest on ebce3c7: 2042 passed in 983 s.
+
+## 2026-10-24 14:07Z (job_done review-nz-election-polls-refine-2)
+
+- Second fresh review of PR #73 on ebce3c7: accept, no findings (client TOP strip fixed at coalitions.mjs:119,154 and build.py:276; test_polls_refine.py 3 passed, fails on the baseline). Logged on the PR.
+- CI run 40100135699 in progress since 13:54Z; not merged this run.
+- Social daily cron 13:40Z missed again; dispatched by hand 14:07Z, run 40101097707 (proving run for PR #69: partial day published as N of 24 if a retry spends the allocation).
+- Hourly last success 12:48Z; the bin/tick watchdog covers it at 90 min.
+- Codex window 13 percent, 6.7 days to reset.
+- Next: merge #73 on CI green, confirm Pages, link to Byron; coalitions_browser stale-check follow-up (retire or retarget; whether the explorer returns follows pages/polls.md); M2 acceptance check (due 26 Oct NZ); read social run 40101097707 about 16:30Z.
