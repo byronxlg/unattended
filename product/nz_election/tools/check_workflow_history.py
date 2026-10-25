@@ -115,13 +115,26 @@ def scheduled_times(schedules, start, end):
     return sorted(stamps)
 
 
+def python_invocation(words):
+    if words[:2] == ['uv', 'run']:
+        words = words[2:]
+    elif not words or words[0] not in {'python', 'python3'}:
+        return None
+    if words and words[0] in {'python', 'python3'}:
+        words = words[1:]
+    if words and re.fullmatch(r'(?:\./)?product/nz_election/pipeline/[a-z_]+\.py', words[0]):
+        return words
+    return None
+
+
 def shell_commands(source):
-    """Keep lexical newlines distinct from quoted data; do not evaluate shell."""
-    ansi_quote = source.find("$'")
-    if ansi_quote >= 0:
-        # ANSI-C escapes can keep later lines inside a string. Without parsing
-        # them, neither this line nor the rest of the run body is evidence.
-        source = source[:source.rfind('\n', 0, ansi_quote) + 1]
+    """Accept only a whole step of simple commands, never a shell fragment.
+
+    The supported grammar is newline-separated literal echo, known set options,
+    and direct Python/uv script invocations, with quotes, comments and line
+    continuations. Operators, expansion, nesting and other command forms reject
+    the entire step, including invocations preceding the unsupported syntax.
+    """
     commands = [[]]
     quote = None
     in_word = False
@@ -136,6 +149,8 @@ def shell_commands(source):
             index += 2
             continue
         if quote:
+            if quote == '"' and char in '$`':
+                raise ValueError('unsupported shell expansion')
             commands[-1].append(char)
             if char == quote:
                 quote = None
@@ -151,6 +166,10 @@ def shell_commands(source):
         elif char == '\n':
             commands.append([])
             in_word = False
+        elif char in '$`;|&()<>{}*?[]~':
+            # Reject before quote removal or command splitting can hide syntax.
+            # We never need to infer nesting depth: only depth zero is accepted.
+            raise ValueError('unsupported shell syntax')
         else:
             commands[-1].append(char)
             in_word = char not in ' \t\r;&|()<>'
@@ -160,7 +179,13 @@ def shell_commands(source):
         lexer = shlex.shlex(''.join(command), posix=True, punctuation_chars=';&|()<>')
         lexer.whitespace_split = True
         lexer.commenters = ''
-        tokenized.append(list(lexer))
+        words = list(lexer)
+        if not words:
+            continue
+        if (words[0] != 'echo' and words not in (['set', '-e'], ['set', '-eu'], ['set', '-euo', 'pipefail'])
+                and python_invocation(words) is None):
+            raise ValueError('unsupported shell command')
+        tokenized.append(words)
     return tokenized
 
 
@@ -213,23 +238,14 @@ def workflow_commands(source):
             value = value[1:-1].replace("''", "'")
         if key != 'run' or steps_indent is None or key_indent != step_key_indent:
             continue
-        # Only direct Python and uv invocations are evidence. Quoted text and
-        # heredoc bodies must not be mistaken for executable commands.
-        if '<<' in value:
-            continue
         try:
             commands = shell_commands(value)
         except ValueError:
             continue
         for words in commands:
-            if words[:2] == ['uv', 'run']:
-                words = words[2:]
-            elif not words or words[0] not in {'python', 'python3'}:
-                continue
-            if words and words[0] in {'python', 'python3'}:
-                words = words[1:]
-            if words and not any(word in {';', '&&', '||', '|', '&', '(', ')', '<', '>'} for word in words):
-                yield words
+            invocation = python_invocation(words)
+            if invocation is not None:
+                yield invocation
 
 
 def active_intervals(source, start, end):

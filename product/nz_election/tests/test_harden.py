@@ -649,13 +649,63 @@ def test_review3_ansi_c_string_cannot_declare_guard(workflows, capsys):
 
 
 @pytest.mark.parametrize('script,guarded', [
-    ("python3 product/nz_election/pipeline/night_live.py\necho $'text'", True),
+    ("python3 product/nz_election/pipeline/night_live.py\necho $'text'", False),
     ("echo $'text'\npython3 product/nz_election/pipeline/night_live.py", False),
     ("python3 product/nz_election/pipeline/night_live.py $'text'", False),
 ])
-def test_review3_ansi_c_cutoff_preserves_only_prior_lines(workflows, script, guarded):
+def test_review3_ansi_c_syntax_rejects_whole_step(workflows, script, guarded):
     path = workflows / '.github/workflows/new-name.yaml'
     body = '\n'.join('          ' + line for line in script.split('\n'))
     path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: |\n' + body + '\n')
     assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
                         now=NOW, root=workflows) == int(not guarded)
+
+
+@pytest.mark.parametrize('script', [
+    'args=(\npython3 product/nz_election/pipeline/night_live.py\n)',
+    'unused() {\npython3 product/nz_election/pipeline/night_live.py\n}',
+    '(\npython3 product/nz_election/pipeline/night_live.py\n)',
+    'if false; then\npython3 product/nz_election/pipeline/night_live.py\nfi',
+], ids=['array', 'uncalled-function', 'subshell', 'if-body'])
+def test_review4_enclosing_construct_is_not_guard_evidence(workflows, capsys, script):
+    path = workflows / '.github/workflows/new-name.yaml'
+    body = '\n'.join('          ' + line for line in script.split('\n'))
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: |\n' + body + '\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert '; no runs' in capsys.readouterr().out
+    assert list(history.workflow_commands(path.read_text())) == []
+
+
+@pytest.mark.parametrize('unsupported', [
+    'args=(one two)', 'unused() { echo data; }', '(echo data)', '{ echo data; }',
+    'echo "$(echo data)"', 'echo `echo data`', 'cat <<EOF\ndata\nEOF',
+    'if false; then echo data; fi', 'for x in one; do echo data; done',
+    'while false; do echo data; done', 'case value in value) echo data;; esac',
+    'echo data && echo more', 'echo data || echo more', 'echo data | cat',
+    'echo data > output', 'exit 0', 'eval "echo data"', 'source helper.sh',
+])
+@pytest.mark.parametrize('guard_first', [False, True])
+def test_review4_unsupported_step_is_rejected_as_a_whole(workflows, unsupported, guard_first):
+    guard = 'python3 product/nz_election/pipeline/night_live.py'
+    script = '\n'.join([guard, unsupported] if guard_first else [unsupported, guard])
+    path = workflows / '.github/workflows/new-name.yaml'
+    body = '\n'.join('          ' + line for line in script.split('\n'))
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: |\n' + body + '\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert list(history.workflow_commands(path.read_text())) == []
+
+
+def test_review4_rejected_step_does_not_discard_separate_simple_guard(workflows):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + '''jobs:
+  check:
+    steps:
+      - run: |
+          args=()
+          echo data
+      - run: python3 product/nz_election/pipeline/night_live.py
+''')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 0
