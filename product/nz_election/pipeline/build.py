@@ -503,7 +503,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
         from product.nz_election.pipeline.electorate_pages import records
         from product.nz_election.pipeline.snapshot_views import sources as snapshot_sources
         from product.nz_election.pipeline.campaign_page import source as advance_source
-        methods = sources(envs, built, home) + records(envs, built) + snapshot_sources(envs) + advance_source(envs, historical_advance) + methods
+        from product.nz_election.pipeline.vote_page import sources_section as vote_sources
+        methods = sources(envs, built, home) + records(envs, built) + snapshot_sources(envs) + advance_source(envs, historical_advance) + vote_sources() + methods
         manifest = export.envelope(dict(id='build', source_ref=[], observed_at=built, code_sha=sha,
                          data_sha=data_sha if envs else None, build_run_url=run_url, built_at=built,
                          data_available='polls' in envs), [], run_url, sha)
@@ -586,10 +587,6 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                 page_html = page_html.replace('</head>', f'<link rel="stylesheet" href="{PREFIX}electorate.css"></head>')
             if slug == 'parties/':
                 page_html = page_html.replace('</head>', f'<link rel="stylesheet" href="{PREFIX}parties.css"></head>')
-            if slug == 'vote/' or slug.startswith('electorates/') and slug != 'electorates/':
-                # Navigation follows the task so first-screen actions stay on EC services.
-                header = re.search(r'<header>.*?</header>', page_html, flags=re.S)[0]
-                page_html = page_html.replace(header, '').replace('<footer>', header + '<footer>')
             (target / 'index.html').write_text(page_html)
         (stage / 'og-manifest.json').write_text(export.canonical(cards) + '\n')
         for asset in ('favicon.svg', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'):

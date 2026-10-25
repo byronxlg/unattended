@@ -104,14 +104,36 @@ and none of it set a page's order. So, for every page and every UI change:
    shown, the question test. `bin/lint` checks it.
 3. Byron: the top three questions and what goes above the fold, one NOTE line ("Byron in the
    loop"); then `status: accepted <UTC time>` after his reply or twelve hours.
-4. Build: the brief carries `Page plan: intent/nz-election/pages/<page>.md` and builds answers in
-   question rank; style (`design-principles.md`, `look-538.md`) is applied last and never decides
-   what is on the page. `bin/codex-run` refuses a UI build without an accepted plan (exit 3); do
-   not word a brief around it. Fix jobs on an open PR are exempt; a new look round is not.
-5. Review: the question test in `REVIEW.md` pass 4 comes before any visual judgement.
+4. Build: the brief names `product/nz_election/DESIGN.md` (tokens and components; `bin/codex-run`
+   refuses a UI build without it, exit 3) and cites the page plan when one exists. The plan sets
+   what the page answers and in what order; DESIGN.md sets how it looks. Waiting for a plan's
+   acceptance never blocks a build (Byron chose this on 2026-10-26: relax the design gates).
+5. Review: `REVIEW.md` pass 4, by eye from the screenshots, beside the previous version and the
+   reference.
 
 Pages already live get their plan before their next UI change, home first. While a plan waits
 for Byron, run research and pipeline work for the next one, never idle.
+
+## Design loop
+
+Byron, 2026-10-20: "why are we not able to make a good website with the setup we have. I want a
+fully redesigned website that I would be proud to call mine." Five look rounds (#32 to #51) failed
+for one reason: feedback became rules and measures, Codex optimised the measures, and nobody looked
+at the result beside the reference. The redesign of 26 Oct (DESIGN.md) reset the look; this loop
+keeps it improving without Byron:
+
+- You own the visual design. You may write presentation code yourself (templates, `styles.css`,
+  `pipeline/home_graphics.py`, page modules' markup) on a `change/*` branch through a PR, the same
+  as after Codex. Codex builds data, pipelines and whole pages from DESIGN.md components.
+- Once a day (the first run after 20:00Z), screenshot home, polls, parties, one electorate, vote
+  and night at 1280 and 390 from the deployed site (`uv run --with playwright python
+  product/nz_election/tests/screenshots.py`, or Playwright directly), read them, and write the three
+  weakest things across the site at the top of `state/design-backlog.md` with the date. The top
+  item is the next UI change, dispatched that run (Codex brief naming DESIGN.md) or done yourself
+  if it is presentation only.
+- Byron's design feedback goes to the top of the backlog verbatim and is fixed in the next change,
+  never turned into a new measure or a new gate. Tests check data, provenance, absence and
+  accessibility; they do not pin markup, class names or byte counts.
 
 ## Byron in the loop
 

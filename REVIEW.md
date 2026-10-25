@@ -11,18 +11,17 @@ Codex review (second opinion, cannot approve). Three passes, in this order:
    else; did `plan.md` get updated in the same change when the implementation departed from it;
    tests present and meaningful; `AGENTS.md`/`CLAUDE.md` conventions; no emojis or em dashes.
 
-4. Design (any change touching `product/*/web`): first the question test from the page plan
-   (`intent/<slug>/pages/<page>.md`): from the 390x844 screenshot alone, write down the answer to
-   each of the top three questions as read off the page; a question not answerable in five
-   seconds, or anything above the fold that answers no ranked question, is Important. Then the
-   graphic test: each graphic beside the reference graphic its plan names, same width; one that
-   reads weaker (thinner marks, no direct labels, no annotation, smaller share of the screen,
-   library defaults) is Important. A UI change with no accepted page plan is Important. Then judged on the phone and desktop screenshots
-   against `intent/<slug>/design.md`: hierarchy (the five-second test on
-   the home page), legibility at 360 px, contrast and colour never the only encoding, macrons
-   rendering, touch targets, loading, empty, stale and error states present, provenance chip on
-   every number, no generic-template look. Two review-iterate rounds minimum per view before a
-   milestone closes; rounds and Important findings go in `state/changes.yaml` `design_rounds`.
+4. Design (any change touching `product/*/web` or page markup): judged by eye from screenshots,
+   not from measures. Take 1280x900 and 390x844 full-page screenshots of every changed page (light
+   mode, plus one dark-mode check) and look at them beside the previous version and the reference
+   (538 2024 forecast, NBC midterms hub) at the same width. Important: the page looks worse than
+   before or plainly weaker than the reference; text overlapping marks or other text; a graphic
+   whose labels are below 12 px on the phone; horizontal page scroll; "not available" or similar
+   text on a public page; a number with no source line; hard-coded colours instead of the tokens
+   in `product/nz_election/DESIGN.md`; a new graphic built outside `home_graphics.py` patterns
+   without reason. Then the page plan (`intent/<slug>/pages/<page>.md`, when one exists): can the
+   top questions be answered from the phone screenshot in five seconds. Write the three weakest
+   things on each page in the review, fixed or filed in `state/design-backlog.md`.
 
 Severity: Important is anything that would be wrong in production or violates the spec; Nit is
 style. At most five nits per review; CI already enforces lint, so do not report what `bin/lint`

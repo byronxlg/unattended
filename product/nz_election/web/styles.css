@@ -224,14 +224,14 @@ input[type=checkbox]:checked::before,input[type=radio]:checked::before{content:"
 td{font-family:inherit;font-size:14px}
 @media(min-width:800px){.home-hero .strip{height:144px}.leaders{grid-template-columns:repeat(4,minmax(0,1fr))}.electorate-top{grid-template-columns:3fr 2fr;gap:64px}.electorate-top .tile-map{max-height:430px}.electorate-top>figure{position:sticky;top:24px}}
 .geography-layout:not(:has(figure)){display:block}
-.vote-first h1,.vote-first h2{font-size:20px;margin:0 0 8px}
-.vote-first section{margin:0 0 24px}
-.vote-dates strong{font-size:44px}
-.vote-dates ol{display:flex;list-style:none;padding:0;border-top:2px solid var(--rule)}
-.vote-dates li{flex:1;font-size:13px}
-.vote-dates time{display:block}
-.vote-page>section{margin-top:48px}
-.vote-first{min-height:800px}
+
+
+
+
+
+
+
+
 .home-dates p{margin:0}
 .home-dates p+p{display:flex;gap:16px}
 .home-hero{margin:8px auto 0;text-align:center;max-width:640px}
@@ -475,3 +475,20 @@ svg.trend.narrow{display:none}
 /* Page states */
 .hero~.state,.hero+.state{background:var(--notice);padding:12px 16px;border-radius:4px;max-width:var(--text);margin:24px auto}
 .fixture-note{font-size:13px;color:var(--grey);text-align:center}
+
+/* Vote */
+.vote-page{max-width:880px}
+.vote-first h1{font-size:clamp(32px,5vw,48px);line-height:1.05;letter-spacing:-.025em;margin:40px 0 12px}
+.vote-first h2,.vote-page>section>h2{font-size:clamp(23px,3vw,28px);margin:0 0 12px;letter-spacing:-.02em}
+.vote-first section{margin:0 0 48px}
+.vote-lede{font-size:19px;color:var(--soft);max-width:44ch}
+.button.big{font-size:18px;padding:14px 22px;margin:4px 0 28px}
+.vote-dates{margin:0;padding:20px;background:var(--wash);border-radius:6px}
+.vote-dates .countdown{margin:0 0 20px;font-size:18px;font-weight:600}
+.vote-dates .countdown strong{font-size:48px;font-weight:800;letter-spacing:-.03em;margin-right:6px}
+.vote-page>section{margin-top:56px;padding-top:20px;border-top:3px solid var(--ink)}
+.help-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}
+.vote-help.card{padding:16px;border:1px solid var(--hair);border-radius:4px;background:var(--surface)}
+.vote-help h3{margin:0 0 6px;font-size:18px}
+.vote-help p{font-size:15px;margin:6px 0;color:var(--soft)}
+.vote-page>.source-note{margin-top:40px}
