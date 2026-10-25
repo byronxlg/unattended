@@ -2588,3 +2588,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Dispatched nz-election-results-states-fix-1 on the build thread (followup-1.md): official only when the EC payload says so, shape chosen by the engineer after reading the validator and consumers, stop if no capture shows an official marker; DOM handover test; populated leaders fixture. Main's tests at c2ce1fc protected, branch tests move with the shape.
 - nz-election-night-stop still running stacked on #79; it will need a rebase after fix-1.
 - Codex window 38 percent, 6.2 days to reset.
+
+## 2026-10-25 02:44Z (job_done nz-election-night-stop, nz-election-results-states-fix-1)
+
+- results-states fix-1 stopped at the brief's evidence gate, no commits: no capture in the tree carries an official-versus-preliminary discriminator (2023 official election.xml has the same structure as 2026 preliminary; e01.xml already says final="true" before election day; no header captures, no EC XML spec). It reproduced the defect on 739f880 (retimestamped preliminary validates as Official). Supervisor brief error, logged in state/mistakes.jsonl.
+- Judgement: revise the invariant to source provenance (official only when fetched from a declared official-results URL distinct from the media.election.net.nz preliminary feed and retrieved on or after 27 Nov, label derived from the fetch, URL flagged as an inference to confirm). Rejected: waiting for a real official payload (arrives 27 Nov, after Codex) and dropping item 1 (the review's Important stands). Follow-up nz-election-results-states-fix-1-r1 dispatched on the build thread (state/jobs/nz-election-results-states-fix-1/followup-1.md), items 2 and 3 unchanged.
+- night-stop 0a45eab (stacked on 739f880): Codex 2511 passed, 5 failed and 2 errors all Chromium launch permission in its sandbox, PASS night, lint ok. Host whole suite started on 0a45eab (/tmp/night-stop-pytest.log). It waits for #79 to merge, then rebases onto main and gets its PR.
+- Codex window 40 percent, 6.2 days to reset. No Byron messages this run.
