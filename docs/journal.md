@@ -2613,3 +2613,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 
 - Fix-2 02940a6 (nav label "Latest 2026 results" after settled and official handovers, hrefs unchanged) host-verified: test_result_states, test_night_page, test_night_operation 128 passed incl. browser with host Chromium (Codex sandbox could not launch Chromium); test_current_result_navigation_has_neutral_label fails with night_page.py at 84f8da5; bin/lint ok. Pushed, supervisor accept logged on PR #79, third fresh review review-nz-election-results-states-3 dispatched.
 - Next: merge #79 on accept and CI green, then rebase night-stop 0a45eab onto main, PR, fresh review; after 12:45Z the increment 3 brief. Codex window 43 percent, 6.1 days left.
+
+## 2026-10-25 04:07Z (job_done review-nz-election-results-states-3)
+- Third fresh review of PR #79: accept, no findings (nav label neutral, handover copy cleared, official source and date guards intact, capture pin move accepted). Logged on the PR with supervisor accept.
+- CI run 40160060570 green (27 min). PR #79 squash merged as bd53141; worktree .worktrees/nz-election-results-states removed.
+- Night-stop 0a45eab rebased with --onto past 739f880 to 95387fe on bd53141, clean. Host: test_result_states.py and test_night_operation.py 106 passed. One assertion on main moves with the contract (live_package({}) carries loop_ended and loop_ends_at at the cutoff); named in the PR body for the reviewer.
+- PR #80 opened; fresh review review-nz-election-night-stop dispatched read-only.
+- Not done: no second job this run (increment 3 brief waits for the 12:45Z deadline on the week-after NOTE). Codex window 44 percent, 6.1 days left.
+- Next: on job_done merge #80 if accept and CI green; after 12:45Z the increment 3 brief; codex-notes by 5 Nov; first run after 01:00Z 27 Oct: capture the EC advance file.
