@@ -2856,3 +2856,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #83 fix-6 2c5342f (folded YAML scalars give no guard evidence): host test_harden*.py 262 passed; 6 fail with check_workflow_history.py at e04e72b; lint ok. Pushed, supervisor accept logged, seventh fresh review review-nz-election-harden-gate-7 dispatched. Rule from the 17:48Z entry stands: a further shell-text finding gets one judgement on whether it is a false pass worth a round; otherwise accepted with reasoning and merged.
 - Second slot: increment 4 nz-election-policy-links dispatched in .worktrees/nz-election-policy-links from origin/main (Page plan pages/electorate.md, answer 3: real Policy.nz electorate destinations fetched and confirmed 200, none constructed from a pattern; party record source_url fix, every one pointed at the Labour page; stop if Policy.nz has no electorate pages).
 - Codex window 21 percent, 6.6 days to reset.
+
+## 2026-10-25 18:17Z (job_done review-nz-election-harden-gate-7)
+
+- PR #85 result-import squash merged as 8ec3117 (second fresh review accept, CI green), worktree removed.
+- PR #83 seventh fresh review on 2c5342f: request changes, three Important, all over-recognition of night guard evidence: a multiline quoted step name containing the run text (check_workflow_history.py:236), a step with `if: false` (:245), `night_live.py --help` (:260). No main tests weakened.
+- Judgement (single change, reversible): accept with reasoning instead of fix-7, as the 18:05Z plan set. Seventh round of the same class; none of the shapes is in any repo workflow; workflows are lab-written, not adversarial; each round costs a full fix. Alternative rejected: fix-7 on the build thread. Reasoning posted on PR #83; merge on CI green next run.
+- Codex window 22 percent, 6.6 days to reset. One job running (nz-election-policy-links).
