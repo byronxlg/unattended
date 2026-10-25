@@ -2889,3 +2889,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - home-handover d7ccfc2: host test_home_handover.py 12 passed incl. four Chromium cases; home_handover_browser absent PASS; screenshots looked at. Two findings: three tests on main forbid any home script (supervisor brief error, logged in state/mistakes.jsonl), and at 06:01 NZDT 7 Nov the line above the handover still says advance voting from 26 October, election day 7 November. Follow-up 1 nz-election-home-handover-fix-1 dispatched on the build thread: home may load exactly web/home-live.mjs under 2,048 bytes, everything else stays forbidden; past-tense or no voting-dates line after close, with a test failing on d7ccfc2.
 - PR #86 policy-links: CI still pending at run end, not merged.
 - Codex window 26 percent, 6.6 days to reset, allowance about 11 points per day.
+
+## 2026-10-25 19:08Z run (job_done home-handover-fix-1, review-party-lists)
+
+- PR #86 policy-links: CI green, squash merged as cf92779; worktree removed (only untracked artifacts and last.md in it).
+- Home handover fix-1 59f1c1e: host `pytest test_home*.py test_design.py` 107 passed incl. Chromium, lint ok; home at 390 built at 2026-11-07T06:01Z on empty night data looked at: "Voting closed on 7 November at 7pm", results hero above the fold. Nit: "Electoral Commission results" link twice above the fold. Pushed, PR #88 opened with supervisor accept, fresh review review-nz-election-home-handover dispatched.
+- PR #87 party-lists fresh review: request changes (partial record with `candidates: []` fails validation at snapshots.py:493; list count has no source note or aria-describedby at parties_page.py:121; screenshots missing). Logged on the PR. Items 1 and 2 to fix-1 nz-election-party-lists-fix-1 on the build thread; item 3 the supervisor does on the host after fix-1.
+- Codex window 27 percent, 6.6 days to reset. Two jobs running.
