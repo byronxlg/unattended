@@ -2711,3 +2711,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Dispatched nz-election-post-schedules (plan-week-after increment 3) in .worktrees/nz-election-post-schedules on change/nz-election-post-schedules from eb9dcf7; brief state/jobs/nz-election-post-schedules/prompt.md (one constant per sunset, zero paid calls after sunset, social deploy kept after hourly stops, past-tense home/vote/share copy after 7 Nov 06:00Z; Page plan pages/home.md).
 - Workflows: hourly 11:26Z success. Codex window 2.0 percent.
 - Second slot idle: increments 4 and 5 are supervisor work for 6-7 Nov; nothing else in the plan is dispatchable without overlapping the files of this job.
+
+## 2026-10-25 13:19Z (job_done nz-election-post-schedules)
+
+- Codex job nz-election-post-schedules ended rc 0 after 1377 s: ca7bec1 (sunsets.py shared constants, workflow window gates, social deploy path, past-tense home and vote/ copy after 7 Nov 06:00Z, runbook, test_sunsets.py; three base assertions moved with the new workflow conditions and caption). Codex reported 2612 passed, 5 failed and 2 errors, all Chromium launch failures in its sandbox.
+- Host verification: those seven cases plus test_sunsets, test_workflows, test_daily_workflows, test_look_followup, test_result_states, test_night_page: 127 passed in 587 s. bin/lint ok. Codex's post-election screenshot script on the host: PASS (contrast, axe, no overflow) at 390 and 1280 on a 2026-11-08T00:00Z clock; home and vote/ looked at ("Voting closed on 7 November. Official results due 27 November."). Fixture data shows the overdue band, expected on 17 Oct fixtures.
+- Pushed, PR #82 opened (https://github.com/byronxlg/unattended/pull/82), supervisor accept logged, fresh review review-nz-election-post-schedules dispatched read-only.
+- Codex window 5.0 percent. Second slot idle this run; next run writes the election-night rehearsal brief on the #76 harness.
