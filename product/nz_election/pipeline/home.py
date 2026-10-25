@@ -373,8 +373,81 @@ def poll_change(envs):
     return ('; '.join(changes) + ' since ' + observation_label(previous['date']) + '. ' if changes else '') + 'Poll averages, not a forecast.'
 
 
+def seat_hero(envs, built, presentation):
+    """The answer said once, big, with one graphic: a seat per dot and the majority marked."""
+    from . import home_graphics as g
+    result = presentation['result']
+    if not result:
+        return ''
+    groups = config('seat-groups')
+    gov = sum(result['seats'].get(p, 0) for p in groups['government']['parties'])
+    opp = sum(result['seats'].get(p, 0) for p in groups['opposition']['parties'])
+    need = result['assumed_majority']
+    difference = gov - need
+    if difference == 0:
+        answer = f'The governing parties would hold exactly the {need} seats needed to govern.'
+        verdict = 'On a knife edge'
+    elif difference > 0:
+        answer = f'The governing parties would hold {gov} seats, {difference} more than the {need} needed.'
+        verdict = 'Government ahead'
+    else:
+        answer = f'The governing parties would hold {gov} seats, {-difference} short of the {need} needed.'
+        verdict = 'Government short'
+    averages = envs.get('averages', {}).get('data', [])
+    stamp = observation_label(averages[-1]['date']) if averages else ''
+    names = lambda key: ', '.join(g.SHORT[p] for p in groups[key]['parties'])
+    remainder = result['assumed_house'] - gov - opp
+    blocs = (f'<div class="blocs"><p class="bloc opposition"><span class="n">{opp}</span><span class="who">Opposition</span><small>{escape(names("opposition"))}</small></p>'
+             f'<p class="bloc government"><span class="n">{gov}</span><span class="who">Government</span><small>{escape(names("government"))}</small></p></div>')
+    dek = (f'Seats on the {stamp} poll average, if every party polled what it polls now. {result["assumed_house"]} seats including '
+           f'{result["overhang"]} overhang; 2023 electorate winners assumed. Grouped by the 2023 coalition, not a forecast.')
+    if remainder:
+        dek += f' {remainder} seats sit outside both groups.'
+    return ('<section id="seats" class="hero">'
+            f'<p class="kicker">{escape(verdict)}</p>'
+            '<h1>Who is favoured to form the next government?</h1>'
+            f'<p class="answer">{escape(answer)}</p>'
+            f'<figure id="home-seats" aria-describedby="source-seats">{g.hemicycle(result)}{blocs}{g.seat_legend(result)}</figure>'
+            f'<p class="hero-dek">{escape(dek)}</p>'
+            + footnote('seats', 'Poll average ' + stamp, '') + '</section>')
+
+
+def ribbon(built, envs):
+    """Where the election is today: the phase, a countdown and the next thing to do."""
+    from datetime import date
+    from .snapshots import load_voting
+    from .home_graphics import nz_today
+    if post_election(built):
+        return ''
+    records = {r['id']: r for r in load_voting()}
+    today = nz_today(built)
+    day = date.fromisoformat(records['election-day']['date']) if records.get('election-day', {}).get('date') else None
+    if not day:
+        return ''
+    left = (day - today).days
+    advance = records.get('advance-opens', {}).get('date')
+    phase = ('Advance voting is open' if advance and date.fromisoformat(advance) <= today else 'Advance voting opens ' +
+             (f'{date.fromisoformat(advance):%-d %B}' if advance else 'soon'))
+    count = 'Election day is today' if left == 0 else f'<b>{left}</b> day{"s" if left != 1 else ""} to election day'
+    return (f'<div class="ribbon"><p><span class="live-dot" aria-hidden="true"></span>{phase}</p><p>{count}</p>'
+            f'<p><a href="{PREFIX}vote/">How and where to vote</a></p></div>')
+
+
+def section(name, heading, dek, graphic, publisher, date, more=None):
+    if not graphic:
+        return ''
+    link_html = f'<a class="more" href="{PREFIX}{more[0]}">{more[1]}</a>' if more else ''
+    return (f'<section id="{name}" class="module"><header class="module-head"><h2>{heading}</h2>'
+            f'<p class="dek">{dek}</p></header>'
+            f'<figure id="home-{name}" aria-describedby="source-{name}">{graphic}</figure>'
+            f'<div class="module-foot">{footnote(name, publisher, date)}{link_html}</div></section>')
+
+
 def page(envs, built, presentation):
-    from .snapshot_views import map_graphic, footnote as snapshot_note
+    from datetime import date
+    from . import home_graphics as g
+    from .snapshots import load_voting
+    from .snapshot_views import load as snapshot, result as held_result
     night = night_summary(envs, built)
     state, _ = seat_module(envs, built, presentation)
     if 'polls' not in envs:
@@ -383,20 +456,57 @@ def page(envs, built, presentation):
         state += '<p>Allocation tie: seats remain unassigned; see the calculation.</p>'
     if any(env.get('run_url') == 'offline-verification' for env in envs.values()):
         state += '<p class="fixture-note">Offline verification: historical or synthetic data, not live data.</p>'
+    averages = envs.get('averages', {}).get('data', [])
+    polls = envs.get('polls', {}).get('data', [])
+    records = {r['id']: r for r in load_voting()}
+    election = date.fromisoformat(records['election-day']['date']) if records.get('election-day', {}).get('date') else date(2026, 11, 7)
     modules = ''
-    if envs.get('averages', {}).get('data') or envs.get('polls', {}).get('data'):
-        graphic = ''
-        if envs.get('averages', {}).get('data'):
-            graphic += '<div id="trend">' + trend_graphic(envs) + footnote('trend', 'Wikipedia contributors', updated(envs, 'polls', built)) + '</div>'
-        if envs.get('polls', {}).get('data'):
-            graphic += '<div id="latest-polls"><h3>Dated latest polls</h3>' + latest_polls(envs) + '</div>'
-        modules += module('polls', 'What changed in the latest polls?', 'Equal-weight 30-day averages, not a forecast.' if presentation['result'] and not night else poll_change(envs), graphic, 'Wikipedia contributors', updated(envs, 'polls', built), 'polls/', 'See all polls and averages')
-    graphic = '<div class="home-picker"><div>' + map_graphic(envs, hexagons=True) + snapshot_note('map') + '</div><div><h3>Find your electorate</h3>'
+    if averages:
+        modules += section('parties', 'Where do the parties stand?',
+                           'Party vote on the 30-day poll average, with the change over the past month and the seats it would give.',
+                           g.party_cards(averages, presentation['result'], snapshot('leaders')),
+                           'Wikipedia contributors', updated(envs, 'polls', built), ('parties/', 'All parties and their lists'))
+        graphic = (g.trend(averages, polls, election) + g.trend(averages, polls, election, wide=False) + g.trend_table(averages))
+        modules += section('trend', 'How have the polls moved?',
+                           'Each dot is a poll; each line is the average of the polls from the previous 30 days, every poll weighted equally.',
+                           graphic, 'Wikipedia contributors', updated(envs, 'polls', built), ('polls/', 'Every poll and the average'))
+    if polls and averages:
+        names = {identity: name for name, identity in config('party-map')['pollsters'].items()}
+        modules += section('polls', 'What do the latest polls say?',
+                           'The eight most recent national polls. Darker cells are larger shares.',
+                           g.poll_table(polls, averages[-1], names), 'Wikipedia contributors', updated(envs, 'polls', built), ('polls/', 'All polls'))
+    rows = {r['slug']: r for r in config('electorates')}
+    held_for = lambda row: held_result(row, envs)
+    hexes, data = g.hex_map(envs, snapshot('hexmap'), rows, held_for)
+    side = ''
     if watch_rows(envs):
-        graphic += '<p>Closest 2023 margins on unchanged boundaries</p>' + closest(envs)
-    graphic += f'<ul class="home-directory"><li><a href="{PREFIX}electorates/">Browse all electorates and candidates</a></li></ul></div></div>'
-    modules += module('electorates', 'Who stood where I live?' if post_election(built) else 'Who is standing where I live?', 'Choose an electorate for its candidates. Map colours show 2023 holders, not 2026 predictions.', graphic, 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', '')
-    top = night or hero(envs, built, presentation)
+        side = ('<h3>Closest contests in 2023</h3><p class="chart-note">Smallest winning margins on boundaries that have not changed.</p>'
+                + g.closest_list(watch_rows(envs), held_for))
+    side += f'<p><a class="button" href="{PREFIX}electorates/">Find your electorate</a></p>'
+    graphic = (f'<div class="map-layout"><div class="map-col">{hexes}{g.map_key(["nat", "lab", "grn", "act", "tpm"])}</div>'
+               f'<div class="map-side">{side}</div></div>{data}')
+    modules += section('electorates', 'Who stood where I live?' if post_election(built) else 'Who holds your electorate?',
+                       'All 71 electorates, coloured by the party that won in 2023. Each hexagon links to its candidates for 2026. '
+                       'Positions are schematic; boundaries changed for 2026.',
+                       graphic, 'Electoral Commission and Stats NZ', updated(envs, 'baseline-2023', built), ('electorates/', 'All electorates'))
+    if 'seats' in envs and averages and polls:
+        from .average import threshold_watch
+        rows_t = [r for r in threshold_watch(polls, averages[-1], envs['seats']['data']['assumptions']) if r['value'] is not None]
+        if rows_t:
+            modules += section('thresholds', 'Which parties are near the 5% line?',
+                               'Under MMP a party needs 5% of the party vote, or one electorate, to share in list seats.',
+                               g.threshold_bars(rows_t), 'Wikipedia contributors', updated(envs, 'polls', built))
+    if 'markets' in envs:
+        from .market_panel import leaders, question, yes
+        entries = [(question(row), yes(row)['price'], row['closed']) for _, row in leaders(envs['markets']['data']) if row]
+        if entries:
+            modules += section('markets', 'What are the betting markets saying?',
+                               'Prices on Polymarket, read as the chance traders put on each outcome. Markets are not polls and can be thin.',
+                               g.market_cards(entries), 'Polymarket', updated(envs, 'markets', built))
+    if not post_election(built):
+        modules += section('night', 'When can I vote?', 'Key dates from the Electoral Commission.',
+                           g.timeline(records, g.nz_today(built)), 'Electoral Commission', 'Checked ' + compact_time(built), ('vote/', 'How to vote'))
+    top = night or seat_hero(envs, built, presentation)
     if not top:
         top = '<h1>New Zealand voted on 7 November</h1>' if post_election(built) else '<h1>New Zealand votes on 7 November</h1>'
     from .sunsets import NIGHT_CLOSE, instant
@@ -406,7 +516,7 @@ def page(envs, built, presentation):
                f'data-waiting="{escape(night_waiting(), quote=True)}" '
                f'data-settled="{escape(night_waiting(ended=True), quote=True)}">{top}</div>'
                f'<script type="module" src="{PREFIX}home-live.mjs"></script>')
-    return render('home', dates=voting_dates(built, envs=envs), hero=top, state=state, modules=modules)
+    return render('home', dates=ribbon(built, envs), hero=top, state=state, modules=modules)
 
 
 def poll_inputs(polls):

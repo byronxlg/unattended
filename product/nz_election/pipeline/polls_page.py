@@ -55,62 +55,69 @@ def change_summary(first, latest):
 
 
 def page(envs, built, presentation):
+    from datetime import date
+    from . import home_graphics as g
+    from .home import seat_hero, section
+    from .snapshots import load_voting
     polls = envs.get('polls', {}).get('data', [])
     averages = envs.get('averages', {}).get('data', [])
     average = averages[-1] if averages else {}
     content = '<div class="polls-page">'
-    bars = averages_chart(average) if average else ''
-    if bars:
-        derived = 'Others includes derived remainders. ' if average.get('derivations') else ''
-        content += '<section id="polls"><h1>Who is ahead in the polls?</h1>' + bars
-        content += (f'<div class="source-note home-footnote" id="source-average"><p class="source-actions">'
-                    f'Average {observation_label(average["date"])}. Dashed mark: 5%. {derived}'
+    rows = sorted(((p, d) for p, d in average.get('descriptive', {}).items() if d['value'] is not None),
+                  key=lambda row: (row[0] == 'others', -Fraction(row[1]['value'], row[1]['scale']), row[0]))
+    if rows:
+        month = averages[-31] if len(averages) > 30 else averages[0]
+        bars = ''
+        for party, d in rows:
+            v = g.share(d)
+            before = g.share(month['descriptive'].get(party))
+            delta = f'{v - before:+.1f}' if before is not None else ''
+            bars += (f'<li style="--c:{g.pc(party)}"><span class="name">{escape(g.SHORT.get(party, label(party)))}</span>'
+                     f'<span class="bar"><i style="width:{min(Decimal(100), v * Decimal("2.5")):.2f}%"></i></span>'
+                     f'<b>{display(d["value"], d["scale"])}</b><small>{delta}</small></li>')
+        derived = ' Others includes derived remainders.' if average.get('derivations') else ''
+        content += ('<section id="polls" class="page-head"><p class="kicker">Polls</p><h1>Who is ahead in the polls?</h1>'
+                    + change_summary(month, average)
+                    + f'<figure aria-describedby="source-average"><ul class="average-list"><li class="head"><span></span><span class="axis"><span style="left:0">0</span><span style="left:12.5%">5%</span><span style="left:50%">20%</span><span style="left:100%">40%</span></span><span>Average</span><small>30 days</small></li>{bars}</ul></figure>'
+                    f'<div class="source-note home-footnote" id="source-average"><p class="source-actions">'
+                    f'Average {observation_label(average["date"])}, every poll from the previous 30 days weighted equally.{derived} '
                     f'<a href="{PREFIX}methods/#source-average">Sources and method</a></p></div></section>')
     else:
         content += '<h1>Polls</h1>' + aliases('polls', 'source-average')
-    selected = averages[-29:]
-    parties = [p for p in average.get('descriptive', {}) if p != 'others' and any(
-        a['descriptive'].get(p, {}).get('value') is not None for a in selected)]
-    if parties:
-        content += '<section id="trend" class="home-module"><h2>Has support changed?</h2>'
-        content += change_summary(selected[0], average) + '<figure aria-describedby="source-trend">'
-        content += trend_chart(selected, parties, polls=polls, previous=selected[0]) + '</figure>'
-        content += footnote('trend', 'Wikipedia contributors.', '') + '</section>'
+    if averages:
+        records = {r['id']: r for r in load_voting()}
+        election = date.fromisoformat(records['election-day']['date']) if records.get('election-day', {}).get('date') else date(2026, 11, 7)
+        graphic = g.trend(averages, polls, election) + g.trend(averages, polls, election, wide=False) + g.trend_table(averages)
+        content += section('trend', 'How has support changed this year?',
+                           'Each dot is a poll; each line is the 30-day average.', graphic, 'Wikipedia contributors', '')
     else:
         content += aliases('source-trend')
-    seats = hero(envs, built, presentation, heading='Could these parties reach a majority?', show_change=False)
+    seats = seat_hero(envs, built, presentation)
     if seats:
-        seats = seats.replace('class="home-hero"', 'class="home-hero home-module"')
-        seats = seats.replace('</figure>', '<figcaption>2023 electorate wins assumed; list capacity not checked. Others are derived as the remainder of reported shares.</figcaption></figure>')
-        content += seats
+        seats = seats.replace('<h1>Who is favoured to form the next government?</h1>', '<h2>Could these parties reach a majority?</h2>')
+        content += seats.replace('class="hero"', 'class="hero module"')
     else:
         content += aliases('seats', 'source-seats')
     content += aliases('source-grouping', 'explorer', 'coalition-explorer', 'coalition-title')
-    threshold = threshold_sentences(average)
-    if threshold:
-        content += '<section id="thresholds" class="home-module"><h2>Who is near 5%?</h2>' + threshold
-        content += footnote('thresholds', 'Wikipedia contributors.', '') + '</section>'
+    if 'seats' in envs and average and polls:
+        from .average import threshold_watch
+        rows_t = [r for r in threshold_watch(polls, average, envs['seats']['data']['assumptions']) if r['value'] is not None]
+        content += section('thresholds', 'Who is near 5%?',
+                           'A party needs 5% of the party vote, or one electorate, to share in list seats.',
+                           g.threshold_bars(rows_t) if rows_t else '', 'Wikipedia contributors', '') or aliases('source-thresholds')
     else:
         content += aliases('source-thresholds')
     if polls:
-        parties = list(config('party-map')['headers'].values())
         names = {identity: name for name, identity in config('party-map')['pollsters'].items()}
-        recent = sorted(polls, key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:10]
-        rows = []
-        for poll in recent:
-            rows.append([aliases(poll['id'], 'source-' + poll['id']) + escape(names.get(poll['pollster'], poll['pollster'])),
-                         escape(poll['fieldwork_start'] + ' to ' + poll['fieldwork_end']),
-                         str(poll['sample']) if poll['sample'] is not None else '',
-                         *[display(poll['shares'][p], poll['scale']) if poll['shares'].get(p) is not None else '' for p in parties],
-                         ' '.join(link(url, 'Original report') for url in poll['reference_urls'])])
-        content += '<section id="recent-polls" class="home-module"><h2>What did the latest polls find?</h2>'
-        content += table('Ten most recent national polls; reported party vote percent', ['Pollster', 'Fieldwork', 'Sample'] + [label(p) for p in parties] + ['Report'], rows, source='source-history')
-        content += (f'<div class="source-note home-footnote" id="source-history"><p class="source-actions">Wikipedia contributors. '
-                    f'<a href="{PREFIX}methods/#source-history">Sources and method</a></p></div></section>')
-        content += ''.join(aliases(p['id'], 'source-' + p['id']) for p in polls if p not in recent)
+        content += ('<section id="recent-polls" class="module"><header class="module-head"><h2>Every poll this year</h2>'
+                    f'<p class="dek">All {len(polls)} national polls since January, newest first. Darker cells are larger shares.</p></header>'
+                    + g.poll_table(polls, average, names, count=len(polls), reports=True).replace('aria-describedby="source-polls"', 'aria-describedby="source-history"')
+                    + f'<div class="module-foot"><div class="source-note home-footnote" id="source-history"><p class="source-actions">Wikipedia contributors. '
+                    f'<a href="{PREFIX}methods/#source-history">Sources and method</a></p></div></div></section>')
+        content += ''.join(aliases(p['id'], 'source-' + p['id']) for p in polls)
         state, _ = seat_module(envs, built, presentation)
         content += state
     else:
         content += aliases('source-history')
-    content += f'<p class="polls-method"><a href="{PREFIX}methods/#average">How the 30-day average works and which polls it includes</a></p></div>'
+    content += f'<p class="polls-method"><a class="more" href="{PREFIX}methods/#average">How the 30-day average works and which polls it includes</a></p></div>'
     return content
