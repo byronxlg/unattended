@@ -431,12 +431,14 @@ def main(args=None):
     night_data = args.data
     if night_data is None and args.site:
         night_data = (args.site / 'nz-election' if (args.site / 'nz-election').is_dir() else args.site) / 'data'
-    if args.check == 'night' and args.data and not (args.data / 'night/index.json').is_file():
-        raise MissingNightFamily()
     checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets, 'advance': verify_advance, 'night': verify_night, 'waterfall': verify_waterfall, 'campaign': verify_campaign}
     required = set(args.require.split(',')) if args.require is not None else set()
     if not required <= checks.keys():
         raise ValueError('INVALID_REQUIRED_CHECK')
+    # Missing required data must win over stale inventory or site validation errors.
+    if night_data is not None and {'night', 'waterfall'} & (required | {args.check}):
+        if not (night_data / 'night/index.json').is_file():
+            raise MissingNightFamily()
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
