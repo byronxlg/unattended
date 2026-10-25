@@ -2581,3 +2581,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Dispatched nz-election-night-stop (plan-week-after increment 1, bounded stop) in .worktrees/nz-election-night-stop, stacked on change/nz-election-results-states. Judgement: dispatched before the 12:45Z NOTE deadline with the proposed stop 8 Nov 06:00Z as one named constant, so a reply from Byron is a one-line change; rejected waiting until 12:45Z (idle slot, issue #43). Brief state/jobs/nz-election-night-stop/prompt.md.
 - Codex window 36 percent, 6.2 days to reset. No Byron messages this run.
 - 02:3xZ: host whole suite on 739f880 2507 passed (19 min); pushed, PR #79 opened (results-states), supervisor accept logged, fresh review review-nz-election-results-states dispatched.
+
+## 2026-10-25 02:33Z (job_done review-nz-election-results-states)
+
+- Fresh review of PR #79 (results-states, 739f880): request changes, three Important. (1) Official state is validated on retrieved_at, source_updated_local and the label only; a relabelled, retimestamped preliminary fixture passes as "Official results" (night_live.py:129). (2) A preliminary page receiving an official package keeps "Preliminary; official results due 27 November" outside the swapped snapshot (night_page.py:138, night-live.mjs:67). (3) The question-three browser check has no reported electorate leaders, so "Who is ahead in my electorate?" is unproven (result_states_browser.py:65). Supervisor agrees with all three; logged on PR #79.
+- Dispatched nz-election-results-states-fix-1 on the build thread (followup-1.md): official only when the EC payload says so, shape chosen by the engineer after reading the validator and consumers, stop if no capture shows an official marker; DOM handover test; populated leaders fixture. Main's tests at c2ce1fc protected, branch tests move with the shape.
+- nz-election-night-stop still running stacked on #79; it will need a rebase after fix-1.
+- Codex window 38 percent, 6.2 days to reset.
