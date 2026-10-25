@@ -2603,3 +2603,8 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - night-stop 0a45eab (host-verified 02:44Z, 2434 passed) marked reviewed; waits for #79 to merge, then rebase onto main, PR, fresh review.
 - Workflows green (hourly 02:33Z success). Codex window 42 percent, 6.2 days left. Disk 18 GiB.
 - No second job: increment 3 (post-election schedules) waits on the 12:45Z deadline of the week-after NOTE.
+
+## 2026-10-25 03:36Z (job_done review-nz-election-results-states-2)
+
+- Second fresh review of PR #79 (84f8da5): request changes. Important 1: the night/ nav link stays "Live preliminary results" after settled/official handover (night_page.py:106, outside the replaced snapshot); confirmed, sent to fix-2 nz-election-results-states-fix-2 on the build thread (01a1706d), handover assertion must fail on 84f8da5. Important 2: test_contracts.py capture pin 142 to 144; accepted with reasoning on the PR (count moves with the registered captures, added assertion names both files). Provenance probes all passed per the review.
+- Night-stop (0a45eab) still waits for #79 to merge before rebase and PR. Codex window 43 percent, 6.1 days left.
