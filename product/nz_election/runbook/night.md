@@ -57,7 +57,8 @@ A zero valid-party-vote total requires zero party percentages and seats (`XML_TO
 Empty and whitespace-only count elements use `XML_COUNT`, as do other malformed count tokens.
 
 The aggregate `all` gate retains its optional-family contract: an absent night family is omitted
-from its checks and produces no PASS night line. The explicit `night` gate requires the family.
+from its checks with `SKIP night: family absent (night/index.json)` and the equivalent
+`SKIP waterfall` line. The explicit `night` gate requires the family.
 
 Final snapshots are compared with the parsed committed archive XML, including party votes, seats,
 statistics, source timestamp and reference version. Claimed input hashes must match the verified
@@ -273,6 +274,14 @@ pre-close and post-close images at 390x844 and 1280x800 before release.
 
 
 ## Deployed acceptance
+
+For release acceptance on 7 November onward, validate the pinned data bundle and built site:
+
+```sh
+uv run product/nz_election/pipeline/verify.py all --data <bundle> --site <site> --require night,waterfall
+```
+
+Requiring both checks prevents an absent or lost night family from passing release acceptance.
 
 Run the three separate modes for the 30 October and 6 November acceptance records:
 
