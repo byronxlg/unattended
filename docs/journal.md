@@ -2813,3 +2813,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #84 advance-preflight third fresh review: request changes, one Important: cli() at advance_preflight.py:85-92 catches only OSError and ValueError, so RuntimeError, KeyError, TypeError from inspect() print capture text in a traceback (reviewer probed with a marker). Confirmed by reading cli(). Logged on the PR; fix-3 nz-election-advance-preflight-fix-3 dispatched on the build thread (fixed message for any Exception at the CLI boundary, marker regression failing on d540336).
 - Regression check on #83 run in a /tmp copy, no stash used.
 - Codex window 16 percent, 6.7 days to reset. No judgement calls. No Byron words this run.
+
+## 2026-10-25 16:55Z (job_done advance-preflight-fix-3, review-harden-gate-4)
+
+- PR #84 fix-3 4898e75 (cli() maps any unexpected exception to fixed INVALID_ADVANCE): host test_advance*.py 128 passed, 4 fail with advance_preflight.py at d540336, lint ok. Pushed, supervisor accept logged, fourth fresh review review-nz-election-advance-preflight-4 dispatched.
+- PR #83 fourth fresh review request changes: check_workflow_history.py:151 treats a night_live.py path inside a bash array literal or an uncalled function as a guard invocation, exempting missing history. Logged on the PR. Judgement: fourth round of the same class (guard evidence read from shell text), so fix-4 changes the invariant instead of adding a case: the detector fails closed, only a top-level simple command counts, anything it does not understand is "not guarded". Alternative rejected: a full shell parser (cost, and the reviewer said unnecessary). Plan if a fifth round finds another shell-text case: accept with reasoning, since fail-closed bounds the error to a stricter check. fix-4 nz-election-harden-gate-fix-4 dispatched on the build thread.
+- Codex window 16 percent, 6.7 days to reset.
