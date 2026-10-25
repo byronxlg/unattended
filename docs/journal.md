@@ -2554,3 +2554,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Judgement call sent (NOTE): stop the five-minute night loop 8 Nov 06:00Z, hourly polls stop at poll close 7 Nov, social and daily builds run to 14 Nov with sample period labelled; rejected all-off on 8 Nov. Proceed 12:45Z 25 Oct if silent.
 - Dispatched nz-election-results-states (increment 2) in .worktrees/nz-election-results-states, branch stacked on change/nz-election-night-start because night_live.py overlaps; Page plan pages/night.md, the reader-first gate let it through.
 - Codex window 32 percent, 6.3 days to reset. No Byron messages this run.
+
+## 2026-10-25 00:30Z (job_done review-nz-election-night-start-2)
+
+- Second fresh review of PR #78: request changes, one Important. bin/night-watchdog holds the flock only in the wrapper; Popen closes fds and starts the worker in a new session, so a SIGKILLed wrapper (tick hard kill) releases the lock while the orphan can still dispatch, and the next tick can dispatch again. Reviewer reproduced it with a subprocess probe. Supervisor confirmed by reading bin/night-watchdog:16-37. Logged on the PR.
+- Dispatched nz-election-night-start-fix-2 on the build thread (state/jobs/nz-election-night-start/followup-2.md): invariant named (no second attempt while an earlier attempt's process can dispatch), mechanism left to the engineer, kill-path test that fails on dcf30ad, main's tests untouched.
+- results-states (increment 2) still running stacked on #78. Codex window 32 percent, 6.3 days to reset. No Byron messages this run.
