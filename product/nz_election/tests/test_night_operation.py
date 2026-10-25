@@ -610,3 +610,66 @@ def test_watchdog_rechecks_close_immediately_before_dispatch(monkeypatch):
     monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: b'[]')
     monkeypatch.setattr(night_start.subprocess, 'run', lambda *a, **k: pytest.fail('dispatched after close'))
     assert night_start.main(lambda: datetime.fromisoformat(next(instants)), dispatch=True) == 1
+
+
+@pytest.mark.parametrize('use_uv', [False, True])
+def test_watchdog_lock_survives_wrapper_sigkill(tmp_path, use_uv):
+    import fcntl
+    import os
+    import signal
+    import sys
+    import time
+    entered, release = tmp_path / 'entered', tmp_path / 'release'
+    orphan_dispatch, later_dispatch = tmp_path / 'orphan-dispatch', tmp_path / 'later-dispatch'
+    worker = [sys.executable, '-c', f"""
+import os, time
+from pathlib import Path
+Path({str(entered)!r}).write_text(str(os.getpgrp()))
+while not Path({str(release)!r}).exists():
+    time.sleep(.01)
+Path({str(orphan_dispatch)!r}).touch()
+"""]
+    if use_uv:
+        worker = ['uv', 'run', '--no-project'] + worker
+    first = subprocess.Popen(watchdog_command(tmp_path, worker, timeout=10), cwd=ROOT,
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    later = watchdog_command(tmp_path, [sys.executable, '-c',
+        f'from pathlib import Path; Path({str(later_dispatch)!r}).touch()'])
+    group = None
+    try:
+        deadline = time.monotonic() + 5
+        while not entered.exists() and time.monotonic() < deadline:
+            time.sleep(.01)
+        assert entered.exists(), 'worker did not start'
+        group = int(entered.read_text())
+        first.kill()
+        assert first.wait(timeout=3) == -signal.SIGKILL
+        second = subprocess.run(later, cwd=ROOT, capture_output=True, text=True, timeout=3)
+        assert second.returncode == 0
+        assert not later_dispatch.exists(), 'second attempt dispatched while orphan could still dispatch'
+        assert not (tmp_path / 'night-start-2026.dispatched').exists()
+        release.touch()
+        # The orphan cannot be waitpid'ed here; lock release proves its lock-owning lineage ended.
+        with (tmp_path / 'night-start.lock').open('a') as lock:
+            deadline = time.monotonic() + 5
+            while True:
+                try:
+                    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except BlockingIOError:
+                    assert time.monotonic() < deadline, 'orphan did not release the lock on exit'
+                    time.sleep(.01)
+        assert orphan_dispatch.exists()
+        third = subprocess.run(later, cwd=ROOT, capture_output=True, text=True, timeout=3)
+        assert third.returncode == 0 and later_dispatch.exists()
+        assert (tmp_path / 'night-start-2026.dispatched').exists()
+    finally:
+        release.touch()
+        if first.poll() is None:
+            first.kill()
+        first.wait()
+        if group is not None:
+            try:
+                os.killpg(group, signal.SIGKILL)
+            except ProcessLookupError:
+                pass

@@ -153,8 +153,11 @@ once if no night-live run has been created since 06:00 UTC and none is pending.
 A failed run counts as an attempt; the watchdog does not retry it. GitHub cron may drift.
 The whole watchdog subprocess (including uv startup, eligibility and dispatch) has a 60-second
 wall-clock limit. On timeout its process group is killed, a line is logged and tick continues.
-A nonblocking OS lock at `state/night-start.lock` serializes check and dispatch across ticks;
-closing the lock releases it, including on timeout. Do not delete the lock file while ticks run.
+A nonblocking OS lock at `state/night-start.lock` serializes check and dispatch across ticks.
+The worker inherits the locked file description, so killing the wrapper alone cannot admit
+another attempt while its worker remains alive. Timeout cleanup kills the worker group before
+the wrapper closes its lock; the lock releases when its last holder exits.
+Do not delete the lock file while ticks run.
 After a successful dispatch, `state/night-start-2026.dispatched` suppresses further watchdog
 attempts for the entire remaining 2026 live window, covering run-list visibility lag. The marker
 is intentionally retained; manual recovery uses the explicit dispatch command below.
