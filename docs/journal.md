@@ -2863,3 +2863,14 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #83 seventh fresh review on 2c5342f: request changes, three Important, all over-recognition of night guard evidence: a multiline quoted step name containing the run text (check_workflow_history.py:236), a step with `if: false` (:245), `night_live.py --help` (:260). No main tests weakened.
 - Judgement (single change, reversible): accept with reasoning instead of fix-7, as the 18:05Z plan set. Seventh round of the same class; none of the shapes is in any repo workflow; workflows are lab-written, not adversarial; each round costs a full fix. Alternative rejected: fix-7 on the build thread. Reasoning posted on PR #83; merge on CI green next run.
 - Codex window 22 percent, 6.6 days to reset. One job running (nz-election-policy-links).
+
+## 2026-10-25T18:32Z run (job_done nz-election-policy-links)
+
+- nz-election-policy-links 8ec1200 (929 s): 71 of 71 electorates linked to Policy.nz, seven party provenance URLs corrected, validator and tests. Codex: 2626 passed, 7 sandbox Chromium launch denials; regression fails on main; screenshots blocked in its sandbox.
+- Host: rebased onto 7af8109 as 37fa71a; `-k "electorate or snapshot or policy"` 722 passed; lint ok; live-data build (origin/data) PASS build 81 routes, 71 of 71 electorate pages carry the link; Waiariki screenshot at 390 looked at (link at y 435, above the 844 fold, 44 px target; 1280 at y 573).
+- Destination probed: Policy.nz electorate paths render "404 Not Found" in Chromium while returning HTTP 200 (a bogus slug does too), so they cannot be verified; candidate pages 404 on bogus slugs and list every candidate in the electorate (Waiariki 4 of 4). Accepted candidate pages as the only verifiable electorate-scoped destination. Nit: the link lands on the first candidate by slug under "Compare these candidates"; wording to a later round.
+- PR #86 opened, supervisor accept logged in the body, fresh review review-nz-election-policy-links dispatched.
+- PR #83: CI still pending at this run (run 40219601248); not merged. Merge on green next run.
+- Second slot: research-nz-election-readiness-2 dispatched read-only (re-audit milestones 26 Oct to 14 Nov after #82 #84 #85, #83 and #86 treated as landing) to choose the next increments.
+- Codex window 23 percent, 6.6 days to reset. Two jobs running.
+- Next: on job_done merge #83 on CI green and remove its worktree; merge #86 if review accepts and CI green; turn readiness-2 into the next increment and dispatch it; codex-notes by 5 Nov; first run after 01:00Z 27 Oct: capture the EC advance file.
