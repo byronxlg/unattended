@@ -17,7 +17,7 @@ Search, home, news-link and shared-result arrivals from 19:00 NZDT on 7 November
 
 1. Seat bar with the 62 line: "These combinations currently reach a majority; government formation is separate."
 2. "Results cover N percent of voting places, updated HH:MM." Never labelled votes counted.
-3. Electorate table: leader, margin, reporting status, linking each electorate page.
+3. Electorate table: leader, margin, reporting status, linking each electorate page. Search precedes the map; filtering hides the map so the matching leader stays beside the search within one scroll. Clearing the search restores map-first browsing.
 4. Status line: "Preliminary; official results due 27 November", then the preliminary to official change.
 
 ## Graphics

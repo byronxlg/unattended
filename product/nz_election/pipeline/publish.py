@@ -160,6 +160,13 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                         keep_data = True
                     elif new_vector.keys() > old_vector.keys() or any(new_vector[k] > old_vector[k] for k in old_vector):
                         keep_data = False
+                if dataset == 'night':
+                    def rank(envs):
+                        row = envs.get('night/live/current', {}).get('data', [{}])[0]
+                        return {'settled': 1, 'official': 2}.get(row.get('result_state'), 0)
+                    # A delayed live job cannot reopen a settled count.
+                    if rank(current) > rank(incoming):
+                        keep_data = True
                 keep_status = previous and previous['last_attempt_at'] > proposed['last_attempt_at']
                 all_older = all_older and bool(keep_status and keep_data)
                 if not keep_data:

@@ -65,7 +65,10 @@ if (typeof document !== 'undefined' && document.querySelector('#night-snapshot')
   snapshot.addEventListener('input', event => {
     if (!event.target.matches('.night-search')) return;
     const query = event.target.value.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
-    event.target.closest('.night-electorates').querySelectorAll('tbody tr').forEach(row => {
+    const electorates = event.target.closest('.night-electorates');
+    // Keep the matching leader next to the search while preserving map-first browsing.
+    electorates.querySelectorAll('.night-map, .night-map-key').forEach(map => { map.hidden = Boolean(query); });
+    electorates.querySelectorAll('tbody tr').forEach(row => {
       row.hidden = !row.cells[0].textContent.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().includes(query);
     });
   });

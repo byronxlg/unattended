@@ -9,6 +9,9 @@ export class NightLive {
   }
   invalidate() { this.generation++; }
   notice() {
+    if (['Settled preliminary results', 'Official results'].includes(this.last?.mode)) {
+      this.status(this.last.state_sentence); return;
+    }
     this.status(this.now() < OPEN ? 'Results start at 19:00 NZDT on 7 November.' : !this.last ?
       'Showing the dated packaged snapshot; check official results.' :
       this.now() - Date.parse(this.last.retrieved_at) >= STALE ?
@@ -17,7 +20,7 @@ export class NightLive {
   }
   async tick() {
     this.notice();
-    if (this.now() < OPEN || !this.visible() || this.pending || this.now() < this.next) return;
+    if (['Settled preliminary results', 'Official results'].includes(this.last?.mode) || this.now() < OPEN || !this.visible() || this.pending || this.now() < this.next) return;
     this.pending = true;
     this.next = this.now() + FLOOR;
     const generation = this.generation;
@@ -30,7 +33,8 @@ export class NightLive {
         throw Error('PACKAGE_UNAVAILABLE');
       }
       const pack = await response.json();
-      if (!pack.available || pack.mode !== 'Live preliminary results' || !Number.isFinite(Date.parse(pack.retrieved_at)) ||
+      if (!pack.available || !['Live preliminary results', 'Settled preliminary results', 'Official results'].includes(pack.mode) ||
+          (pack.mode !== 'Live preliminary results' && (typeof pack.state_sentence !== 'string' || !pack.state_sentence.trim())) || !Number.isFinite(Date.parse(pack.retrieved_at)) ||
           Date.parse(pack.retrieved_at) < OPEN || Date.parse(pack.retrieved_at) > this.now() || typeof pack.html !== 'string' ||
           !/^[a-f0-9]{64}$/.test(pack.reference_version)) throw Error('PACKAGE_INVALID');
       if (generation !== this.generation || !this.visible()) return;
@@ -61,6 +65,9 @@ if (typeof document !== 'undefined' && [null, 'live'].includes(new URL(location.
         const query = target.querySelector('.night-search')?.value || '';
         const focused = target.querySelector('.night-search') === document.activeElement;
         target.innerHTML = pack.html;
+        if (pack.mode !== 'Live preliminary results') document.querySelector('#night-result-status')?.remove();
+        target.dataset.mode = pack.mode;
+        target.dataset.retrievedAt = pack.retrieved_at;
         const search = target.querySelector('.night-search');
         if (search) { search.value = query; search.dispatchEvent(new Event('input', {bubbles:true})); if (focused) search.focus({preventScroll:true}); }
         document.querySelector('#night-controls').hidden = true;
@@ -70,7 +77,7 @@ if (typeof document !== 'undefined' && [null, 'live'].includes(new URL(location.
       }
     });
     const initial = target.dataset.retrievedAt;
-    if (Number.isFinite(Date.parse(initial)) && Date.parse(initial) >= OPEN) live.last = {retrieved_at: initial};
+    if (Number.isFinite(Date.parse(initial)) && Date.parse(initial) >= OPEN) live.last = {retrieved_at: initial, mode: target.dataset.mode, state_sentence: notice.textContent};
     document.addEventListener('visibilitychange', () => { if (document.hidden) live.invalidate(); else live.tick(); });
     live.tick();
     setInterval(() => live.tick(), 1000);
