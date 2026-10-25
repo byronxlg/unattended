@@ -85,11 +85,10 @@ def cli(argv=None):
         with args.csv.open('rb') as stream:
             raw = stream.read(1000001)
         result = inspect(raw, url=args.url, archive_url=args.archive_url)
-    except OSError:
-        raise SystemExit(advance.ERROR) from None
-    except ValueError as exc:
-        raise SystemExit(MISSING_EVIDENCE if str(exc) == MISSING_EVIDENCE else advance.ERROR) from None
-    print(json.dumps(result, indent=2))
+        print(json.dumps(result, indent=2))
+    except Exception as exc:
+        reason = MISSING_EVIDENCE if type(exc) is ValueError and exc.args == (MISSING_EVIDENCE,) else advance.ERROR
+        raise SystemExit(reason) from None
 
 
 if __name__ == '__main__':

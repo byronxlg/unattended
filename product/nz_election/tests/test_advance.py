@@ -428,3 +428,47 @@ def test_accepted_kind_inference_retains_header():
     from product.nz_election.tools.advance_preflight import inspect
     report = inspect(b'Date,Daily votes CAPTURE_MARKER\n2026-10-26,10', url='https://elections.nz/example')
     assert report['kind_inference'] == "Inferred from explicit daily wording in count header 'Daily votes CAPTURE_MARKER'."
+
+
+@pytest.mark.parametrize('error_type', [RuntimeError, KeyError, TypeError])
+def test_cli_sanitizes_unexpected_exceptions(tmp_path, monkeypatch, capsys, error_type):
+    from product.nz_election.tools import advance_preflight
+    marker = 'CAPTURE_EXCEPTION_MARKER_842'
+    path = tmp_path / 'capture.csv'
+    path.write_bytes(b'Date,Daily votes\n2026-10-26,10')
+    def fail(*args, **kwargs):
+        raise error_type(marker)
+    monkeypatch.setattr(advance_preflight, 'inspect', fail)
+    with pytest.raises(SystemExit) as caught:
+        advance_preflight.cli([str(path), '--url', 'https://elections.nz/example'])
+    output = capsys.readouterr()
+    assert marker not in output.out + output.err + str(caught.value)
+    assert output == ('', '')
+    assert str(caught.value) == advance.ERROR
+    assert caught.value.code == advance.ERROR
+    assert caught.value.__suppress_context__
+
+
+@pytest.mark.parametrize('error', [KeyboardInterrupt(), SystemExit(2)])
+def test_cli_preserves_control_exceptions(tmp_path, monkeypatch, error):
+    from product.nz_election.tools import advance_preflight
+    path = tmp_path / 'capture.csv'
+    path.write_bytes(b'Date,Daily votes\n2026-10-26,10')
+    def fail(*args, **kwargs):
+        raise error
+    monkeypatch.setattr(advance_preflight, 'inspect', fail)
+    with pytest.raises(type(error)) as caught:
+        advance_preflight.cli([str(path), '--url', 'https://elections.nz/example'])
+    assert caught.value is error
+
+
+def test_cli_sanitizes_serialization_errors(tmp_path, monkeypatch, capsys):
+    from product.nz_election.tools import advance_preflight
+    path = tmp_path / 'capture.csv'
+    path.write_bytes(b'Date,Daily votes\n2026-10-26,10')
+    def fail(*args, **kwargs):
+        raise RuntimeError('CAPTURE_SERIALIZATION_MARKER')
+    monkeypatch.setattr(advance_preflight.json, 'dumps', fail)
+    with pytest.raises(SystemExit, match='^INVALID_ADVANCE$'):
+        advance_preflight.cli([str(path), '--url', 'https://elections.nz/example'])
+    assert capsys.readouterr() == ('', '')
