@@ -63,11 +63,11 @@ def test_totals_include_unchecked_donation_rows():
 
 
 def test_top_ranks_are_not_first_five_electorate_candidates():
-    tops = {r['party_id']: r for r in supplemental('party-list-tops')}
+    tops = {r['party_id']: r for r in supplemental('party-list-tops') if 'party_id' in r}
     assert tops['nat']['candidates'][1]['name'] == 'Nicola Valentine Willis'
     assert tops['lab']['candidates'][3]['name'] == 'William Jackson'
     assert tops['nzf']['candidates'][0]['name'] == 'Winston Peters'
-    assert tops['tpm']['candidates'] == [{'rank': 1, 'name': 'Lance Norman'}]
+    assert tops['tpm']['candidates'] == [{'rank': 1, 'name': 'Lance Norman', 'source_name': 'NORMAN, Lance'}]
     assert all([c['rank'] for c in r['candidates']] == list(range(1, len(r['candidates']) + 1)) for r in tops.values())
 
 
