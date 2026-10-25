@@ -219,8 +219,10 @@ including after hourly acquisition ends. Pages ignores expired hourly/daily comp
 triggers; manual dispatch remains independent.
 
 `social.py --check-freeze` omits its `allowed` output from midnight on 7 November
-2026 until 19:00 NZDT. Reservation, collection and publication check this guard,
-including delayed jobs; the collector also checks before each request and after
+2026 until 19:00 NZDT. Publication uses this freeze-only guard, so an already-collected
+bundle and its final credit ledger can publish after the collection sunset. Reservation
+and collection use `--check-collection`, which checks both freeze and sunset, including
+delayed jobs; the collector also checks before each request and after
 classification. `publish.py --family social` checks again immediately before a
 push. No paid call is made when a run starts during the freeze. An existing page
 remains unchanged because election builds and Pages deployment both fail closed

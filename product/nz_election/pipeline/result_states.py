@@ -14,7 +14,7 @@ if __package__ in (None, ''):
 from product.nz_election.pipeline import export, night_live
 from product.nz_election.pipeline.deployment_guard import require_publication_allowed
 from product.nz_election.pipeline.night_seats import official_change
-from product.nz_election.pipeline.result_sources import due_date, official_results_notice
+from product.nz_election.pipeline.result_sources import official_results_notice
 from product.nz_election.pipeline.sunsets import NIGHT_CLOSE
 
 SETTLED = 'Settled preliminary results'
@@ -30,11 +30,11 @@ def comparison(row, status):
 def sentence(row, built=None):
     if row.get('result_state') == 'official':
         clock = datetime.fromisoformat(row['source_updated_local'])
-        return f'Official results, updated {clock.day} {clock:%B at %H:%M} (source local time).'
+        return f'{official_results_notice(built, [row])} Updated {clock.day} {clock:%B at %H:%M} (source local time).'
     if row.get('result_state') == 'settled':
         clock = datetime.fromisoformat(row['source_updated_local'])
         return (f'Preliminary results; live updates ended. Last complete count {clock.day} {clock:%B %H:%M} '
-                f'(source local time); {official_results_notice(built, [row]).lower() if built else "official results due " + due_date() + "."}')
+                f'(source local time); {official_results_notice(built, [row]).lower()}')
     return row['mode'] + '.'
 
 

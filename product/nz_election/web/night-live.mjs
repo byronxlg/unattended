@@ -3,8 +3,8 @@ export const FLOOR = 60000;
 export const STALE = 15 * 60000;
 
 export class NightLive {
-  constructor({fetcher, loopEndsAt, now = Date.now, visible = () => true, render = () => {}, status = () => {}}) {
-    Object.assign(this, {fetcher, loopEndsAt, now, visible, render, status});
+  constructor({fetcher, loopEndsAt, resultNotice, now = Date.now, visible = () => true, render = () => {}, status = () => {}}) {
+    Object.assign(this, {fetcher, loopEndsAt, resultNotice, now, visible, render, status});
     this.next = 0; this.failures = 0; this.pending = false; this.last = null; this.generation = 0;
   }
   ended() { return this.loopEnded || this.now() >= Date.parse(this.loopEndsAt); }
@@ -14,7 +14,7 @@ export class NightLive {
       this.status(this.last.state_sentence); return;
     }
     if (this.ended()) {
-      this.status('Preliminary; official results due 27 November. Live updates ended.' +
+      this.status('Preliminary; ' + (this.last?.result_notice || this.resultNotice || 'official results due 27 November.').replace(/^Official/, 'official') + ' Live updates ended.' +
         (this.last ? ' Last complete capture ' + this.last.retrieved_at + '.' : ' Check official results.')); return;
     }
     this.status(this.now() < OPEN ? 'Results start at 19:00 NZDT on 7 November.' : !this.last ?
@@ -68,6 +68,7 @@ if (typeof document !== 'undefined' && [null, 'live'].includes(new URL(location.
     const url = new URL('night-live.json', import.meta.url);
     const live = new NightLive({
       loopEndsAt: target.dataset.loopEndsAt,
+      resultNotice: target.dataset.resultNotice,
       visible: () => !document.hidden,
       fetcher: () => fetch(url, {cache: 'no-store', credentials: 'omit', mode: 'same-origin', redirect: 'error', signal: AbortSignal.timeout(20000)}),
       status: text => {

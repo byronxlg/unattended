@@ -84,7 +84,7 @@ def test_phase_copy(now, expected):
             assert 'votes on' not in title + description
             assert 'find a voting place' not in description
             if path == 'night/':
-                assert 'Current preliminary' in description
+                assert 'Current election' in description
     assert 'not available' not in (html + vote).lower()
 
 
@@ -322,4 +322,103 @@ def test_populated_settled_home_after_official_date(tmp_path):
     for path in ('index.html', 'vote/index.html'):
         html = (site / path).read_text()
         assert 'due 27 November' not in html
-        assert 'results are published' in html
+        assert 'results are published' not in html
+        assert 'Check the Electoral Commission for official results.' in html
+
+
+def copy_state(tmp_path, state):
+    from product.nz_election.tests.test_result_states import prepare, capture
+    from product.nz_election.pipeline import night_live, result_states
+    if state == 'absent':
+        return {}
+    raw = capture('preliminary')
+    envs = prepare(tmp_path / 'live', night_live.loaded(raw), raw['retrieved_at'])
+    if state != 'live':
+        envs = prepare(tmp_path / 'settled', result_states.transition(envs, 'settled', now=night_live.stamp(lambda: sunsets.NIGHT_CLOSE)), night_live.stamp(lambda: sunsets.NIGHT_CLOSE))
+    if state == 'official':
+        envs = prepare(tmp_path / 'official', result_states.transition(envs, 'official', now='2026-11-28T00:00:00Z', captured=capture('official')), '2026-11-28T00:00:00Z')
+    return envs
+
+
+@pytest.mark.parametrize('surface', ['html', 'card', 'package'])
+def test_night_nov28_no_future_due(tmp_path, surface):
+    import json
+    from product.nz_election.pipeline import night_page
+    now = '2026-11-28T00:00:00Z'
+    envs = copy_state(tmp_path, 'settled')
+    presentation = build.home_presentation(envs, now)
+    text = {'html': lambda: night_page.page(envs, now),
+            'card': lambda: route_cards.card({'path': 'night/', 'label': 'Night'}, envs, presentation, now),
+            'package': lambda: json.dumps(night_page.live_package(envs, now=datetime.fromisoformat(now)))}[surface]()
+    assert 'due 27 November' not in text
+
+
+def test_publication_freeze_check_survives_social_sunset(tmp_path, monkeypatch):
+    output = tmp_path / 'output'
+    monkeypatch.setenv('GITHUB_OUTPUT', str(output))
+    monkeypatch.setattr(sys, 'argv', ['social', '--check-freeze', '--now', '2026-11-28T00:00:00Z'])
+    social.main()
+    assert output.read_text() == 'allowed=true\n'
+    assert not sunsets.allowed('social', '2026-11-28T00:00:00Z')
+    assert social.refresh_social(tmp_path / 'data', '2026-11-13', now='2026-11-28T00:00:00Z', send=lambda *a: pytest.fail('paid call')) == 'ended'
+    job = workflow('nz-election-social-daily.yml')['jobs']['publish']
+    assert next(s for s in job['steps'] if s.get('id') == 'freeze')['run'].endswith('social.py --check-freeze')
+    assert job['steps'][-1]['run'] == 'gh workflow run pages.yml --ref main'
+
+
+@pytest.mark.parametrize('state', ['absent', 'live', 'settled', 'official'])
+@pytest.mark.parametrize('surface', ['home', 'vote', 'night'])
+def test_nov28_publication_claim_requires_evidence(tmp_path, state, surface):
+    from product.nz_election.pipeline import night_page
+    now = '2026-11-28T00:00:00Z'
+    envs = copy_state(tmp_path, state)
+    presentation = build.home_presentation(envs, now)
+    html = {'home': lambda: home.page(envs, now, presentation),
+            'vote': lambda: vote_page.page(now, envs=envs),
+            'night': lambda: night_page.page(envs, now)}[surface]()
+    assert 'due 27 November' not in html
+    assert ('results are published' in html.lower()) == (state == 'official')
+    assert 'https://www.electionresults.govt.nz/' in html
+
+
+@pytest.mark.parametrize('now,publication,collection', [
+    ('2026-11-06T10:30:00Z', False, False),
+    ('2026-11-07T05:59:59Z', False, False),
+    ('2026-11-07T06:00:00Z', True, True),
+    ('2026-11-14T11:00:00Z', True, False),
+    ('2026-11-28T00:00:00Z', True, False),
+])
+def test_collection_and_publication_guards_are_distinct(tmp_path, monkeypatch, now, publication, collection):
+    output = tmp_path / 'outputs'
+    monkeypatch.setenv('GITHUB_OUTPUT', str(output))
+    for flag, active in [('--check-freeze', publication), ('--check-collection', collection)]:
+        output.write_text('')
+        monkeypatch.setattr(sys, 'argv', ['social', flag, '--now', now])
+        social.main()
+        assert ('allowed=true' in output.read_text()) is active
+    doc = workflow('nz-election-social-daily.yml')
+    for job in ('reserve', 'collect'):
+        check = next(s for s in doc['jobs'][job]['steps'] if s.get('id') == 'freeze')
+        assert check['run'].endswith('social.py --check-collection')
+
+
+@pytest.mark.parametrize('state', ['live', 'settled', 'official'])
+def test_hydrated_night_keeps_generated_copy(tmp_path, state):
+    import json
+    from pathlib import Path
+    from product.nz_election.pipeline import night_page
+    now = datetime.fromisoformat('2026-11-28T00:00:00Z')
+    pack = night_page.live_package(copy_state(tmp_path, state), now=now)
+    module = (Path(__file__).parents[1] / 'web/night-live.mjs').resolve().as_uri()
+    script = """import {NightLive} from MODULE;
+import assert from 'node:assert/strict';
+const pack = PACKAGE; let notice='';
+const live = new NightLive({now:()=>Date.parse('2026-11-28T00:00:00Z'),
+loopEndsAt:pack.loop_ends_at, resultNotice:pack.result_notice,
+fetcher:()=>assert.fail('retired loop fetched'), status:text=>notice=text});
+await live.tick(); assert.doesNotMatch(notice,/due 27 November/);
+live.last=pack; await live.tick();
+assert.doesNotMatch(notice,/due 27 November/);
+assert.equal(/results are published/.test(notice), pack.mode==='Official results');
+""".replace('MODULE', json.dumps(module)).replace('PACKAGE', json.dumps(pack))
+    subprocess.run(['node', '--input-type=module', '-e', script], check=True)

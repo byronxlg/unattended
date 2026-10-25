@@ -52,7 +52,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - name: Check s197 freeze before reservation
         id: freeze
-        run: uv run product/nz_election/pipeline/social.py --check-freeze
+        run: uv run product/nz_election/pipeline/social.py --check-collection
       - name: Resolve previous data
         if: steps.freeze.outputs.allowed == 'true'
         id: data
@@ -109,7 +109,7 @@ jobs:
           path: _nz-social-bundle
       - name: Check s197 freeze before collecting
         id: freeze
-        run: uv run product/nz_election/pipeline/social.py --check-freeze
+        run: uv run product/nz_election/pipeline/social.py --check-collection
       - name: Consume reservation durably before paid requests
         id: claim
         if: steps.freeze.outputs.allowed == 'true'

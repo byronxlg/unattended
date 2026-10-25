@@ -623,16 +623,18 @@ def main():
     parser.add_argument('--fixtures', action='store_true')
     parser.add_argument('--reserve', action='store_true')
     parser.add_argument('--reservation')
-    parser.add_argument('--check-freeze', action='store_true')
+    checks = parser.add_mutually_exclusive_group()
+    checks.add_argument('--check-freeze', action='store_true')
+    checks.add_argument('--check-collection', action='store_true')
     args = parser.parse_args()
     now = args.now or utc_now()
-    from product.nz_election.pipeline.sunsets import skip
-    if skip('social', now):
-        return 'ended'
     if frozen(now):
         print('Social publication frozen until 19:00 NZDT on 7 November 2026.')
         return
-    if args.check_freeze:
+    from product.nz_election.pipeline.sunsets import skip
+    if not args.check_freeze and skip('social', now):
+        return 'ended'
+    if args.check_freeze or args.check_collection:
         if os.environ.get('GITHUB_OUTPUT'):
             with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
                 f.write('allowed=true\n')

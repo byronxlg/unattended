@@ -6,7 +6,7 @@ from itertools import combinations
 from .build import PREFIX, table, render, config
 from .presentation import election_countdown
 from .result_states import sentence, comparison
-from .result_sources import due_date
+from .result_sources import official_results_notice
 
 RESULTS = 'https://www.electionresults.govt.nz/'
 LAW = 'https://www.legislation.govt.nz/act/public/1993/0087/latest/DLM310065.html'
@@ -128,16 +128,17 @@ def page(envs, built):
     if default['id'] == 'live':
         retrieval = envs[default['snapshot_paths'][0][:-5]]['data'][0]['retrieved_at']
     current = envs.get('night/live/current', {}).get('data', [{}])[0] if default['id'] == 'live' else {}
-    status = sentence(current) if current.get('result_state') else live_status(built, retrieval)
+    status = sentence(current, built) if current.get('result_state') else live_status(built, retrieval)
     if current.get('result_state') and envs['night/live/current'].get('run_url') == 'offline-verification':
         status += ' Offline verification: synthetic data.'
+    result_notice = official_results_notice(built, [current])
     controls = ('<div id="night-controls" hidden><button type="button" id="night-play">Play</button> '
                 '<button type="button" id="night-reset">Reset</button> <label for="night-speed">Speed</label> '
                 '<select id="night-speed"><option value="1">1x</option><option value="10">10x</option><option value="60">60x</option></select>'
                 '<span id="night-clock" aria-live="off">Paused</span>'
                 '<span id="night-announcement" role="status" aria-live="polite" aria-atomic="true"></span></div>')
-    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + f'<p id="night-live-status" role="status">{status}</p>' + controls + f'<div id="night-snapshot" data-loop-ends-at="{stamp(lambda: CLOSE)}" data-retrieved-at="{escape(retrieval)}" data-mode="{escape(current.get("mode", ""))}">' + selected.replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ') + '</div>'
-            + ('' if current.get('result_state') else f'<p id="night-result-status">2026: Preliminary; official results due {due_date()}.</p>') + links +
+    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + f'<p id="night-live-status" role="status">{status}</p>' + controls + f'<div id="night-snapshot" data-result-notice="{escape(result_notice, quote=True)}" data-loop-ends-at="{stamp(lambda: CLOSE)}" data-retrieved-at="{escape(retrieval)}" data-mode="{escape(current.get("mode", ""))}">' + selected.replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ') + '</div>'
+            + ('' if current.get('result_state') else f'<p id="night-result-status">2026: Preliminary; {result_notice.lower()}</p>') + links +
             ''.join(f'<template id="sequence-{s["id"]}">{p}</template>' for s, p in zip(sequences, panels)) +
             f'</div><script type="module" src="{PREFIX}night.mjs"></script><script type="module" src="{PREFIX}night-live.mjs"></script>')
 
@@ -146,7 +147,9 @@ def live_package(envs, *, now=None):
     """Render only validated local rows; source XML never supplies markup."""
     from datetime import datetime, timezone
     from product.nz_election.pipeline.night_live import CLOSE, stamp
-    stop = dict(loop_ends_at=stamp(lambda: CLOSE), loop_ended=(now or datetime.now(timezone.utc)) >= CLOSE)
+    now = now or datetime.now(timezone.utc)
+    built = stamp(lambda: now)
+    stop = dict(loop_ends_at=stamp(lambda: CLOSE), loop_ended=now >= CLOSE)
     sequences = envs.get('night/index', {}).get('data', [])
     seq = next((s for s in sequences if s['id'] == 'live'), None)
     if seq is None:
@@ -156,7 +159,7 @@ def live_package(envs, *, now=None):
     row = env['data'][0]
     refs = envs[seq['reference_path'][:-5]]['data'][0]
     return dict(available=True, **stop, retrieved_at=row['retrieved_at'], reference_version=row['reference_version'],
-                mode=row['mode'], state_sentence=sentence(row) + (' Offline verification: synthetic data.' if env.get('run_url') == 'offline-verification' else ''), html=snapshot(row, refs, 'live-current', path),
+                mode=row['mode'], result_notice=official_results_notice(built, [row]), state_sentence=sentence(row, built) + (' Offline verification: synthetic data.' if env.get('run_url') == 'offline-verification' else ''), html=snapshot(row, refs, 'live-current', path),
                 provenance=dict(label='Packaged by the site', sources=env['source'], code_sha=env['code_sha'],
                                 run_url=env['run_url'], retrieved_at=row['retrieved_at']),
                 json_path='data/' + path, csv_path='data/' + path[:-5] + '.csv')

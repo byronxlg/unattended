@@ -34,6 +34,8 @@ def due_date():
 
 
 def official_results_notice(built, rows=()):
-    if official_date_reached(built) or any(row.get('result_state') == 'official' for row in rows):
+    if any(row.get('result_state') == 'official' for row in rows):
         return 'Official results are published.'
+    if official_date_reached(built):
+        return 'Check the Electoral Commission for official results.'
     return f'Official results due {due_date()}.'

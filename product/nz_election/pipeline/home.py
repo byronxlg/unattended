@@ -148,7 +148,7 @@ def voting_dates(built, rows=None, envs=None):
     if post_election(built):
         from .result_sources import official_results_notice
         notice = official_results_notice(built, (envs or {}).get('night/live/current', {}).get('data', []))
-        return f'<section id="dates" class="home-dates"><p>Voting closed on 7 November. {notice}</p><p><a href="{PREFIX}night/">Election results</a></p></section>'
+        return f'<section id="dates" class="home-dates"><p>Voting closed on 7 November. {notice}</p><p><a href="{PREFIX}night/">Election results</a> <a href="https://www.electionresults.govt.nz/">Electoral Commission results</a></p></section>'
     records = {r['id']: r for r in (load_voting() if rows is None else rows)}
     today = datetime.fromisoformat(built.replace('Z', '+00:00')).astimezone(ZoneInfo('Pacific/Auckland')).date()
     clauses = []
