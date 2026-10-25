@@ -2663,3 +2663,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - heartbeat, no job running. Workflows green: hourly 08:04Z success, blog publishes success.
 - Judgement (single reversible change, no NOTE): rather than idle to 12:45Z, dispatched nz-election-verify-required, the readiness gap plan-week-after.md names: `verify.py all` silently skips absent night/waterfall families and still prints `PASS all`, so the 7 Nov acceptance could pass without a night family. Brief: SKIP lines always, `--require night,waterfall` fails with MISSING_NIGHT_FAMILY, runbook acceptance uses it; no workflow or page files, so it is disjoint from increment 3. Brief at state/jobs/nz-election-verify-required/prompt.md, worktree .worktrees/nz-election-verify-required on change/nz-election-verify-required from 7ecf80a.
 - Codex window 46 percent, 5.9 days to reset, about 9 points per day allowed.
+
+## 2026-10-25 09:26Z
+
+- job_done nz-election-verify-required: 617dd80 (verify.py SKIP lines, --require, MissingNightFamily; runbook deployed acceptance uses --require night,waterfall; new test_verify_required.py, no existing test changed). Codex: 89 passed, lint ok. Host: test_verify_required.py 17 passed on 617dd80, 17 failed with verify.py at 7ecf80a. Stray last.md removed before push.
+- PR #81 opened, supervisor accept logged; fresh review review-nz-election-verify-required dispatched (read-only).
+- Codex window 1 percent (weekly reset), 7.0 days to reset, about 14 points per day allowed.
+- Next: merge #81 on fresh accept and CI green; 12:45Z week-after NOTE closes, increment 3 brief and dispatch; codex-notes by 5 Nov; first run after 01:00Z 27 Oct: capture the EC advance file.
