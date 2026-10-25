@@ -135,6 +135,9 @@ def shell_commands(source):
     continuations. Operators, expansion, nesting and other command forms reject
     the entire step, including invocations preceding the unsupported syntax.
     """
+    # Reject before splitting or comment removal can hide unsupported bytes.
+    if any(char not in '\t\n' and not ' ' <= char <= '~' for char in source):
+        raise ValueError('unsupported shell character')
     commands = [[]]
     quote = None
     in_word = False
@@ -172,11 +175,12 @@ def shell_commands(source):
             raise ValueError('unsupported shell syntax')
         else:
             commands[-1].append(char)
-            in_word = char not in ' \t\r;&|()<>'
+            in_word = char not in ' \t;&|()<>'
         index += 1
     tokenized = []
     for command in commands:
         lexer = shlex.shlex(''.join(command), posix=True, punctuation_chars=';&|()<>')
+        lexer.whitespace = ' \t\n'
         lexer.whitespace_split = True
         lexer.commenters = ''
         words = list(lexer)
@@ -191,7 +195,7 @@ def shell_commands(source):
 
 def workflow_commands(source):
     """Read the repository's block-style step run scalars without executing YAML."""
-    lines = source.splitlines()
+    lines = source.split('\n')
     steps_indent = None
     step_key_indent = None
     in_jobs = False
@@ -209,7 +213,7 @@ def workflow_commands(source):
         if in_jobs and line.strip() == 'steps:':
             steps_indent = indent
             step_key_indent = None
-        match = re.match(r'^( *)(- )?([\w-]+):\s*(.*)$', line)
+        match = re.match(r'^( *)(- )?([\w-]+):[ \t]*(.*)$', line)
         if not match:
             continue
         space, dash, key, value = match.groups()
@@ -226,7 +230,7 @@ def workflow_commands(source):
                 index += 1
             value = textwrap.dedent('\n'.join(body))
             if match[4].startswith('>'):
-                value = ' '.join(value.splitlines())
+                value = ' '.join(value.split('\n'))
         elif value.startswith('"'):
             try:
                 value = json.loads(value)

@@ -709,3 +709,44 @@ def test_review4_rejected_step_does_not_discard_separate_simple_guard(workflows)
 ''')
     assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
                         now=NOW, root=workflows) == 0
+
+
+@pytest.mark.parametrize('separator', ['\r', '\v', '\f', '\x00', '\u00a0'],
+                         ids=['CR', 'VT', 'FF', 'NUL', 'NBSP'])
+def test_review5_unsupported_characters_reject_whole_step(workflows, capsys, separator):
+    path = workflows / '.github/workflows/new-name.yaml'
+    original = path.read_text()
+    guard = 'python3 product/nz_election/pipeline/night_live.py'
+    malformed = 'python3' + separator + 'product/nz_election/pipeline/night_live.py'
+    # Unsupported characters invalidate both a command word and literal data
+    # in a step that otherwise contains a valid guard invocation.
+    for script in (malformed, guard + '\necho "' + malformed + '"'):
+        path.write_text(original + 'jobs:\n  check:\n    steps:\n      - run: ' + json.dumps(script) + '\n')
+        assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                            now=NOW, root=workflows) == 1
+        assert '; no runs' in capsys.readouterr().out
+        assert list(history.workflow_commands(path.read_text())) == []
+
+
+@pytest.mark.parametrize('char', [chr(n) for n in range(32) if n not in (9, 10)] +
+                         ['\x7f', '\x85', '\u00a0', '\u2028', '\u2029', '\u4e09'])
+def test_review5_forbidden_characters_cannot_hide_in_comments(char):
+    script = 'python3 product/nz_election/pipeline/night_live.py\n# ' + char
+    with pytest.raises(ValueError, match='unsupported shell character'):
+        history.shell_commands(script)
+
+
+@pytest.mark.parametrize('style', ['|', '>'])
+@pytest.mark.parametrize('char', ['\v', '\f', '\x00', '\u00a0', '\u2028'])
+def test_review5_block_scalars_preserve_forbidden_characters(style, char):
+    source = ('jobs:\n  check:\n    steps:\n      - run: ' + style + '\n'
+              '          python3 product/nz_election/pipeline/night_live.py\n'
+              '          # ' + char + '\n')
+    assert list(history.workflow_commands(source)) == []
+
+
+@pytest.mark.parametrize('separator', [' ', '\t', ' \\\n'])
+def test_review5_supported_whitespace_still_recognizes_guard(separator):
+    command = 'python3' + separator + 'product/nz_election/pipeline/night_live.py'
+    source = 'jobs:\n  check:\n    steps:\n      - run: ' + json.dumps(command) + '\n'
+    assert list(history.workflow_commands(source)) == [['product/nz_election/pipeline/night_live.py']]
