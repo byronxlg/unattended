@@ -2540,3 +2540,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Host: test_night_operation.py and test_workflows.py 51 passed, bash -n bin/tick ok, bin/lint ok. Stray last.md not committed.
 - PR #78 opened, supervisor accept logged with two questions (END naming, watchdog cost per tick); fresh review review-nz-election-night-start dispatched.
 - Second slot left empty this run: the next schedule item (advance-voting capture) waits on the EC file from 27 Oct NZ. Codex window 31 percent.
+
+## 2026-10-25 00:06Z (job_done review-nz-election-night-start)
+
+- PR #78 fresh review: request changes, three Important (bin/tick watchdog unbounded overall: only `gh run list` has a timeout; check and dispatch unlocked, it runs before the pid check so overlapping ticks can double-dispatch; closing boundary 2026-11-08 06:00Z checked at decision time only). Supervisor confirmed all three on 5bc00f2, logged on the PR. fix-1 nz-election-night-start-fix-1 dispatched on the build thread (bound the whole step, lock plus success marker, clock re-check at dispatch, tests for each). CI pending at 00:08Z.
+- Second slot: plan-nz-election-week-after dispatched read-only (gap list for election night and 8 to 14 Nov, ranked increments, Codex-before-5-Nov vs Claude-only).
+- Codex window 31 percent, 6.3 days to reset. No Byron messages this run.
