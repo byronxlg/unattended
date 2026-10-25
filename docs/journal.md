@@ -2909,3 +2909,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #88 home-handover: fix-2 8749065 (shared cutoff, cached heroes retire after the stop). CI on 59f1c1e was red on main's test_coalitions.py script-inventory pins (lines 132, 154) that do not list home-live.mjs; the brief had not named these contracts as moving with the registered set (the known supervisor mistake again). fix-3 259b038 moved exactly those two sets. Host: test_coalitions 12 passed, test_home_handover 18 passed incl. the 6 Chromium cases the sandbox blocked, lint ok. Pushed, supervisor accept, second fresh review review-nz-election-home-handover-2 dispatched.
 - Dispatched nz-election-parties-captions (.worktrees/nz-election-parties-captions, stacked on change/nz-election-party-lists, Page plan pages/parties.md): source-note sentences without orphan punctuation, target rules kept. Reversible single change, no NOTE.
 - Codex window 29 percent at run start, 6.6 days to reset.
+
+## 2026-10-25 19:51Z run (job_done nz-election-parties-captions, review-nz-election-home-handover-2)
+
+- PR #88 home-handover: second fresh review accept (no findings; shared cutoff home.py:180 and scripts.py:50, retirement before polling at home-live.mjs:24, bundle 1,814 gzip bytes, question test at 390 before and after close). Logged on the PR. CI pending at run end, merge on green.
+- PR #87 party-lists: CI still pending at run end, not merged.
+- nz-election-parties-captions 196720e: host `pytest -k "parties or design or source"` 331 passed incl. the Chromium case the sandbox blocked (test_picker_chips_share_top_at_360), lint ok. Stacked on change/nz-election-party-lists; PR waits for #87 to merge, then rebase onto main, parties/ 390/1280 looked at, PR, fresh review.
+- No new dispatch this run: both slots' next work is merges on CI; next increment (advance adapter) depends on the EC advance file from 27 Oct. Waiting on CI.
+- Codex window 30 percent, 6.6 days to reset.
