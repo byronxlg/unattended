@@ -2657,3 +2657,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - CI on 866aad3 (run 40167280989) still in Tests at 06:25Z; waited in-run.
 - CI run 40167280989 on 866aad3 success; PR #80 squash merged as 036336f, worktree .worktrees/nz-election-night-stop removed, changes.yaml prs gains 79 and 80.
 - No dispatch this run: increment 3 (post-election schedules) waits for the 12:45Z deadline on the week-after NOTE; next-run-after set to 12:45Z. Codex window 46 percent, 6.0 days to reset.
+
+## 2026-10-25 09:15Z
+
+- heartbeat, no job running. Workflows green: hourly 08:04Z success, blog publishes success.
+- Judgement (single reversible change, no NOTE): rather than idle to 12:45Z, dispatched nz-election-verify-required, the readiness gap plan-week-after.md names: `verify.py all` silently skips absent night/waterfall families and still prints `PASS all`, so the 7 Nov acceptance could pass without a night family. Brief: SKIP lines always, `--require night,waterfall` fails with MISSING_NIGHT_FAMILY, runbook acceptance uses it; no workflow or page files, so it is disjoint from increment 3. Brief at state/jobs/nz-election-verify-required/prompt.md, worktree .worktrees/nz-election-verify-required on change/nz-election-verify-required from 7ecf80a.
+- Codex window 46 percent, 5.9 days to reset, about 9 points per day allowed.
