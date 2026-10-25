@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from playwright.sync_api import sync_playwright
 from product.nz_election.pipeline import export, fixtures, night_live, result_states
 from product.nz_election.pipeline.build import build
+from product.nz_election.pipeline.night_page import live_package
 from product.nz_election.pipeline.daily_refresh import daily_refresh
 from product.nz_election.tests.night_browser import launch_chromium
 from product.nz_election.tests.screenshots import Handler, CONTRAST, contrast
@@ -28,6 +29,8 @@ def main():
     initial = capture('result-states/2026-11-07-preliminary-final.json')
     daily_refresh(out / 'live-data', loaders={'night': lambda: night_live.loaded(initial)}, now=initial['retrieved_at'])
     envs = export.validate_bundle(out / 'live-data')
+    live_site = out / 'live' / 'site'
+    build(out / 'live-data', live_site / 'nz-election', built=initial['retrieved_at'])
     sites = []
     for state, now in [('settled', '2026-11-08T06:00:00Z'), ('official', '2026-11-27T11:00:00Z')]:
         loaded = result_states.transition(envs, state, now=now, captured=capture('result-states/2026-11-27-official.json') if state == 'official' else None)
@@ -64,13 +67,74 @@ def main():
                         assert not page.evaluate('async()=> (await axe.run(document)).violations')
                         page.screenshot(path=str(out / f'{state}-{route}-{width}x{height}.png'))
                         if route == 'night':
-                            page.locator('.night-search').fill('Auckland Central')
-                            assert page.locator('.night-electorates tbody tr:visible').count() == 1
+                            assert page.locator('.night-map').is_visible()
+                            search = page.locator('.night-search')
+                            if width == 390:
+                                assert search.bounding_box()['y'] + search.bounding_box()['height'] <= height * 2
+                            search.fill('Auckland Central')
+                            assert not page.locator('.night-map').is_visible()
+                            row = page.locator('.night-electorates tbody tr:visible')
+                            assert row.count() == 1
+                            assert 'CHANG, Johan' in row.inner_text()
+                            assert '5,000' in row.inner_text() or '5000' in row.inner_text()
+                            if width == 390:
+                                # Reset auto-scrolling by fill; exactly one viewport scroll from the top.
+                                page.evaluate('scrollTo(0, 844)')
+                                box = row.bounding_box()
+                                assert box['y'] >= 0 and box['y'] + box['height'] <= height, box
+                                leader_box = row.locator('td').nth(1).bounding_box()
+                                assert leader_box['x'] >= 0 and leader_box['x'] + leader_box['width'] <= width, leader_box
+                                page.screenshot(path=str(out / f'{state}-electorate-{width}x{height}.png'))
+                            search.fill('')
+                            assert page.locator('.night-map').is_visible()
+                            assert page.locator('.night-electorates tbody tr:visible').count() == 71
                         context.close()
             finally:
                 server.shutdown()
                 server.server_close()
-    print('PASS result states browser: 8 images; no terminal polling; search, contrast, accessibility, overflow')
+        server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(live_site)))
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        origin = f'http://127.0.0.1:{server.server_port}'
+        try:
+            for width, height in [(390, 844), (1280, 800)]:
+                context = browser.new_context(viewport=dict(width=width, height=height))
+                page = context.new_page()
+                page.clock.install(time=datetime(2026, 11, 27, 11, tzinfo=timezone.utc))
+                replies = [0]
+                handover = [False]
+                errors = []
+                page.on('pageerror', lambda e: errors.append(str(e)))
+                def serve(route):
+                    if route.request.url.endswith('/night-live.json'):
+                        replies[0] += 1
+                        route.fulfill(status=200 if handover[0] else 503, content_type='application/json',
+                                      body=json.dumps(live_package(envs)) if handover[0] else '{}')
+                    elif route.request.url.startswith(origin + '/'):
+                        route.continue_()
+                    else:
+                        route.abort()
+                context.route('**/*', serve)
+                page.goto(origin + '/unattended/nz-election/night/')
+                page.wait_for_load_state('networkidle')
+                assert page.locator('#night-result-status').is_visible()
+                assert 'official results due 27 November' in page.locator('#night-result-status').inner_text()
+                handover[0] = True
+                page.clock.run_for(121000)
+                page.wait_for_function("document.querySelector('#night-snapshot').dataset.mode === 'Official results'")
+                assert page.locator('#night-result-status').count() == 0
+                assert 'official results due' not in page.locator('.night-page').inner_text()
+                assert 'Official results' in page.locator('#night-live-status').inner_text()
+                assert 'Change since preliminary result' in page.locator('#night-snapshot').inner_text()
+                calls = replies[0]
+                page.clock.run_for(120000)
+                assert replies[0] == calls
+                assert not errors, errors
+                page.screenshot(path=str(out / f'handover-night-{width}x{height}.png'))
+                context.close()
+        finally:
+            server.shutdown()
+            server.server_close()
+    print('PASS result states browser: 8 images plus 4 leader/handover images; no terminal polling; DOM handover, named leader within one scroll, contrast, accessibility, overflow')
 
 
 if __name__ == '__main__':

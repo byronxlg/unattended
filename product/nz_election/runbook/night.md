@@ -350,14 +350,18 @@ requests, including on reload or visibility changes. Readers reload after the of
 
 The official path requires a settled baseline, all 71 detail files and the same references and
 party IDs as the preliminary package. Reference drift fails; it needs a separately reviewed
-mapping, never a guessed join. The source timestamp must be on or after 27 November and later
-than the preliminary count; retrieval must also be on or after 27 November NZDT and no later
-than `--now`. An official XML family does not carry a national official/preliminary flag;
-the operator explicitly selects `official` after verifying the EC publication.
+mapping, never a guessed join. The source timestamp must be on or after 27 November and later than the preliminary count; retrieval must be on or after
+27 November 2026 NZDT and no later than `--now`. The official label is derived from recorded
+acquisition provenance, not the operator selection or a national XML flag.
+The configured official URL is an inference to confirm against the EC once published.
 
 The 27 November capture is a human step. This increment only imports manifest-checked fixtures,
 with no network capture. The input JSON contains `raw` (XML text by relative filename) and
-`retrieved_at` (UTC). Register reviewed bytes and provenance in the existing fixture manifest
+`retrieved_at` (UTC), and `acquisition_source` with `kind: "official"` and
+`url: "https://electionresults.govt.nz/electionresults_2026/xml/election.xml"`. Record these
+from the actual acquisition endpoint; never relabel a preliminary fetch. Every XML source URL
+in the package must match the declared root. Legacy captures without this field remain
+preliminary (or demo), never official. Register reviewed bytes and provenance in the existing fixture manifest
 before import. The following command exercises the committed **synthetic offline fixture**;
 it must never be published as an actual election result:
 

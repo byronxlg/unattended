@@ -81,10 +81,10 @@ def electorate_view(row, refs, source, identity):
         content = content.replace('Provisional leaders, not elected members.', 'Official source-reported leaders.')
     if '2023' in row['mode'] or row['source_ref'] == ['ec-2023-xml/election.xml']:
         content += '<p>2023 electorates, on their original boundaries. Links lead to today’s electorate information; no votes are transferred to new boundaries.</p>'
+    content += f'<label for="night-search-{identity}">Find an electorate</label><input id="night-search-{identity}" class="night-search" type="search" placeholder="Electorate name">'
     if legend:
         content += '<ul class="night-map-key">' + ''.join(f'<li><span style="background:{colour}"></span>{escape(name)}</li>' for name, colour in sorted(legend.items())) + '</ul>'
-    content += f'<figure aria-describedby="{source}"><svg class="night-leader-map" viewBox="0 0 480 700" role="img" aria-describedby="{source}" aria-label="Electorate provisional leaders">' + ''.join(tiles) + '</svg><figcaption>Find an electorate in the searchable table below.</figcaption></figure>'
-    content += f'<label for="night-search-{identity}">Find an electorate</label><input id="night-search-{identity}" class="night-search" type="search" placeholder="Electorate name">'
+    content += f'<figure class="night-map" aria-describedby="{source}"><svg class="night-leader-map" viewBox="0 0 480 700" role="img" aria-describedby="{source}" aria-label="Electorate provisional leaders">' + ''.join(tiles) + '</svg><figcaption>Find an electorate in the searchable table below.</figcaption></figure>'
     context = row['mode'] + ', ' + (row.get('source_updated_local') or str(row.get('elapsed_seconds', 0)) + ' seconds')
     rendered = table('Electorate provisional leaders: ' + context, ['Electorate', 'Leader', 'Margin (votes)', 'Reporting status'], rows, source=source)
     for e in refs['electorates']:

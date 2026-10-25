@@ -1758,23 +1758,23 @@
   },
   {
    "path": "result-states/2026-11-07-preliminary-final.json",
-   "sha256": "6411725eba67f26a1919d0da6682cefd500e464cd1f01094ee0681c4d27e52d8",
-   "url": "https://media.election.net.nz/xml/",
-   "revision": "6411725eba67f26a1919d0da6682cefd500e464cd1f01094ee0681c4d27e52d8",
+   "sha256": "3e57f4367445e60ffceba4fbd1fce3a46078da65176e40a081f6f54402f4563f",
+   "url": "https://media.election.net.nz/xml/election.xml",
+   "revision": "3e57f4367445e60ffceba4fbd1fce3a46078da65176e40a081f6f54402f4563f",
    "captured_at": "2026-11-07T10:35:00Z",
    "licence": "Copyright Electoral Commission; no open licence stated. Synthetic offline verification fixture.",
-   "notes": "Synthetic dated XML-family package derived from the 2026 media registry. National counts are invented; no network capture.",
+   "notes": "Synthetic dated XML-family package derived from the 2026 media registry. National counts and Auckland Central leader votes are invented; no network capture. Official source URL is inferred pending EC confirmation.",
    "archive_url": null,
    "reviewer": "Codex offline fixture construction; synthetic counts"
   },
   {
    "path": "result-states/2026-11-27-official.json",
-   "sha256": "3fa39a41daa5b61cad653463302532835862de63e51b38571bed9c41db9d66a3",
-   "url": "https://media.election.net.nz/xml/",
-   "revision": "3fa39a41daa5b61cad653463302532835862de63e51b38571bed9c41db9d66a3",
+   "sha256": "6a6d42840205d1e7c8262fea41c6c56ffe81db39bf22564d66bf8b3ebc1404f3",
+   "url": "https://electionresults.govt.nz/electionresults_2026/xml/election.xml",
+   "revision": "6a6d42840205d1e7c8262fea41c6c56ffe81db39bf22564d66bf8b3ebc1404f3",
    "captured_at": "2026-11-27T10:35:00Z",
    "licence": "Copyright Electoral Commission; no open licence stated. Synthetic offline verification fixture.",
-   "notes": "Synthetic dated XML-family package derived from the 2026 media registry. National counts are invented; no network capture.",
+   "notes": "Synthetic dated XML-family package derived from the 2026 media registry. National counts and Auckland Central leader votes are invented; no network capture. Official source URL is inferred pending EC confirmation.",
    "archive_url": null,
    "reviewer": "Codex offline fixture construction; synthetic counts"
   }

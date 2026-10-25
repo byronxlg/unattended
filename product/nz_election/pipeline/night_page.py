@@ -6,6 +6,7 @@ from itertools import combinations
 from .build import PREFIX, table, render, config
 from .presentation import election_countdown
 from .result_states import sentence, comparison
+from .result_sources import due_date
 
 RESULTS = 'https://www.electionresults.govt.nz/'
 LAW = 'https://www.legislation.govt.nz/act/public/1993/0087/latest/DLM310065.html'
@@ -135,7 +136,7 @@ def page(envs, built):
                 '<span id="night-clock" aria-live="off">Paused</span>'
                 '<span id="night-announcement" role="status" aria-live="polite" aria-atomic="true"></span></div>')
     return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + f'<p id="night-live-status" role="status">{status}</p>' + controls + f'<div id="night-snapshot" data-retrieved-at="{escape(retrieval)}" data-mode="{escape(current.get("mode", ""))}">' + selected.replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ') + '</div>'
-            + ('' if current.get('result_state') else '<p>2026: Preliminary; official results due 27 November.</p>') + links +
+            + ('' if current.get('result_state') else f'<p id="night-result-status">2026: Preliminary; official results due {due_date()}.</p>') + links +
             ''.join(f'<template id="sequence-{s["id"]}">{p}</template>' for s, p in zip(sequences, panels)) +
             f'</div><script type="module" src="{PREFIX}night.mjs"></script><script type="module" src="{PREFIX}night-live.mjs"></script>')
 

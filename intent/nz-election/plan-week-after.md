@@ -53,3 +53,10 @@ Fresh read-only verification: `python3 -B -c` invoked `require_publication_allow
 2026-11-27T00:00:00Z publication=allowed night=allowed
 ```
 Open decisions: exact preliminary-loop stop time, post-election social scope, and daily collection sunset. Resolve in increments 1 and 3 before dispatch closes.
+
+Increment 2 fix-1: official status derives from acquisition source kind and exact declared URL,
+with retrieval on or after the shared 27 November 2026 date. The official URL is inferred
+pending EC confirmation, not a confirmed endpoint. A preliminary source never becomes official
+through relabelling. The live DOM handover removes obsolete preliminary due-date copy.
+Electorate search precedes the map and hides it while filtering so the named leader fits
+within one mobile scroll; clearing the search restores the map above the table.

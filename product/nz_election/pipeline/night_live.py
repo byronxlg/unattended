@@ -15,7 +15,7 @@ import tempfile
 import time
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from product.nz_election.pipeline import export, fetch, night, xml_parser
+from product.nz_election.pipeline import export, fetch, night, xml_parser, result_sources
 from product.nz_election.pipeline.deployment_guard import END, require_publication_allowed
 
 MODE = 'Live preliminary results'
@@ -87,12 +87,17 @@ def cycle(*, acquire, now, rehearsal=False, monotonic=time.monotonic):
         if acquire(name).decode('utf-8') != raw[name]:
             raise ValueError('NIGHT_REFERENCE_CHANGED')
     refs, row = parsed(raw, rehearsal=rehearsal)
-    return dict(raw=raw, retrieved_at=stamp(now), reference_version=refs['reference_version'], result=row)
+    return dict(raw=raw, retrieved_at=stamp(now), reference_version=refs['reference_version'], result=row,
+                acquisition_source=result_sources.source('demo' if rehearsal else 'preliminary'))
 
 
 def loaded(captured, *, rehearsal=False):
     payloads, sources, hashes = night.load()
-    root = fetch.NIGHT_ROOTS[1 if rehearsal else 0]
+    # Older captures only came from the fixed preliminary/demo transport.
+    acquisition = captured.get('acquisition_source', result_sources.source('demo' if rehearsal else 'preliminary'))
+    root = result_sources.root(acquisition)
+    if (acquisition['kind'] == 'demo') != rehearsal:
+        raise ValueError('NIGHT_STATE')
     refs, result = parsed(captured['raw'], rehearsal=rehearsal)
     for path, text in captured['raw'].items():
         ident = 'actions-xml/' + path
@@ -100,9 +105,9 @@ def loaded(captured, *, rehearsal=False):
         sources.append(dict(id=ident, url=root + path, revision=digest, licence='Copyright Electoral Commission; no open licence stated.',
                             fetched_at=captured['retrieved_at'], history_url=None))
         hashes[ident] = digest
-    mode = REHEARSAL if rehearsal else MODE
+    mode = 'Official results' if acquisition['kind'] == 'official' else REHEARSAL if rehearsal else MODE
     row = dict(result, id='night/live/current', source_ref=['actions-xml/election.xml'], mode=mode,
-               packaging_label='Packaged by the site', retrieved_at=captured['retrieved_at'], raw_xml=captured['raw'], rehearsal=rehearsal)
+               packaging_label='Packaged by the site', retrieved_at=captured['retrieved_at'], raw_xml=captured['raw'], rehearsal=rehearsal, acquisition_source=acquisition)
     payloads['night/live/current'] = [row]
     payloads['night/references/live'] = [dict(refs, id='live', source_ref=['actions-xml/' + n for n in REFERENCES])]
     payloads['night/index'].append(dict(id='live', sequence_id='live', source_ref=row['source_ref'], mode=mode,
@@ -114,22 +119,25 @@ def validate_row(row, env, reference, *, official=False):
     if row.get('packaging_label') != 'Packaged by the site' or type(row.get('rehearsal')) is not bool:
         raise ValueError('NIGHT_LIVE')
     refs, result = parsed(row['raw_xml'], rehearsal=row['rehearsal'])
-    if set(row) != set(result) | {'id', 'source_ref', 'mode', 'retrieved_at', 'raw_xml', 'rehearsal', 'packaging_label'}:
+    acquisition = row.get('acquisition_source', result_sources.source('demo' if row['rehearsal'] else 'preliminary'))
+    root = result_sources.root(acquisition)
+    if ((acquisition['kind'] == 'demo') != row['rehearsal']
+            or (acquisition['kind'] == 'official') != official
+            or official and (row['mode'] != 'Official results' or not result_sources.official_date_reached(row.get('retrieved_at'))
+                             or row['source_updated_local'][:10] < result_sources.OFFICIAL_RESULTS_DATE.isoformat())):
+        raise ValueError('NIGHT_STATE')
+    if set(row) - {'acquisition_source'} != set(result) | {'id', 'source_ref', 'mode', 'retrieved_at', 'raw_xml', 'rehearsal', 'packaging_label'}:
         raise ValueError('NIGHT_LIVE')
     if any(row.get(k) != v for k, v in result.items()) or any(reference.get(k) != v for k, v in refs.items()):
         raise ValueError('NIGHT_LIVE')
     export.timestamp(row['retrieved_at'])
     sources = {s['id']: s for s in env['source']}
-    root = fetch.NIGHT_ROOTS[1 if row['rehearsal'] else 0]
     for path, text in row['raw_xml'].items():
         ident = 'actions-xml/' + path
         if (env['input_hashes'].get(ident) != export.digest(text.encode()) or sources[ident]['url'] != root + path
                 or sources[ident]['fetched_at'] != row['retrieved_at'] or sources[ident]['revision'] != export.digest(text.encode())):
-            raise ValueError('NIGHT_LIVE')
-    if official:
-        if row['mode'] != 'Official results' or row['retrieved_at'] < '2026-11-26T11:00:00Z' or row['source_updated_local'] < '2026-11-27T00:00:00':
-            raise ValueError('NIGHT_STATE')
-    elif not row['rehearsal']:
+            raise ValueError('NIGHT_STATE' if official else 'NIGHT_LIVE')
+    if not official and not row['rehearsal']:
         require_open(lambda: datetime.fromisoformat(row['retrieved_at'].replace('Z', '+00:00')))
 
 

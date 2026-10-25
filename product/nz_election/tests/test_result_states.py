@@ -138,3 +138,71 @@ time+=STALE*10; visible=false; live.invalidate(); await live.tick();
 visible=true; await live.tick(); assert.equal(calls,2);
 assert.equal(texts.at(-1),'A dated terminal result.');
 '''.replace('MODE', json.dumps(mode)))
+
+
+def test_relabelled_preliminary_is_not_official(tmp_path, live):
+    settled = prepare(tmp_path / 'settled', result_states.transition(live, 'settled', now='2026-11-08T06:00:00Z'), '2026-11-08T06:00:00Z')
+    captured = capture('preliminary')
+    captured['retrieved_at'] = '2026-11-27T10:35:00Z'
+    captured['raw'] = {k: v.replace('2026-11-07', '2026-11-27') for k, v in captured['raw'].items()}
+    captured['mode'] = 'Official results'
+    with pytest.raises(ValueError, match='^NIGHT_STATE$'):
+        result_states.transition(settled, 'official', now='2026-11-27T11:00:00Z', captured=captured)
+
+
+def test_official_source_derives_label_for_same_payload(tmp_path, live):
+    from product.nz_election.pipeline import result_sources
+    settled = prepare(tmp_path / 'settled', result_states.transition(live, 'settled', now='2026-11-08T06:00:00Z'), '2026-11-08T06:00:00Z')
+    captured = capture('preliminary')
+    captured['retrieved_at'] = '2026-11-27T10:35:00Z'
+    captured['raw'] = {k: v.replace('2026-11-07', '2026-11-27') for k, v in captured['raw'].items()}
+    captured['acquisition_source'] = result_sources.source('official')
+    captured['mode'] = 'Live preliminary results'
+    assert night_live.loaded(captured)[0]['night/live/current'][0]['mode'] == 'Official results'
+    official = prepare(tmp_path / 'official', result_states.transition(settled, 'official', now='2026-11-27T11:00:00Z', captured=captured), '2026-11-27T11:00:00Z')
+    assert official['night/live/current']['data'][0]['raw_xml'] == captured['raw']
+    assert official['night/live/current']['data'][0]['acquisition_source'] == captured['acquisition_source']
+    assert official['night/live/current']['data'][0]['preliminary_package'] == live['night/live/current']
+
+
+@pytest.mark.parametrize('bad', [None, '', {}, [], 1, 1.5, 10**100, 'official\x00',
+    {'kind': 'official', 'url': 'https://media.election.net.nz/xml/election.xml'},
+    {'kind': [], 'url': ''}, {'kind': 'official', 'url': None}])
+def test_source_contract_rejects_malformed_acquisition(live, bad):
+    from product.nz_election.pipeline import result_sources
+    captured = capture('official')
+    captured['acquisition_source'] = bad
+    with pytest.raises(ValueError, match='^NIGHT_STATE$'):
+        night_live.loaded(captured)
+    row = deepcopy(live['night/live/current']['data'][0])
+    row.update(mode='Official results', retrieved_at='2026-11-27T10:35:00Z', acquisition_source=bad)
+    with pytest.raises(ValueError, match='^NIGHT_STATE$'):
+        night_live.validate_row(row, live['night/live/current'], live['night/references/live']['data'][0], official=True)
+    with pytest.raises(ValueError, match='^NIGHT_STATE$'):
+        result_sources.root(bad)
+
+
+@pytest.mark.parametrize(('retrieved', 'accepted'), [
+    ('2026-11-26T10:59:59Z', False), ('2026-11-26T11:00:00Z', True),
+    ('2026-11-27T00:00:00+13:00', True), (None, False), ('', False),
+    (1, False), (1.5, False), (10**100, False), ('2026-11-27', False), ('official\x00', False)])
+def test_official_date_boundary(retrieved, accepted):
+    from product.nz_election.pipeline import result_sources
+    assert result_sources.official_date_reached(retrieved) is accepted
+
+
+def test_official_source_must_match_every_xml_source(live):
+    from product.nz_election.pipeline import result_sources
+    captured = capture('official')
+    payloads, sources, hashes = night_live.loaded(captured)
+    row = payloads['night/live/current'][0]
+    reference = payloads['night/references/live'][0]
+    env = dict(source=sources, input_hashes=hashes)
+    night_live.validate_row(row, env, reference, official=True)
+    detail = next(s for s in sources if s['id'] == 'actions-xml/e01/e01.xml')
+    detail['url'] = result_sources.ROOTS['preliminary'] + 'e01/e01.xml'
+    with pytest.raises(ValueError, match='^NIGHT_STATE$'):
+        night_live.validate_row(row, env, reference, official=True)
+    del row['acquisition_source']
+    with pytest.raises(ValueError, match='^NIGHT_STATE$'):
+        night_live.validate_row(row, env, reference, official=True)

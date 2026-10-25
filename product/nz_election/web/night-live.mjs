@@ -65,6 +65,9 @@ if (typeof document !== 'undefined' && [null, 'live'].includes(new URL(location.
         const query = target.querySelector('.night-search')?.value || '';
         const focused = target.querySelector('.night-search') === document.activeElement;
         target.innerHTML = pack.html;
+        if (pack.mode !== 'Live preliminary results') document.querySelector('#night-result-status')?.remove();
+        target.dataset.mode = pack.mode;
+        target.dataset.retrievedAt = pack.retrieved_at;
         const search = target.querySelector('.night-search');
         if (search) { search.value = query; search.dispatchEvent(new Event('input', {bubbles:true})); if (focused) search.focus({preventScroll:true}); }
         document.querySelector('#night-controls').hidden = true;

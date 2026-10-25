@@ -14,6 +14,7 @@ if __package__ in (None, ''):
 from product.nz_election.pipeline import export, night_live
 from product.nz_election.pipeline.deployment_guard import require_publication_allowed
 from product.nz_election.pipeline.night_seats import official_change
+from product.nz_election.pipeline.result_sources import due_date
 
 SETTLED = 'Settled preliminary results'
 OFFICIAL = 'Official results'
@@ -32,7 +33,7 @@ def sentence(row):
     if row.get('result_state') == 'settled':
         clock = datetime.fromisoformat(row['source_updated_local'])
         return (f'Preliminary results; live updates ended. Last complete count {clock.day} {clock:%B %H:%M} '
-                '(source local time); official results due 27 November.')
+                f'(source local time); official results due {due_date()}.')
     return row['mode'] + '.'
 
 
@@ -71,8 +72,14 @@ def transition(envs, state, *, now, captured=None):
     if not current or current['data'][0].get('rehearsal'):
         raise ValueError('NIGHT_BASELINE')
     row = current['data'][0]
-    if captured is not None and datetime.fromisoformat(captured['retrieved_at'].replace('Z', '+00:00')) > instant:
-        raise ValueError('NIGHT_STATE')
+    if captured is not None:
+        try:
+            export.timestamp(captured['retrieved_at'])
+            retrieved = datetime.fromisoformat(captured['retrieved_at'].replace('Z', '+00:00'))
+        except (KeyError, TypeError, ValueError, AttributeError):
+            raise ValueError('NIGHT_STATE') from None
+        if retrieved > instant:
+            raise ValueError('NIGHT_STATE')
     if state == 'settled':
         if row['mode'] != night_live.MODE:
             raise ValueError('NIGHT_STATE')
@@ -86,6 +93,8 @@ def transition(envs, state, *, now, captured=None):
         baseline = deepcopy(row['preliminary_package'])
     payloads, sources, hashes = loaded
     result = payloads['night/live/current'][0]
+    if state == 'official' and result['mode'] != OFFICIAL:
+        raise ValueError('NIGHT_STATE')
     result.update(mode=MODES[state], result_state=state, preliminary_package=baseline)
     for seq in payloads['night/index']:
         seq.pop('files', None)
