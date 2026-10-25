@@ -215,3 +215,14 @@ def test_official_clock_validation_uses_parsed_payload(bad):
     row['source_updated_local'] = bad
     with pytest.raises(ValueError, match='^NIGHT_LIVE$'):
         night_live.validate_row(row, dict(source=sources, input_hashes=hashes), payloads['night/references/live'][0], official=True)
+
+
+
+def test_current_result_navigation_has_neutral_label(live):
+    import re
+    html = page(live, '2026-11-27T11:00:00Z')
+    nav = re.search(r'<nav aria-label="Packaged results">(.*?)</nav>', html).group(1)
+    assert 'Live preliminary results' not in nav
+    assert '<a href="?sequence=live">Latest 2026 results</a>' in nav
+    for sequence in live['night/index']['data']:
+        assert f'href="?sequence={sequence["id"]}"' in nav

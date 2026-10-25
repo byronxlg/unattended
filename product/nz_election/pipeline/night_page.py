@@ -103,7 +103,7 @@ def page(envs, built):
         return f'<section class="night-page">{absent_source}</section>'
     if not sequences:
         return render('night', countdown=escape(election_countdown(built)), source=absent_source)
-    links = '<nav aria-label="Packaged results">' + ''.join(f'<a href="?sequence={s["id"]}">{escape(s["mode"])}{(' (' + escape(s["id"]) + ')') if s['id'] != 'live' else ''}</a>' for s in sequences) + '</nav>'
+    links = '<nav aria-label="Packaged results">' + ''.join(f'<a href="?sequence={s["id"]}">{escape("Latest 2026 results" if s["id"] == "live" else s["mode"])}{(' (' + escape(s["id"]) + ')') if s['id'] != 'live' else ''}</a>' for s in sequences) + '</nav>'
     panels = []
     for seq in sequences:
         refs = envs[seq['reference_path'][:-5]]['data'][0]

@@ -32,11 +32,13 @@ def main():
     live_site = out / 'live' / 'site'
     build(out / 'live-data', live_site / 'nz-election', built=initial['retrieved_at'])
     sites = []
+    handover_packs = {}
     for state, now in [('settled', '2026-11-08T06:00:00Z'), ('official', '2026-11-27T11:00:00Z')]:
         loaded = result_states.transition(envs, state, now=now, captured=capture('result-states/2026-11-27-official.json') if state == 'official' else None)
         data = out / (state + '-data')
         daily_refresh(data, loaders={'night': lambda: loaded}, now=now)
         envs = export.validate_bundle(data)
+        handover_packs[state] = live_package(envs)
         site = out / state / 'site'
         build(data, site / 'nz-election', built=now)
         sites.append((state, now, site))
@@ -96,45 +98,53 @@ def main():
         threading.Thread(target=server.serve_forever, daemon=True).start()
         origin = f'http://127.0.0.1:{server.server_port}'
         try:
-            for width, height in [(390, 844), (1280, 800)]:
-                context = browser.new_context(viewport=dict(width=width, height=height))
-                page = context.new_page()
-                page.clock.install(time=datetime(2026, 11, 27, 11, tzinfo=timezone.utc))
-                replies = [0]
-                handover = [False]
-                errors = []
-                page.on('pageerror', lambda e: errors.append(str(e)))
-                def serve(route):
-                    if route.request.url.endswith('/night-live.json'):
-                        replies[0] += 1
-                        route.fulfill(status=200 if handover[0] else 503, content_type='application/json',
-                                      body=json.dumps(live_package(envs)) if handover[0] else '{}')
-                    elif route.request.url.startswith(origin + '/'):
-                        route.continue_()
+            for state, pack in handover_packs.items():
+                for width, height in [(390, 844), (1280, 800)]:
+                    context = browser.new_context(viewport=dict(width=width, height=height))
+                    page = context.new_page()
+                    page.clock.install(time=datetime(2026, 11, 27, 11, tzinfo=timezone.utc))
+                    replies = [0]
+                    handover = [False]
+                    errors = []
+                    page.on('pageerror', lambda e: errors.append(str(e)))
+                    def serve(route):
+                        if route.request.url.endswith('/night-live.json'):
+                            replies[0] += 1
+                            route.fulfill(status=200 if handover[0] else 503, content_type='application/json',
+                                          body=json.dumps(pack) if handover[0] else '{}')
+                        elif route.request.url.startswith(origin + '/'):
+                            route.continue_()
+                        else:
+                            route.abort()
+                    context.route('**/*', serve)
+                    page.goto(origin + '/unattended/nz-election/night/')
+                    page.wait_for_load_state('networkidle')
+                    assert page.locator('#night-result-status').is_visible()
+                    assert 'official results due 27 November' in page.locator('#night-result-status').inner_text()
+                    handover[0] = True
+                    page.clock.run_for(121000)
+                    page.wait_for_function("mode => document.querySelector('#night-snapshot').dataset.mode === mode", arg=pack['mode'])
+                    assert page.locator('#night-result-status').count() == 0
+                    assert 'Live preliminary results' not in page.evaluate('document.body.innerText')
+                    nav_link = page.locator('nav[aria-label="Packaged results"] a[href="?sequence=live"]')
+                    assert nav_link.is_visible()
+                    assert nav_link.get_attribute('href') == '?sequence=live'
+                    assert page.locator('#night-live-status').inner_text() == pack['state_sentence']
+                    if state == 'official':
+                        assert 'official results due' not in page.locator('.night-page').inner_text()
+                        assert 'Change since preliminary result' in page.locator('#night-snapshot').inner_text()
                     else:
-                        route.abort()
-                context.route('**/*', serve)
-                page.goto(origin + '/unattended/nz-election/night/')
-                page.wait_for_load_state('networkidle')
-                assert page.locator('#night-result-status').is_visible()
-                assert 'official results due 27 November' in page.locator('#night-result-status').inner_text()
-                handover[0] = True
-                page.clock.run_for(121000)
-                page.wait_for_function("document.querySelector('#night-snapshot').dataset.mode === 'Official results'")
-                assert page.locator('#night-result-status').count() == 0
-                assert 'official results due' not in page.locator('.night-page').inner_text()
-                assert 'Official results' in page.locator('#night-live-status').inner_text()
-                assert 'Change since preliminary result' in page.locator('#night-snapshot').inner_text()
-                calls = replies[0]
-                page.clock.run_for(120000)
-                assert replies[0] == calls
-                assert not errors, errors
-                page.screenshot(path=str(out / f'handover-night-{width}x{height}.png'))
-                context.close()
+                        assert 'live updates ended' in page.locator('#night-live-status').inner_text()
+                    calls = replies[0]
+                    page.clock.run_for(120000)
+                    assert replies[0] == calls
+                    assert not errors, errors
+                    page.screenshot(path=str(out / f'handover-{state}-night-{width}x{height}.png'))
+                    context.close()
         finally:
             server.shutdown()
             server.server_close()
-    print('PASS result states browser: 8 images plus 4 leader/handover images; no terminal polling; DOM handover, named leader within one scroll, contrast, accessibility, overflow')
+    print('PASS result states browser: 8 images plus 6 leader/handover images; no terminal polling; DOM handover, named leader within one scroll, contrast, accessibility, overflow')
 
 
 if __name__ == '__main__':
