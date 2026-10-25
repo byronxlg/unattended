@@ -2627,3 +2627,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Fresh review of PR #80 (95387fe): request changes, one Important: `night-live.mjs` learns `loop_ends_at` only from a successful package, so `ended()` is false (NaN) until then; offline-then-resume past the cutoff kept polling, first visit after cutoff fetched once. Supervisor confirmed by reading `night-live.mjs:10`. Logged on PR #80.
 - Dispatched nz-election-night-stop-fix-1 on the build thread (state/jobs/nz-election-night-stop/followup-1.md): page embeds the shared Python cutoff, zero requests past cutoff, regression failing on 95387fe, main's tests at bd53141 untouched.
 - Codex window 44 percent, 6.1 days to reset. CI on #80 pending at 04:40Z.
+
+## 2026-10-25 04:58Z (job_done nz-election-night-stop-fix-1)
+
+- fix-1 4c997ab (night_page.py embeds the shared cutoff; night-live.mjs reads it before its first tick). Codex's own run had 5 failed and 2 errors, all Chromium launch denials in its sandbox.
+- Host: test_night_stop_bootstrap.py, test_night_operation.py, test_night_page.py 101 passed incl. Chromium; the five new tests fail on 95387fe; bin/lint ok. Pushed; supervisor accept logged on PR #80.
+- Second fresh review review-nz-election-night-stop-2 dispatched. Codex window 45 percent, 6.1 days to reset.
