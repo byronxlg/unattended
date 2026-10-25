@@ -2676,3 +2676,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Fresh review of PR #81: request changes, one Important. verify.py:434-446 checks required-family presence before bundle validation only for explicit `night --data`; with night/index.json gone but still in the manifest, `all --require night,waterfall` reports CAMPAIGN_DATA and `waterfall` reports INVALID_INVENTORY, not MISSING_NIGHT_FAMILY. Exits stay nonzero, so the gate holds; the code misleads the operator on night. Accepted, logged on the PR.
 - Dispatched nz-election-verify-required-fix-1 on the build thread (followup-1.md: invariant named, shape left to the engineer, main's tests protected by base sha, regressions shown failing on 617dd80).
 - Codex window 1.0 percent, resets in 7.0 days. PR #81 CI pending at the time of the run.
+
+## 2026-10-25 09:52Z (job_done nz-election-verify-required-fix-1)
+
+- fix-1 d2538ee (pipeline/verify.py checks required-family presence before bundle and site validation; new test_verify_missing_index.py). Codex: 313 passed across verify, night_operation, campaign_verify, night; lint ok. Host: new file 12 passed on d2538ee, 11 failed with pipeline/verify.py at 617dd80; with test_night_operation 75 passed; lint ok. Stray last.md removed before push.
+- Pushed, supervisor accept logged on PR #81; second fresh review review-nz-election-verify-required-2 dispatched (read-only).
+- One slot left idle this run: increment 3 waits on the week-after NOTE closing 12:45Z.
+- Codex window 2.0 percent, resets in 7.0 days, about 14 points per day allowed.
