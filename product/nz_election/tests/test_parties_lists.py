@@ -105,3 +105,45 @@ def test_partial_record_cannot_carry_foreign_total_source(tmp_path, monkeypatch)
     row.update(completeness='partial', list_size_source_url='https://example.com/list')
     with pytest.raises(ValueError):
         validate(tmp_path, monkeypatch, row)
+
+
+def test_partial_count_without_names_validates_then_renders(tmp_path, monkeypatch):
+    row = record()
+    row.update(completeness='partial', candidates=[])
+    rows = validate(tmp_path, monkeypatch, row)
+    html = page({}, row['retrieved_at'], {'party-list-tops': rows})
+    assert '72 list candidates' in html
+    assert '<ol>' not in html
+    assert 'Top five' not in html and 'Top of the party list' not in html
+    assert 'not available' not in html.lower()
+
+
+def test_list_count_describes_recorded_source_note(tmp_path, monkeypatch):
+    import re
+    from product.nz_election.tests.design_checks import Document, provenance
+
+    row = record()
+    rows = validate(tmp_path, monkeypatch, row)
+    html = page({}, row['retrieved_at'], {'party-list-tops': rows})
+    count = re.search(r'<p aria-describedby="([^"]+)"><strong>72 list candidates</strong></p>', html)
+    assert count is not None
+    note = re.search(r'<div class="source-note" id="' + re.escape(count[1]) + r'">(.*?)</div>', html)
+    assert note is not None
+    doc = Document(note[1])
+    assert any(tag == 'p' and attrs.get('class') == 'source-actions' for tag, attrs in doc.nodes)
+    assert any(tag == 'a' and attrs.get('href') == row['list_size_source_url'] for tag, attrs in doc.nodes)
+    assert row['licence'] in note[1]
+    assert f'<time datetime="{row["retrieved_at"]}">' in note[1]
+    assert 'Retrieved' in note[1] and '26 October 2026' in note[1]
+    provenance(html)
+
+
+@pytest.mark.parametrize('ranks,total', [([], 72), ([1, 2, 3, 4], 72),
+                                        ([1, 2, 3, 4, 4], 72),
+                                        ([1, 2, 3, 4, 6], 5)])
+def test_confirmed_rank_guards_remain_strict(tmp_path, monkeypatch, ranks, total):
+    row = record()
+    row['list_size'] = total
+    row['candidates'] = [dict(rank=r, name='Name', source_name='NAME') for r in ranks]
+    with pytest.raises(ValueError):
+        validate(tmp_path, monkeypatch, row)

@@ -490,7 +490,7 @@ def load_party_details(name):
                          'https://elections.nz/media-and-news/2026/candidate-and-party-lists-released',
                          'Invalid EC list size source')
             candidates = row.get('candidates')
-            _require(isinstance(candidates, list) and 0 < len(candidates) <= 5, 'Invalid list top')
+            _require(isinstance(candidates, list) and len(candidates) <= 5, 'Invalid list top')
             if row['completeness'] == 'confirmed':
                 _require(total is not None and len(candidates) == min(5, total),
                          'Incomplete confirmed list')
