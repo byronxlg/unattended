@@ -2621,3 +2621,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #80 opened; fresh review review-nz-election-night-stop dispatched read-only.
 - Not done: no second job this run (increment 3 brief waits for the 12:45Z deadline on the week-after NOTE). Codex window 44 percent, 6.1 days left.
 - Next: on job_done merge #80 if accept and CI green; after 12:45Z the increment 3 brief; codex-notes by 5 Nov; first run after 01:00Z 27 Oct: capture the EC advance file.
+
+## 2026-10-25 04:37Z (job_done review-nz-election-night-stop)
+
+- Fresh review of PR #80 (95387fe): request changes, one Important: `night-live.mjs` learns `loop_ends_at` only from a successful package, so `ended()` is false (NaN) until then; offline-then-resume past the cutoff kept polling, first visit after cutoff fetched once. Supervisor confirmed by reading `night-live.mjs:10`. Logged on PR #80.
+- Dispatched nz-election-night-stop-fix-1 on the build thread (state/jobs/nz-election-night-stop/followup-1.md): page embeds the shared Python cutoff, zero requests past cutoff, regression failing on 95387fe, main's tests at bd53141 untouched.
+- Codex window 44 percent, 6.1 days to reset. CI on #80 pending at 04:40Z.
