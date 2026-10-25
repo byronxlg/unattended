@@ -355,6 +355,76 @@ def test_preflight_cli_reports_missing_evidence(tmp_path, capsys):
     from product.nz_election.tools.advance_preflight import cli
     path = tmp_path / 'ambiguous.csv'
     path.write_bytes(b'Date,Total votes\n2026-10-26,10\n2026-10-27,30\n')
-    with pytest.raises(SystemExit, match='INVALID_ADVANCE: missing daily or cumulative evidence.*Total votes'):
+    with pytest.raises(SystemExit, match='^INVALID_ADVANCE: missing daily or cumulative evidence in count header$'):
         cli([str(path), '--url', 'https://elections.nz/example'])
     assert capsys.readouterr().out == ''
+
+
+@pytest.mark.parametrize('surface', ['exception', 'stderr'])
+def test_preflight_diagnostics_do_not_echo_header(tmp_path, surface):
+    from pathlib import Path
+    import subprocess
+    import sys
+    from product.nz_election.tools.advance_preflight import inspect
+    marker = 'CAPTURE_HEADER_MARKER_739'
+    raw = f'Date,Total votes {marker}\n2026-10-26,10\n2026-10-27,30\n'.encode()
+    if surface == 'exception':
+        with pytest.raises(ValueError) as caught:
+            inspect(raw, url='https://elections.nz/example')
+        diagnostic = str(caught.value)
+    else:
+        path = tmp_path / 'capture.csv'
+        path.write_bytes(raw)
+        tool = Path(__file__).resolve().parents[1] / 'tools/advance_preflight.py'
+        result = subprocess.run([sys.executable, str(tool), str(path), '--url', 'https://elections.nz/example'],
+                                capture_output=True, text=True)
+        assert result.returncode != 0 and result.stdout == ''
+        diagnostic = result.stderr
+    assert marker not in diagnostic
+    assert diagnostic.strip() == 'INVALID_ADVANCE: missing daily or cumulative evidence in count header'
+
+
+@pytest.mark.parametrize('raw', [
+    b'Date,Daily votes CAPTURE_MARKER,Daily votes CAPTURE_MARKER\n2026-10-26,10,10',
+    b'Date,Daily cumulative votes CAPTURE_MARKER\n2026-10-26,10',
+    b'Date,Daily votes\nCAPTURE_MARKER,10',
+    b'Date,Daily votes\n2026-10-26,CAPTURE_MARKER',
+    b'Date,Daily votes,Note\n2026-10-26,10,CAPTURE_MARKER"quote',
+    b'Date,Daily votes\n2026-10-26,10\nTotal,CAPTURE_MARKER"quote',
+    b'Date,Daily votes\n2026-10-26,10,CAPTURE_MARKER',
+    b'Date,Daily votes\n2026-10-26,10\nCAPTURE_MARKER',
+    b'Date,Daily votes\n2026-10-26,\xffCAPTURE_MARKER',
+    b'Date,Daily votes\n2026-10-26,"CAPTURE_MARKER',
+])
+def test_capture_validation_diagnostics_are_fixed(raw, tmp_path, capsys):
+    from product.nz_election.tools.advance_preflight import inspect, cli
+    for operation in (
+        lambda: inspect(raw, url='https://elections.nz/example'),
+        lambda: advance.parse(raw, kind='daily', start='2026-10-26', count_column='Daily votes'),
+    ):
+        with pytest.raises(ValueError) as caught:
+            operation()
+        assert str(caught.value) == 'INVALID_ADVANCE'
+    path = tmp_path / 'capture.csv'
+    path.write_bytes(raw)
+    with pytest.raises(SystemExit) as caught:
+        cli([str(path), '--url', 'https://elections.nz/example'])
+    assert str(caught.value) == 'INVALID_ADVANCE'
+    assert capsys.readouterr() == ('', '')
+
+
+def test_cli_does_not_forward_unexpected_value_error(tmp_path, monkeypatch):
+    from product.nz_election.tools import advance_preflight
+    path = tmp_path / 'capture.csv'
+    path.write_bytes(b'Date,Daily votes\n2026-10-26,10')
+    def fail(*args, **kwargs):
+        raise ValueError('INVALID_ADVANCE: missing daily or cumulative evidence CAPTURE_MARKER')
+    monkeypatch.setattr(advance_preflight, 'inspect', fail)
+    with pytest.raises(SystemExit, match='^INVALID_ADVANCE$'):
+        advance_preflight.cli([str(path), '--url', 'https://elections.nz/example'])
+
+
+def test_accepted_kind_inference_retains_header():
+    from product.nz_election.tools.advance_preflight import inspect
+    report = inspect(b'Date,Daily votes CAPTURE_MARKER\n2026-10-26,10', url='https://elections.nz/example')
+    assert report['kind_inference'] == "Inferred from explicit daily wording in count header 'Daily votes CAPTURE_MARKER'."

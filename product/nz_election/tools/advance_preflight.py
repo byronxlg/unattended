@@ -17,6 +17,7 @@ if __package__ in (None, ''):
 from product.nz_election.pipeline import advance, export
 
 START = '2026-10-26'
+MISSING_EVIDENCE = advance.ERROR + ': missing daily or cumulative evidence in count header'
 
 
 def inspect(raw, *, url, archive_url=None):
@@ -46,7 +47,7 @@ def inspect(raw, *, url, archive_url=None):
         settings = dict(year=2026, kind=kind, start=START, date_column=dates[0], count_column=column)
         rows = advance.parse_records(records, **{k: settings[k] for k in ('kind', 'start', 'date_column', 'count_column')})
         if not (daily or cumulative):
-            raise ValueError(advance.ERROR + ': missing daily or cumulative evidence in count header ' + repr(column))
+            raise ValueError(MISSING_EVIDENCE)
         observed = {r['date'] for r in rows}
         day, last = date.fromisoformat(START), date.fromisoformat(rows[-1]['date'])
         gaps = []
@@ -67,7 +68,7 @@ def inspect(raw, *, url, archive_url=None):
                     row_count=len(records), observation_count=len(rows), first_date=rows[0]['date'],
                     last_date=rows[-1]['date'], gaps=gaps, sha256=digest, manifest_entry=entry)
     except ValueError as exc:
-        if str(exc).startswith(advance.ERROR + ': missing daily or cumulative evidence'):
+        if str(exc) == MISSING_EVIDENCE:
             raise
         raise ValueError(advance.ERROR) from None
     except (TypeError, AttributeError, UnicodeError, OverflowError):
@@ -87,7 +88,7 @@ def cli(argv=None):
     except OSError:
         raise SystemExit(advance.ERROR) from None
     except ValueError as exc:
-        raise SystemExit(str(exc)) from None
+        raise SystemExit(MISSING_EVIDENCE if str(exc) == MISSING_EVIDENCE else advance.ERROR) from None
     print(json.dumps(result, indent=2))
 
 
