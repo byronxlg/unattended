@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""Bound and serialize the entire night-start subprocess, including uv startup."""
+import fcntl
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+import time
+
+
+def watchdog(state, *, command=None, timeout=60, log=print):
+    deadline = time.monotonic() + timeout
+    command = command or ['uv', 'run', 'product/nz_election/pipeline/night_start.py', '--dispatch']
+    marker = state / 'night-start-2026.dispatched'
+    with (state / 'night-start.lock').open('a') as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return
+        # Keep the marker for the entire 2026 window, even before GitHub lists the run.
+        if marker.exists():
+            return
+        child = None
+        try:
+            child = subprocess.Popen(command, start_new_session=True)
+            result = child.wait(timeout=max(0, deadline - time.monotonic()))
+            if result == 0:
+                marker.touch()
+                log('watchdog: no night-live run since opening, dispatched')
+            elif result != 1:
+                log('watchdog: night-live start failed')
+        except subprocess.TimeoutExpired:
+            log('watchdog: night-live start timed out; continuing tick')
+        except OSError:
+            log('watchdog: night-live start failed')
+        finally:
+            if child is not None:
+                # Kill the process group so a stalled uv or gh descendant cannot dispatch later.
+                try:
+                    os.killpg(child.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                child.wait()
+
+
+if __name__ == '__main__':
+    def interrupted(signum, frame):
+        raise SystemExit(128 + signum)
+    signal.signal(signal.SIGTERM, interrupted)
+    signal.signal(signal.SIGINT, interrupted)
+    watchdog(Path(sys.argv[1]), log=lambda message: print(
+        time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), message, flush=True))

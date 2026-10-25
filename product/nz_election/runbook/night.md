@@ -151,6 +151,15 @@ Predeploy this code by 5 November. Two annual cron entries request starts at **7
 06:02 and 06:07 UTC**. Independently, `bin/tick` checks from 06:10 UTC and dispatches
 once if no night-live run has been created since 06:00 UTC and none is pending.
 A failed run counts as an attempt; the watchdog does not retry it. GitHub cron may drift.
+The whole watchdog subprocess (including uv startup, eligibility and dispatch) has a 60-second
+wall-clock limit. On timeout its process group is killed, a line is logged and tick continues.
+A nonblocking OS lock at `state/night-start.lock` serializes check and dispatch across ticks;
+closing the lock releases it, including on timeout. Do not delete the lock file while ticks run.
+After a successful dispatch, `state/night-start-2026.dispatched` suppresses further watchdog
+attempts for the entire remaining 2026 live window, covering run-list visibility lag. The marker
+is intentionally retained; manual recovery uses the explicit dispatch command below.
+Failed or timed-out dispatches do not write a success marker; a later tick rechecks GitHub.
+The shared window guard is checked again immediately before invoking the dispatch command.
 For manual recovery during the live window:
 
 ```sh

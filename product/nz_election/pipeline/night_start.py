@@ -2,7 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = []
 # ///
-"""Fail-closed watchdog decision; dispatch remains in bin/tick."""
+"""Fail-closed eligibility and dispatch under the outer watchdog deadline and lock."""
 from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
@@ -24,17 +24,25 @@ def should_start(now, runs):
                    for run in runs)
 
 
-def main(now=lambda: datetime.now(timezone.utc)):
+def main(now=lambda: datetime.now(timezone.utc), *, dispatch=False):
     try:
         if not should_start(now, []):
             return 1
         runs = json.loads(subprocess.check_output([
             'gh', 'run', 'list', '--workflow', 'nz-election-night-live.yml',
             '--limit', '100', '--json', 'status,createdAt'], timeout=60))
-        return 0 if should_start(now, runs) else 1
+        if not should_start(now, runs):
+            return 1
+        if dispatch:
+            # Re-read the clock after the potentially slow run-list request, at dispatch.
+            if not should_start(now, []):
+                return 1
+            subprocess.run(['gh', 'workflow', 'run', 'nz-election-night-live.yml', '--ref', 'main'],
+                           check=True, timeout=60)
+        return 0
     except (ValueError, KeyError, TypeError, OSError, subprocess.SubprocessError):
         return 1
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(dispatch='--dispatch' in sys.argv[1:]))

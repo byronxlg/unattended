@@ -30,14 +30,9 @@ TODAY_SHORT=$(TZ=Pacific/Auckland date +%Y%m%d)
 
 # Independent of supervisor availability; the shared guard bounds the one-time night start.
 night_watchdog() {
-  if uv run product/nz_election/pipeline/night_start.py; then
-    if gh workflow run nz-election-night-live.yml --ref main >/dev/null 2>&1; then
-      log "watchdog: no night-live run since opening, dispatched"
-    else
-      log "watchdog: night-live dispatch failed"
-    fi
-  fi
+  python3 bin/night-watchdog "$STATE"
 }
+
 [ "$DRY" -eq 1 ] || night_watchdog
 
 # 1. a supervisor already running?

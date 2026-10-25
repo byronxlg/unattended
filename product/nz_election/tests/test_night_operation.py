@@ -496,8 +496,9 @@ def test_night_watchdog_query_failure_is_not_permission(monkeypatch):
 
 def test_tick_wires_watchdog_before_supervisor_skip():
     source = (ROOT / 'bin/tick').read_text()
-    assert 'uv run product/nz_election/pipeline/night_start.py' in source
-    assert 'gh workflow run nz-election-night-live.yml --ref main' in source
+    assert 'python3 bin/night-watchdog "$STATE"' in source
+    wrapper = (ROOT / 'bin/night-watchdog').read_text()
+    assert "['uv', 'run', 'product/nz_election/pipeline/night_start.py', '--dispatch']" in wrapper
     assert source.index('|| night_watchdog') < source.index('# 1. a supervisor already running?')
 
 
@@ -517,19 +518,95 @@ def test_live_loop_stops_at_close_without_chaining(monkeypatch):
     assert night_live.main(now=lambda: instant[0]) == 0
 
 
-@pytest.mark.parametrize('eligible', [0, 1])
-def test_tick_dispatch_and_log_only_when_eligible(eligible):
-    source = (ROOT / 'bin/tick').read_text()
-    function = source.split('night_watchdog() {', 1)[1].split('\n}\n', 1)[0]
-    script = '''
-uv() { return "$ELIGIBLE"; }
-gh() { printf 'dispatch: %s\\n' "$*"; }
-log() { printf '%s\\n' "$*"; }
-night_watchdog() { BODY
-}
-night_watchdog
-'''.replace('BODY', function.replace('>/dev/null 2>&1', ''))
-    result = subprocess.run(['bash', '-c', script], env={'ELIGIBLE': str(eligible)}, capture_output=True, text=True)
+def watchdog_command(state, worker, timeout=2):
+    import sys
+    code = ("import runpy; from pathlib import Path; "
+            "m = runpy.run_path('bin/night-watchdog'); "
+            f"m['watchdog'](Path({str(state)!r}), command={worker!r}, timeout={timeout!r}); "
+            "print('tick continued', flush=True)")
+    return [sys.executable, '-c', code]
+
+
+@pytest.mark.parametrize('stage', ['startup', 'eligibility', 'dispatch'])
+def test_watchdog_bounds_whole_operation(tmp_path, stage):
+    import sys
+    import time
+    # Startup models uv blocking before the worker can apply any per-command timeout.
+    code = "import subprocess, sys; subprocess.run([sys.executable, '-c', 'import time; time.sleep(30)'])"
+    if stage != 'startup':
+        code = f"""
+import time
+from datetime import datetime
+from product.nz_election.pipeline import night_start
+night_start.subprocess.check_output = lambda *a, **k: {'time.sleep(30)' if stage == 'eligibility' else "b'[]'"}
+night_start.subprocess.run = lambda *a, **k: time.sleep(30)
+night_start.main(lambda: datetime.fromisoformat('2026-11-07T06:10:00Z'), dispatch=True)
+"""
+    started = time.monotonic()
+    result = subprocess.run(watchdog_command(tmp_path, [sys.executable, '-c', code], .5),
+                            cwd=ROOT, capture_output=True, text=True, timeout=5)
+    assert time.monotonic() - started < 3
     assert result.returncode == 0
-    assert result.stdout == (('dispatch: workflow run nz-election-night-live.yml --ref main\n'
-                              'watchdog: no night-live run since opening, dispatched\n') if eligible == 0 else '')
+    assert 'timed out; continuing tick' in result.stdout
+    assert 'tick continued' in result.stdout
+    assert not (tmp_path / 'night-start-2026.dispatched').exists()
+    # A later invocation can acquire the same lock after timeout.
+    retry = subprocess.run(watchdog_command(tmp_path, [sys.executable, '-c', 'pass']),
+                           cwd=ROOT, capture_output=True, text=True, timeout=5)
+    assert 'dispatched' in retry.stdout
+
+
+def test_watchdog_serializes_and_marker_covers_visibility_lag(tmp_path):
+    import sys
+    import time
+    entered = tmp_path / 'entered'
+    calls = tmp_path / 'dispatches'
+    worker = [sys.executable, '-c', f"""
+import time
+from pathlib import Path
+from datetime import datetime
+from product.nz_election.pipeline import night_start
+
+def output(*args, **kwargs):
+    Path({str(entered)!r}).touch()
+    time.sleep(.5)
+    return b'[]'
+
+def dispatch(*args, **kwargs):
+    with Path({str(calls)!r}).open('a') as f:
+        f.write('dispatch\\n')
+
+night_start.subprocess.check_output = output
+night_start.subprocess.run = dispatch
+raise SystemExit(night_start.main(lambda: datetime.fromisoformat('2026-11-07T06:10:00Z'), dispatch=True))
+"""]
+    command = watchdog_command(tmp_path, worker)
+    first = subprocess.Popen(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    try:
+        deadline = time.monotonic() + 3
+        while not entered.exists() and time.monotonic() < deadline:
+            time.sleep(.01)
+        assert entered.exists()
+        second = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=3)
+        assert second.returncode == 0 and 'dispatched' not in second.stdout
+        stdout, stderr = first.communicate(timeout=3)
+        assert first.returncode == 0, stderr
+        assert 'dispatched' in stdout
+        # GitHub still returns [], but the durable marker blocks a sequential retry too.
+        third = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=3)
+        assert third.returncode == 0 and 'dispatched' not in third.stdout
+        assert calls.read_text() == 'dispatch\n'
+        assert (tmp_path / 'night-start-2026.dispatched').exists()
+    finally:
+        if first.poll() is None:
+            first.kill()
+        first.wait()
+
+
+def test_watchdog_rechecks_close_immediately_before_dispatch(monkeypatch):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    instants = iter(['2026-11-08T05:59:59Z', '2026-11-08T05:59:59Z', '2026-11-08T06:00:00Z'])
+    monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: b'[]')
+    monkeypatch.setattr(night_start.subprocess, 'run', lambda *a, **k: pytest.fail('dispatched after close'))
+    assert night_start.main(lambda: datetime.fromisoformat(next(instants)), dispatch=True) == 1
