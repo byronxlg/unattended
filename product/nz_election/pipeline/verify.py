@@ -419,6 +419,8 @@ def verify_waterfall(envs, root, *, data=None):
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets', 'advance', 'night', 'waterfall', 'campaign'])
+    parser.add_argument('--require-year', type=int, metavar='YEAR',
+                        help='require a valid registered advance capture for this year')
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
     parser.add_argument('--require', default=None, metavar='NAME[,NAME]',
@@ -428,6 +430,12 @@ def parse_args(argv=None):
 
 def main(args=None):
     args = parse_args() if args is None else args
+    if getattr(args, 'require_year', None) is not None:
+        from product.nz_election.pipeline import advance
+        if args.check not in {'advance', 'all'}:
+            raise ValueError('INVALID_REQUIRED_CHECK')
+        if advance.load(year=args.require_year) is None:
+            raise ValueError('MISSING_ADVANCE_CAPTURE')
     site_data = None
     if args.site:
         product = args.site / 'nz-election' if (args.site / 'nz-election').is_dir() else args.site
