@@ -2690,3 +2690,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Dispatched nz-election-verify-required-fix-2 on the build thread (invariant: every supplied location checked before validation; main's tests at 7ecf80a protected; regression fails on d2538ee).
 - Lesson: the fix-1 brief named the --data/--site manifest case but not the both-flags case; the second round costs as much as the first.
 - Codex window 2.0 percent, resets in 7.0 days. PR #81 CI pending.
+
+## 2026-10-25 10:15Z (job_done nz-election-verify-required-fix-2)
+
+- fix-2 0c61278 (verify.py checks required-family presence in every supplied location, --data and --site together; eight combined-flag regressions). Host: test_verify_missing_index.py 20 passed; with pipeline/verify.py at d2538ee 8 failed, 12 passed; test_night_operation.py 63 passed; lint ok. Stray last.md removed before push.
+- Pushed, supervisor accept logged on PR #81; third fresh review review-nz-election-verify-required-3 dispatched (read-only).
+- Second slot idle: increment 3 waits on the week-after NOTE closing 12:45Z.
+- Codex window 2.0 percent, resets in 7.0 days.
