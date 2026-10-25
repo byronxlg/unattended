@@ -2924,3 +2924,21 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - nz-election-parties-captions rebased onto main (3b513a4, one commit). The moved assertion in test_parties_refine.py changes the caption format only (sentences instead of ' / '), still exact on visible parts; build round, not a fix job. Host `pytest -k parties` 79 passed, lint ok. PR #89 opened, supervisor accept, fresh review review-nz-election-parties-captions dispatched.
 - Second slot: research-nz-election-readiness-3 (read-only gap audit, weighted to the 3 Nov rehearsal and 4 Nov harden gate). Brief error: its "since" line still names #83 and #86 as in review (sed anchor missed); both are merged, harmless.
 - No judgement calls this run. Codex window 30 percent, 6.5 days to reset.
+
+## 2026-10-25 21:07Z run (job_done research-readiness-3, review-parties-captions)
+
+- PR #89 parties-captions: fresh review request changes, one Important (pass 4, no 390/1280 captures; Codex sandbox has
+  no Chromium); probes found no functional defect, 0 orphan nodes on head vs 20 on main. Supervisor built 3b513a4 on
+  origin/data (PASS build: 81 routes) and captured parties/ at 390 and 1280. First capture showed the old orphan
+  punctuation: port 8791 was a stale 24 Oct server (cwd /tmp/polls-r1/www), the same mistake as 24 Oct; discarded,
+  re-served from /tmp/pc/srv on 8817 (cwd checked with lsof) and the captions read correctly. Question test passes
+  (polling, leader, governing partners, Policy.nz above the 390 fold). Accept logged on the PR; CI pending, merge on green.
+- Readiness-3 (read-only audit of main 6366d90): ranked (1) deployed rehearsal contract incomplete (probe has no detail
+  file, rehearsal asserts no exports/source links/waterfall, illustrative replay has zero leader changes, reference
+  retention only a 503), (2) publication/recovery path never rehearsed end to end (Actions rehearsal bypasses publish,
+  deploy recovery and successor chaining), (3) advance adapter only if the real EC file needs it. Supervisor tasks: EC
+  advance capture from the first file, 4 Nov gate on pinned release artifacts with --require night,waterfall,
+  runbook/updates.md still names a Codex review (fix for Claude-only), codex-notes handover by 5 Nov.
+- Budget: window 32 percent, 31 points spent since the 07:04Z window-day start against about 10 per day; no build
+  dispatched this run. Briefs written for (1) nz-election-rehearsal-contract and (2) nz-election-publish-rehearsal,
+  worktrees created from origin/main; dispatch both on the first run after 07:05Z 26 Oct.
