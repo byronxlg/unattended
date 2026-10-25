@@ -48,6 +48,7 @@ def test_reconciled_display_names_ranks_order_and_only_explicit_incumbents():
 
 def test_policy_link_only_when_present(monkeypatch):
     original = snapshot_views.load
+    monkeypatch.setattr(snapshot_views, 'load', lambda n: [] if n == 'policy-links' else original(n))
     assert 'electorate-policy' not in detail(seat(), {})
     monkeypatch.setattr(snapshot_views, 'load', lambda n: [{'electorate_slug': 'wellington-north', 'url': 'https://policy.nz/2026/electorate-vote/wellington-north'}] if n == 'policy-links' else original(n))
     html = detail(seat(), {})
