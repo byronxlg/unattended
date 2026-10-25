@@ -597,7 +597,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
         shutil.copyfile(PRODUCT / 'web/night.mjs', stage / 'night.mjs')
         shutil.copyfile(PRODUCT / 'web/night-live.mjs', stage / 'night-live.mjs')
         from product.nz_election.pipeline.night_page import live_package
-        (stage / 'night-live.json').write_text(json.dumps(live_package(envs)))
+        (stage / 'night-live.json').write_text(json.dumps(live_package(envs, now=datetime.fromisoformat(built))))
         shutil.copyfile(PRODUCT / 'web/night-parser.mjs', stage / 'night-parser.mjs')
         shutil.copyfile(PRODUCT / 'web/electorate.css', stage / 'electorate.css')
         shutil.copyfile(PRODUCT / 'web/styles.css', stage / 'styles.css')

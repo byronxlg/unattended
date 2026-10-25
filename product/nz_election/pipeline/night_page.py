@@ -141,17 +141,20 @@ def page(envs, built):
             f'</div><script type="module" src="{PREFIX}night.mjs"></script><script type="module" src="{PREFIX}night-live.mjs"></script>')
 
 
-def live_package(envs):
+def live_package(envs, *, now=None):
     """Render only validated local rows; source XML never supplies markup."""
+    from datetime import datetime, timezone
+    from product.nz_election.pipeline.night_live import CLOSE, stamp
+    stop = dict(loop_ends_at=stamp(lambda: CLOSE), loop_ended=(now or datetime.now(timezone.utc)) >= CLOSE)
     sequences = envs.get('night/index', {}).get('data', [])
     seq = next((s for s in sequences if s['id'] == 'live'), None)
     if seq is None:
-        return dict(available=False)
+        return dict(available=False, **stop)
     path = seq['snapshot_paths'][0]
     env = envs[path[:-5]]
     row = env['data'][0]
     refs = envs[seq['reference_path'][:-5]]['data'][0]
-    return dict(available=True, retrieved_at=row['retrieved_at'], reference_version=row['reference_version'],
+    return dict(available=True, **stop, retrieved_at=row['retrieved_at'], reference_version=row['reference_version'],
                 mode=row['mode'], state_sentence=sentence(row) + (' Offline verification: synthetic data.' if env.get('run_url') == 'offline-verification' else ''), html=snapshot(row, refs, 'live-current', path),
                 provenance=dict(label='Packaged by the site', sources=env['source'], code_sha=env['code_sha'],
                                 run_url=env['run_url'], retrieved_at=row['retrieved_at']),

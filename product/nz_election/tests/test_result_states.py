@@ -61,7 +61,8 @@ def test_live_settled_official_and_pinned_baseline(tmp_path, live):
 
 
 def test_absent_feed_cannot_be_settled():
-    assert live_package({}) == {'available': False}
+    assert live_package({}, now=night_live.CLOSE) == dict(
+        available=False, loop_ended=True, loop_ends_at=night_live.stamp(lambda: night_live.CLOSE))
     with pytest.raises(ValueError, match='NIGHT_BASELINE'):
         result_states.transition({}, 'settled', now='2026-11-08T06:00:00Z')
 
