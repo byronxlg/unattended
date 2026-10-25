@@ -2766,3 +2766,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Judgement (single changes, reversible, no line to Byron): dispatch (1) and (3) now as disjoint pipeline builds off origin/main, since neither touches #82's files; hold (2) until #82 merges because both edit runbook/night.md and result_states.py; (4) after (2), with real electorate destinations only.
 - Dispatched nz-election-harden-gate (.worktrees/nz-election-harden-gate) and nz-election-advance-preflight (.worktrees/nz-election-advance-preflight, new runbook/advance.md, no page change).
 - Codex window 10 percent used, resets in 6.7 days, allowance about 13 points per day.
+
+## 2026-10-25 15:30Z run (job_done nz-election-harden-gate)
+
+- nz-election-harden-gate d891756 host-verified: test_harden.py 120 passed; the same tests against base dc57e78 tools 21 failed, 99 passed (the new regressions); evals/pages-verify-polls-only PASS all; bin/lint ok. Stray last.md removed from the worktree before push.
+- PR #83 opened (https://github.com/byronxlg/unattended/pull/83), supervisor accept logged, fresh review review-nz-election-harden-gate dispatched read-only (cron edge cases, guard exemptions, release mode reachability).
+- PR #82 CI run 40205439858 still in progress at 15:35Z (started 15:07Z); not merged this run.
+- nz-election-advance-preflight still running. Codex window 11 percent used, resets in 6.7 days.
