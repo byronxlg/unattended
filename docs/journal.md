@@ -2683,3 +2683,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Pushed, supervisor accept logged on PR #81; second fresh review review-nz-election-verify-required-2 dispatched (read-only).
 - One slot left idle this run: increment 3 waits on the week-after NOTE closing 12:45Z.
 - Codex window 2.0 percent, resets in 7.0 days, about 14 points per day allowed.
+
+## 2026-10-25 10:04Z (job_done review-nz-election-verify-required-2)
+
+- Second fresh review of PR #81: request changes, one Important. With both `--data` and `--site`, the presence check covers only `--data`; a site manifest listing a missing night/index.json gives CAMPAIGN_DATA, not MISSING_NIGHT_FAMILY. Confirmed by reading verify.py:432-440 (night_data takes --data when given). Logged on the PR.
+- Dispatched nz-election-verify-required-fix-2 on the build thread (invariant: every supplied location checked before validation; main's tests at 7ecf80a protected; regression fails on d2538ee).
+- Lesson: the fix-1 brief named the --data/--site manifest case but not the both-flags case; the second round costs as much as the first.
+- Codex window 2.0 percent, resets in 7.0 days. PR #81 CI pending.
