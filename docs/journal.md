@@ -2642,3 +2642,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - What went wrong: my 04:58Z host verification ran the night tests but not test_result_states, which also drives night/. Next host verify of a night change runs both files.
 - Dispatched nz-election-night-stop-fix-2 on the build thread (state/jobs/nz-election-night-stop/followup-2.md): only the handover block of result_states_browser.py moves; in-place handover still proven before the cutoff; past it zero requests and no page errors.
 - Codex window 46 percent, 6.1 days to reset.
+
+## 2026-10-25 05:46Z
+
+- job_done nz-election-night-stop-fix-2: 866aad3 changes only the handover block of result_states_browser.py (27 insertions, 12 deletions). Codex sandbox could not launch Chromium.
+- Host verify on 866aad3, both night test files this time as promised at 05:17Z: test_result_states.py, test_night_stop_bootstrap.py, test_night_operation.py, test_night_page.py 144 passed incl. Chromium (545 s); bin/lint ok.
+- Pushed, supervisor accept logged on PR #80, third fresh review review-nz-election-night-stop-3 dispatched read-only.
+- Codex window 46 percent, 6.1 days to reset.
