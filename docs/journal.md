@@ -2573,3 +2573,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #78 CI red on ed64b0d: one failure, test_harden.py::test_workflow_discovery pinned the scheduled set at three; the PR adds NZ election night live. Supervisor commit a294b57 moves the exact set to four (contract moves with the registered set, nothing weakened; host test_harden.py 83 passed), pushed, disclosed on the PR, CI rerunning. Missed in fix rounds: no host run of the whole suite before the third review (what went wrong).
 - nz-election-results-states 109e2b6 (stacked on dcf30ad): Codex 2414 passed, 7 browser failures from the sandbox (Chromium launch denied), PASS night, PASS waterfall, lint ok. Host: result_states_browser.py PASS 8 images (no terminal polling, search, contrast, axe, overflow); browser test files 148 passed. Looked at official night 390 (state band, seats and majority above the fold) and settled home 1280 (seat answer, preliminary label, official due 27 November). Nit: night official repeats the update time in two lines. Not pushed yet: rebase onto main after #78 merges, then PR and fresh review.
 - Codex window 36 percent, 6.3 days to reset.
+
+## 2026-10-25 02:00Z run (idle)
+
+- PR #78 night-start: CI green on a294b57, squash merged as c2ce1fc, worktree removed (only a stray last.md, copied in state/jobs).
+- results-states rebased onto c2ce1fc (`git rebase --onto origin/main dcf30ad`, one commit, 739f880, no conflicts); lint ok; whole host suite running before push (lesson from #78).
+- Dispatched nz-election-night-stop (plan-week-after increment 1, bounded stop) in .worktrees/nz-election-night-stop, stacked on change/nz-election-results-states. Judgement: dispatched before the 12:45Z NOTE deadline with the proposed stop 8 Nov 06:00Z as one named constant, so a reply from Byron is a one-line change; rejected waiting until 12:45Z (idle slot, issue #43). Brief state/jobs/nz-election-night-stop/prompt.md.
+- Codex window 36 percent, 6.2 days to reset. No Byron messages this run.
+- 02:3xZ: host whole suite on 739f880 2507 passed (19 min); pushed, PR #79 opened (results-states), supervisor accept logged, fresh review review-nz-election-results-states dispatched.
