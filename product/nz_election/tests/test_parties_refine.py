@@ -51,5 +51,5 @@ def test_rendered_party_credits_join_only_visible_parts(empty_fields):
         assert not re.search(r'(?:^|\s)/\s*(?:$|\.)|^\s*/', text)
         photo = leader.get('photo')
         if photo:
-            attribution = ' / '.join(photo[k] for k in ('author', 'licence') if photo[k])
-            assert text == '. '.join(part for part in (attribution, photo['changes']) if part)
+            attribution = ' '.join(photo[k].rstrip('.') + '.' for k in ('author', 'licence') if photo[k])
+            assert text.strip() == ' '.join(part for part in (attribution, photo['changes']) if part)
