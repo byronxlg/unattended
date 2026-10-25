@@ -62,9 +62,9 @@ def polling(p, averages):
             f'<path d="{path}" fill="none" stroke="{colour(p)}" stroke-width="3.5" vector-effect="non-scaling-stroke"/>'
             f'<circle cx="270" cy="{py:.1f}" r="3" fill="{colour(p)}"/>'
             f'</svg><span class="spark-end" style="top:{py-8:.1f}px">{value}</span><span class="spark-rule" style="top:{y(Decimal(5))-18:.1f}px">5%</span></figure>'
-            f'<div class="source-note" id="{source}"><p class="source-actions">{observation_label(first)} to {observation_label(latest["date"])}. '
-            f'<a href="{PREFIX}methods/#home-trend">Poll inputs and method</a>. CC BY-SA 4.0. '
-            '5% qualifies for list seats; an electorate win can also qualify.</p></div></div>')
+            f'<div class="source-note" id="{source}"><p class="source-actions"><span>{observation_label(first)} to {observation_label(latest["date"])}.</span> '
+            f'<a href="{PREFIX}methods/#home-trend">Poll inputs and method.</a> <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0.</a> '
+            '<span>5% qualifies for list seats; an electorate win can also qualify.</span></p></div></div>')
 
 
 def largest_donors(rows):
@@ -99,10 +99,12 @@ def page(envs, built, facts=None):
             content += '<figcaption>' + escape(leader['name']) + '<small>' + escape(leader['role']) + '</small></figcaption></figure>'
             content += f'<div class="source-note party-credit" id="{identity}"><p class="source-actions">'
             if photo:
-                attribution = ' / '.join(link(url, text) for url, text in (
+                attribution = ' '.join(link(url, text.rstrip('.') + '.') for url, text in (
                     (photo['source_url'], photo['author']),
                     (photo['licence_url'], photo['licence'])) if text)
-                content += '. '.join(part for part in (attribution, escape(photo['changes'])) if part)
+                content += attribution
+                if photo['changes']:
+                    content += ' <span>' + escape(photo['changes']) + '</span>'
             else:
                 content += link(leader['source_url'], 'Leader record')
             content += '</p></div>'
@@ -142,5 +144,5 @@ def page(envs, built, facts=None):
             content += '</ul><p class="source-actions">' + link(donations[0]['source_url'], 'EC returns') + '</p><p class="party-credit">As listed by the EC, including returns whose documents have not been independently checked. Largest donors grouped by exact EC name. Return totals may combine donations; not total party funding. Copyright Electoral Commission.</p></div>'
         content += '</div></section>'
     if any(env.get('run_url') == 'offline-verification' for env in envs.values()):
-        content = content.replace('Poll inputs and method</a>.', 'Poll inputs and method</a>. Offline verification, not live data.')
+        content = content.replace('Poll inputs and method.</a>', 'Poll inputs and method.</a> <span>Offline verification, not live data.</span>')
     return content + '</div>'
