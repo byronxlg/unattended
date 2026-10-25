@@ -2697,3 +2697,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Pushed, supervisor accept logged on PR #81; third fresh review review-nz-election-verify-required-3 dispatched (read-only).
 - Second slot idle: increment 3 waits on the week-after NOTE closing 12:45Z.
 - Codex window 2.0 percent, resets in 7.0 days.
+
+## 2026-10-25 10:27Z run (job_done review-nz-election-verify-required-3)
+
+- Third fresh review of PR #81 (review-nz-election-verify-required-3, 77 s): accept, no Critical, Important or Nit; read-only probes: 108 required preflight cases yield MISSING_NIGHT_FAMILY, optional aggregate SKIP exit 0, CLI absent-dir exit 1. Logged on the PR.
+- CI run 40184089016 success at 10:45Z; PR #81 squash merged as fd885f4; .worktrees/nz-election-verify-required removed.
+- No job running after the merge. Increment 3 (post-election schedules) waits for the week-after NOTE deadline 12:45Z; nothing else in plan-week-after is dispatchable before it (increments 4 and 5 are supervisor work on 6-7 Nov). next-run-after set to 12:46Z.
+- Codex window 2.0 percent used, resets in 7.0 days; disk 21.6 GiB free.
