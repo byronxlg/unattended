@@ -4,8 +4,13 @@ import ast
 from pathlib import Path
 import re
 import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[3]
+if __package__ in (None, ''):
+    sys.path.insert(0, str(ROOT))
+from product.nz_election.pipeline.verify import OPTIONAL_CHECKS
+
 NETWORK_EVALS = {'pages-home-bytes-live': 'fetches the remote data branch'}
 
 
@@ -20,16 +25,19 @@ def verifier_families(path):
     raise ValueError('cannot discover verifier families')
 
 
-def verification_error(output, families):
+def verification_error(output, families, optional=()):
     lines = output.splitlines()
     if not lines or lines[-1] != 'PASS all' or lines.count('PASS all') != 1:
         return 'missing final PASS all'
+    # Only the verifier's explicit absent-family result can replace a PASS.
+    skipped = {f'SKIP {name}: family absent (night/index.json)' for name in optional}
+    lines = ['PASS ' + line.split()[1].rstrip(':') if line in skipped else line for line in lines]
     passed = [re.fullmatch(r'PASS ([\w-]+)(?:: .*)?', line) for line in lines[:-1]]
     names = [m[1] for m in passed if m]
     missing = [name for name in families if names.count(name) != 1]
     if missing:
         return 'missing or duplicate family lines: ' + ', '.join(missing)
-    if any(line.startswith(('FAIL', 'SKIP')) for line in lines):
+    if result_error('\n'.join(lines)):
         return 'verifier reported FAIL or SKIP'
     return None
 
@@ -46,6 +54,8 @@ def main(argv=None, *, runner=subprocess.run, root=ROOT):
     parser.add_argument('--data', required=True, type=Path)
     parser.add_argument('--site', required=True, type=Path)
     parser.add_argument('--offline', action='store_true')
+    parser.add_argument('--require', metavar='NAME[,NAME]',
+                        help='forward required checks to verify all; election-night acceptance uses night,waterfall')
     parser.add_argument('--history', action='store_true', help='required for PASS; otherwise a clean run is PARTIAL (exit 1)')
     args = parser.parse_args(argv)
     first = None
@@ -61,7 +71,7 @@ def main(argv=None, *, runner=subprocess.run, root=ROOT):
             result = runner(command, cwd=root, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             output = result.stdout or ''
             print(output, end='' if output.endswith('\n') else '\n', flush=True)
-            error = f'exit {result.returncode}' if result.returncode else result_error(output) or (validate(output) if validate else None)
+            error = f'exit {result.returncode}' if result.returncode else (validate(output) if validate else result_error(output))
             if error:
                 fail(step, error)
             else:
@@ -76,21 +86,35 @@ def main(argv=None, *, runner=subprocess.run, root=ROOT):
     evals = [p / 'check.sh' for p in directories if (p / 'check.sh').is_file()]
     if not evals:
         fail('eval discovery', 'no check.sh files')
+    verifier = root / 'product/nz_election/pipeline/verify.py'
     for check in evals:
         step = 'eval ' + check.parent.name
         if args.offline and check.parent.name in NETWORK_EVALS:
             print(f'SKIP {step}: --offline; {NETWORK_EVALS[check.parent.name]}', flush=True)
             first = first or step + ' (SKIP)'
         else:
-            run(step, ['bash', str(check)])
-    verifier = root / 'product/nz_election/pipeline/verify.py'
+            # This eval deliberately builds a pre-night fixture, even when the
+            # supplied release bundle must contain night data.
+            validate = None
+            if check.parent.name == 'pages-verify-polls-only':
+                validate = lambda out: (verification_error(out, verifier_families(verifier), OPTIONAL_CHECKS)
+                                        if result_error(out) else None)
+            run(step, ['bash', str(check)], validate)
     try:
         families = verifier_families(verifier)
     except (OSError, ValueError, SyntaxError) as exc:
         fail('verify all', str(exc))
     else:
-        run('verify all', ['uv', 'run', str(verifier), 'all', '--data', str(args.data.resolve()),
-                           '--site', str(args.site.resolve())], lambda out: verification_error(out, families))
+        required = set(args.require.split(',')) if args.require is not None else set()
+        if not required <= set(families):
+            fail('verify all', 'INVALID_REQUIRED_CHECK')
+        else:
+            command = ['uv', 'run', str(verifier), 'all', '--data', str(args.data.resolve()),
+                       '--site', str(args.site.resolve())]
+            if args.require is not None:
+                command += ['--require', args.require]
+            run('verify all', command,
+                lambda out: verification_error(out, families, OPTIONAL_CHECKS - required))
     tests = root / 'product/nz_election/tests'
     run('freeze tests', ['uv', 'run', '--with', 'pytest', 'pytest', '-q',
                         *[str(tests / name) for name in ('test_social.py', 'test_social_fix_round1.py', 'test_night_operation.py')]])

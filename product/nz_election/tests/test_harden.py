@@ -330,3 +330,171 @@ def test_hourly_gap_crosses_empty_day(workflows, capsys):
                         now=NOW, root=hourly_root(workflows)) == 1
     out = capsys.readouterr().out
     assert out.count('success gap 27 hours exceeds 3 hours') == 3
+
+
+@pytest.mark.parametrize('missing,passes', [(False, True), (True, False)])
+def test_annual_history_only_requires_firing_days(workflows, capsys, missing, passes):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        'name: Annual\non:\n  schedule:\n    - cron: "2 6 7 11 *"\n')
+    records = [] if missing else [run_record('2026-11-07T06:02:00Z')]
+    assert history.main(['--days', '3'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 9, tzinfo=timezone.utc), root=workflows) == int(not passes)
+    out = capsys.readouterr().out
+    assert 'PASS Annual 2026-11-06: not scheduled' in out
+    if missing:
+        assert 'FAIL Annual 2026-11-07: 0 runs, 0 successes, 0 failures, 0 recovered; cron did not fire; no runs' in out
+
+
+def test_pre_night_annual_history_needs_no_runs(workflows, capsys):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        'name: Annual\non:\n  schedule:\n    - cron: "2 6 7 11 *"\n')
+
+    def runner(*args, **kwargs):
+        pytest.fail('inactive schedule must not query history')
+
+    assert history.main(['--days', '3'], runner=runner,
+                        now=datetime(2026, 11, 4, tzinfo=timezone.utc), root=workflows) == 0
+
+
+def test_daily_history_missing_middle_day(workflows, capsys):
+    records = [run_record('2026-10-22T00:00:00Z'), run_record('2026-10-24T00:00:00Z')]
+    assert history.main(['--days', '3'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=NOW, root=workflows) == 1
+    assert 'FAIL Example schedule 2026-10-23: 0 runs, 0 successes, 0 failures, 0 recovered; cron did not fire; no runs' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('required,passes', [(None, True), ('night,waterfall', False)])
+def test_harden_optional_night_context(gate_root, capsys, required, passes):
+    output = VERIFIED.replace('PASS night', 'SKIP night: family absent (night/index.json)').replace(
+        'PASS waterfall', 'SKIP waterfall: family absent (night/index.json)')
+    calls = []
+
+    def runner(cmd, **kwargs):
+        calls.append(cmd)
+        return result(output if 'all' in cmd else 'PASS step\n')
+
+    args = ['--history', '--data', 'd', '--site', 's']
+    if required:
+        args += ['--require', required]
+    assert harden.main(args, runner=runner, root=gate_root) == int(not passes)
+    command = next(cmd for cmd in calls if 'all' in cmd)
+    if required:
+        assert command[-2:] == ['--require', required]
+    assert ('PASS harden' if passes else 'FAIL harden: verify all') in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('line', ['SKIP polls: family absent (night/index.json)',
+                                  'SKIP night: unavailable', '  SKIP night: family absent (night/index.json)',
+                                  'FAIL night: broken'])
+def test_optional_context_rejects_other_omissions(gate_root, line):
+    output = VERIFIED.replace('PASS ' + ('polls' if 'polls' in line else 'night'), line)
+    assert harden.main(['--history', '--data', 'd', '--site', 's'], root=gate_root,
+                       runner=lambda cmd, **k: result(output if 'all' in cmd else 'PASS step')) == 1
+
+
+@pytest.mark.parametrize('required', ['', 'null', '1', '1.5', '999999999999999999999', '三', 'night,unknown'])
+def test_harden_invalid_required_checks(gate_root, required, capsys):
+    assert harden.main(['--history', '--data', 'd', '--site', 's', '--require', required],
+                       runner=green_runner, root=gate_root) == 1
+    assert 'INVALID_REQUIRED_CHECK' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('cron,expected', [
+    ('2 23 7 11 *', ['2026-11-07T23:02:00+00:00']),
+    ('2 6 7 11 *', []),
+    ('0 12-14/2 * NOV SUN', ['2026-11-08T12:00:00+00:00', '2026-11-08T14:00:00+00:00']),
+    ('0 12 7,8 NOV MON', ['2026-11-07T12:00:00+00:00', '2026-11-08T12:00:00+00:00']),
+])
+def test_cron_utc_dates_ranges_steps_and_weekdays(cron, expected):
+    schedules = history.workflow_schedule(f'    - cron: "{cron}"\n')
+    start = datetime(2026, 11, 7, 11, tzinfo=timezone.utc)
+    end = datetime(2026, 11, 8, 15, tzinfo=timezone.utc)
+    assert [s.isoformat() for s in history.scheduled_times(schedules, start, end)] == expected
+
+
+@pytest.mark.parametrize('cron', ['', '* * * *', '60 * * * *', '0 */0 * * *',
+                                  '0 99999999999999 * * *', 'null', '0 1.5 * * *', '0 三 * * *'])
+def test_invalid_cron_fails_closed(workflows, cron, capsys):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        f'name: Invalid\non:\n  schedule:\n    - cron: "{cron}"\n')
+    assert history.main(['--days', '1'], runner=green_runner, now=NOW, root=workflows) == 1
+    assert 'FAIL workflow history:' in capsys.readouterr().out
+
+
+def test_dated_hourly_cron_has_no_gap_outside_utc_date(workflows):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        'name: Dated hourly\non:\n  schedule:\n    - cron: "17 */1 7 NOV *"\n')
+    records = [run_record(f'2026-11-07T{hour:02}:17:00Z') for hour in range(24)]
+    assert history.main(['--days', '3'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 9, tzinfo=timezone.utc), root=workflows) == 0
+
+
+@pytest.mark.parametrize('hourly', [False, True])
+def test_declared_freeze_guard_bounds_expected_history(workflows, hourly):
+    cron = '17 * * * *' if hourly else '43 15 * * *'
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        f'name: Guarded\non:\n  schedule:\n    - cron: "{cron}"\n'
+        'jobs:\n  refresh:\n    steps:\n'
+        '      - run: python3 product/nz_election/pipeline/deployment_guard.py\n')
+    start = datetime(2026, 11, 5, 11, tzinfo=timezone.utc)
+    records = [run_record((start + timedelta(hours=hour, minutes=17)).isoformat())
+               for hour in range(72) if not 24 <= hour < 43]
+    # The last pre-freeze success is 13 minutes before the guard closes.
+    assert history.main(['--days', '3'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 9, tzinfo=timezone.utc), root=workflows) == 0
+
+
+def test_night_entry_point_guard_excludes_future_annual_firing(workflows):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        'name: Closed night\non:\n  schedule:\n    - cron: "2 6 7 11 *"\n'
+        'jobs:\n  live:\n    steps:\n'
+        '      - run: uv run product/nz_election/pipeline/night_live.py\n')
+
+    def runner(*args, **kwargs):
+        pytest.fail('closed night window must not query history')
+
+    assert history.main(['--days', '3'], runner=runner,
+                        now=datetime(2027, 11, 9, tzinfo=timezone.utc), root=workflows) == 0
+
+
+def test_repository_healthy_pre_night_history():
+    def runner(cmd, **kwargs):
+        start, end = map(datetime.fromisoformat, cmd[cmd.index('--created') + 1].split('..'))
+        records = [run_record((start + timedelta(hours=h, minutes=17)).isoformat())
+                   for h in range(int((end - start).total_seconds() / 3600))]
+        return result(json.dumps(records))
+
+    assert history.main(['--days', '3'], runner=runner,
+                        now=datetime(2026, 11, 4, tzinfo=timezone.utc)) == 0
+
+
+@pytest.mark.parametrize('release', [False, True])
+def test_polls_only_eval_expected_omission_in_both_contexts(gate_root, release):
+    directory = gate_root / 'evals/pages-verify-polls-only'
+    directory.mkdir()
+    (directory / 'check.sh').write_text('#!/bin/sh\n')
+    output = VERIFIED.replace('PASS night', 'SKIP night: family absent (night/index.json)').replace(
+        'PASS waterfall', 'SKIP waterfall: family absent (night/index.json)')
+
+    def runner(cmd, **kwargs):
+        if cmd[0] == 'bash' and Path(cmd[1]).parent == directory:
+            return result(output)
+        return green_runner(cmd, **kwargs)
+
+    args = ['--history', '--data', 'd', '--site', 's']
+    if release:
+        args += ['--require', 'night,waterfall']
+    assert harden.main(args, runner=runner, root=gate_root) == 0
+
+
+def test_polls_only_eval_skip_cannot_hide_incomplete_verification(gate_root):
+    directory = gate_root / 'evals/pages-verify-polls-only'
+    directory.mkdir()
+    (directory / 'check.sh').write_text('#!/bin/sh\n')
+
+    def runner(cmd, **kwargs):
+        if cmd[0] == 'bash' and Path(cmd[1]).parent == directory:
+            return result('SKIP night: family absent (night/index.json)\nPASS all\n')
+        return green_runner(cmd, **kwargs)
+
+    assert harden.main(['--history', '--data', 'd', '--site', 's'], runner=runner, root=gate_root) == 1

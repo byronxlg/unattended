@@ -22,6 +22,8 @@ from product.nz_election.pipeline.publish import publish, git, DATA
 from product.nz_election.pipeline.refresh import refresh
 from product.nz_election.pipeline.seats import project
 
+OPTIONAL_CHECKS = frozenset({'night', 'waterfall'})
+
 
 class MissingNightFamily(ValueError):
     def __init__(self):
@@ -489,7 +491,7 @@ def main(args=None):
             require(panel(actual, built) in (product / 'methods/index.html').read_text(), 'supplied market provenance')
         for name, check in checks.items():
             if args.check in ('all', name) or name in required:
-                if name in {'night', 'waterfall'} and args.check == 'all' and night_data and not (night_data / 'night/index.json').is_file():
+                if name in OPTIONAL_CHECKS and args.check == 'all' and night_data and not (night_data / 'night/index.json').is_file():
                     if name in required:
                         raise MissingNightFamily()
                     print(f'SKIP {name}: family absent (night/index.json)')

@@ -279,9 +279,12 @@ For release acceptance on 7 November onward, validate the pinned data bundle and
 
 ```sh
 uv run product/nz_election/pipeline/verify.py all --data <bundle> --site <site> --require night,waterfall
+uv run product/nz_election/tools/harden.py --data <bundle> --site <site> --history --require night,waterfall
 ```
 
 Requiring both checks prevents an absent or lost night family from passing release acceptance.
+Before election night, omit `--require` to allow the verifier's explicit absent-family SKIPs.
+Harden still requires every family result, all evals, freeze tests and workflow history.
 
 Run the three separate modes for the 30 October and 6 November acceptance records:
 
