@@ -22,6 +22,7 @@ MODE = 'Live preliminary results'
 REHEARSAL = 'Recorded demo'
 REFERENCES = ('electorates.xml', 'parties.xml', 'candidates.xml')
 FLOOR = 300
+CLOSE = END.replace(day=8)
 
 
 def stamp(now):
@@ -29,8 +30,11 @@ def stamp(now):
 
 
 def require_open(now):
-    require_publication_allowed(stamp(now))
-    if now() < END:
+    instant = now()
+    require_publication_allowed(stamp(lambda: instant))
+    if instant >= CLOSE:
+        raise ValueError('NIGHT_CLOSED')
+    if instant < END:
         raise ValueError('NIGHT_NOT_OPEN')
 
 
@@ -197,14 +201,22 @@ class Runner:
             return 'retained'
 
 
-def main():
+def main(*, now=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rehearsal', action='store_true')
     parser.add_argument('--out', type=Path, default=Path('artifacts/night-rehearsal'))
     args = parser.parse_args()
-    now = lambda: datetime.now(timezone.utc)
+    now = now or (lambda: datetime.now(timezone.utc))
+    scheduled = os.environ.get('GITHUB_EVENT_NAME') == 'schedule'
+    if scheduled:
+        args.rehearsal = False
     if not args.rehearsal:
-        require_open(now)
+        try:
+            require_open(now)
+        except ValueError:
+            if scheduled:
+                return 0
+            raise
     root = fetch.NIGHT_ROOTS[1 if args.rehearsal else 0]
     run_url = os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID']
     deployment = Deployment(now) if not args.rehearsal else None
@@ -230,8 +242,12 @@ def main():
                     recover=deployment.recover if deployment else None)
     deadline = time.monotonic() + (600 if args.rehearsal else 300 * 60)
     while time.monotonic() < deadline:
+        if not args.rehearsal and now() >= CLOSE:
+            return 0
         print(runner.tick(), flush=True)
     if not args.rehearsal:
+        if now() >= CLOSE:
+            return 0
         require_open(now)
         subprocess.run(['gh', 'workflow', 'run', 'nz-election-night-live.yml', '--ref', 'main'], check=True, timeout=120)
 

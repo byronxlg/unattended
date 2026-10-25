@@ -2,6 +2,8 @@
 site/
 # per-tick noise and in-flight markers; the ledgers are committed
 state/tick.lock
+state/night-start.lock
+state/night-start-2026.dispatched
 state/supervisor.pid
 state/supervisor.out
 state/supervisor.err

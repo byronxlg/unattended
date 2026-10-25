@@ -196,7 +196,11 @@ def test_live_atomic_data_commit_and_queued_freeze(tmp_path):
 
 def test_live_workflow_contract():
     text = (ROOT / '.github/workflows/nz-election-night-live.yml').read_text()
-    assert 'workflow_dispatch:' in text and 'schedule:' not in text
+    assert 'workflow_dispatch:' in text and 'schedule:' in text
+    from product.nz_election.tests.test_workflows import workflow
+    triggers = workflow('nz-election-night-live.yml')[True]
+    assert set(triggers) == {'workflow_dispatch', 'schedule'}
+    assert triggers['schedule'] == [{'cron': '2 6 7 11 *'}, {'cron': '7 6 7 11 *'}]
     assert 'cancel-in-progress: false' in text and 'timeout-minutes: 350' in text
     assert 'secrets.' not in text
     assert 'inputs.rehearsal && always()' in text
@@ -408,3 +412,264 @@ def test_recovery_uses_one_cycle_without_acquiring_or_faking_freshness():
     assert not acquisitions and runner.last_good is None
     assert runner.tick() == 'retained'
     assert clock.seconds == 300 and runner.last_good is None
+
+
+@pytest.mark.parametrize('instant', [
+    '2026-11-06T10:29:59Z', '2026-11-07T05:59:59Z',
+    '2026-11-08T06:00:00Z', '2026-11-08T06:00:01Z', '2027-11-07T06:02:00Z',
+])
+@pytest.mark.parametrize('rehearsal', [False, True])
+def test_scheduled_outside_window_does_nothing(monkeypatch, instant, rehearsal):
+    from datetime import datetime
+    import sys
+    monkeypatch.setenv('GITHUB_EVENT_NAME', 'schedule')
+    monkeypatch.setattr(sys, 'argv', ['night_live.py'] + (['--rehearsal'] if rehearsal else []))
+    def forbidden(*args, **kwargs):
+        pytest.fail('closed scheduled run performed external work')
+    monkeypatch.setattr(night_live.fetch, 'night_xml', forbidden)
+    monkeypatch.setattr(night_live.subprocess, 'run', forbidden)
+    monkeypatch.setattr(night_live.subprocess, 'check_output', forbidden)
+    assert night_live.main(now=lambda: datetime.fromisoformat(instant)) == 0
+
+
+def test_scheduled_open_acquires_production(monkeypatch):
+    from datetime import datetime
+    import sys
+    class Acquired(BaseException):
+        pass
+    calls = []
+    def acquire(root, path):
+        calls.append((root, path))
+        raise Acquired
+    monkeypatch.setenv('GITHUB_EVENT_NAME', 'schedule')
+    for key in ('GITHUB_SERVER_URL', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID'):
+        monkeypatch.setenv(key, 'test')
+    monkeypatch.setattr(sys, 'argv', ['night_live.py', '--rehearsal'])
+    monkeypatch.setattr(night_live.Deployment, 'recover', lambda _: False)
+    monkeypatch.setattr(night_live.fetch, 'night_xml', acquire)
+    with pytest.raises(Acquired):
+        night_live.main(now=lambda: datetime.fromisoformat('2026-11-07T06:02:00Z'))
+    assert calls == [(night_live.fetch.NIGHT_ROOTS[0], 'electorates.xml')]
+
+
+@pytest.mark.parametrize('instant,eligible', [
+    ('2026-11-07T05:59:59Z', False), ('2026-11-07T06:00:00Z', False),
+    ('2026-11-07T06:09:59Z', False), ('2026-11-07T06:10:00Z', True),
+    ('2026-11-08T05:59:59Z', True), ('2026-11-08T06:00:00Z', False),
+    ('2027-11-07T06:10:00Z', False),
+])
+def test_night_watchdog_window(monkeypatch, instant, eligible):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    calls = []
+    def output(*args, **kwargs):
+        calls.append(args)
+        return b'[]'
+    monkeypatch.setattr(night_start.subprocess, 'check_output', output)
+    assert (night_start.main(lambda: datetime.fromisoformat(instant)) == 0) == eligible
+    assert bool(calls) == eligible
+
+
+@pytest.mark.parametrize('status,created,expected', [
+    ('completed', '2026-11-07T05:59:59Z', True),
+    ('completed', '2026-11-07T06:00:00Z', False),
+    ('completed', '2026-11-07T06:02:00Z', False),
+    ('queued', '2026-11-07T05:59:59Z', False),
+    ('in_progress', '2026-11-07T05:59:59Z', False),
+    ('waiting', '2026-11-07T05:59:59Z', False),
+])
+def test_night_watchdog_run_history(status, created, expected):
+    from datetime import datetime
+    from product.nz_election.pipeline.night_start import should_start
+    now = lambda: datetime.fromisoformat('2026-11-07T06:10:00Z')
+    assert should_start(now, [dict(status=status, createdAt=created)]) == expected
+
+
+def test_night_watchdog_query_failure_is_not_permission(monkeypatch):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    def failed(*args, **kwargs):
+        raise subprocess.CalledProcessError(1, 'gh')
+    monkeypatch.setattr(night_start.subprocess, 'check_output', failed)
+    assert night_start.main(lambda: datetime.fromisoformat('2026-11-07T06:10:00Z')) == 1
+
+
+def test_tick_wires_watchdog_before_supervisor_skip():
+    source = (ROOT / 'bin/tick').read_text()
+    assert 'python3 bin/night-watchdog "$STATE"' in source
+    wrapper = (ROOT / 'bin/night-watchdog').read_text()
+    assert "['uv', 'run', 'product/nz_election/pipeline/night_start.py', '--dispatch']" in wrapper
+    assert source.index('|| night_watchdog') < source.index('# 1. a supervisor already running?')
+
+
+def test_live_loop_stops_at_close_without_chaining(monkeypatch):
+    from datetime import datetime
+    import sys
+    instant = [datetime.fromisoformat('2026-11-08T05:59:59Z')]
+    monkeypatch.setenv('GITHUB_EVENT_NAME', 'schedule')
+    for key in ('GITHUB_SERVER_URL', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID'):
+        monkeypatch.setenv(key, 'test')
+    monkeypatch.setattr(sys, 'argv', ['night_live.py'])
+    def tick(_):
+        instant[0] = night_live.CLOSE
+        return 'retained'
+    monkeypatch.setattr(night_live.Runner, 'tick', tick)
+    monkeypatch.setattr(night_live.subprocess, 'run', lambda *a, **k: pytest.fail('chained after close'))
+    assert night_live.main(now=lambda: instant[0]) == 0
+
+
+def watchdog_command(state, worker, timeout=2):
+    import sys
+    code = ("import runpy; from pathlib import Path; "
+            "m = runpy.run_path('bin/night-watchdog'); "
+            f"m['watchdog'](Path({str(state)!r}), command={worker!r}, timeout={timeout!r}); "
+            "print('tick continued', flush=True)")
+    return [sys.executable, '-c', code]
+
+
+@pytest.mark.parametrize('stage', ['startup', 'eligibility', 'dispatch'])
+def test_watchdog_bounds_whole_operation(tmp_path, stage):
+    import sys
+    import time
+    # Startup models uv blocking before the worker can apply any per-command timeout.
+    code = "import subprocess, sys; subprocess.run([sys.executable, '-c', 'import time; time.sleep(30)'])"
+    if stage != 'startup':
+        code = f"""
+import time
+from datetime import datetime
+from product.nz_election.pipeline import night_start
+night_start.subprocess.check_output = lambda *a, **k: {'time.sleep(30)' if stage == 'eligibility' else "b'[]'"}
+night_start.subprocess.run = lambda *a, **k: time.sleep(30)
+night_start.main(lambda: datetime.fromisoformat('2026-11-07T06:10:00Z'), dispatch=True)
+"""
+    started = time.monotonic()
+    result = subprocess.run(watchdog_command(tmp_path, [sys.executable, '-c', code], .5),
+                            cwd=ROOT, capture_output=True, text=True, timeout=5)
+    assert time.monotonic() - started < 3
+    assert result.returncode == 0
+    assert 'timed out; continuing tick' in result.stdout
+    assert 'tick continued' in result.stdout
+    assert not (tmp_path / 'night-start-2026.dispatched').exists()
+    # A later invocation can acquire the same lock after timeout.
+    retry = subprocess.run(watchdog_command(tmp_path, [sys.executable, '-c', 'pass']),
+                           cwd=ROOT, capture_output=True, text=True, timeout=5)
+    assert 'dispatched' in retry.stdout
+
+
+def test_watchdog_serializes_and_marker_covers_visibility_lag(tmp_path):
+    import sys
+    import time
+    entered = tmp_path / 'entered'
+    calls = tmp_path / 'dispatches'
+    worker = [sys.executable, '-c', f"""
+import time
+from pathlib import Path
+from datetime import datetime
+from product.nz_election.pipeline import night_start
+
+def output(*args, **kwargs):
+    Path({str(entered)!r}).touch()
+    time.sleep(.5)
+    return b'[]'
+
+def dispatch(*args, **kwargs):
+    with Path({str(calls)!r}).open('a') as f:
+        f.write('dispatch\\n')
+
+night_start.subprocess.check_output = output
+night_start.subprocess.run = dispatch
+raise SystemExit(night_start.main(lambda: datetime.fromisoformat('2026-11-07T06:10:00Z'), dispatch=True))
+"""]
+    command = watchdog_command(tmp_path, worker)
+    first = subprocess.Popen(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    try:
+        deadline = time.monotonic() + 3
+        while not entered.exists() and time.monotonic() < deadline:
+            time.sleep(.01)
+        assert entered.exists()
+        second = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=3)
+        assert second.returncode == 0 and 'dispatched' not in second.stdout
+        stdout, stderr = first.communicate(timeout=3)
+        assert first.returncode == 0, stderr
+        assert 'dispatched' in stdout
+        # GitHub still returns [], but the durable marker blocks a sequential retry too.
+        third = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=3)
+        assert third.returncode == 0 and 'dispatched' not in third.stdout
+        assert calls.read_text() == 'dispatch\n'
+        assert (tmp_path / 'night-start-2026.dispatched').exists()
+    finally:
+        if first.poll() is None:
+            first.kill()
+        first.wait()
+
+
+def test_watchdog_rechecks_close_immediately_before_dispatch(monkeypatch):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    instants = iter(['2026-11-08T05:59:59Z', '2026-11-08T05:59:59Z', '2026-11-08T06:00:00Z'])
+    monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: b'[]')
+    monkeypatch.setattr(night_start.subprocess, 'run', lambda *a, **k: pytest.fail('dispatched after close'))
+    assert night_start.main(lambda: datetime.fromisoformat(next(instants)), dispatch=True) == 1
+
+
+@pytest.mark.parametrize('use_uv', [False, True])
+def test_watchdog_lock_survives_wrapper_sigkill(tmp_path, use_uv):
+    import fcntl
+    import os
+    import signal
+    import sys
+    import time
+    entered, release = tmp_path / 'entered', tmp_path / 'release'
+    orphan_dispatch, later_dispatch = tmp_path / 'orphan-dispatch', tmp_path / 'later-dispatch'
+    worker = [sys.executable, '-c', f"""
+import os, time
+from pathlib import Path
+Path({str(entered)!r}).write_text(str(os.getpgrp()))
+while not Path({str(release)!r}).exists():
+    time.sleep(.01)
+Path({str(orphan_dispatch)!r}).touch()
+"""]
+    if use_uv:
+        worker = ['uv', 'run', '--no-project'] + worker
+    first = subprocess.Popen(watchdog_command(tmp_path, worker, timeout=10), cwd=ROOT,
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    later = watchdog_command(tmp_path, [sys.executable, '-c',
+        f'from pathlib import Path; Path({str(later_dispatch)!r}).touch()'])
+    group = None
+    try:
+        deadline = time.monotonic() + 5
+        while not entered.exists() and time.monotonic() < deadline:
+            time.sleep(.01)
+        assert entered.exists(), 'worker did not start'
+        group = int(entered.read_text())
+        first.kill()
+        assert first.wait(timeout=3) == -signal.SIGKILL
+        second = subprocess.run(later, cwd=ROOT, capture_output=True, text=True, timeout=3)
+        assert second.returncode == 0
+        assert not later_dispatch.exists(), 'second attempt dispatched while orphan could still dispatch'
+        assert not (tmp_path / 'night-start-2026.dispatched').exists()
+        release.touch()
+        # The orphan cannot be waitpid'ed here; lock release proves its lock-owning lineage ended.
+        with (tmp_path / 'night-start.lock').open('a') as lock:
+            deadline = time.monotonic() + 5
+            while True:
+                try:
+                    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except BlockingIOError:
+                    assert time.monotonic() < deadline, 'orphan did not release the lock on exit'
+                    time.sleep(.01)
+        assert orphan_dispatch.exists()
+        third = subprocess.run(later, cwd=ROOT, capture_output=True, text=True, timeout=3)
+        assert third.returncode == 0 and later_dispatch.exists()
+        assert (tmp_path / 'night-start-2026.dispatched').exists()
+    finally:
+        release.touch()
+        if first.poll() is None:
+            first.kill()
+        first.wait()
+        if group is not None:
+            try:
+                os.killpg(group, signal.SIGKILL)
+            except ProcessLookupError:
+                pass

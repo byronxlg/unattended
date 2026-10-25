@@ -105,7 +105,7 @@ NOW = datetime(2026, 10, 25, 0, tzinfo=timezone.utc)
 
 def test_workflow_discovery():
     assert {name for _, name in history.scheduled_workflows(history.ROOT)} == {
-        'NZ election hourly', 'NZ election daily', 'NZ election social daily'}
+        'NZ election hourly', 'NZ election daily', 'NZ election social daily', 'NZ election night live'}
 
 
 def test_history_complete_nz_days_and_manual_coverage(workflows, capsys):

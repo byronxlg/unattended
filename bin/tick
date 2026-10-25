@@ -28,6 +28,13 @@ log() { echo "$(ts) $*"; }
 NZ_DATE=$(TZ=Pacific/Auckland date +%F); NZ_HOUR=$(TZ=Pacific/Auckland date +%H)
 TODAY_SHORT=$(TZ=Pacific/Auckland date +%Y%m%d)
 
+# Independent of supervisor availability; the shared guard bounds the one-time night start.
+night_watchdog() {
+  python3 bin/night-watchdog "$STATE"
+}
+
+[ "$DRY" -eq 1 ] || night_watchdog
+
 # 1. a supervisor already running?
 if [ -f "$PIDF" ] && kill -0 "$(cut -d' ' -f1 "$PIDF")" 2>/dev/null; then
   log "supervisor running (pid $(cut -d' ' -f1 "$PIDF")), skip"; exit 0

@@ -147,15 +147,34 @@ The transport amendment supersedes the earlier browser-feed instructions. Produc
 header. The browser reads only same-origin `night-live.json`, generated from the validated night
 family using the existing page renderer. Archives and explicit replay queries do not poll.
 
-Predeploy this code by 5 November. At or after **7 November 19:00 NZDT (06:00 UTC)**, dispatch:
+Predeploy this code by 5 November. Two annual cron entries request starts at **7 November
+06:02 and 06:07 UTC**. Independently, `bin/tick` checks from 06:10 UTC and dispatches
+once if no night-live run has been created since 06:00 UTC and none is pending.
+A failed run counts as an attempt; the watchdog does not retry it. GitHub cron may drift.
+The whole watchdog subprocess (including uv startup, eligibility and dispatch) has a 60-second
+wall-clock limit. On timeout its process group is killed, a line is logged and tick continues.
+A nonblocking OS lock at `state/night-start.lock` serializes check and dispatch across ticks.
+The worker inherits the locked file description, so killing the wrapper alone cannot admit
+another attempt while its worker remains alive. Timeout cleanup kills the worker group before
+the wrapper closes its lock; the lock releases when its last holder exits.
+Do not delete the lock file while ticks run.
+After a successful dispatch, `state/night-start-2026.dispatched` suppresses further watchdog
+attempts for the entire remaining 2026 live window, covering run-list visibility lag. The marker
+is intentionally retained; manual recovery uses the explicit dispatch command below.
+Failed or timed-out dispatches do not write a success marker; a later tick rechecks GitHub.
+The shared window guard is checked again immediately before invoking the dispatch command.
+For manual recovery during the live window:
 
 ```sh
 gh workflow run nz-election-night-live.yml --ref main
 gh run list --workflow nz-election-night-live.yml
 ```
 
-The injected-clock guard rejects production before that instant, including manual dispatch.
-There is no cron. The single non-cancelling workflow job loops for about five hours, then queues
+The injected-clock guard rejects production before 7 November 06:00 UTC, including manual dispatch.
+Scheduled runs are never rehearsals and exit successfully without work outside the 2026
+live window: 7 November 06:00 UTC inclusive to 8 November 06:00 UTC exclusive.
+The shared injected-clock guard also bounds the watchdog and production loop.
+The single non-cancelling workflow job loops for about five hours, then queues
 its successor before exiting; the job timeout is 350 minutes. A complete cycle fetches
 `electorates.xml`, `parties.xml`, `candidates.xml` serially, validates the references, fetches
 `election.xml` and all `e01/e01.xml` through `e71/e71.xml`, then rechecks all three references.
@@ -231,8 +250,8 @@ or the full screenshot harness for the exact expanded state registry.
 
 ### Stop, diagnose and roll back
 
-1. Disable the night workflow to prevent any queued successor from starting, then cancel the
-   current run and any queued runs. Cancellation is an explicit operator action; concurrency
+1. Disable the night workflow (`gh workflow disable nz-election-night-live.yml`) to block cron,
+   watchdog and successor starts, then cancel the current run and any queued runs. Cancellation is an explicit operator action; concurrency
    never cancels runs automatically.
 2. Check `night/index.json`, its source timestamps and the last Pages deployment. A failed cycle
    leaves the last complete snapshot intact. Check upstream HTTP failures, reference changes,
@@ -241,7 +260,7 @@ or the full screenshot harness for the exact expanded state registry.
    The current workflow's guard runs before a rollback checkout and again in the deploy job.
    All collection/publication/deployment paths use the same 6 November 23:30 through 7 November
    19:00 NZDT freeze, including queued jobs. No rollback bypass exists.
-4. To resume, enable the workflow and dispatch it again after the close gate. Do not enable a
+4. To resume, enable the workflow and dispatch it again within the live window. Do not enable a
    second feed or browser XML transport. Keep the reviewed preliminary root; there is no guessed
    official-feed switch. For 27 November, capture and validate compatible official results through
    the established daily capture workflow, keeping the preliminary baseline and its date. Stop

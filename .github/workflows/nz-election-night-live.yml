@@ -1,6 +1,9 @@
 name: NZ election night live
 
 on:
+  schedule:
+    - cron: '2 6 7 11 *'
+    - cron: '7 6 7 11 *'
   workflow_dispatch:
     inputs:
       rehearsal:
