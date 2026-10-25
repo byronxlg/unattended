@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from product.nz_election.pipeline.build import build
+from product.nz_election.tests.test_home import populated  # noqa: F401
 
 
 @pytest.mark.parametrize('clock', ['2026-11-07T05:59:00Z', '2026-11-07T06:01:00Z'])
@@ -75,3 +76,36 @@ def test_after_stop_retains_past_tense():
     assert 'Voting closed on 7 November' in html
     assert 'home-live.mjs' not in html
     assert 'counting is under way' not in html
+    assert 'id="night-summary"' in html and 'Live updates ended.' in html
+    from product.nz_election.tools.check_visible_text import check_absent_text
+    check_absent_text(html)
+
+
+@pytest.mark.parametrize('cutoff', ['2026-11-07T05:00:00Z', '2026-11-07T07:00:00Z'])
+def test_shared_cutoff_moves_hero_and_dates(monkeypatch, cutoff, populated):
+    from datetime import datetime
+    from product.nz_election.pipeline import sunsets
+    from product.nz_election.pipeline.build import home_presentation
+    from product.nz_election.pipeline.home import page
+    monkeypatch.setattr(sunsets, 'END', datetime.fromisoformat(cutoff))
+    clock = '2026-11-07T05:30:00Z' if 'T05:' in cutoff else '2026-11-07T06:30:00Z'
+    envs, _ = populated
+    envs = {key: value for key, value in envs.items() if not key.startswith('night/')}
+    html = page(envs, clock, home_presentation(envs, '2026-10-17T01:00:00Z'))
+    closed = sunsets.post_election(clock)
+    assert ('id="night-summary"' in html) == closed
+    assert ('Voting closed on 7 November' in html) == closed
+    assert ('id="seats"' in html) == (not closed)
+    from product.nz_election.pipeline.build import PRODUCT
+    from product.nz_election.pipeline.scripts import home_client
+    assert f"Date.parse('{sunsets.END.isoformat()}')" in home_client(PRODUCT / 'web')
+
+
+@pytest.mark.parametrize('case', ['cached-after-stop', 'waiting-after-stop'])
+def test_retirement_browser(case):
+    test_browser_handover(case)
+
+
+@pytest.mark.parametrize('case', ['cached-after-stop', 'waiting-after-stop'])
+def test_retirement_dom(case, tmp_path):
+    test_dom_handover(case, tmp_path)

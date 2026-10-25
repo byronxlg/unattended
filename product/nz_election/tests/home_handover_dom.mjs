@@ -6,10 +6,13 @@ let now = open - 30000;
 Date.now = () => now;
 const intervals = [], listeners = {}, requests = [];
 const waiting = '<section id="night-summary">Polls have closed and counting is under way.</section>';
+const settled = '<section id="night-summary">New Zealand voted on 7 November. Live updates ended.</section>';
+const late = scenario.endsWith('after-stop');
+if (late) now = stop + 60000;
 const target = {
-  dataset: {loopEndsAt:new Date(stop).toISOString(), waiting},
-  innerHTML:'poll hero',
-  querySelector: () => target.innerHTML.includes('night-summary') ? {} : null
+  dataset: {loopEndsAt:new Date(stop).toISOString(), waiting, settled},
+  innerHTML:scenario === 'waiting-after-stop' ? waiting : 'poll hero',
+  querySelector: selector => selector === '#home-night' ? (target.innerHTML === home ? {} : null) : target.innerHTML.includes('night-summary') ? {} : null
 };
 const dates = {innerHTML:'Enrolment closed on 25 October; advance voting from 26 October; election day 7 November.'};
 globalThis.location = {href:'https://example.test/unattended/nz-election/'};
@@ -32,6 +35,13 @@ globalThis.fetch = async url => {
 await import(process.argv[3] || '../web/home-live.mjs');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 await flush();
+if (late) {
+  assert.equal(target.innerHTML, settled);
+  intervals.forEach(fn => fn()); await flush();
+  assert.equal(requests.length, 0);
+  console.log('PASS retirement: ' + scenario);
+  process.exit(0);
+}
 assert.equal(target.innerHTML, 'poll hero');
 assert.match(dates.innerHTML, /advance voting from 26 October/);
 assert.equal(requests.length, 0);
@@ -52,5 +62,6 @@ intervals.forEach(fn => fn()); await flush();
 listeners.visibilitychange(); await flush();
 now += 120000; intervals.forEach(fn => fn()); await flush();
 assert.equal(requests.length, count);
+assert.equal(target.innerHTML, scenario === 'absent' ? settled : home);
 assert.ok(requests.every(t => t >= open && t < stop));
 console.log('PASS DOM handover: ' + scenario);

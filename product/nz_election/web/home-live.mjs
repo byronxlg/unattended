@@ -10,7 +10,7 @@ if (target) {
     fetcher: () => fetch(url, {cache: 'no-store', credentials: 'omit', mode: 'same-origin', redirect: 'error', signal: AbortSignal.timeout(20000)}),
     render: pack => {
       // Older packages can still serve night/ without replacing the home answer.
-      if (typeof pack.home_html === 'string' && pack.home_html) target.innerHTML = pack.home_html;
+      if (Date.now() < stop && typeof pack.home_html === 'string' && pack.home_html) target.innerHTML = pack.home_html;
     }
   });
   let handedOver = false;
@@ -21,7 +21,10 @@ if (target) {
       if (dates) dates.innerHTML = '<p>Voting closed on 7 November at 7pm.</p>';
       handedOver = true;
     }
-    if (Date.now() >= stop) return;
+    if (Date.now() >= stop) {
+      if (!target.querySelector('#home-night') && target.innerHTML !== target.dataset.settled) target.innerHTML = target.dataset.settled;
+      return;
+    }
     if (!target.querySelector('#night-summary')) target.innerHTML = target.dataset.waiting;
     return live.tick();
   };

@@ -21,7 +21,11 @@ def run(case):
     with tempfile.TemporaryDirectory(dir='artifacts') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-11-05T00:00:00Z', end_date='2026-07-18')
-        build(root / 'data', root / 'site/nz-election', built='2026-11-05T00:00:00Z')
+        late = case.endswith('after-stop')
+        built_at = '2026-11-07T06:01:00Z' if case == 'waiting-after-stop' else '2026-11-05T00:00:00Z'
+        build(root / 'data', root / 'site/nz-election', built=built_at)
+        from product.nz_election.pipeline.home import night_summary
+        settled = night_summary({}, '2026-11-08T06:01:00Z')
         clock = Clock()
         captured = night_live.cycle(acquire=captures().__getitem__, now=clock.now)
         night.prepare(root / 'live', night_live.loaded(captured), 'offline-verification', 'a'*40, captured['retrieved_at'])
@@ -55,9 +59,18 @@ def run(case):
                         else:
                             r.abort()
                     context.route('**/*', route)
-                    page.clock.install(time=datetime.fromisoformat('2026-11-07T05:59:30+00:00'))
+                    page.clock.install(time=datetime.fromisoformat('2026-11-08T06:01:00+00:00' if late else '2026-11-07T05:59:30+00:00'))
                     page.goto(origin + '/unattended/nz-election/')
                     page.wait_for_load_state('networkidle')
+                    if late:
+                        assert page.locator('#seats').count() == 0
+                        assert 'counting is under way' not in page.locator('#main').inner_text()
+                        assert page.locator('#home-live').inner_html() == settled
+                        assert settled and 'Live updates ended.' in settled
+                        page.clock.run_for(120000)
+                        assert requests == [] and not errors
+                        context.close()
+                        continue
                     assert page.locator('#seats').count() == 1
                     assert requests == []
                     if case == 'absent':
@@ -82,6 +95,8 @@ def run(case):
                     count = len(requests)
                     page.clock.run_for(120000)
                     assert len(requests) == count
+                    if case == 'absent':
+                        assert page.locator('#home-live').inner_html() == settled
                     assert all(datetime.fromisoformat('2026-11-07T06:00:00+00:00').timestamp()*1000 <= t < datetime.fromisoformat('2026-11-08T06:00:00+00:00').timestamp()*1000 for t in requests)
                     assert requests and not errors
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')

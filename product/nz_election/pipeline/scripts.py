@@ -47,4 +47,9 @@ def home_client(web):
     dependency = "import {NightLive, OPEN} from './night-live.mjs';\n"
     if not marker or not client.startswith(dependency):
         raise ValueError('HOME_CLIENT_BUNDLE')
+    from .sunsets import END
+    opening, separator, rest = scheduler.partition('\n')
+    if not opening.startswith('export const OPEN = Date.parse(') or not separator:
+        raise ValueError('HOME_CLIENT_BUNDLE')
+    scheduler = f"export const OPEN = Date.parse('{END.isoformat()}');\n" + rest
     return scheduler + '\n' + client.removeprefix(dependency)
