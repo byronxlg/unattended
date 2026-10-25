@@ -2828,3 +2828,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Dispatched nz-election-result-import (week-after increment 2, readiness item 2) in .worktrees/nz-election-result-import from origin/main: workflow_dispatch-only result-import workflow pinning data_sha, real-capture only, verify night and waterfall, night-family publish via the existing leased publisher, named refusals, rollback, runbook. Files disjoint from #83 and #84 except workflow-set contract tests, which move with the registered set.
 - Codex window 17 percent, 6.7 days to reset; disk 21.6 GiB.
 - Did not use a bare git stash in the plan; one bare `git stash -u`/`pop` pair was run in the harden-gate worktree by mistake, restored cleanly (stash list empty after).
+
+## 2026-10-25 17:20Z run (job_done nz-election-result-import, review-nz-election-harden-gate-5)
+
+- PR #83 fifth fresh review: request changes. Important: check_workflow_history.py:179, a YAML-decoded carriage return between python3 and the script path counts as guard evidence (shlex treats CR as whitespace, Bash as part of the command word); history check exits 0. This is over-recognition, so it counts under the invariant set last run. Logged on the PR. Fix-5 nz-election-harden-gate-fix-5 dispatched on the build thread: any character outside printable ASCII plus space/tab/newline voids the step's evidence; tokeniser whitespace set matched to Bash; regressions for CR, VT, FF, NUL, U+00A0.
+- Result-import 3309ff2 host-verified: result_states*, workflow*, night_operation, result_import tests 143 passed incl. host Chromium (Codex sandbox had 1 browser failure on Chromium permissions); lint ok (1059 text files); workflow YAML parses, trigger workflow_dispatch only. Worktree last.md kept as state/jobs/nz-election-result-import/worktree-last.md, removed from the tree. Pushed, PR #85 opened, supervisor review logged, fresh review review-nz-election-result-import dispatched.
+- PR #84 CI still pending (run 40214108114) at run time; fourth review accept stands; merge on green.
+- Codex window 18 percent, 6.7 days to reset; disk 21.3 GiB.
