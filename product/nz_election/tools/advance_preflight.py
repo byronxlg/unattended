@@ -4,9 +4,7 @@
 # ///
 """Inspect a local 2026 advance capture without writing files or fetching URLs."""
 import argparse
-import csv
 from datetime import date, timedelta
-import io
 import json
 from pathlib import Path
 import re
@@ -32,13 +30,7 @@ def inspect(raw, *, url, archive_url=None):
             parsed = urlsplit(value)
             if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password:
                 raise ValueError(advance.ERROR)
-        if not isinstance(raw, bytes) or len(raw) > 1000000:
-            raise ValueError(advance.ERROR)
-        reader = csv.DictReader(io.StringIO(raw.decode('utf-8-sig')), strict=True)
-        headers = reader.fieldnames
-        if not headers or len(set(headers)) != len(headers) or any(not h.strip() for h in headers):
-            raise ValueError(advance.ERROR)
-        records = list(reader)
+        headers, records = advance.read_csv(raw)
         dates = [h for h in headers if h.strip().lower() in ('date', 'day', 'voting date')]
         counts = [h for h in headers if h not in dates and (
             h.strip().lower() == '2026 general election' or
@@ -46,12 +38,15 @@ def inspect(raw, *, url, archive_url=None):
         if len(dates) != 1 or len(counts) != 1:
             raise ValueError(advance.ERROR)
         column = counts[0]
+        daily = bool(re.search(r'\b(daily|per day)\b', column, re.I))
         cumulative = bool(re.search(r'\b(cumulative|running total|to date)\b', column, re.I))
-        if cumulative and re.search(r'\bdaily\b', column, re.I):
+        if daily and cumulative:
             raise ValueError(advance.ERROR)
         kind = 'cumulative' if cumulative else 'daily'
         settings = dict(year=2026, kind=kind, start=START, date_column=dates[0], count_column=column)
-        rows = advance.parse(raw, **{k: settings[k] for k in ('kind', 'start', 'date_column', 'count_column')})
+        rows = advance.parse_records(records, **{k: settings[k] for k in ('kind', 'start', 'date_column', 'count_column')})
+        if not (daily or cumulative):
+            raise ValueError(advance.ERROR + ': missing daily or cumulative evidence in count header ' + repr(column))
         observed = {r['date'] for r in rows}
         day, last = date.fromisoformat(START), date.fromisoformat(rows[-1]['date'])
         gaps = []
@@ -68,11 +63,14 @@ def inspect(raw, *, url, archive_url=None):
                            'set actual captured_at, reviewer, revision and source notes before registration.',
                      bytes=len(raw), advance=settings)
         return dict(headers=headers, date_column=dates[0], count_column=column, kind=kind,
-                    kind_inference='Inferred from column name; daily assumed without a cumulative label. '
-                                   'Not inferred from increasing values. Supervisor must confirm.',
+                    kind_inference=f'Inferred from explicit {kind} wording in count header {column!r}.',
                     row_count=len(records), observation_count=len(rows), first_date=rows[0]['date'],
                     last_date=rows[-1]['date'], gaps=gaps, sha256=digest, manifest_entry=entry)
-    except (ValueError, TypeError, AttributeError, UnicodeError, csv.Error, OverflowError):
+    except ValueError as exc:
+        if str(exc).startswith(advance.ERROR + ': missing daily or cumulative evidence'):
+            raise
+        raise ValueError(advance.ERROR) from None
+    except (TypeError, AttributeError, UnicodeError, OverflowError):
         raise ValueError(advance.ERROR) from None
 
 
@@ -86,8 +84,10 @@ def cli(argv=None):
         with args.csv.open('rb') as stream:
             raw = stream.read(1000001)
         result = inspect(raw, url=args.url, archive_url=args.archive_url)
-    except (OSError, ValueError):
+    except OSError:
         raise SystemExit(advance.ERROR) from None
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from None
     print(json.dumps(result, indent=2))
 
 

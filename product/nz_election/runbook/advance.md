@@ -20,9 +20,14 @@ observations. Missing dates remain gaps, never zero votes. Cumulative observatio
 retain their supplied totals across gaps; daily derivations require adjacent dates.
 
 Review the inference against the official source explanation: increasing daily
-counts do not establish cumulative semantics. Ambiguous columns fail
-`INVALID_ADVANCE`; investigate the source and adapt the detector in reviewed code,
-without rewriting raw bytes. Malformed files also fail `INVALID_ADVANCE`.
+counts do not establish cumulative semantics. The detector requires explicit
+`daily`/`per day` or `cumulative`/`running total`/`to date` header wording.
+Generic `Votes`, `Total votes`, and year/election headers are not evidence, even
+when their values increase. They fail `INVALID_ADVANCE` with a missing-evidence
+message; investigate the source and adapt the detector in reviewed code,
+without rewriting raw bytes. Malformed files also fail `INVALID_ADVANCE`. One
+shared reader validates the entire CSV before either consumer ignores total rows
+or unused columns, including quotes, row widths and duplicate headers.
 
 Copy the raw file to `product/nz_election/fixtures/` plus the printed entry's
 `path` (`ec-2026/advance-voting-<hash-prefix>.csv`). Never overwrite old captures.
@@ -39,6 +44,48 @@ is rejected as `SHORTER_ADVANCE_CAPTURE`, retaining last-good published bytes.
 A missing date with the same or greater observation count remains a gap, without
 carrying forward the older date. Equal acquisition timestamps are rejected as
 `AMBIGUOUS_ADVANCE_CAPTURE`.
+
+## Reviewed shorter correction
+
+A legitimate shorter correction needs a reviewed manifest supersession, not a
+newer timestamp alone. Confirm the reduced coverage against an official source
+or correction notice; record its URL, the reason, reviewer and UTC review time.
+Keep the corrected file at its new immutable path and retain every older file,
+SHA-256, acquisition time, URL, revision and licence unchanged.
+
+In the same manifest commit that registers the corrected entry with its normal
+`advance` descriptor, move the `advance` descriptor of **every earlier active
+entry for that year** into `superseded_advance.descriptor`. Add this object to
+each such old entry (example paths and review details must be replaced):
+
+```json
+"superseded_advance": {
+  "descriptor": {
+    "year": 2026,
+    "kind": "daily",
+    "start": "2026-10-26",
+    "date_column": "Date",
+    "count_column": "Daily votes"
+  },
+  "by_path": "ec-2026/advance-voting-<corrected-hash-prefix>.csv",
+  "reason": "Official correction withdraws previously included dates: <source URL>",
+  "reviewed_by": "<reviewer>",
+  "reviewed_at": "<actual UTC review timestamp>"
+}
+```
+
+Do not leave an `advance` key on those superseded entries. This is an explicit
+reviewed reset of the active series history, including any earlier revisions that
+would still trigger the shorter-series guard. Append the superseded paths and
+correction evidence to the new entry's `notes`. Never delete the old entries or
+modify their raw files. Subsequent ordinary captures retain their active history
+and the shorter-replacement guard applies again from this corrected baseline.
+
+No loader hook is required: only entries with `advance` participate in selection;
+`superseded_advance` is an audit record, not an automatic bypass flag. Review must
+check that every `by_path` names the corrected capture and each archived descriptor
+matches its original. Run the commands below before approving the supersession.
+Revert the manifest change to restore the previous active history if review fails.
 
 Before committing, run:
 

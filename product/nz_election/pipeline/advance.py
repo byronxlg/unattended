@@ -43,21 +43,54 @@ def normalize(observations, *, kind, start):
         raise ValueError(ERROR) from None
 
 
-def parse(raw, *, kind, start, date_column='Date', count_column='2023 General Election'):
+def read_csv(raw):
+    """Validate all CSV syntax before consumers can discard columns or total rows."""
     try:
         if not isinstance(raw, bytes) or len(raw) > 1000000:
             raise ValueError(ERROR)
-        reader = csv.DictReader(io.StringIO(raw.decode('utf-8-sig')), strict=True)
+        text = raw.decode('utf-8-sig')
+        # csv's strict mode still accepts quotes inside unquoted fields.
+        state = 'start'
+        for char in text:
+            if state == 'quoted':
+                if char == '"':
+                    state = 'closed'
+            elif char == '"':
+                if state not in ('start', 'closed'):
+                    raise ValueError(ERROR)
+                state = 'quoted'
+            elif char in ',\r\n':
+                state = 'start'
+            elif state == 'closed':
+                raise ValueError(ERROR)
+            else:
+                state = 'unquoted'
+        if state == 'quoted':
+            raise ValueError(ERROR)
+        reader = csv.DictReader(io.StringIO(text, newline=''), strict=True)
         headers = reader.fieldnames
         if not headers or len(headers) != len(set(headers)) or any(not h.strip() for h in headers):
             raise ValueError(ERROR)
         records = list(reader)
+        if not records or any(None in row or any(v is None for v in row.values()) for row in records):
+            raise ValueError(ERROR)
+        return headers, records
+    except (ValueError, TypeError, UnicodeError, csv.Error):
+        raise ValueError(ERROR) from None
+
+
+def parse(raw, *, kind, start, date_column='Date', count_column='2023 General Election'):
+    return parse_records(read_csv(raw)[1], kind=kind, start=start,
+                         date_column=date_column, count_column=count_column)
+
+
+def parse_records(records, *, kind, start, date_column, count_column):
+    """Interpret records already validated by read_csv."""
+    try:
         if not records or date_column not in records[0] or count_column not in records[0]:
             raise ValueError(ERROR)
         observations = []
         for row in records:
-            if None in row or any(v is None for v in row.values()):
-                raise ValueError(ERROR)
             day, value = row[date_column].strip(), row[count_column].strip()
             if day.lower() in ('total', 'totals'):
                 continue

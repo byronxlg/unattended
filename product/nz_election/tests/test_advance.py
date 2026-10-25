@@ -177,7 +177,7 @@ def register_2026(tmp_path, monkeypatch, names):
         raw = (Path(__file__).parent / 'fixtures/advance' / name).read_bytes()
         entry = deepcopy(template)
         entry.update(path=name, sha256=export.digest(raw), captured_at=f'2026-10-{28 + index}T01:00:00Z')
-        entry['advance'].update(year=2026, start='2026-10-26', count_column='2026 General Election')
+        entry['advance'].update(year=2026, start='2026-10-26', count_column='Daily votes')
         (tmp_path / name).write_bytes(raw)
         entries.append(entry)
     (tmp_path / 'manifest.json').write_text(json.dumps(dict(entries=entries)))
@@ -238,8 +238,8 @@ def test_preflight_output_and_read_only(tmp_path):
                              '--archive-url', 'https://web.archive.org/example'], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
     report = json.loads(result.stdout)
-    assert report['headers'] == ['Date', '2026 General Election']
-    assert report['date_column'] == 'Date' and report['count_column'] == '2026 General Election'
+    assert report['headers'] == ['Date', 'Daily votes']
+    assert report['date_column'] == 'Date' and report['count_column'] == 'Daily votes'
     assert report['kind'] == 'daily' and 'Inferred' in report['kind_inference']
     assert report['row_count'] == report['observation_count'] == 3
     assert report['first_date'] == '2026-10-26' and report['last_date'] == '2026-10-29'
@@ -249,7 +249,7 @@ def test_preflight_output_and_read_only(tmp_path):
     old = next(e for e in json.loads((advance.ROOT / 'manifest.json').read_text())['entries'] if 'advance' in e)
     assert set(entry) == set(old)
     assert entry['advance'] == dict(year=2026, kind='daily', start='2026-10-26',
-                                    date_column='Date', count_column='2026 General Election')
+                                    date_column='Date', count_column='Daily votes')
     assert entry['archive_url'] == 'https://web.archive.org/example'
     assert entry['captured_at'] is None and entry['bytes'] == len(raw)
     assert before == {p.name: p.read_bytes() for p in tmp_path.iterdir()}
@@ -291,3 +291,70 @@ def test_preflight_rejects_ambiguous_columns(raw):
     from product.nz_election.tools.advance_preflight import inspect
     with pytest.raises(ValueError, match='^INVALID_ADVANCE$'):
         inspect(raw, url='https://elections.nz/example')
+
+
+@pytest.mark.parametrize('header', ['Total votes', 'Votes', '2026 General Election'])
+def test_preflight_requires_semantic_evidence(header):
+    from product.nz_election.tools.advance_preflight import inspect
+    raw = f'Date,{header}\n2026-10-26,10\n2026-10-27,30\n'.encode()
+    with pytest.raises(ValueError, match='^INVALID_ADVANCE: missing daily or cumulative evidence'):
+        inspect(raw, url='https://elections.nz/example')
+
+
+@pytest.mark.parametrize('raw', [
+    b'Date,Daily votes,Note\n2026-10-26,10,broken"quote\n',
+    b'Date,Daily votes\n2026-10-26,10\nTotal,1"0\n',
+])
+@pytest.mark.parametrize('consumer', ['pipeline', 'preflight'])
+def test_shared_reader_rejects_quotes_before_ignoring_fields(raw, consumer):
+    from product.nz_election.tools.advance_preflight import inspect
+    with pytest.raises(ValueError, match='^INVALID_ADVANCE$'):
+        if consumer == 'pipeline':
+            advance.parse(raw, kind='daily', start='2026-10-26', count_column='Daily votes')
+        else:
+            inspect(raw, url='https://elections.nz/example')
+
+
+def test_reviewed_manifest_supersession_preserves_capture_bytes(tmp_path, monkeypatch):
+    import json
+    register_2026(tmp_path, monkeypatch, ['daily.csv', 'replacement.csv', 'shorter.csv'])
+    before = {p.name: p.read_bytes() for p in tmp_path.glob('*.csv')}
+    manifest_path = tmp_path / 'manifest.json'
+    manifest = json.loads(manifest_path.read_text())
+    for entry in manifest['entries'][:-1]:
+        entry['superseded_advance'] = dict(
+            descriptor=entry.pop('advance'), by_path='shorter.csv',
+            reason='Synthetic reviewed correction withdraws a date; https://elections.nz/example',
+            reviewed_by='Test reviewer', reviewed_at='2026-10-30T02:00:00Z')
+    manifest['entries'][-1]['notes'] = 'Reviewed correction supersedes daily.csv and replacement.csv'
+    manifest_path.write_text(json.dumps(manifest))
+    payload, _, hashes = advance.load()
+    assert [r['date'] for r in payload['advance-voting']] == ['2026-10-26', '2026-10-28']
+    assert [r['cumulative'] for r in payload['advance-voting']] == [11, None]
+    assert list(hashes) == ['fixtures/shorter.csv']
+    assert before == {p.name: p.read_bytes() for p in tmp_path.glob('*.csv')}
+    assert len(manifest['entries']) == 3
+    for entry in manifest['entries']:
+        assert entry['sha256'] == export.digest(before[entry['path']])
+
+
+@pytest.mark.parametrize('newline', ['\n', '\r\n'])
+def test_shared_reader_accepts_quoted_fields_and_embedded_newlines(newline):
+    from product.nz_election.tools.advance_preflight import inspect
+    raw = ('"Date","Daily votes","Note"\n'
+           '"2026-10-26","1,000","a ""quoted"" note\non two lines"\n'
+           'Total,"1,000",ignored\n').replace('\n', newline).encode()
+    report = inspect(raw, url='https://elections.nz/example')
+    rows = advance.parse(raw, kind='daily', start='2026-10-26', count_column='Daily votes')
+    assert report['kind'] == 'daily'
+    assert report['row_count'] == 2 and report['observation_count'] == 1
+    assert rows == [dict(date='2026-10-26', daily=1000, cumulative=1000)]
+
+
+def test_preflight_cli_reports_missing_evidence(tmp_path, capsys):
+    from product.nz_election.tools.advance_preflight import cli
+    path = tmp_path / 'ambiguous.csv'
+    path.write_bytes(b'Date,Total votes\n2026-10-26,10\n2026-10-27,30\n')
+    with pytest.raises(SystemExit, match='INVALID_ADVANCE: missing daily or cumulative evidence.*Total votes'):
+        cli([str(path), '--url', 'https://elections.nz/example'])
+    assert capsys.readouterr().out == ''
