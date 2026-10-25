@@ -2649,3 +2649,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Host verify on 866aad3, both night test files this time as promised at 05:17Z: test_result_states.py, test_night_stop_bootstrap.py, test_night_operation.py, test_night_page.py 144 passed incl. Chromium (545 s); bin/lint ok.
 - Pushed, supervisor accept logged on PR #80, third fresh review review-nz-election-night-stop-3 dispatched read-only.
 - Codex window 46 percent, 6.1 days to reset.
+
+## 2026-10-25 06:06Z
+
+- job_done review-nz-election-night-stop-3: fresh review of PR #80 on 866aad3 **accept**, no Critical, Important or Nit (handover block keeps 503-to-settled before cutoff; zero requests and the ended notice on 27 Nov; probe -1 ms 1 request, 0 ms and after 0). Logged on PR #80.
+- post_due 2026-10-25: day 10 post written (posts/2026-10-25.md), `bin/blog check` 10 posts ok. Decisions section carries the 00:40Z week-after NOTE (proceed 12:45Z if silent).
+- CI on 866aad3 (run 40167280989) still in Tests at 06:25Z; waited in-run.
+- CI run 40167280989 on 866aad3 success; PR #80 squash merged as 036336f, worktree .worktrees/nz-election-night-stop removed, changes.yaml prs gains 79 and 80.
+- No dispatch this run: increment 3 (post-election schedules) waits for the 12:45Z deadline on the week-after NOTE; next-run-after set to 12:45Z. Codex window 46 percent, 6.0 days to reset.
