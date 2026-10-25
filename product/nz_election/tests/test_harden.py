@@ -498,3 +498,101 @@ def test_polls_only_eval_skip_cannot_hide_incomplete_verification(gate_root):
         return green_runner(cmd, **kwargs)
 
     assert harden.main(['--history', '--data', 'd', '--site', 's'], runner=runner, root=gate_root) == 1
+
+
+@pytest.mark.parametrize('hourly_cron', ['17 * * 7 *', '17 * 7 * *', '17 * * * MON'])
+def test_review_cadence_uses_only_matching_dates(workflows, capsys, hourly_cron):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        f'name: Mixed cadence\non:\n  schedule:\n    - cron: "{hourly_cron}"\n'
+        '    - cron: "0 0 * 11 *"\n')
+    records = [run_record('2026-11-04T00:00:00Z')]
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 5, tzinfo=timezone.utc), root=workflows) == 0
+    assert 'success gap' not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('hours,passes', [(range(11), True), ([10], False), ([0], False)])
+def test_review_restricted_hourly_window(workflows, capsys, hours, passes):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        'name: Restricted hourly\non:\n  schedule:\n    - cron: "0 0-10 * * *"\n')
+    records = [run_record(f'2026-11-04T{hour:02}:00:00Z') for hour in hours]
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 5, tzinfo=timezone.utc), root=workflows) == int(not passes)
+    if not passes:
+        assert 'success gap' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('mention', [
+    '# See product/nz_election/pipeline/night_live.py\n',
+    'jobs:\n  check:\n    steps:\n      - name: See product/nz_election/pipeline/night_live.py\n'
+    '        run: echo checking\n',
+    'jobs:\n  check:\n    steps:\n      - run: echo product/nz_election/pipeline/night_live.py\n',
+    'jobs:\n  check:\n    steps:\n      - run: |\n'
+    '          # python3 product/nz_election/pipeline/night_live.py\n          echo checking\n',
+])
+def test_review_incidental_guard_mention_cannot_exempt_history(workflows, capsys, mention):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + mention)
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert '; no runs' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('step', [
+    '- name: Run checker\n        env:\n          run: python3 product/nz_election/pipeline/night_live.py\n'
+    '        run: echo checking',
+    '- name: |\n          run: python3 product/nz_election/pipeline/night_live.py\n'
+    '        run: echo checking',
+    '- run: |\n          echo \'documentation\n          python3 product/nz_election/pipeline/night_live.py\n          \'',
+    '- run: |\n          cat <<EOF\n          python3 product/nz_election/pipeline/night_live.py\n          EOF',
+    '- run: python3 product/nz_election/pipeline/night_live.py||true',
+])
+def test_review_guard_requires_execution_not_nested_values(workflows, step):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      ' + step + '\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+
+
+@pytest.mark.parametrize('value', [
+    'python3 product/nz_election/pipeline/night_live.py',
+    '"python3 product/nz_election/pipeline/night_live.py"',
+    "'uv run product/nz_election/pipeline/night_live.py'",
+    '|\n          set -euo pipefail\n          uv run product/nz_election/pipeline/night_live.py',
+    '>-\n          uv run\n          product/nz_election/pipeline/night_live.py',
+])
+def test_review_actual_guard_commands_keep_window(workflows, value):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: ' + value + '\n')
+
+    def runner(*args, **kwargs):
+        pytest.fail('guarded night command is outside its active window')
+
+    assert history.main(['--days', '1'], runner=runner, now=NOW, root=workflows) == 0
+
+
+@pytest.mark.parametrize('missing,passes', [(False, True), (True, False)])
+def test_review_cadence_transition_within_nz_day(workflows, capsys, missing, passes):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text('name: Transition\non:\n  schedule:\n'
+                    '    - cron: "17 * * * MON"\n    - cron: "0 0 * * TUE"\n')
+    # Tuesday NZ starts on Monday UTC: the first 13 hours remain hourly.
+    records = [run_record('2026-11-03T00:00:00Z')]
+    if not missing:
+        records += [run_record(f'2026-11-02T{hour:02}:17:00Z') for hour in range(11, 24)]
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 4, tzinfo=timezone.utc), root=workflows) == int(not passes)
+    if missing:
+        assert 'success gap 13 hours exceeds 3 hours' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('recovery_hour,passes', [(12, True), (12.01, False)])
+def test_review_restricted_window_keeps_two_hour_recovery(workflows, recovery_hour, passes):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text('name: Restricted recovery\non:\n  schedule:\n    - cron: "0 0-10 * * *"\n')
+    start = datetime(2026, 11, 3, tzinfo=timezone.utc)
+    records = [run_record((start + timedelta(hours=hour)).isoformat(),
+                          conclusion='failure' if hour == 10 else 'success') for hour in range(11)]
+    records.append(run_record((start + timedelta(hours=recovery_hour)).isoformat(), event='workflow_dispatch'))
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 4, tzinfo=timezone.utc), root=workflows) == int(not passes)

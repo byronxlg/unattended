@@ -4,6 +4,8 @@ from datetime import datetime, time, timedelta, timezone
 import json
 from pathlib import Path
 import re
+import shlex
+import textwrap
 import subprocess
 import sys
 from zoneinfo import ZoneInfo
@@ -88,17 +90,22 @@ def workflow_schedule(source):
     return schedules
 
 
+def matches_date(schedule, day):
+    _, _, days, months, weekdays, any_day, any_weekday = schedule
+    dom = day.day in days
+    dow = (day.weekday() + 1) % 7 in weekdays
+    return day.month in months and ((dom and dow) if any_day or any_weekday else (dom or dow))
+
+
 def scheduled_times(schedules, start, end):
     # GitHub cron uses UTC; a single NZ date can contain two UTC dates.
     stamps = set()
     day = start.date()
     while day <= end.date():
-        for minutes, hours, days, months, weekdays, any_day, any_weekday in schedules:
-            dom = day.day in days
-            dow = (day.weekday() + 1) % 7 in weekdays
-            matches_day = (dom and dow) if any_day or any_weekday else (dom or dow)
-            if day.month not in months or not matches_day:
+        for schedule in schedules:
+            if not matches_date(schedule, day):
                 continue
+            minutes, hours = schedule[:2]
             for hour in hours:
                 for minute in minutes:
                     stamp = datetime.combine(day, time(hour, minute), timezone.utc)
@@ -108,47 +115,142 @@ def scheduled_times(schedules, start, end):
     return sorted(stamps)
 
 
+def workflow_commands(source):
+    """Read the repository's block-style step run scalars without executing YAML."""
+    lines = source.splitlines()
+    steps_indent = None
+    step_key_indent = None
+    in_jobs = False
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        index += 1
+        if not line.strip() or line.lstrip().startswith('#'):
+            continue
+        indent = len(line) - len(line.lstrip())
+        if indent == 0:
+            in_jobs = line == 'jobs:'
+        if steps_indent is not None and indent <= steps_indent:
+            steps_indent = None
+        if in_jobs and line.strip() == 'steps:':
+            steps_indent = indent
+            step_key_indent = None
+        match = re.match(r'^( *)(- )?([\w-]+):\s*(.*)$', line)
+        if not match:
+            continue
+        space, dash, key, value = match.groups()
+        key_indent = len(space) + (2 if dash else 0)
+        if steps_indent is not None and dash and step_key_indent is None:
+            step_key_indent = key_indent
+        if re.fullmatch(r'[|>][-+0-9]*(?:\s+#.*)?', value):
+            body = []
+            while index < len(lines):
+                candidate = lines[index]
+                if candidate.strip() and len(candidate) - len(candidate.lstrip()) <= key_indent:
+                    break
+                body.append(candidate)
+                index += 1
+            value = textwrap.dedent('\n'.join(body))
+            if match[4].startswith('>'):
+                value = ' '.join(value.splitlines())
+        elif value.startswith('"'):
+            try:
+                value = json.loads(value)
+            except ValueError:
+                continue
+        elif value.startswith("'"):
+            if not value.endswith("'"):
+                continue
+            value = value[1:-1].replace("''", "'")
+        if key != 'run' or steps_indent is None or key_indent != step_key_indent:
+            continue
+        # Only direct Python and uv invocations are evidence. Quoted text and
+        # heredoc bodies must not be mistaken for executable commands.
+        if '<<' in value:
+            continue
+        try:
+            lexer = shlex.shlex(value, posix=True, punctuation_chars=';&|()<>\n')
+            lexer.whitespace = ' \t\r'
+            tokens = list(lexer)
+        except ValueError:
+            continue
+        commands = [[]]
+        for token in tokens:
+            if token and not token.strip('\n'):
+                commands.append([])
+            else:
+                commands[-1].append(token)
+        for words in commands:
+            if words[:2] == ['uv', 'run']:
+                words = words[2:]
+            elif not words or words[0] not in {'python', 'python3'}:
+                continue
+            if words and words[0] in {'python', 'python3'}:
+                words = words[1:]
+            if words and not any(word in {';', '&&', '||', '|', '&', '(', ')', '<', '>'} for word in words):
+                yield words
+
+
 def active_intervals(source, start, end):
-    # Reuse the guards of the entry points declared in these workflows, not dates
-    # copied into the history policy. Never execute shell from workflow YAML.
-    if 'product/nz_election/pipeline/night_live.py' in source:
+    commands = list(workflow_commands(source))
+    scripts = {words[0].removeprefix('./') for words in commands}
+    if 'product/nz_election/pipeline/night_live.py' in scripts:
         start, end = max(start, END), min(end, CLOSE)
     intervals = [(start, end)] if start < end else []
-    if ('product/nz_election/pipeline/deployment_guard.py' in source or
-            re.search(r'product/nz_election/pipeline/social.py[^\n]*--check-freeze', source)):
+    if ('product/nz_election/pipeline/deployment_guard.py' in scripts or
+            any(words[0].removeprefix('./') == 'product/nz_election/pipeline/social.py' and
+                '--check-freeze' in words[1:] for words in commands)):
         intervals = [(left, right) for a, b in intervals
                      for left, right in ((a, min(b, START)), (max(a, END), b)) if left < right]
     return intervals
 
 
-def hourly_workflow(root, filename):
-    source = (root / '.github/workflows' / filename).read_text()
-    return hourly_schedule(workflow_schedule(source))
+def date_intervals(schedules, day):
+    """Partition one UTC date into its scheduled cadence windows."""
+    matching = [schedule for schedule in schedules if matches_date(schedule, day)]
+    if not matching:
+        return []
+    hours = sorted(set().union(*(schedule[1] for schedule in matching)))
+    midnight = datetime.combine(day, time.min, timezone.utc)
+    if max(b - a for a, b in zip(hours, hours[1:] + [hours[0] + 24])) <= 3:
+        return [(midnight, midnight + timedelta(days=1), True)]
+    groups = []
+    for hour in hours:
+        if groups and hour - groups[-1][-1] <= 3:
+            groups[-1].append(hour)
+        else:
+            groups.append([hour])
+    if all(len(group) == 1 for group in groups):
+        return [(midnight, midnight + timedelta(days=1), False)]
+    # Include the whole first and last scheduled hour, not just the interval
+    # after the last observed run. Long unscheduled breaks split the policy.
+    return [(midnight + timedelta(hours=group[0]), midnight + timedelta(hours=group[-1] + 1),
+             len(group) > 1) for group in groups]
 
 
-def hourly_schedule(schedules):
-    hours = sorted(set().union(*(schedule[1] for schedule in schedules)))
-    return max(b - a for a, b in zip(hours, hours[1:] + [hours[0] + 24])) <= 3
-
-
-def expected_intervals(source, schedules, start, end, hourly):
+def expected_intervals(source, schedules, start, end):
     intervals = []
     for a, b in active_intervals(source, start, end):
-        if not hourly:
+        parts = []
+        day = a.date()
+        while day <= b.date():
+            for left, right, hourly in date_intervals(schedules, day):
+                left, right = max(a, left), min(b, right)
+                if left < right:
+                    parts.append((left, right, hourly))
+            day += timedelta(days=1)
+        if not any(hourly for _, _, hourly in parts):
+            # Daily coverage and manual recovery remain NZ-calendar-day checks.
             if scheduled_times(schedules, a, b):
-                intervals.append((a, b))
+                intervals.append((a, b, False))
             continue
-        # A dated hourly cron can start halfway through an NZ day. Midnight
-        # gaps count only within consecutive UTC dates on which it is active.
-        cursor = a
-        while cursor < b:
-            boundary = min(b, datetime.combine(cursor.date() + timedelta(days=1), time.min, timezone.utc))
-            if scheduled_times(schedules, cursor, boundary):
-                if intervals and intervals[-1][1] == cursor:
-                    intervals[-1] = (intervals[-1][0], boundary)
-                else:
-                    intervals.append((cursor, boundary))
-            cursor = boundary
+        for left, right, hourly in parts:
+            if not hourly and not scheduled_times(schedules, left, right):
+                continue
+            if intervals and intervals[-1][1:] == (left, hourly):
+                intervals[-1] = (intervals[-1][0], right, hourly)
+            else:
+                intervals.append((left, right, hourly))
     return intervals
 
 
@@ -188,17 +290,18 @@ def check_history(days, *, runner=subprocess.run, now=None, root=ROOT):
     for filename, name in scheduled_workflows(root):
         source = (root / '.github/workflows' / filename).read_text()
         schedules = workflow_schedule(source)
-        hourly = hourly_schedule(schedules)
         daily_runs = []
         for day in dates:
             start = datetime.combine(day, time.min, NZ).astimezone(timezone.utc)
             end = datetime.combine(day + timedelta(days=1), time.min, NZ).astimezone(timezone.utc)
-            intervals = expected_intervals(source, schedules, start, end, hourly)
+            intervals = expected_intervals(source, schedules, start, end)
             if not intervals:
                 print(f'PASS {name} {day}: not scheduled (cron or active-window guard)')
-            for start, end in intervals:
+            for start, end, hourly in intervals:
                 query_end = end + timedelta(hours=2) if hourly else end
-                active = expected_intervals(source, schedules, end, query_end, hourly)
+                # A manual recovery may follow the last cron fire. Keep the
+                # two-hour recovery policy while respecting execution guards.
+                active = active_intervals(source, end, query_end)
                 if hourly:
                     query_end = active[0][1] if active and active[0][0] == end else end
                 # Query each day and fail closed at the cap rather than accepting truncated evidence.
@@ -222,16 +325,16 @@ def check_history(days, *, runner=subprocess.run, now=None, root=ROOT):
                             selected.append((stamp, run))
                         elif hourly and end <= stamp <= query_end and run['status'] == 'completed' and run['conclusion'] == 'success':
                             later_successes.append(stamp)
-                daily_runs.append((day, start, end, selected, later_successes))
+                daily_runs.append((day, start, end, selected, later_successes, hourly))
         # Collect the whole window before reporting so midnight cannot split a real gap.
-        window_successes = sorted(stamp for _, _, _, selected, _ in daily_runs
+        window_successes = sorted(stamp for _, _, _, selected, _, _ in daily_runs
                                   for stamp, run in selected
                                   if run['status'] == 'completed' and run['conclusion'] == 'success')
-        for index, (day, start, end, selected, later_successes) in enumerate(daily_runs):
+        for index, (day, start, end, selected, later_successes, hourly) in enumerate(daily_runs):
             first = last = index
-            while first > 0 and daily_runs[first - 1][2] == daily_runs[first][1]:
+            while first > 0 and daily_runs[first - 1][2] == daily_runs[first][1] and daily_runs[first - 1][5] == hourly:
                 first -= 1
-            while last + 1 < len(daily_runs) and daily_runs[last][2] == daily_runs[last + 1][1]:
+            while last + 1 < len(daily_runs) and daily_runs[last][2] == daily_runs[last + 1][1] and daily_runs[last + 1][5] == hourly:
                 last += 1
             window_start, window_end = daily_runs[first][1], daily_runs[last][2]
             gap_start = max((stamp for stamp in window_successes if window_start <= stamp < start),
