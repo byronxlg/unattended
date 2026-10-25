@@ -47,7 +47,11 @@ def parse(raw, *, kind, start, date_column='Date', count_column='2023 General El
     try:
         if not isinstance(raw, bytes) or len(raw) > 1000000:
             raise ValueError(ERROR)
-        records = list(csv.DictReader(io.StringIO(raw.decode('utf-8-sig'))))
+        reader = csv.DictReader(io.StringIO(raw.decode('utf-8-sig')), strict=True)
+        headers = reader.fieldnames
+        if not headers or len(headers) != len(set(headers)) or any(not h.strip() for h in headers):
+            raise ValueError(ERROR)
+        records = list(reader)
         if not records or date_column not in records[0] or count_column not in records[0]:
             raise ValueError(ERROR)
         observations = []
@@ -64,6 +68,8 @@ def parse(raw, *, kind, start, date_column='Date', count_column='2023 General El
             if not re.fullmatch(export.DATE_PATTERN, day):
                 from datetime import datetime
                 day = datetime.strptime(day + ' ' + start[:4], '%d %B %Y').date().isoformat()
+            if day[:4] != start[:4]:
+                raise ValueError(ERROR)
             observations.append((day, int(value.replace(',', ''))))
         return normalize(observations, kind=kind, start=start)
     except (ValueError, TypeError, AttributeError, UnicodeError, csv.Error):
@@ -89,30 +95,33 @@ def descriptor(value):
     return value
 
 
-def load(*, historical=False):
+def load(*, historical=False, year=None):
+    year = (2023 if historical else 2026) if year is None else year
+    if type(year) is not int or not 1 <= year <= 9999:
+        raise ValueError(ERROR)
     entries = json.loads((ROOT / 'manifest.json').read_text())['entries']
     selected = []
     for entry in entries:
         if 'advance' in entry:
             settings = descriptor(entry['advance'])
-            if settings['year'] == (2023 if historical else 2026):
+            if settings['year'] == year:
                 selected.append(entry)
     if not selected:
         return None
     for candidate in selected:
         export.timestamp(candidate['captured_at'], 'advance capture')
-    newest = max(e['captured_at'] for e in selected)
-    selected = [e for e in selected if e['captured_at'] == newest]
-    if len(selected) != 1:
+    selected.sort(key=lambda e: e['captured_at'])
+    if len({e['captured_at'] for e in selected}) != len(selected):
         raise ValueError('AMBIGUOUS_ADVANCE_CAPTURE')
-    entry = selected[0]
-    raw = captures(ROOT, paths={entry['path']})[entry['path']]
-    settings = entry['advance']
-    if settings['start'][:4] != str(settings['year']):
-        raise ValueError(ERROR)
-    rows = parse(raw, **{k: settings[k] for k in ('kind', 'start', 'date_column', 'count_column')})
-    if any(r['date'][:4] != str(settings['year']) for r in rows):
-        raise ValueError(ERROR)
+    raw_captures = captures(ROOT, paths={e['path'] for e in selected})
+    previous_length = 0
+    for entry in selected:
+        settings = entry['advance']
+        rows = parse(raw_captures[entry['path']],
+                     **{k: settings[k] for k in ('kind', 'start', 'date_column', 'count_column')})
+        if len(rows) < previous_length:
+            raise ValueError('SHORTER_ADVANCE_CAPTURE')
+        previous_length = len(rows)
     source = dict(id='V:advance-voting', url=entry['url'], revision=entry['revision'], licence=entry['licence'],
                   fetched_at=entry['captured_at'], history_url=entry['archive_url'])
     for row in rows:
