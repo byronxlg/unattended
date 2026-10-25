@@ -9,6 +9,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from product.nz_election.pipeline.deployment_guard import END
 
+NIGHT_CLOSE = datetime.fromisoformat('2026-11-08T06:00:00Z')
 HOURLY_CLOSE = END
 SOCIAL_CLOSE = datetime.fromisoformat('2026-11-15T00:00:00+13:00')
 DAILY_CLOSE = datetime.fromisoformat('2026-11-15T00:00:00+13:00')
@@ -28,19 +29,34 @@ def allowed(kind, now=None, event=None):
             return True
         upstream = os.environ.get('UPSTREAM_WORKFLOW')
         kind = {'NZ election hourly': 'hourly', 'NZ election daily': 'daily'}[upstream]
-    from product.nz_election.pipeline.night_live import CLOSE
-    deadline = {'hourly': HOURLY_CLOSE, 'daily': DAILY_CLOSE, 'social': SOCIAL_CLOSE, 'night': CLOSE}[kind]
+    deadline = {'hourly': HOURLY_CLOSE, 'daily': DAILY_CLOSE, 'social': SOCIAL_CLOSE, 'night': NIGHT_CLOSE}[kind]
     event = event or os.environ.get('GITHUB_EVENT_NAME', 'schedule')
     return (kind == 'daily' and event == 'workflow_dispatch') or instant(now) < deadline
+
+
+class SunsetReached(Exception):
+    """Normal collection termination, separate from source/validation failures."""
+    def __init__(self, kind):
+        self.kind = kind
+        super().__init__(kind.upper() + '_CLOSED')
+
+
+def require_collection(kind, now=None, event=None):
+    if not allowed(kind, now, event):
+        raise SunsetReached(kind)
+
+
+def ended(kind):
+    if os.environ.get('GITHUB_OUTPUT'):
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+            output.write('skipped=true\n')
+    print(f'{kind.capitalize()} scheduled collection has ended.')
 
 
 def skip(kind, now=None, event=None):
     if allowed(kind, now, event):
         return False
-    if os.environ.get('GITHUB_OUTPUT'):
-        with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
-            output.write('skipped=true\n')
-    print(f'{kind.capitalize()} scheduled collection has ended.')
+    ended(kind)
     return True
 
 

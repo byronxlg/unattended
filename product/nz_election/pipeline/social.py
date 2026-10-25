@@ -25,6 +25,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from product.nz_election.pipeline import export
 from product.nz_election.pipeline.refresh import code_sha, utc_now
+from product.nz_election.pipeline.sunsets import require_collection, SunsetReached, ended
 from product.nz_election.pipeline.storage import replace_directory
 
 NZ = ZoneInfo('Pacific/Auckland')
@@ -91,8 +92,9 @@ class NoRedirect(HTTPRedirectHandler):
         return None
 
 
-def transport(method, url, headers, body):
+def transport(method, url, headers, body, *, now=None):
     """Bounded response, no redirect of credentials, no upstream diagnostics."""
+    require_collection('social', (now or utc_now)())
     try:
         request = Request(url, data=body, headers=headers, method=method)
         with build_opener(NoRedirect).open(request, timeout=30) as response:
@@ -195,8 +197,10 @@ def hourly_queries(day, diagnostic=None):
     return queries
 
 
-def collect(day, ledger, run, *, key, send, sleep, now=utc_now, checkpoint=lambda: None, diagnostic=None):
+def collect(day, ledger, run, *, key, send, sleep, now=None, checkpoint=lambda: None, diagnostic=None):
     diagnostic = {} if diagnostic is None else diagnostic
+    now = now or utc_now
+    require_collection('social', now())
     diagnostic['post_windows'] = []
     posts, provenance = [], []
     retries = []
@@ -217,6 +221,7 @@ def collect(day, ledger, run, *, key, send, sleep, now=utc_now, checkpoint=lambd
                 report_retries()
                 return posts, provenance, True
             instant = now()
+            require_collection('social', instant)
             # Leave room for the bounded HTTP timeout before the budget day closes.
             if (datetime.fromisoformat(instant.replace('Z', '+00:00')) + timedelta(seconds=31)).astimezone(NZ).date().isoformat() != run['day']:
                 raise ValueError('SOCIAL_BUDGET_DAY_CHANGED')
@@ -227,26 +232,38 @@ def collect(day, ledger, run, *, key, send, sleep, now=utc_now, checkpoint=lambd
                 # Use 330 seconds so strictly fewer than 240 can fall in a rolling hour.
                 sleep(330)
             instant = now()
+            require_collection('social', instant)
             # Leave room for the bounded HTTP timeout before the budget day closes.
             if (datetime.fromisoformat(instant.replace('Z', '+00:00')) + timedelta(seconds=31)).astimezone(NZ).date().isoformat() != run['day']:
                 raise ValueError('SOCIAL_BUDGET_DAY_CHANGED')
             if frozen(instant):
                 raise ValueError('SOCIAL_FROZEN')
+            unspent = {k: run[k] for k in ('reserved', 'requests', 'spent')}
             if not allocated:
                 run['reserved'] += RESERVATION
             run['requests'] += 1
             run['spent'] += RESERVATION
-            checkpoint()
-            url = 'https://api.twitterapi.io/twitter/tweet/advanced_search?' + urlencode(dict(query=query, queryType='Latest'))
-            # Atomic checkpointing can outlast the pre-reservation clock check.
-            instant = now()
-            if (datetime.fromisoformat(instant.replace('Z', '+00:00')) + timedelta(seconds=31)).astimezone(NZ).date().isoformat() != run['day']:
-                raise ValueError('SOCIAL_BUDGET_DAY_CHANGED')
-            if frozen(instant):
-                raise ValueError('SOCIAL_FROZEN')
+            try:
+                checkpoint()
+                url = 'https://api.twitterapi.io/twitter/tweet/advanced_search?' + urlencode(dict(query=query, queryType='Latest'))
+                # Atomic checkpointing can outlast the pre-reservation clock check.
+                instant = now()
+                require_collection('social', instant)
+                if (datetime.fromisoformat(instant.replace('Z', '+00:00')) + timedelta(seconds=31)).astimezone(NZ).date().isoformat() != run['day']:
+                    raise ValueError('SOCIAL_BUDGET_DAY_CHANGED')
+                if frozen(instant):
+                    raise ValueError('SOCIAL_FROZEN')
+            except SunsetReached:
+                run.update(unspent)
+                checkpoint()
+                raise
             try:
                 status, raw = send('GET', url, {'X-API-Key': key, 'Accept': 'application/json'}, None)
                 diagnostic['http_status'] = status if type(status) is int and 100 <= status <= 599 else None
+            except SunsetReached:
+                run.update(unspent)
+                checkpoint()
+                raise
             except Exception:
                 diagnostic['code'] = 'SOCIAL_TRANSPORT_FAILED'
                 status, raw = 503, b''
@@ -279,8 +296,10 @@ def probability(value):
     return Decimal(value)
 
 
-def classify(posts, *, key, send, diagnostic=None, enforce_bound=False):
+def classify(posts, *, key, send, diagnostic=None, enforce_bound=False, now=None):
     diagnostic = {} if diagnostic is None else diagnostic
+    now = now or utc_now
+    require_collection('social', now())
     result, ids, texts = [], set(), set()
     excluded = Counter(dict.fromkeys(EXCLUSIONS, 0))
     diagnostic['last_exclusion'] = None
@@ -307,6 +326,7 @@ def classify(posts, *, key, send, diagnostic=None, enforce_bound=False):
     sent = len(candidates)
     for index, text, author in candidates:
         diagnostic.update(window=origins[index] if index < len(origins) else None, attempt=1, http_status=None, code=None, check=None)
+        require_collection('social', now())
         payload = dict(model=MODEL_VERSION, state=text, questions=QUESTIONS)
         try:
             diagnostic['check'] = 'transport'
@@ -315,6 +335,8 @@ def classify(posts, *, key, send, diagnostic=None, enforce_bound=False):
             diagnostic['http_status'] = status if type(status) is int and 100 <= status <= 599 else None
             if status != 200:
                 raise ValueError()
+        except SunsetReached:
+            raise
         except Exception as exc:
             diagnostic['code'] = diagnostic_code(exc, 'SOCIAL_CLASSIFICATION_FAILED')
             raise ValueError('SOCIAL_CLASSIFICATION_FAILED') from None
@@ -486,11 +508,12 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
     if frozen(now):
         return 'frozen'
     windows(day)
-    from product.nz_election.pipeline.sunsets import allowed
+    # Offline harnesses explicitly label their run and supply a synthetic transport.
+    offline = fixture or (run_url == 'offline-verification' and send is not transport)
+    clock_now = clock_now or ((lambda: now) if offline else utc_now)
     paid_send = send
     def send(*args, **kwargs):
-        if not allowed('social', (clock_now or (lambda: now))()):
-            raise ValueError('SOCIAL_CLOSED')
+        require_collection('social', clock_now())
         return paid_send(*args, **kwargs)
     if date.fromisoformat(day) >= datetime.fromisoformat(now.replace('Z', '+00:00')).astimezone(NZ).date():
         raise ValueError('SOCIAL_DAY_NOT_CLOSED')
@@ -515,7 +538,7 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                 ledger.append(run)
         sha = code_sha()
         error, record = None, None
-        def save():
+        def save(*, restore_status=False):
             with tempfile.TemporaryDirectory(prefix='.social-', dir=out.parent) as tmp:
                 stage = Path(tmp) / 'data'
                 shutil.copytree(out, stage) if out.exists() else stage.mkdir()
@@ -538,7 +561,8 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                 status_error = None if budget_spent and error == 'SOCIAL_CREDIT_CAP' else error
                 status = dict(id='status-social', source_ref=[], observed_at=now, dataset='social', state=('stale' if error or record is None else 'fresh') if success else 'unavailable', last_attempt_at=now, last_success_at=success, last_good_run_url=run_url if record else prior.get('last_good_run_url'), error_code=status_error, message=message)
                 statuses = [r for r in old.get('status', {}).get('data', []) if r['dataset'] != 'social'] + [status]
-                export.pair(stage, 'status', export.envelope(statuses, [], run_url, sha))
+                status_env = old.get('status', export.envelope([], [], run_url, sha)) if restore_status else export.envelope(statuses, [], run_url, sha)
+                export.pair(stage, 'status', status_env)
                 export.merged_licences(stage)
                 export.inventory(stage, run_url, sha, now)
                 export.validate_bundle(stage)
@@ -552,11 +576,12 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                     save()
                     return 'budget-spent'
             else:
-                posts, provenance, limited = collect(day, ledger, run, key=x_key, send=send, sleep=sleep, now=clock_now or (lambda: now), checkpoint=save, diagnostic=diagnostic)
+                posts, provenance, limited = collect(day, ledger, run, key=x_key, send=send, sleep=sleep, now=clock_now, checkpoint=save, diagnostic=diagnostic)
                 if limited and not provenance:
                     error = 'SOCIAL_CREDIT_CAP'
                 else:
-                    classified, exclusions = classify(posts, key=jev_key, send=send, diagnostic=diagnostic, enforce_bound=True)
+                    classified, exclusions = classify(posts, key=jev_key, send=send, diagnostic=diagnostic, enforce_bound=True, now=clock_now)
+                    require_collection('social', clock_now())
                     # Judge the complete sample, not a prefix containing one odd post.
                     sent = len(posts) - exclusions['duplicate'] - exclusions['unsupported']
                     if exclusions['classification'] * 10 > sent:
@@ -564,6 +589,11 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                         raise ValueError('SOCIAL_CLASSIFICATION_FAILED')
                     record = aggregate(day, posts, classified, exclusions, provenance, now)
                     record['provenance']['fixture'] = fixture
+        except SunsetReached:
+            run['closed'] = True
+            save(restore_status=True)
+            ended('social')
+            return 'ended'
         except Exception as exc:
             code = diagnostic['code'] or diagnostic_code(exc, 'SOCIAL_UPSTREAM_FAILED')
             diagnostic['code'] = code
@@ -579,7 +609,7 @@ def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep
                 save()
                 return run['id'] if not error else error
         run['closed'] = True
-        if frozen((clock_now or (lambda: now))()):
+        if frozen(clock_now()):
             record, error = None, 'SOCIAL_FROZEN'
         save()
         return error or 'ok'
@@ -620,6 +650,8 @@ def main():
             f.write('validated=true\n')
             if result.startswith('run-'):
                 f.write('reservation=' + result + '\n')
+    if result == 'ended':
+        return
     if result not in {'ok', 'frozen', 'budget-spent'} and not result.startswith('run-'):
         raise SystemExit('FAIL social: ' + result)
     print('PASS social')

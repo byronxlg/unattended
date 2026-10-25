@@ -335,7 +335,7 @@ in `deployment_guard.py` remains unchanged and also applies to manual work.
 | Constant | Value | Consumers |
 | --- | --- | --- |
 | `sunsets.HOURLY_CLOSE` | `deployment_guard.END`, 7 Nov 2026 06:00 UTC (19:00 NZDT) | Hourly guard and poll loader |
-| `night_live.CLOSE` | 8 Nov 2026 06:00 UTC | Night loop, starter, watchdog, successor and browser package |
+| `sunsets.NIGHT_CLOSE` | 8 Nov 2026 06:00 UTC | Night loop, starter, watchdog, successor and browser package |
 | `sunsets.SOCIAL_CLOSE` | 15 Nov 2026 00:00 NZDT (14 Nov 11:00 UTC) | Social reservation, collection and every paid request |
 | `sunsets.DAILY_CLOSE` | 15 Nov 2026 00:00 NZDT (14 Nov 11:00 UTC) | Scheduled daily collection and loaders |
 
@@ -361,3 +361,9 @@ Use the separate reviewed official capture/import procedure in `runbook/night.md
 27 November; daily dispatch does not itself acquire the official result. Manual Pages
 builds remain possible after all collection sunsets. Hourly and social dispatches do
 not bypass their cutoffs. A social publish already underway finishes its Pages dispatch.
+
+Cutoff signals bypass source-failure handling. A social cutoff closes its credit ledger,
+keeps actual spend, and restores the prior status/sample; an unsent checkpoint allowance
+is rolled back. Poll/daily cutoffs discard the pending bundle. Live social clocks default
+to UTC now at every paid entry point; fixtures, explicitly labelled offline runs with injected transports, or explicit test
+clocks stay fixed.

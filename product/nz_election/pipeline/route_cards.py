@@ -59,7 +59,8 @@ def summary(route, envs, home, built):
         description = description.replace('votes on', 'voted on')
         if path == 'vote/':
             title = 'Voting closed: election results'
-            description = 'Voting closed on 7 November. Find election results; official results due 27 November.'
+            from .result_sources import official_results_notice
+            description = 'Voting closed on 7 November. Find election results. ' + official_results_notice(built, envs.get('night/live/current', {}).get('data', []))
         if path == 'night/':
             description = 'Current preliminary election results. Official results due 27 November.'
             if any(r.get('result_state') == 'official' for r in envs.get('night/live/current', {}).get('data', [])):

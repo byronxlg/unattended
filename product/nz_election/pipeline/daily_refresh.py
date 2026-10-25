@@ -141,7 +141,7 @@ def main(*, now=None):
     parser.add_argument('--live', action='store_true')
     parser.add_argument('--historical-advance', action='store_true', help='2023 offline verification only')
     args = parser.parse_args()
-    from product.nz_election.pipeline.sunsets import skip
+    from product.nz_election.pipeline.sunsets import skip, SunsetReached, ended
     if args.live and skip('daily', now() if now else None):
         return
     if args.live and args.historical_advance:
@@ -154,7 +154,11 @@ def main(*, now=None):
         loaders, messages = live_loaders(**({"now": now} if now else {}))
         options = dict(loaders=loaders, messages=messages, sha=os.environ['GITHUB_SHA'],
                        run_url=os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'])
-    daily_refresh(args.out, **options)
+    try:
+        daily_refresh(args.out, **options)
+    except SunsetReached as exc:
+        ended(exc.kind)
+        return
     if os.environ.get('GITHUB_OUTPUT'):
         with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
             output.write('validated=true\n')

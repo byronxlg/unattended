@@ -183,7 +183,7 @@ def main(*, now=None):
     parser.add_argument('--fixtures', action='store_true')
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
-    from product.nz_election.pipeline.sunsets import skip
+    from product.nz_election.pipeline.sunsets import skip, require_collection, SunsetReached, ended
     if not args.fixtures and skip('hourly', now() if now else None):
         return
     attempted_revision = None
@@ -196,13 +196,15 @@ def main(*, now=None):
         run_url = os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID']
         def live():
             nonlocal attempted_revision
-            from product.nz_election.pipeline.sunsets import allowed
-            if not allowed('hourly', now() if now else None):
-                raise ValueError('HOURLY_CLOSED')
+            require_collection('hourly', now() if now else None)
             result = acquire()
             attempted_revision = result['revision']
             return result
-        status = refresh(args.out, acquire=live, run_url=run_url, sha=os.environ['GITHUB_SHA'])
+        try:
+            status = refresh(args.out, acquire=live, run_url=run_url, sha=os.environ['GITHUB_SHA'])
+        except SunsetReached as exc:
+            ended(exc.kind)
+            return
     if os.environ.get('GITHUB_OUTPUT'):
         with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
             output.write('validated=true\n')

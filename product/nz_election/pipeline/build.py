@@ -540,7 +540,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                 body = page(envs, built)
             elif slug == 'vote/':
                 from product.nz_election.pipeline.vote_page import page
-                body = page(built)
+                body = page(built, envs=envs)
             elif slug == 'night/':
                 from product.nz_election.pipeline.night_page import page
                 body = page(envs, built)

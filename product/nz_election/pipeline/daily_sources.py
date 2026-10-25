@@ -30,11 +30,10 @@ def acquired(sources, path):
 def live_loaders(acquire=None, *, now=None, event=None):
     """Acquire in memory; failures propagate to atomic last-good family retention."""
     from . import fetch, markets, candidates, baseline, enrolment, electorate_polls, advance, night
-    from .sunsets import allowed
+    from .sunsets import require_collection
     transport = acquire or fetch.acquire
     def acquire(**kwargs):
-        if not allowed('daily', now() if callable(now) else now, event):
-            raise ValueError('DAILY_CLOSED')
+        require_collection('daily', now() if callable(now) else now, event)
         return transport(**kwargs)
     messages = {}
 
@@ -83,8 +82,7 @@ def live_loaders(acquire=None, *, now=None, event=None):
             'electorate-polls': electorate_polls.load, 'markets': market_loader, 'night': night.load, 'advance': advance.load}
     def guarded(loader):
         def load():
-            if not allowed('daily', now() if callable(now) else now, event):
-                raise ValueError('DAILY_CLOSED')
+            require_collection('daily', now() if callable(now) else now, event)
             return loader()
         return load
     return {name: guarded(loader) for name, loader in loaders.items()}, messages

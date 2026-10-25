@@ -31,3 +31,9 @@ def official_date_reached(retrieved_at):
 
 def due_date():
     return f'{OFFICIAL_RESULTS_DATE.day} {OFFICIAL_RESULTS_DATE:%B}'
+
+
+def official_results_notice(built, rows=()):
+    if official_date_reached(built) or any(row.get('result_state') == 'official' for row in rows):
+        return 'Official results are published.'
+    return f'Official results due {due_date()}.'

@@ -106,11 +106,10 @@ def acquire(transport=http, *, sleep=time.sleep, now=lambda: datetime.now(timezo
     gamma_urls = {gamma_url(e['slug']) for e in events()}
     if url not in {URL, CANDIDATE_URL} | gamma_urls:
         raise FetchError('UNAPPROVED_SOURCE')
-    from .sunsets import allowed
+    from .sunsets import require_collection
     kind = 'hourly' if url == URL else 'daily'
     for attempt in range(3):
-        if not allowed(kind, now()):
-            raise FetchError(kind.upper() + '_CLOSED')
+        require_collection(kind, now())
         headers = {}
         try:
             with transport(Request(url, headers={'User-Agent': USER_AGENT}), timeout=20) as response:
@@ -156,7 +155,7 @@ def night_xml(root, path, *, transport=http, sleep=time.sleep, now=lambda: datet
         raise FetchError('UNAPPROVED_SOURCE')
     url = root + path
     for attempt in range(3):
-        from product.nz_election.pipeline.night_live import CLOSE
+        from product.nz_election.pipeline.sunsets import NIGHT_CLOSE as CLOSE
         if now() >= CLOSE:
             raise ValueError('NIGHT_CLOSED')
         headers = {}
