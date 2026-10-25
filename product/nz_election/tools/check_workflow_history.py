@@ -228,9 +228,11 @@ def workflow_commands(source):
                     break
                 body.append(candidate)
                 index += 1
-            value = textwrap.dedent('\n'.join(body))
             if match[4].startswith('>'):
-                value = ' '.join(value.split('\n'))
+                # Folding depends on blank lines and indentation. Raw text is
+                # not execution evidence; consume the scalar without guessing.
+                continue
+            value = textwrap.dedent('\n'.join(body))
         elif value.startswith('"'):
             try:
                 value = json.loads(value)

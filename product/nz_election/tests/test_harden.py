@@ -559,7 +559,6 @@ def test_review_guard_requires_execution_not_nested_values(workflows, step):
     '"python3 product/nz_election/pipeline/night_live.py"',
     "'uv run product/nz_election/pipeline/night_live.py'",
     '|\n          set -euo pipefail\n          uv run product/nz_election/pipeline/night_live.py',
-    '>-\n          uv run\n          product/nz_election/pipeline/night_live.py',
 ])
 def test_review_actual_guard_commands_keep_window(workflows, value):
     path = workflows / '.github/workflows/new-name.yaml'
@@ -750,3 +749,40 @@ def test_review5_supported_whitespace_still_recognizes_guard(separator):
     command = 'python3' + separator + 'product/nz_election/pipeline/night_live.py'
     source = 'jobs:\n  check:\n    steps:\n      - run: ' + json.dumps(command) + '\n'
     assert list(history.workflow_commands(source)) == [['product/nz_election/pipeline/night_live.py']]
+
+
+@pytest.mark.parametrize('style', ['>', '>-'])
+def test_review6_folded_blank_line_is_not_guard_evidence(workflows, capsys, style):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: ' + style + '\n'
+                    '          python3\n\n          product/nz_election/pipeline/night_live.py\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert '; no runs' in capsys.readouterr().out
+    assert list(history.workflow_commands(path.read_text())) == []
+
+
+@pytest.mark.parametrize('style', ['>', '>-', '>+'])
+def test_review6_even_simple_folded_commands_are_not_evidence(workflows, style):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: ' + style + '\n'
+                    '          uv run\n          product/nz_election/pipeline/night_live.py\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert list(history.workflow_commands(path.read_text())) == []
+
+
+def test_review6_folded_scalar_does_not_hide_following_simple_step(workflows):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + '''jobs:
+  check:
+    steps:
+      - run: >-
+          python3
+
+          product/nz_election/pipeline/night_live.py
+      - run: python3 product/nz_election/pipeline/night_live.py
+''')
+    assert list(history.workflow_commands(path.read_text())) == [['product/nz_election/pipeline/night_live.py']]
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 0
