@@ -2806,3 +2806,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #83 harden-gate third fresh review: request changes, one Important: check_workflow_history.py:126 does not handle Bash ANSI-C `$'a\'` quoting, so an echoed `night_live.py` line after it counts as an invocation (the reviewer probed it). A contrived form in our own workflows, but it is a false pass in a safety gate and the fix is small; parse or conservatively reject. Logged on the PR; fix-3 nz-election-harden-gate-fix-3 dispatched on the build thread. Alternative rejected: accept with reasoning and defer (four rounds on one tokenizer is the cost, but a gate that can be fooled is the thing being fixed).
 - Process: the regression check on #84 again set the stray last.md aside with an untagged `git stash -u` and `pop`; the stash list was empty afterwards and nothing was lost, but the rule from 16:19Z was not followed. Next time delete the stray file first.
 - Codex window 15 percent, 6.7 days to reset. No judgement calls. No Byron words this run.
+
+## 2026-10-25 16:44Z run (job_done harden-gate-fix-3, review-advance-preflight-3)
+
+- PR #83 harden-gate fix-3 d406b7f (guard evidence ignored from the first `$'` line onward, fails closed). Host: test_harden*.py 162 passed; with check_workflow_history.py at 191c461 3 fail; bin/lint ok. Pushed, supervisor accept logged, fourth fresh review review-nz-election-harden-gate-4 dispatched.
+- PR #84 advance-preflight third fresh review: request changes, one Important: cli() at advance_preflight.py:85-92 catches only OSError and ValueError, so RuntimeError, KeyError, TypeError from inspect() print capture text in a traceback (reviewer probed with a marker). Confirmed by reading cli(). Logged on the PR; fix-3 nz-election-advance-preflight-fix-3 dispatched on the build thread (fixed message for any Exception at the CLI boundary, marker regression failing on d540336).
+- Regression check on #83 run in a /tmp copy, no stash used.
+- Codex window 16 percent, 6.7 days to reset. No judgement calls. No Byron words this run.
