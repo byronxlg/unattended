@@ -1,0 +1,57 @@
+name: NZ election result import
+
+on:
+  workflow_dispatch:
+    inputs:
+      state:
+        description: Result transition (ignored for rollback)
+        type: choice
+        options: [settled, official]
+        required: true
+      capture:
+        description: Reviewed real capture path in the main fixture manifest
+        type: string
+        required: false
+      data_sha:
+        description: Full data branch commit to transition from or restore
+        type: string
+        required: true
+      rollback:
+        description: Restore only the night family from data_sha
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: nz-election-data-publication
+  cancel-in-progress: false
+
+jobs:
+  import:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - name: Validate, import night family and dispatch Pages
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+          STATE: ${{ inputs.state }}
+          CAPTURE: ${{ inputs.capture }}
+          DATA_SHA: ${{ inputs.data_sha }}
+          ROLLBACK: ${{ inputs.rollback }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          if [[ "$ROLLBACK" == 'true' ]]; then args+=(--rollback); fi
+          uv run product/nz_election/pipeline/result_import.py --state "$STATE" --capture "$CAPTURE" --data-sha "$DATA_SHA" "${args[@]}"

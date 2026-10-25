@@ -106,6 +106,16 @@ def transition(envs, state, *, now, captured=None):
     return loaded
 
 
+def prepare(data, out, state, *, now, run_url, captured):
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    envs = export.validate_bundle(data)
+    loaded = transition(envs, state, now=now, captured=captured)
+    daily_refresh(out, loaders={'night': lambda: loaded}, now=now, run_url=run_url)
+    checked = export.validate_bundle(out)
+    if checked.get('night/live/current', {}).get('data', [{}])[0].get('result_state') != state:
+        raise ValueError('NIGHT_STATE')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('state', choices=MODES)
@@ -116,14 +126,8 @@ def main():
     parser.add_argument('--capture', help='Manifest-checked fixture path containing raw XML and retrieval time')
     args = parser.parse_args()
     from product.nz_election.pipeline import fixtures
-    from product.nz_election.pipeline.daily_refresh import daily_refresh
-    envs = export.validate_bundle(args.data)
     captured = json.loads(fixtures.captures(paths={args.capture})[args.capture]) if args.capture else None
-    loaded = transition(envs, args.state, now=args.now, captured=captured)
-    daily_refresh(args.out, loaders={'night': lambda: loaded}, now=args.now, run_url=args.run_url)
-    checked = export.validate_bundle(args.out)
-    if checked.get('night/live/current', {}).get('data', [{}])[0].get('result_state') != args.state:
-        raise ValueError('NIGHT_STATE')
+    prepare(args.data, args.out, args.state, now=args.now, run_url=args.run_url, captured=captured)
     print('PASS result state: ' + args.state + (' (offline verification)' if args.run_url == 'offline-verification' else ''))
 
 
