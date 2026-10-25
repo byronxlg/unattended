@@ -2704,3 +2704,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - CI run 40184089016 success at 10:45Z; PR #81 squash merged as fd885f4; .worktrees/nz-election-verify-required removed.
 - No job running after the merge. Increment 3 (post-election schedules) waits for the week-after NOTE deadline 12:45Z; nothing else in plan-week-after is dispatchable before it (increments 4 and 5 are supervisor work on 6-7 Nov). next-run-after set to 12:46Z.
 - Codex window 2.0 percent used, resets in 7.0 days; disk 21.6 GiB free.
+
+## 2026-10-25 12:47Z (idle)
+
+- Week-after NOTE (sent 00:40Z, deadline 12:45Z) closed on silence: no new issue or relay. Taken as yes: five-minute night loop stops 8 Nov 06:00Z, hourly polls stop 7 Nov 06:00Z, social and daily builds run to 14 Nov with the social sample period labelled.
+- Dispatched nz-election-post-schedules (plan-week-after increment 3) in .worktrees/nz-election-post-schedules on change/nz-election-post-schedules from eb9dcf7; brief state/jobs/nz-election-post-schedules/prompt.md (one constant per sunset, zero paid calls after sunset, social deploy kept after hourly stops, past-tense home/vote/share copy after 7 Nov 06:00Z; Page plan pages/home.md).
+- Workflows: hourly 11:26Z success. Codex window 2.0 percent.
+- Second slot idle: increments 4 and 5 are supervisor work for 6-7 Nov; nothing else in the plan is dispatchable without overlapping the files of this job.
