@@ -2560,3 +2560,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Second fresh review of PR #78: request changes, one Important. bin/night-watchdog holds the flock only in the wrapper; Popen closes fds and starts the worker in a new session, so a SIGKILLed wrapper (tick hard kill) releases the lock while the orphan can still dispatch, and the next tick can dispatch again. Reviewer reproduced it with a subprocess probe. Supervisor confirmed by reading bin/night-watchdog:16-37. Logged on the PR.
 - Dispatched nz-election-night-start-fix-2 on the build thread (state/jobs/nz-election-night-start/followup-2.md): invariant named (no second attempt while an earlier attempt's process can dispatch), mechanism left to the engineer, kill-path test that fails on dcf30ad, main's tests untouched.
 - results-states (increment 2) still running stacked on #78. Codex window 32 percent, 6.3 days to reset. No Byron messages this run.
+
+## 2026-10-25 00:41Z (job_done nz-election-night-start-fix-2)
+
+- fix-2 ed64b0d: bin/night-watchdog passes the locked fd to the detached worker (pass_fds), so a SIGKILLed wrapper no longer frees the lock while the worker can dispatch. Host: test_night_operation.py + test_workflows.py 56 passed; with bin/ at dcf30ad the new test_watchdog_lock_survives_wrapper_sigkill fails (2 failed, 50 passed); bash -n bin/tick ok; bin/lint ok. Pushed, supervisor accept logged on PR #78.
+- Third fresh review review-nz-election-night-start-3 dispatched (read-only).
+- results-states (increment 2) still running stacked on #78. Codex window 35 percent, 6.3 days to reset. No Byron messages this run.
