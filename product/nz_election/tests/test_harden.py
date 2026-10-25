@@ -630,3 +630,32 @@ def test_review2_guard_shell_boundaries(workflows, capsys, script, guarded):
     assert history.main(['--days', '1'], runner=runner, now=NOW, root=workflows) == int(not guarded)
     assert bool(calls) == (not guarded)
     assert ('not scheduled' if guarded else '; no runs') in capsys.readouterr().out
+
+
+def test_review3_ansi_c_string_cannot_declare_guard(workflows, capsys):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + r"""jobs:
+  check:
+    steps:
+      - run: |
+          echo $'a\'
+          python3 product/nz_election/pipeline/night_live.py
+          #'
+""")
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert '; no runs' in capsys.readouterr().out
+    assert list(history.workflow_commands(path.read_text())) == []
+
+
+@pytest.mark.parametrize('script,guarded', [
+    ("python3 product/nz_election/pipeline/night_live.py\necho $'text'", True),
+    ("echo $'text'\npython3 product/nz_election/pipeline/night_live.py", False),
+    ("python3 product/nz_election/pipeline/night_live.py $'text'", False),
+])
+def test_review3_ansi_c_cutoff_preserves_only_prior_lines(workflows, script, guarded):
+    path = workflows / '.github/workflows/new-name.yaml'
+    body = '\n'.join('          ' + line for line in script.split('\n'))
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: |\n' + body + '\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == int(not guarded)

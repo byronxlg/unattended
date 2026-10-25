@@ -117,6 +117,11 @@ def scheduled_times(schedules, start, end):
 
 def shell_commands(source):
     """Keep lexical newlines distinct from quoted data; do not evaluate shell."""
+    ansi_quote = source.find("$'")
+    if ansi_quote >= 0:
+        # ANSI-C escapes can keep later lines inside a string. Without parsing
+        # them, neither this line nor the rest of the run body is evidence.
+        source = source[:source.rfind('\n', 0, ansi_quote) + 1]
     commands = [[]]
     quote = None
     in_word = False
