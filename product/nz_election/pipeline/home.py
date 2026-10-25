@@ -178,15 +178,18 @@ def night_summary(envs, built):
                     observations.append((row['source_updated_local'], row, refs[0]))
     if not observations:
         return ''
-    clock, row, refs = max(observations, key=lambda item: item[0])
+    clock, row, refs = max(observations, key=lambda item: (bool(item[1].get('packaging_label')), item[0]))
+    from .result_states import sentence
     seats = '; '.join(escape(refs['parties'][p]['short_name']) + ' ' + str(r['total_seats'])
                       for p, r in sorted(row['party_results'].items(), key=lambda item: -item[1]['total_seats']) if r['total_seats'] or row['reported_house'] == 0)
+    majority = f' {row["reported_house"] // 2 + 1} for a majority.' if row['reported_house'] else ''
     if row['reported_house'] == 0:
         seats = '0 national seats reported.'
     return ('<section id="night-summary" class="home-hero"><h1>Who is winning now?</h1>'
             '<figure id="home-night" aria-describedby="source-night"><p class="seat-answer">' + seats + '</p>'
-            f'<p>{row["statistics"]["percent_voting_places_counted"]}% of voting places reported. House: {row["reported_house"]} seats.</p>'
-            '<p>' + escape(row['mode']) + '. Updated ' + escape(clock.replace('T', ' ')) + ' (source local time).</p></figure>'
+            f'<p>{row["statistics"]["percent_voting_places_counted"]}% of voting places reported. House: {row["reported_house"]} seats.{majority}</p>'
+            '<p>' + escape(sentence(row)) + (' Updated ' + escape(clock.replace('T', ' ')) + ' (source local time).' if not row.get('result_state') else '') + '</p></figure>'
+            '<p>Government formation is separate from these seat totals.</p>'
             + footnote('night', 'Electoral Commission', updated(envs, 'night/index', built))
             + f'<p><a href="{PREFIX}night/">Election night results</a></p></section>')
 

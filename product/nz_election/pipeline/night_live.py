@@ -110,7 +110,7 @@ def loaded(captured, *, rehearsal=False):
     return payloads, sources, hashes
 
 
-def validate_row(row, env, reference):
+def validate_row(row, env, reference, *, official=False):
     if row.get('packaging_label') != 'Packaged by the site' or type(row.get('rehearsal')) is not bool:
         raise ValueError('NIGHT_LIVE')
     refs, result = parsed(row['raw_xml'], rehearsal=row['rehearsal'])
@@ -126,7 +126,10 @@ def validate_row(row, env, reference):
         if (env['input_hashes'].get(ident) != export.digest(text.encode()) or sources[ident]['url'] != root + path
                 or sources[ident]['fetched_at'] != row['retrieved_at'] or sources[ident]['revision'] != export.digest(text.encode())):
             raise ValueError('NIGHT_LIVE')
-    if not row['rehearsal']:
+    if official:
+        if row['mode'] != 'Official results' or row['retrieved_at'] < '2026-11-26T11:00:00Z' or row['source_updated_local'] < '2026-11-27T00:00:00':
+            raise ValueError('NIGHT_STATE')
+    elif not row['rehearsal']:
         require_open(lambda: datetime.fromisoformat(row['retrieved_at'].replace('Z', '+00:00')))
 
 

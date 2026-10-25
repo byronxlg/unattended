@@ -29,6 +29,7 @@ def seat_chart(row, source):
 def electorate_view(row, refs, source, identity):
     if 'leaders' not in row:
         return ''
+    official = row.get('result_state') == 'official'
     registry = config('electorates')
     by_name = {r['name']: r for r in registry}
     layout = json.loads((PRODUCT / 'snapshots/hexmap.json').read_text())['records']
@@ -49,9 +50,9 @@ def electorate_view(row, refs, source, identity):
         margin = item.get('margin')
         status = item.get('status', 'not yet reported')
         if status == 'final':
-            status = 'Final source count; leader provisional'
+            status = 'Final source count' if official else 'Final source count; leader provisional'
         elif leader:
-            status = 'Provisional leader'
+            status = 'Source-reported leader' if official else 'Provisional leader'
         stats = item.get('statistics')
         if stats:
             status += f"; {stats['total_voting_places_counted']} of {stats['total_voting_places']} voting places"
@@ -76,6 +77,8 @@ def electorate_view(row, refs, source, identity):
         points = ' '.join(f'{x*30+dx},{y*25+dy}' for dx,dy in [(15,0),(29,8),(29,22),(15,30),(1,22),(1,8)])
         tiles.append(f'<polygon points="{points}" fill="{colour}" fill-opacity="{opacity}" stroke="#ffffff"><title>{title}</title></polygon>')
     content = '<section class="night-electorates"><h2>Who is ahead in my electorate?</h2><p>Provisional leaders, not elected members. Grey means no reported leader; deeper colour means a margin of at least 5,000 votes.</p>'
+    if official:
+        content = content.replace('Provisional leaders, not elected members.', 'Official source-reported leaders.')
     if '2023' in row['mode'] or row['source_ref'] == ['ec-2023-xml/election.xml']:
         content += '<p>2023 electorates, on their original boundaries. Links lead to today’s electorate information; no votes are transferred to new boundaries.</p>'
     if legend:
@@ -86,16 +89,20 @@ def electorate_view(row, refs, source, identity):
     rendered = table('Electorate provisional leaders: ' + context, ['Electorate', 'Leader', 'Margin (votes)', 'Reporting status'], rows, source=source)
     for e in refs['electorates']:
         rendered = rendered.replace('<tr><td>', f'<tr id="night-row-{identity}-{e}"><td>', 1)
+    if official:
+        content = content.replace('Electorate provisional leaders', 'Official electorate leaders')
+        rendered = rendered.replace('Electorate provisional leaders', 'Official electorate leaders')
     return content + rendered + '</section>'
 
 
-def comparison_view(preliminary, official, source):
+def comparison_view(preliminary, official, source, *, names=None):
     from .night_seats import official_change
     result = official_change(preliminary, official)
     if result is None:
         return ''
+    names = names or {}
     content = '<h2>Change since preliminary result</h2><p>' + escape(result['preliminary_date'] + ' to ' + result['official_date']) + '</p>'
-    content += table('Change since preliminary result', ['Party', 'Seat change'], [[escape(p), f'{n:+d}'] for p, n in result['changes'].items()], source=source)
+    content += table('Change since preliminary result', ['Party', 'Seat change'], [[escape(names.get(p, p)), f'{n:+d}'] for p, n in result['changes'].items()], source=source)
     if 'specials' in result:
         content += table('Source-identified special votes', ['Party', 'Special votes'], [[escape(p), str(v)] for p,v in result['specials']['votes'].items()], source=source)
         content += '<p><a href="' + escape(result['specials']['source'], quote=True) + '">Special votes source</a></p>'

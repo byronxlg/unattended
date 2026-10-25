@@ -324,3 +324,63 @@ package is explicitly labelled offline fixture data, validated through the exist
 pipeline and retained beneath the record directory in `fault-fixture/`. It then tests HTTP failure and an unchanged package aging past 15 minutes, retaining
 the exact last-good HTML and showing Stale. This is client resilience evidence, never evidence
 of a real published live cycle or an Actions acquisition rehearsal.
+
+## Settled and official results (week-after increment 2)
+
+After the live window closes at 8 November 06:00 UTC, settle the last complete validated
+bundle. This is an offline preparation command; it does not fetch or publish anything:
+
+```sh
+uv run product/nz_election/pipeline/result_states.py settled \
+  --data artifacts/last-complete-data --out artifacts/settled-data \
+  --now 2026-11-08T06:00:00Z
+uv run product/nz_election/pipeline/verify.py night --data artifacts/settled-data
+uv run product/nz_election/pipeline/build.py --data artifacts/settled-data \
+  --out artifacts/settled-site/nz-election --now 2026-11-08T06:00:00Z
+```
+
+`--data` must be the complete published data bundle, not an individual JSON file. Keep its
+original retrieval time. Settling pins the complete preliminary envelope, including raw XML,
+source URLs, revisions, retrieval times, code SHA and run URL, inside `preliminary_package`.
+The current result stays byte-for-byte equivalent to that pinned row apart from state metadata.
+No feed means no transition. Settlement does not change the live acquisition window or s197 guard.
+The page says live updates ended and gives the source's last complete count date/time, explicitly
+as source local time. Home uses the same sentence. Settled and official clients make no polling
+requests, including on reload or visibility changes. Readers reload after the official import.
+
+The official path requires a settled baseline, all 71 detail files and the same references and
+party IDs as the preliminary package. Reference drift fails; it needs a separately reviewed
+mapping, never a guessed join. The source timestamp must be on or after 27 November and later
+than the preliminary count; retrieval must also be on or after 27 November NZDT and no later
+than `--now`. An official XML family does not carry a national official/preliminary flag;
+the operator explicitly selects `official` after verifying the EC publication.
+
+The 27 November capture is a human step. This increment only imports manifest-checked fixtures,
+with no network capture. The input JSON contains `raw` (XML text by relative filename) and
+`retrieved_at` (UTC). Register reviewed bytes and provenance in the existing fixture manifest
+before import. The following command exercises the committed **synthetic offline fixture**;
+it must never be published as an actual election result:
+
+```sh
+uv run product/nz_election/pipeline/result_states.py official \
+  --data artifacts/settled-data --out artifacts/official-data \
+  --capture result-states/2026-11-27-official.json --now 2026-11-27T11:00:00Z
+uv run product/nz_election/pipeline/verify.py night --data artifacts/official-data
+uv run product/nz_election/pipeline/build.py --data artifacts/official-data \
+  --out artifacts/official-site/nz-election --now 2026-11-27T11:00:00Z
+```
+
+For this rehearsal, generate the compatible preliminary and settled bundles with
+`uv run product/nz_election/tests/result_states_browser.py`; its outputs include
+`artifacts/result-states/settled-data`. Use that path for the fixture official command.
+The harness builds both populated states and records home and night at 390x844 and 1280x800.
+The synthetic preliminary fixture is dated 7 November; neither fixture is a real EC capture.
+
+Publication remains a separate Actions-controlled step using the validated night family and
+existing leased publisher. These commands only prepare local artifacts; they do not dispatch,
+change infrastructure, or publish. On the real import, replace the synthetic fixture path with
+the reviewed human capture and pass `--run-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"`
+from the producing Actions job for both commands. Without that option the output remains
+labelled offline verification. Retain the original preliminary envelope throughout. The comparison
+is labelled “Change since preliminary result”, never “special votes”. The XML's aggregate
+special-vote statistic is not a party breakdown and does not enable a specials component.

@@ -6,7 +6,7 @@ import re
 from . import export, fixtures, xml_parser, baseline
 
 LABEL = 'Illustrative replay based on 2023 final results'
-MODES = {'live': 'Live preliminary results', 'final': 'Final snapshot', 'illustrative': LABEL, 'demo': 'Recorded demo', 'preliminary': 'Packaged 2026 preliminary snapshot'}
+MODES = {'settled': 'Settled preliminary results', 'official': 'Official results', 'live': 'Live preliminary results', 'final': 'Final snapshot', 'illustrative': LABEL, 'demo': 'Recorded demo', 'preliminary': 'Packaged 2026 preliminary snapshot'}
 
 
 def allowed(name):
@@ -118,7 +118,7 @@ def validate_mode(row):
     if not refs or any(type(ref) is not str for ref in refs):
         raise ValueError('NIGHT_MODE')
     if refs == ['actions-xml/election.xml']:
-        expected = MODES['demo'] if row.get('rehearsal') is True else MODES['live']
+        expected = MODES['demo'] if row.get('rehearsal') is True else MODES.get(row.get('result_state'), MODES['live'])
     elif all(re.fullmatch(r'ec-mediademo-xml/election-obs[1-9][0-9]*\.xml', ref) for ref in refs):
         expected = MODES['demo']
         if 'derivation' in row:
@@ -249,7 +249,11 @@ def validate(root):
                         if seq['snapshot_paths'] != ['night/live/current.json'] or seq['reference_path'] != 'night/references/live.json':
                             raise ValueError('NIGHT_INDEX')
                         from .night_live import validate_row as validate_live
-                        validate_live(row, env, reference)
+                        if 'result_state' in row:
+                            from .result_states import validate as validate_state
+                            validate_state(row, env, reference)
+                        else:
+                            validate_live(row, env, reference)
                         continue
                     validate_capture(row, env, capture_cache)
                     # Legacy national-only packages remain readable during the atomic upgrade.

@@ -16,7 +16,10 @@ def bundle(tmp_path):
 
 
 def test_capture_manifest():
-    assert len(captures()) == 142
+    raw = captures()
+    assert len(raw) == 144
+    assert {p for p in raw if p.startswith('result-states/')} == {
+        'result-states/2026-11-07-preliminary-final.json', 'result-states/2026-11-27-official.json'}
 
 
 def test_envelopes_and_provenance(bundle):
