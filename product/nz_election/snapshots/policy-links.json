@@ -1,54 +1,551 @@
 {
   "schema": "policy-links-v1",
-  "retrieved_at": "2026-10-22T07:00:00Z",
+  "retrieved_at": "2026-10-25T18:07:44Z",
   "records": [
     {
       "party_id": "nat",
       "url": "https://policy.nz/2026/party-vote/parties/national-party",
-      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_url": "https://policy.nz/2026/party-vote/parties/national-party",
+      "retrieved_at": "2026-10-25T18:07:44Z",
       "licence": "Links only; no policy text reused and no reuse licence claimed."
     },
     {
       "party_id": "lab",
       "url": "https://policy.nz/2026/party-vote/parties/labour-party",
       "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "retrieved_at": "2026-10-25T18:07:44Z",
       "licence": "Links only; no policy text reused and no reuse licence claimed."
     },
     {
       "party_id": "grn",
       "url": "https://policy.nz/2026/party-vote/parties/green-party",
-      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_url": "https://policy.nz/2026/party-vote/parties/green-party",
+      "retrieved_at": "2026-10-25T18:07:44Z",
       "licence": "Links only; no policy text reused and no reuse licence claimed."
     },
     {
       "party_id": "act",
       "url": "https://policy.nz/2026/party-vote/parties/act-party",
-      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_url": "https://policy.nz/2026/party-vote/parties/act-party",
+      "retrieved_at": "2026-10-25T18:07:44Z",
       "licence": "Links only; no policy text reused and no reuse licence claimed."
     },
     {
       "party_id": "nzf",
       "url": "https://policy.nz/2026/party-vote/parties/nz-first",
-      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_url": "https://policy.nz/2026/party-vote/parties/nz-first",
+      "retrieved_at": "2026-10-25T18:07:44Z",
       "licence": "Links only; no policy text reused and no reuse licence claimed."
     },
     {
       "party_id": "tpm",
       "url": "https://policy.nz/2026/party-vote/parties/te-pati-maori",
-      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_url": "https://policy.nz/2026/party-vote/parties/te-pati-maori",
+      "retrieved_at": "2026-10-25T18:07:44Z",
       "licence": "Links only; no policy text reused and no reuse licence claimed."
     },
     {
       "party_id": "opp",
       "url": "https://policy.nz/2026/party-vote/parties/opportunity-party",
-      "source_url": "https://policy.nz/2026/party-vote/parties/labour-party",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_url": "https://policy.nz/2026/party-vote/parties/opportunity-party",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "auckland-central",
+      "url": "https://policy.nz/2026/auckland-central-electorate/candidates/antonia-modkova",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "banks-peninsula",
+      "url": "https://policy.nz/2026/banks-peninsula-electorate/candidates/vanessa-weenink",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "botany",
+      "url": "https://policy.nz/2026/botany-electorate/candidates/anae-neru-leavasa",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "christchurch-central",
+      "url": "https://policy.nz/2026/christchurch-central-electorate/candidates/george-hampton",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "christchurch-east",
+      "url": "https://policy.nz/2026/christchurch-east-electorate/candidates/helen-houghton",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "coromandel",
+      "url": "https://policy.nz/2026/coromandel-electorate/candidates/pamela-grealey",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "dunedin",
+      "url": "https://policy.nz/2026/dunedin-electorate/candidates/adrian-mcdermott",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "east-cape",
+      "url": "https://policy.nz/2026/east-cape-electorate/candidates/jo-luxton",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "east-coast-bays",
+      "url": "https://policy.nz/2026/east-coast-bays-electorate/candidates/brendan-mcenroe",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "epsom",
+      "url": "https://policy.nz/2026/epsom-electorate/candidates/lawrence-xu-nan",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "glendene",
+      "url": "https://policy.nz/2026/glendene-electorate/candidates/yasmine-serhan",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "hamilton-east",
+      "url": "https://policy.nz/2026/hamilton-east-electorate/candidates/georgie-dansey",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "hamilton-west",
+      "url": "https://policy.nz/2026/hamilton-west-electorate/candidates/blair-smith",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "henderson",
+      "url": "https://policy.nz/2026/henderson-electorate/candidates/nick-peirce",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "hutt-south",
+      "url": "https://policy.nz/2026/hutt-south-electorate/candidates/chris-bishop",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "ilam",
+      "url": "https://policy.nz/2026/ilam-electorate/candidates/rata-jamieson",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "invercargill",
+      "url": "https://policy.nz/2026/invercargill-electorate/candidates/anntwinette-grumball",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "kaikoura",
+      "url": "https://policy.nz/2026/kaikoura-electorate/candidates/tom-spooner",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "kaipara-ki-mahurangi",
+      "url": "https://policy.nz/2026/kaipara-ki-mahurangi-electorate/candidates/simon-court",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "kapiti",
+      "url": "https://policy.nz/2026/kapiti-electorate/candidates/sophie-handford",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "kenepuru",
+      "url": "https://policy.nz/2026/kenepuru-electorate/candidates/jon-blackshaw",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "mangere",
+      "url": "https://policy.nz/2026/mangere-electorate/candidates/rosemary-bourke",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "manurewa",
+      "url": "https://policy.nz/2026/manurewa-electorate/candidates/esther-tofilau-tevaga",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "maungakiekie",
+      "url": "https://policy.nz/2026/maungakiekie-electorate/candidates/greg-fleming",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "mt-albert",
+      "url": "https://policy.nz/2026/mt-albert-electorate/candidates/sheldon-eden-whaitiri",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "mt-maunganui",
+      "url": "https://policy.nz/2026/mt-maunganui-electorate/candidates/tracey-coxhead",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "mt-roskill",
+      "url": "https://policy.nz/2026/mt-roskill-electorate/candidates/michael-wood",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "napier",
+      "url": "https://policy.nz/2026/napier-electorate/candidates/john-ormond",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "nelson",
+      "url": "https://policy.nz/2026/nelson-electorate/candidates/jodie-kuntzsch",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "new-plymouth",
+      "url": "https://policy.nz/2026/new-plymouth-electorate/candidates/sarah-lucas",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "north-shore",
+      "url": "https://policy.nz/2026/north-shore-electorate/candidates/sam-collins",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "northcote",
+      "url": "https://policy.nz/2026/northcote-electorate/candidates/dan-bidois",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "northland",
+      "url": "https://policy.nz/2026/northland-electorate/candidates/ashleigh-latimer",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "otahuhu",
+      "url": "https://policy.nz/2026/otahuhu-electorate/candidates/te-whatanui-skipwith",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "pakuranga",
+      "url": "https://policy.nz/2026/pakuranga-electorate/candidates/parmjeet-parmar",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "palmerston-north",
+      "url": "https://policy.nz/2026/palmerston-north-electorate/candidates/tangi-utikere",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "papakura",
+      "url": "https://policy.nz/2026/papakura-electorate/candidates/angela-dalton",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "port-waikato",
+      "url": "https://policy.nz/2026/port-waikato-electorate/candidates/sarah-jane-lochead-macmillan",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "rangitata",
+      "url": "https://policy.nz/2026/rangitata-electorate/candidates/matt-harris",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "rangitikei",
+      "url": "https://policy.nz/2026/rangitikei-electorate/candidates/steve-gibson",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "remutaka",
+      "url": "https://policy.nz/2026/remutaka-electorate/candidates/chris-hipkins",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "rotorua",
+      "url": "https://policy.nz/2026/rotorua-electorate/candidates/finn-liley",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "selwyn",
+      "url": "https://policy.nz/2026/selwyn-electorate/candidates/alma-de-anda",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "southland",
+      "url": "https://policy.nz/2026/southland-electorate/candidates/todd-stephenson",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "taieri",
+      "url": "https://policy.nz/2026/taieri-electorate/candidates/anna-knight",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "takanini",
+      "url": "https://policy.nz/2026/takanini-electorate/candidates/elliot-ikilei",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "tamaki",
+      "url": "https://policy.nz/2026/tamaki-electorate/candidates/max-harris",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "taranaki-king-country",
+      "url": "https://policy.nz/2026/taranaki-king-country-electorate/candidates/ivana-jovicic",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "taupo",
+      "url": "https://policy.nz/2026/taupo-electorate/candidates/celine-kearney",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "tauranga",
+      "url": "https://policy.nz/2026/tauranga-electorate/candidates/bryan-norton",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "tukituki",
+      "url": "https://policy.nz/2026/tukituki-electorate/candidates/rob-douglas",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "upper-harbour",
+      "url": "https://policy.nz/2026/upper-harbour-electorate/candidates/hannah-pia-baral",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "waikato",
+      "url": "https://policy.nz/2026/waikato-electorate/candidates/jamie-toko",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "waimakariri",
+      "url": "https://policy.nz/2026/waimakariri-electorate/candidates/dan-rosewarne",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "wairarapa",
+      "url": "https://policy.nz/2026/wairarapa-electorate/candidates/victoria-ale",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "waitakere",
+      "url": "https://policy.nz/2026/waitakere-electorate/candidates/callum-sheridan",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "waitaki",
+      "url": "https://policy.nz/2026/waitaki-electorate/candidates/helen-tait",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "wellington-bays",
+      "url": "https://policy.nz/2026/wellington-bays-electorate/candidates/kayla-kingdon-bebb",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "wellington-north",
+      "url": "https://policy.nz/2026/wellington-north-electorate/candidates/tamatha-paul",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "west-coast-tasman",
+      "url": "https://policy.nz/2026/west-coast-tasman-electorate/candidates/cindie-uddstrom",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "whanganui",
+      "url": "https://policy.nz/2026/whanganui-electorate/candidates/carl-bates",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "whangaparaoa",
+      "url": "https://policy.nz/2026/whangaparaoa-electorate/candidates/helena-roza",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "whangarei",
+      "url": "https://policy.nz/2026/whangarei-electorate/candidates/lloyd-budd",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "wigram",
+      "url": "https://policy.nz/2026/wigram-electorate/candidates/dominik-yanzick",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "hauraki-waikato",
+      "url": "https://policy.nz/2026/hauraki-waikato-electorate/candidates/kingi-kiriona",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "ikaroa-rawhiti",
+      "url": "https://policy.nz/2026/ikaroa-rawhiti-electorate/candidates/cushla-tangaere-manuel",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "tamaki-makaurau",
+      "url": "https://policy.nz/2026/tamaki-makaurau-electorate/candidates/kerrin-leoni",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "te-tai-hauauru",
+      "url": "https://policy.nz/2026/te-tai-hauauru-electorate/candidates/te-puoho-katene",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "te-tai-tokerau",
+      "url": "https://policy.nz/2026/te-tai-tokerau-electorate/candidates/huhana-lyndon",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "te-tai-tonga",
+      "url": "https://policy.nz/2026/te-tai-tonga-electorate/candidates/takuta-ferris",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
+      "licence": "Links only; no policy text reused and no reuse licence claimed."
+    },
+    {
+      "electorate_slug": "waiariki",
+      "url": "https://policy.nz/2026/waiariki-electorate/candidates/papa-wharewera",
+      "source_url": "https://policy.nz/2026/elections",
+      "retrieved_at": "2026-10-25T18:07:44Z",
       "licence": "Links only; no policy text reused and no reuse licence claimed."
     }
   ]

@@ -465,7 +465,8 @@ def load_party_details(name):
             if 'source_locator' in row:
                 _require(_text(row['source_locator']), 'Invalid policy source locator')
             _require(isinstance(row.get('url'), str) and re.fullmatch(
-                (r'https://policy\.nz/2026/electorate-vote/' + re.escape(electorate) if electorate else
+                (r'https://policy\.nz/2026/(?:electorate-vote/' + re.escape(electorate)
+                 + '|' + re.escape(electorate) + r'-electorate/candidates/[a-z0-9]+(?:-[a-z0-9]+)*)' if electorate else
                  r'https://policy\.nz/2026/party-vote/parties/[a-z0-9]+(?:-[a-z0-9]+)*'),
                 row['url']) is not None, 'Invalid policy URL')
         else:

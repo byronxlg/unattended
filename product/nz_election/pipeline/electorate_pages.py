@@ -82,7 +82,7 @@ def candidate_cards(row):
 def policy_link(row):
     from .snapshot_views import load
     entry = next((r for r in load('policy-links') if r.get('electorate_slug') == row['slug']), None)
-    return ('<p class="electorate-policy">' + link(entry['url'], 'Compare these candidates at Policy.nz') + '</p>') if entry else ''
+    return ('<section class="electorate-policy"><p>' + link(entry['url'], 'Compare these candidates at Policy.nz') + '</p></section>') if entry else ''
 
 
 def previous_result(row, envs, built):
