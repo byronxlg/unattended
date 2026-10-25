@@ -1,192 +1,606 @@
 {
   "schema": "party-list-tops-v1",
-  "retrieved_at": "2026-10-22T07:00:00Z",
-  "method": "Transcribed opening ranks from EC PDF. Names reordered from surname, given names. Only opening ranks captured; no total candidate counts asserted.",
+  "retrieved_at": "2026-10-25T18:45:06Z",
+  "method": "All 17 registered parties contesting the party vote: list sizes transcribed from the EC 9 October 2026 release, checked against final PDF ranks. Opening ranks retain exact EC source_name separately from given-name-first display name. Confirmed means the published size and first min(5, size) ranks are verified, not that this snapshot contains the full roster.",
   "records": [
     {
-      "party_id": "nat",
+      "party": "National Party",
       "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
-      "source_locator": "Page 2, party heading and opening list ranks",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_locator": "PDF page(s) 2, National Party heading, ranks 1-5 and final rank 72",
+      "retrieved_at": "2026-10-25T18:45:06Z",
       "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 72,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
       "candidates": [
         {
           "rank": 1,
+          "source_name": "LUXON, Christopher",
           "name": "Christopher Luxon"
         },
         {
           "rank": 2,
+          "source_name": "WILLIS, Nicola Valentine",
           "name": "Nicola Valentine Willis"
         },
         {
           "rank": 3,
+          "source_name": "BISHOP, Chris",
           "name": "Chris Bishop"
         },
         {
           "rank": 4,
+          "source_name": "BROWN, Simeon",
           "name": "Simeon Brown"
         },
         {
           "rank": 5,
+          "source_name": "STANFORD, Erica",
           "name": "Erica Stanford"
         }
-      ]
+      ],
+      "party_id": "nat"
     },
     {
-      "party_id": "lab",
+      "party": "Labour Party",
       "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
-      "source_locator": "Page 1, party heading and opening list ranks",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_locator": "PDF page(s) 1-2, Labour Party heading, ranks 1-5 and final rank 71",
+      "retrieved_at": "2026-10-25T18:45:06Z",
       "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 71,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
       "candidates": [
         {
           "rank": 1,
+          "source_name": "HIPKINS, Chris",
           "name": "Chris Hipkins"
         },
         {
           "rank": 2,
+          "source_name": "SEPULONI, Carmel Jean",
           "name": "Carmel Jean Sepuloni"
         },
         {
           "rank": 3,
+          "source_name": "EDMONDS, Barbara",
           "name": "Barbara Edmonds"
         },
         {
           "rank": 4,
+          "source_name": "JACKSON, William",
           "name": "William Jackson"
         },
         {
           "rank": 5,
+          "source_name": "WOODS, Megan",
           "name": "Megan Woods"
         }
-      ]
+      ],
+      "party_id": "lab"
     },
     {
-      "party_id": "grn",
+      "party": "Green Party",
       "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
-      "source_locator": "Page 1, party heading and opening list ranks",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_locator": "PDF page(s) 1, Green Party heading, ranks 1-5 and final rank 55",
+      "retrieved_at": "2026-10-25T18:45:06Z",
       "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 55,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
       "candidates": [
         {
           "rank": 1,
+          "source_name": "DAVIDSON, Marama Mere-Ana",
           "name": "Marama Mere-Ana Davidson"
         },
         {
           "rank": 2,
+          "source_name": "SWARBRICK, Chlöe",
           "name": "Chlöe Swarbrick"
         },
         {
           "rank": 3,
+          "source_name": "TUIONO, Teanau",
           "name": "Teanau Tuiono"
         },
         {
           "rank": 4,
+          "source_name": "PAUL, Tamatha",
           "name": "Tamatha Paul"
         },
         {
           "rank": 5,
+          "source_name": "GENTER, Julie Anne",
           "name": "Julie Anne Genter"
         }
-      ]
+      ],
+      "party_id": "grn"
     },
     {
-      "party_id": "act",
+      "party": "ACT New Zealand",
       "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
-      "source_locator": "Page 1, party heading and opening list ranks",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_locator": "PDF page(s) 1, ACT New Zealand heading, ranks 1-5 and final rank 46",
+      "retrieved_at": "2026-10-25T18:45:06Z",
       "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 46,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
       "candidates": [
         {
           "rank": 1,
+          "source_name": "SEYMOUR, David",
           "name": "David Seymour"
         },
         {
           "rank": 2,
+          "source_name": "McKEE, Nicole",
           "name": "Nicole McKee"
         },
         {
           "rank": 3,
+          "source_name": "HOGGARD, Andrew",
           "name": "Andrew Hoggard"
         },
         {
           "rank": 4,
+          "source_name": "HENRY, Paul",
           "name": "Paul Henry"
         },
         {
           "rank": 5,
+          "source_name": "CHHOUR, Karen",
           "name": "Karen Chhour"
         }
-      ]
+      ],
+      "party_id": "act"
     },
     {
-      "party_id": "nzf",
+      "party": "New Zealand First Party",
       "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
-      "source_locator": "Page 2, party heading and opening list ranks",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_locator": "PDF page(s) 2, New Zealand First Party heading, ranks 1-5 and final rank 50",
+      "retrieved_at": "2026-10-25T18:45:06Z",
       "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 50,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
       "candidates": [
         {
           "rank": 1,
+          "source_name": "PETERS, Winston",
           "name": "Winston Peters"
         },
         {
           "rank": 2,
+          "source_name": "JONES, Shane",
           "name": "Shane Jones"
         },
         {
           "rank": 3,
+          "source_name": "COSTELLO, Casey",
           "name": "Casey Costello"
         },
         {
           "rank": 4,
+          "source_name": "PATTERSON, Mark",
           "name": "Mark Patterson"
         },
         {
           "rank": 5,
+          "source_name": "NGARO, Alfred",
           "name": "Alfred Ngaro"
         }
-      ]
+      ],
+      "party_id": "nzf"
     },
     {
-      "party_id": "opp",
+      "party": "Opportunity Party",
       "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
-      "source_locator": "Page 3, party heading and opening list ranks",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_locator": "PDF page(s) 3, Opportunity Party heading, ranks 1-5 and final rank 40",
+      "retrieved_at": "2026-10-25T18:45:06Z",
       "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 40,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
       "candidates": [
         {
           "rank": 1,
+          "source_name": "WONG, Qiulae",
           "name": "Qiulae Wong"
         },
         {
           "rank": 2,
+          "source_name": "EB, Daniel",
           "name": "Daniel Eb"
         },
         {
           "rank": 3,
+          "source_name": "HAMMOND, Jessica",
           "name": "Jessica Hammond"
         },
         {
           "rank": 4,
+          "source_name": "KINGDON-BEBB, Kayla",
           "name": "Kayla Kingdon-Bebb"
         },
         {
           "rank": 5,
+          "source_name": "SKIPPER, Eden",
           "name": "Eden Skipper"
+        }
+      ],
+      "party_id": "opp"
+    },
+    {
+      "party": "Te Pāti Māori",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "PDF page(s) 3, Te Pāti Māori heading, ranks 1-1 and final rank 1",
+      "retrieved_at": "2026-10-25T18:45:06Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 1,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
+      "candidates": [
+        {
+          "rank": 1,
+          "source_name": "NORMAN, Lance",
+          "name": "Lance Norman"
+        }
+      ],
+      "party_id": "tpm"
+    },
+    {
+      "party": "Alliance Party",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "PDF page(s) 1, Alliance Party heading, ranks 1-5 and final rank 17",
+      "retrieved_at": "2026-10-25T18:45:06Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 17,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
+      "candidates": [
+        {
+          "rank": 1,
+          "source_name": "BILLOT, Victor",
+          "name": "Victor Billot"
+        },
+        {
+          "rank": 2,
+          "source_name": "KNIGHT, Anna",
+          "name": "Anna Knight"
+        },
+        {
+          "rank": 3,
+          "source_name": "GULLERY, Ethan",
+          "name": "Ethan Gullery"
+        },
+        {
+          "rank": 4,
+          "source_name": "DYATLOVA-MURPHY, Sara",
+          "name": "Sara Dyatlova-Murphy"
+        },
+        {
+          "rank": 5,
+          "source_name": "TURNBULL, Kyle",
+          "name": "Kyle Turnbull"
         }
       ]
     },
     {
-      "party_id": "tpm",
+      "party": "Animal Justice Party Aotearoa New Zealand",
       "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
-      "source_locator": "Page 3, party heading and opening list ranks",
-      "retrieved_at": "2026-10-22T07:00:00Z",
+      "source_locator": "PDF page(s) 1, Animal Justice Party Aotearoa New Zealand heading, ranks 1-5 and final rank 10",
+      "retrieved_at": "2026-10-25T18:45:06Z",
       "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 10,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
       "candidates": [
         {
           "rank": 1,
-          "name": "Lance Norman"
+          "source_name": "McNEIL, Rob",
+          "name": "Rob McNeil"
+        },
+        {
+          "rank": 2,
+          "source_name": "WERETA, Danette",
+          "name": "Danette Wereta"
+        },
+        {
+          "rank": 3,
+          "source_name": "CARRINGTON, Lily",
+          "name": "Lily Carrington"
+        },
+        {
+          "rank": 4,
+          "source_name": "KYLE, Sandra",
+          "name": "Sandra Kyle"
+        },
+        {
+          "rank": 5,
+          "source_name": "BAKER, Brian",
+          "name": "Brian Baker"
+        }
+      ]
+    },
+    {
+      "party": "Aotearoa Legalise Cannabis Party",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "PDF page(s) 1, Aotearoa Legalise Cannabis Party heading, ranks 1-5 and final rank 12",
+      "retrieved_at": "2026-10-25T18:45:06Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 12,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
+      "candidates": [
+        {
+          "rank": 1,
+          "source_name": "HERBERT, Maki",
+          "name": "Maki Herbert"
+        },
+        {
+          "rank": 2,
+          "source_name": "APPLEBY, Michael",
+          "name": "Michael Appleby"
+        },
+        {
+          "rank": 3,
+          "source_name": "LYE, Jeffrey",
+          "name": "Jeffrey Lye"
+        },
+        {
+          "rank": 4,
+          "source_name": "LAMBERT, Paula",
+          "name": "Paula Lambert"
+        },
+        {
+          "rank": 5,
+          "source_name": "MANAIA, Christopher",
+          "name": "Christopher Manaia"
+        }
+      ]
+    },
+    {
+      "party": "Conservative Party NZ",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "PDF page(s) 1, Conservative Party NZ heading, ranks 1-5 and final rank 8",
+      "retrieved_at": "2026-10-25T18:45:06Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 8,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
+      "candidates": [
+        {
+          "rank": 1,
+          "source_name": "HOUGHTON, Helen",
+          "name": "Helen Houghton"
+        },
+        {
+          "rank": 2,
+          "source_name": "THOMAS, Karl",
+          "name": "Karl Thomas"
+        },
+        {
+          "rank": 3,
+          "source_name": "LIBRE, Mel",
+          "name": "Mel Libre"
+        },
+        {
+          "rank": 4,
+          "source_name": "LYELL, Douglas Robert",
+          "name": "Douglas Robert Lyell"
+        },
+        {
+          "rank": 5,
+          "source_name": "DRURY, Marie",
+          "name": "Marie Drury"
+        }
+      ]
+    },
+    {
+      "party": "Free Palestine",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "PDF page(s) 1, Free Palestine heading, ranks 1-5 and final rank 6",
+      "retrieved_at": "2026-10-25T18:45:06Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 6,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
+      "candidates": [
+        {
+          "rank": 1,
+          "source_name": "MINTO, John",
+          "name": "John Minto"
+        },
+        {
+          "rank": 2,
+          "source_name": "RUAWAI, Deborah",
+          "name": "Deborah Ruawai"
+        },
+        {
+          "rank": 3,
+          "source_name": "FREW, Dale",
+          "name": "Dale Frew"
+        },
+        {
+          "rank": 4,
+          "source_name": "BREWER, Warren",
+          "name": "Warren Brewer"
+        },
+        {
+          "rank": 5,
+          "source_name": "ALEXANDER, William Donald",
+          "name": "William Donald Alexander"
+        }
+      ]
+    },
+    {
+      "party": "New Zealand Loyal",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "PDF page(s) 3, New Zealand Loyal heading, ranks 1-5 and final rank 17",
+      "retrieved_at": "2026-10-25T18:45:06Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 17,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
+      "candidates": [
+        {
+          "rank": 1,
+          "source_name": "ALP, Kelvyn",
+          "name": "Kelvyn Alp"
+        },
+        {
+          "rank": 2,
+          "source_name": "TEIO, Paul",
+          "name": "Paul Teio"
+        },
+        {
+          "rank": 3,
+          "source_name": "FAITHFULL, Brenton Bruce",
+          "name": "Brenton Bruce Faithfull"
+        },
+        {
+          "rank": 4,
+          "source_name": "HISLOP, Alexander",
+          "name": "Alexander Hislop"
+        },
+        {
+          "rank": 5,
+          "source_name": "BLOMFIELD, Kelly",
+          "name": "Kelly Blomfield"
+        }
+      ]
+    },
+    {
+      "party": "NZ Outdoors & Freedom Party",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "PDF page(s) 3, NZ Outdoors & Freedom Party heading, ranks 1-5 and final rank 17",
+      "retrieved_at": "2026-10-25T18:45:06Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 17,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
+      "candidates": [
+        {
+          "rank": 1,
+          "source_name": "GREY, Sue",
+          "name": "Sue Grey"
+        },
+        {
+          "rank": 2,
+          "source_name": "COOK, Aly",
+          "name": "Aly Cook"
+        },
+        {
+          "rank": 3,
+          "source_name": "YOUNG, Barry",
+          "name": "Barry Young"
+        },
+        {
+          "rank": 4,
+          "source_name": "AFEAKI, Hine",
+          "name": "Hine Afeaki"
+        },
+        {
+          "rank": 5,
+          "source_name": "WAIT, Alistair",
+          "name": "Alistair Wait"
+        }
+      ]
+    },
+    {
+      "party": "Te Tai Tokerau Party",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "PDF page(s) 3, Te Tai Tokerau Party heading, ranks 1-2 and final rank 2",
+      "retrieved_at": "2026-10-25T18:45:06Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 2,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
+      "candidates": [
+        {
+          "rank": 1,
+          "source_name": "CAMPBELL-KAMARIERA, Kyla",
+          "name": "Kyla Campbell-Kamariera"
+        },
+        {
+          "rank": 2,
+          "source_name": "KAPA-KINGI, Mariameno",
+          "name": "Mariameno Kapa-Kingi"
+        }
+      ]
+    },
+    {
+      "party": "Vision New Zealand",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "PDF page(s) 3, Vision New Zealand heading, ranks 1-5 and final rank 6",
+      "retrieved_at": "2026-10-25T18:45:06Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 6,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
+      "candidates": [
+        {
+          "rank": 1,
+          "source_name": "TAMAKI, Hannah",
+          "name": "Hannah Tamaki"
+        },
+        {
+          "rank": 2,
+          "source_name": "ROBERTSON, Heker",
+          "name": "Heker Robertson"
+        },
+        {
+          "rank": 3,
+          "source_name": "JERRY, Sawan",
+          "name": "Sawan Jerry"
+        },
+        {
+          "rank": 4,
+          "source_name": "MOKARAKA, Karl",
+          "name": "Karl Mokaraka"
+        },
+        {
+          "rank": 5,
+          "source_name": "MACLEAN, Naomi",
+          "name": "Naomi MacLean"
+        }
+      ]
+    },
+    {
+      "party": "Women's Rights Party",
+      "source_url": "https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf",
+      "source_locator": "PDF page(s) 3, Women's Rights Party heading, ranks 1-5 and final rank 13",
+      "retrieved_at": "2026-10-25T18:45:06Z",
+      "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
+      "list_size": 13,
+      "list_size_source_url": "https://elections.nz/media-and-news/2026/candidate-and-party-lists-released",
+      "completeness": "confirmed",
+      "candidates": [
+        {
+          "rank": 1,
+          "source_name": "OVENS, Jill",
+          "name": "Jill Ovens"
+        },
+        {
+          "rank": 2,
+          "source_name": "van DONGEN, Yvonne",
+          "name": "Yvonne van Dongen"
+        },
+        {
+          "rank": 3,
+          "source_name": "OXLEY, Hilary",
+          "name": "Hilary Oxley"
+        },
+        {
+          "rank": 4,
+          "source_name": "GALLOWAY, Ann",
+          "name": "Ann Galloway"
+        },
+        {
+          "rank": 5,
+          "source_name": "HYMAN, Prue",
+          "name": "Prue Hyman"
         }
       ]
     }

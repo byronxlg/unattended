@@ -448,6 +448,10 @@ def load_party_details(name):
             _require(isinstance(electorate, str) and electorate in {r['slug'] for r in config('electorates')}
                      and 'party_id' not in row and electorate not in seen, 'Invalid electorate identity')
             seen.add(electorate)
+        elif name == 'party-list-tops' and 'party_id' not in row:
+            _require(_text(row.get('party')) and row['party'] not in seen,
+                     'Invalid party identity')
+            seen.add(row['party'])
         else:
             _require(isinstance(p, str) and p in parties and p not in seen, 'Invalid party identity')
             seen.add(p)
@@ -478,9 +482,22 @@ def load_party_details(name):
                      'Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.',
                      'Invalid EC party list licence')
             _require(_text(row.get('source_locator')), 'Invalid list source locator')
+            _require(row.get('completeness') in ('confirmed', 'partial'), 'Invalid list completeness')
+            total = row.get('list_size')
+            if 'list_size' in row:
+                _require(type(total) is int and 0 < total <= 120, 'Invalid list size')
+            if 'list_size' in row or 'list_size_source_url' in row:
+                _require(row.get('list_size_source_url') ==
+                         'https://elections.nz/media-and-news/2026/candidate-and-party-lists-released',
+                         'Invalid EC list size source')
             candidates = row.get('candidates')
-            _require(isinstance(candidates, list) and 0 < len(candidates) <= 5, 'Invalid list top')
+            _require(isinstance(candidates, list) and len(candidates) <= 5, 'Invalid list top')
+            if row['completeness'] == 'confirmed':
+                _require(total is not None and len(candidates) == min(5, total),
+                         'Incomplete confirmed list')
             for rank, candidate in enumerate(candidates, 1):
                 _require(isinstance(candidate, dict) and type(candidate.get('rank')) is int
                          and candidate['rank'] == rank and _text(candidate.get('name')), 'Invalid list rank')
+                _require(total is None or candidate['rank'] <= total, 'List rank exceeds size')
+                _require(_text(candidate.get('source_name')), 'Invalid EC candidate name')
     return rows

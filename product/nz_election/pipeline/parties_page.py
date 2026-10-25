@@ -112,7 +112,27 @@ def page(envs, built, facts=None):
         for row in rows('policy-links'):
             content += '<p class="party-policy">' + link(row['url'], 'Compare its policies by issue at Policy.nz') + '</p>'
         for row in rows('party-list-tops'):
-            content += f'<div class="party-candidates"><{answer_tag}>Top of the party list</{answer_tag}><ol>' + ''.join(f'<li value="{c["rank"]}">{escape(c["name"])}</li>' for c in row['candidates']) + '</ol><p>' + link(row['source_url'], 'EC party list') + '</p></div>'
+            candidates = row.get('candidates', [])
+            total = row.get('list_size')
+            if not candidates and total is None:
+                continue
+            content += '<div class="party-candidates">'
+            if total is not None:
+                source = 'source-list-size-' + p
+                content += f'<p aria-describedby="{source}"><strong>{total} list candidate{"s" if total != 1 else ""}</strong></p>'
+            if candidates:
+                heading = 'Top five list candidates' if len(candidates) == 5 else 'Top of the party list'
+                content += f'<{answer_tag}>{heading}</{answer_tag}><ol>' + ''.join(f'<li value="{c["rank"]}">{escape(c["name"])}</li>' for c in candidates) + '</ol>'
+            if total is not None:
+                content += (f'<div class="source-note" id="{source}"><p>'
+                            + escape(row['licence']) + ' Retrieved '
+                            + f'<time datetime="{escape(row["retrieved_at"], quote=True)}">{observation_label(row["retrieved_at"])}</time>.'
+                            + '</p><p class="source-actions">'
+                            + link(row['list_size_source_url'], 'EC list candidate count') + ' '
+                            + link(row['source_url'], 'EC party list') + '</p></div>')
+            else:
+                content += '<p>' + link(row['source_url'], 'EC party list') + '</p>'
+            content += '</div>'
         donations = [r for r in rows('donations') if r['received'][:4] == built[:4]]
         if donations:
             total = sum((Decimal(r['amount_nzd']) for r in donations), Decimal(0))
