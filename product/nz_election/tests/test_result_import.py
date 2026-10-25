@@ -195,3 +195,34 @@ def test_cli_job_clock_and_producing_url(monkeypatch):
         monkeypatch.setenv(key, '')
     result_import.main()
     assert len(called) == 1
+
+
+@pytest.mark.parametrize('race', [False, True], ids=['newer-head', 'lease-retry'])
+def test_stale_pinned_capture_cannot_report_or_deploy(repo, tmp_path, monkeypatch, race):
+    remote, pinned, _, _ = repo
+    raw = capture('preliminary')
+    raw['retrieved_at'] = '2026-11-07T10:36:00Z'
+    newer = tmp_path / 'newer'
+    daily_refresh(newer, loaders={'night': lambda: night_live.loaded(raw)}, now=raw['retrieved_at'])
+    original_publish = publish.publish
+    heads = []
+    def advance():
+        heads.append(original_publish(newer, remote, family='night', now=lambda: NOW)['sha'])
+    if race:
+        def racing_publish(*args, **kwargs):
+            return original_publish(*args, **kwargs, before_push=lambda attempt: advance() if attempt == 0 else None)
+        monkeypatch.setattr(publish, 'publish', racing_publish)
+    else:
+        advance()
+    summary = tmp_path / 'summary'
+    monkeypatch.setenv('GITHUB_STEP_SUMMARY', str(summary))
+    deployments = []
+    with pytest.raises(ValueError, match='^NIGHT_IMPORT_CONFLICT$'):
+        execute(repo, deploy=deployments.append)
+    assert not deployments
+    assert not summary.exists()
+    assert len(heads) == 1 and heads[0] != pinned
+    assert publish.git(remote, 'rev-parse', 'data').stdout.strip() == heads[0]
+    current = json.loads(publish.git(remote, 'show', 'data:' + str(publish.DATA / 'night/live/current.json')).stdout)
+    assert current['data'][0]['retrieved_at'] == raw['retrieved_at']
+    assert 'result_state' not in current['data'][0]

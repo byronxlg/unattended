@@ -102,7 +102,7 @@ def run(state, capture, data_sha, *, repository, now, run_url, rollback=False,
         if lines != ['PASS night', 'PASS waterfall']:
             raise ValueError('NIGHT_VERIFY_FAILED')
         result = publish.publish(out, repository, family='night', now=now,
-                                 night_rollback=head if rollback else None)
+                                 night_rollback=head if rollback else None, require_night_match=True)
         report = dict(input_data_sha=data_sha, capture=capture if not rollback else None,
                       capture_sha256=digest, published_data_sha=result['sha'], rollback=rollback, checks=lines)
         text = json.dumps(report, indent=2)

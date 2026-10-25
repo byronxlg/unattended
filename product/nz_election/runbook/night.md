@@ -415,7 +415,11 @@ gh workflow run nz-election-result-import.yml --ref main \
 The script checks ancestry before checking out exactly the requested data commit. It validates
 and hashes the capture, runs the result-state transition with the job clock and producing run
 URL, and requires `PASS night` and `PASS waterfall` before publishing. The summary records
-both data SHAs, capture path, sha256 and PASS lines. Check the dispatched `pages.yml` run
+both data SHAs, capture path, sha256 and PASS lines. Before committing, the publisher checks
+that the complete night family matches the verified bytes, including on lease retries.
+`NIGHT_IMPORT_CONFLICT` means newer or otherwise retained night data prevented that match;
+no import commit or Pages dispatch occurs. Review the current capture and data SHA before retrying.
+On success, check the dispatched `pages.yml` run
 (`gh run list --workflow pages.yml`) completes, its build manifest names the published SHA,
 and live `/nz-election/night/` shows the expected settled or official state and dated baseline.
 An official comparison is labelled "Change since preliminary result", never "special votes".
