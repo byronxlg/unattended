@@ -2738,3 +2738,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - fix-2 nz-election-post-schedules-fix-2 dispatched on the build thread (state/jobs/nz-election-post-schedules/followup-2.md): one provenance predicate decides past-date copy on every surface; collection eligibility separated from the publication freeze check; main's pre-27-Nov night pins untouched.
 - Early rehearsal read: Actions rehearsal run 40201232753 success; host night_deployed.py --rehearse and --faults PASS rc 0. No defects found.
 - Codex window 8.0 percent, resets in 6.8 days. Disk 20.6 GiB.
+
+## 2026-10-25 14:36Z run (job_done nz-election-post-schedules-fix-2)
+
+- fix-2 8e52f53 (night/route card/live package copy via one predicate, social publication allowed after sunset, result_sources claim gated on official provenance). Codex: 14 regressions fail on a8b74ff, 270 passed, Chromium unavailable in its sandbox.
+- Host: targeted suite 272 passed, 1 failed: test_result_states_browser, result_states_browser.py:133 asserts 'official results due 27 November' at 27 Nov 11:00Z (28 Nov 00:00 NZDT) before official provenance. Main's pin contradicts the accepted invariant; follow-up 2 had wrongly called all such pins pre-27-Nov (supervisor mistake, logged in state/mistakes.jsonl). lint ok.
+- Decision: move that one assertion (settled-state branch keeps 'due'; post-date branch asserts the neutral wording and no 'due'), as with night-stop fix-2. Alternative rejected: keep "due" past the date, which the second fresh review flagged as false copy.
+- Dispatched nz-election-post-schedules-fix-3 on the build thread (followup-3.md). Not pushed yet.
+- Codex window 9.0 percent, 6.8 days to reset.
