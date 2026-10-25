@@ -46,7 +46,9 @@ def test_home_module_order(populated):
     assert positions == sorted(positions)
     assert [a['id'] for tag, a in Document(html).nodes if tag == 'section'] == list(MODULES)
     assert html.count('<h1') == 1 and 'Who is favoured to form the next government?' in html
-    assert '<script' not in html and 'What changed in the latest polls?' in html
+    assert [attrs for tag, attrs in Document(html).nodes if tag == 'script'] == [
+        {'type': 'module', 'src': PREFIX + 'home-live.mjs'}]
+    assert 'What changed in the latest polls?' in html
     provenance(html)
 
 

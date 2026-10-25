@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from product.nz_election.pipeline import export, coalitions
-from product.nz_election.pipeline.scripts import validate_scripts
+from product.nz_election.pipeline.scripts import validate_scripts, home_client
 from product.nz_election.pipeline.allocator import allocate
 from product.nz_election.pipeline.average import display, threshold_watch, derive_others
 from product.nz_election.pipeline.fixtures import golden, GOLDEN_PATHS
@@ -603,7 +603,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
         shutil.copyfile(PRODUCT / 'web/night-seats.mjs', stage / 'night-seats.mjs')
         shutil.copyfile(PRODUCT / 'web/night.mjs', stage / 'night.mjs')
         shutil.copyfile(PRODUCT / 'web/night-live.mjs', stage / 'night-live.mjs')
-        shutil.copyfile(PRODUCT / 'web/home-live.mjs', stage / 'home-live.mjs')
+        (stage / 'home-live.mjs').write_text(home_client(PRODUCT / 'web'))
         from product.nz_election.pipeline.night_page import live_package
         (stage / 'night-live.json').write_text(json.dumps(live_package(envs, now=datetime.fromisoformat(built))))
         shutil.copyfile(PRODUCT / 'web/night-parser.mjs', stage / 'night-parser.mjs')

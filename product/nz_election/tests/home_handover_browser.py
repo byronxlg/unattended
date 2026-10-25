@@ -65,6 +65,7 @@ def run(case):
                     page.clock.run_for(35000)
                     page.wait_for_function("document.querySelector('#night-summary') !== null")
                     assert page.locator('#seats').count() == 0
+                    assert page.locator('#dates').inner_text() == 'Voting closed on 7 November at 7pm.'
                     assert page.locator('#night-summary a[href$="night/"]').count() == 1
                     if case in {'absent', 'recovery'}:
                         assert 'Polls have closed and counting is under way.' in page.locator('#night-summary').inner_text()
@@ -75,6 +76,7 @@ def run(case):
                         page.wait_for_function('(text) => document.querySelector("#night-summary").textContent.includes(text)', arg=expected)
                     if case == 'absent':
                         page.clock.run_for(55000)
+                        assert page.locator('#dates').inner_text() == 'Voting closed on 7 November at 7pm.'
                         page.screenshot(path=f'artifacts/home-0601-{width}.png')
                     page.clock.pause_at(datetime.fromisoformat('2026-11-08T06:00:00+00:00'))
                     count = len(requests)

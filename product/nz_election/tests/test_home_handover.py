@@ -22,6 +22,8 @@ def test_empty_night_build(clock, tmp_path, monkeypatch):
         assert 'home-live.mjs' in html
     else:
         assert 'id="night-summary"' in html and 'id="seats"' not in html
+        assert 'Voting closed on 7 November at 7pm.' in html
+        assert 'advance voting from' not in html
         assert 'Polls have closed and counting is under way.' in html
         assert 'https://www.electionresults.govt.nz/' in html
     from product.nz_election.tools.check_visible_text import check_absent_text
@@ -37,9 +39,13 @@ def test_browser_handover(case):
 
 
 @pytest.mark.parametrize('case', ['absent', 'zero', 'complete', 'recovery'])
-def test_dom_handover(case):
+def test_dom_handover(case, tmp_path):
+    from product.nz_election.pipeline.build import PRODUCT
+    from product.nz_election.pipeline.scripts import home_client
+    client = tmp_path / 'home-live.mjs'
+    client.write_text(home_client(PRODUCT / 'web'))
     script = Path(__file__).with_name('home_handover_dom.mjs')
-    result = subprocess.run(['node', str(script), case], capture_output=True, text=True)
+    result = subprocess.run(['node', str(script), case, client.as_uri()], capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
 
 

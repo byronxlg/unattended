@@ -11,10 +11,11 @@ const target = {
   innerHTML:'poll hero',
   querySelector: () => target.innerHTML.includes('night-summary') ? {} : null
 };
+const dates = {innerHTML:'Enrolment closed on 25 October; advance voting from 26 October; election day 7 November.'};
 globalThis.location = {href:'https://example.test/unattended/nz-election/'};
 globalThis.document = {
   hidden:false,
-  querySelector: selector => selector === '#home-live' ? target : null,
+  querySelector: selector => selector === '#home-live' ? target : selector === '#dates' ? dates : null,
   addEventListener: (name, fn) => { listeners[name] = fn; }
 };
 globalThis.setInterval = fn => intervals.push(fn);
@@ -28,15 +29,17 @@ globalThis.fetch = async url => {
     mode:'Live preliminary results', retrieved_at:new Date(open).toISOString(),
     reference_version:'a'.repeat(64), html:'night page', home_html:home})};
 };
-await import('../web/home-live.mjs');
+await import(process.argv[3] || '../web/home-live.mjs');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 await flush();
 assert.equal(target.innerHTML, 'poll hero');
+assert.match(dates.innerHTML, /advance voting from 26 October/);
 assert.equal(requests.length, 0);
 now = open - 1; intervals.forEach(fn => fn()); await flush();
 assert.equal(requests.length, 0);
-now = open + 5000; intervals.forEach(fn => fn()); await flush();
+now = open + 60000; intervals.forEach(fn => fn()); await flush();
 assert.equal(requests.length, 1);
+assert.equal(dates.innerHTML, '<p>Voting closed on 7 November at 7pm.</p>');
 assert.equal(target.innerHTML, ['absent', 'recovery'].includes(scenario) ? waiting : home);
 if (scenario === 'recovery') {
   now += 125000; intervals.forEach(fn => fn()); await flush();

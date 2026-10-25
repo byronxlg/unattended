@@ -13,8 +13,15 @@ if (target) {
       if (typeof pack.home_html === 'string' && pack.home_html) target.innerHTML = pack.home_html;
     }
   });
+  let handedOver = false;
   const tick = () => {
-    if (Date.now() < OPEN || Date.now() >= stop) return;
+    if (Date.now() < OPEN) return;
+    if (!handedOver) {
+      const dates = document.querySelector('#dates');
+      if (dates) dates.innerHTML = '<p>Voting closed on 7 November at 7pm.</p>';
+      handedOver = true;
+    }
+    if (Date.now() >= stop) return;
     if (!target.querySelector('#night-summary')) target.innerHTML = target.dataset.waiting;
     return live.tick();
   };
