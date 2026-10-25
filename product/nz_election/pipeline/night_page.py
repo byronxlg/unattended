@@ -160,7 +160,8 @@ def live_package(envs, *, now=None):
     env = envs[path[:-5]]
     row = env['data'][0]
     refs = envs[seq['reference_path'][:-5]]['data'][0]
-    return dict(available=True, **stop, retrieved_at=row['retrieved_at'], reference_version=row['reference_version'],
+    from .home import night_summary
+    return dict(available=True, home_html=night_summary(envs, built), **stop, retrieved_at=row['retrieved_at'], reference_version=row['reference_version'],
                 mode=row['mode'], result_notice=official_results_notice(built, [row]), state_sentence=sentence(row, built) + (' Offline verification: synthetic data.' if env.get('run_url') == 'offline-verification' else ''), html=snapshot(row, refs, 'live-current', path),
                 provenance=dict(label='Packaged by the site', sources=env['source'], code_sha=env['code_sha'],
                                 run_url=env['run_url'], retrieved_at=row['retrieved_at']),

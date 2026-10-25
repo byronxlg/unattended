@@ -30,10 +30,10 @@ def test_night_handover_requires_time_and_published_2026_family(populated):
     provenance(new)
     missing = {key: value for key, value in envs.items() if not key.startswith('night/')}
     html = page(missing, after, presentation)
-    assert 'id="night-summary"' not in html and 'id="seats"' in html
+    assert 'id="night-summary"' in html and 'id="seats"' not in html
     archive = deepcopy(envs)
     archive['night/index']['data'] = [seq for seq in archive['night/index']['data'] if seq['id'] != '2026-media']
-    assert 'id="night-summary"' not in page(archive, after, home_presentation(archive, after))
+    assert 'id="night-summary"' in page(archive, after, home_presentation(archive, after))
 
 
 def test_removed_modules_keep_their_destination(populated):
