@@ -129,7 +129,7 @@ def test_real_candidate_vacancies():
 
 
 def test_script_allowlist():
-    assert SCRIPT_ALLOWLIST == {'allocator.mjs', 'electorates.mjs', 'night.mjs', 'night-live.mjs'}
+    assert SCRIPT_ALLOWLIST == {'allocator.mjs', 'electorates.mjs', 'night.mjs', 'night-live.mjs', 'home-live.mjs'}
     assert validate_scripts('<script type="module" src="/unattended/nz-election/allocator.mjs"></script>')
     for html in ['<script>alert(1)</script>', '<script type="module" src="https://example.com/allocator.mjs"></script>',
                  '<script type="module" src="/unattended/nz-election/allocator.mjs">alert(1)</script>',
@@ -153,7 +153,7 @@ def test_static_content_preserved(tmp_path, request_data):
     assert 'id="coalition-explorer"' in html
     assert {p.name for p in out.glob('*.mjs')} == {
         'allocator.mjs', 'electorates.mjs', 'night.mjs', 'night-live.mjs',
-        'night-parser.mjs', 'night-seats.mjs'}
+        'night-parser.mjs', 'night-seats.mjs', 'home-live.mjs'}
 
 
 def test_tied_scenario_withholds_totals():
