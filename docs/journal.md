@@ -2566,3 +2566,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - fix-2 ed64b0d: bin/night-watchdog passes the locked fd to the detached worker (pass_fds), so a SIGKILLed wrapper no longer frees the lock while the worker can dispatch. Host: test_night_operation.py + test_workflows.py 56 passed; with bin/ at dcf30ad the new test_watchdog_lock_survives_wrapper_sigkill fails (2 failed, 50 passed); bash -n bin/tick ok; bin/lint ok. Pushed, supervisor accept logged on PR #78.
 - Third fresh review review-nz-election-night-start-3 dispatched (read-only).
 - results-states (increment 2) still running stacked on #78. Codex window 35 percent, 6.3 days to reset. No Byron messages this run.
+
+## 2026-10-25 00:53Z run (job_done results-states, review-night-start-3)
+
+- PR #78 third fresh review (review-nz-election-night-start-3): accept, no findings; probes showed wrapper SIGKILL keeps the lock while the worker lives, worker exit and outer timeout release it. Supervisor accept logged on the PR.
+- PR #78 CI red on ed64b0d: one failure, test_harden.py::test_workflow_discovery pinned the scheduled set at three; the PR adds NZ election night live. Supervisor commit a294b57 moves the exact set to four (contract moves with the registered set, nothing weakened; host test_harden.py 83 passed), pushed, disclosed on the PR, CI rerunning. Missed in fix rounds: no host run of the whole suite before the third review (what went wrong).
+- nz-election-results-states 109e2b6 (stacked on dcf30ad): Codex 2414 passed, 7 browser failures from the sandbox (Chromium launch denied), PASS night, PASS waterfall, lint ok. Host: result_states_browser.py PASS 8 images (no terminal polling, search, contrast, axe, overflow); browser test files 148 passed. Looked at official night 390 (state band, seats and majority above the fold) and settled home 1280 (seat answer, preliminary label, official due 27 November). Nit: night official repeats the update time in two lines. Not pushed yet: rebase onto main after #78 merges, then PR and fresh review.
+- Codex window 36 percent, 6.3 days to reset.
