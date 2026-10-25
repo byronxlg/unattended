@@ -23,6 +23,11 @@ from product.nz_election.pipeline.refresh import refresh
 from product.nz_election.pipeline.seats import project
 
 
+class MissingNightFamily(ValueError):
+    def __init__(self):
+        super().__init__('MISSING_NIGHT_FAMILY')
+
+
 def require(condition, reason):
     if not condition:
         raise ValueError('VERIFY_FAILED: ' + reason)
@@ -375,7 +380,7 @@ def verify_night(envs, root, *, data=None):
         data = root / 'night-data'
         daily_refresh(data)
     elif not (data / 'night/index.json').is_file():
-        raise ValueError('MISSING_NIGHT_FAMILY')
+        raise MissingNightFamily()
     validated = export.validate_bundle(data)
     check(data)
     from product.nz_election.pipeline.night_page import page
@@ -393,7 +398,7 @@ def verify_waterfall(envs, root, *, data=None):
         from product.nz_election.pipeline.daily_refresh import daily_refresh
         daily_refresh(data, loaders={'night': night.load}, now='2026-10-22T00:00:00Z')
     if not (data / 'night/index.json').is_file():
-        raise ValueError('MISSING_NIGHT_FAMILY')
+        raise MissingNightFamily()
     validated = export.validate_bundle(data)
     night.validate(data)
     for seq in validated['night/index']['data']:
@@ -416,6 +421,8 @@ def parse_args(argv=None):
     parser.add_argument('check', choices=['all', 'polls', 'thresholds', 'provenance', 'pipeline', 'coalitions', 'geography', 'candidates', 'electorates', 'social', 'home', 'home-routes', 'markets', 'advance', 'night', 'waterfall', 'campaign'])
     parser.add_argument('--data', type=Path)
     parser.add_argument('--site', type=Path)
+    parser.add_argument('--require', default=None, metavar='NAME[,NAME]',
+                        help='require these checks, failing if their family is absent')
     return parser.parse_args(argv)
 
 
@@ -425,8 +432,11 @@ def main(args=None):
     if night_data is None and args.site:
         night_data = (args.site / 'nz-election' if (args.site / 'nz-election').is_dir() else args.site) / 'data'
     if args.check == 'night' and args.data and not (args.data / 'night/index.json').is_file():
-        raise ValueError('MISSING_NIGHT_FAMILY')
+        raise MissingNightFamily()
     checks = {'polls': verify_polls, 'thresholds': verify_thresholds, 'provenance': verify_provenance, 'pipeline': verify_pipeline, 'coalitions': verify_coalitions, 'geography': verify_geography, 'candidates': verify_candidates, 'electorates': verify_electorates, 'social': verify_social, 'home': verify_home, 'home-routes': verify_home_routes, 'markets': verify_markets, 'advance': verify_advance, 'night': verify_night, 'waterfall': verify_waterfall, 'campaign': verify_campaign}
+    required = set(args.require.split(',')) if args.require is not None else set()
+    if not required <= checks.keys():
+        raise ValueError('INVALID_REQUIRED_CHECK')
     with tempfile.TemporaryDirectory(prefix='nz-verify-') as tmp:
         root = Path(tmp)
         refresh(root / 'data', now='2026-10-17T01:00:00Z')
@@ -474,9 +484,11 @@ def main(args=None):
             built = json.loads((product / 'build-manifest.json').read_text())['data']['built_at']
             require(panel(actual, built) in (product / 'methods/index.html').read_text(), 'supplied market provenance')
         for name, check in checks.items():
-            if args.check in ('all', name):
+            if args.check in ('all', name) or name in required:
                 if name in {'night', 'waterfall'} and args.check == 'all' and night_data and not (night_data / 'night/index.json').is_file():
-                    # The aggregate gate permits absent families, without claiming their validation.
+                    if name in required:
+                        raise MissingNightFamily()
+                    print(f'SKIP {name}: family absent (night/index.json)')
                     continue
                 if name == 'campaign':
                     check(envs, root, data=args.data or (night_data if night_data and night_data.exists() else None),
@@ -498,7 +510,9 @@ def cli(argv=None):
     try:
         main(args)
     except Exception as exc:
-        if check in {'campaign', 'all'}:
+        if isinstance(exc, MissingNightFamily):
+            reason = 'MISSING_NIGHT_FAMILY'
+        elif check in {'campaign', 'all'}:
             reason = exc.code if isinstance(exc, campaign.CampaignError) else campaign.DATA
         elif isinstance(exc, ValueError):
             reason = str(exc)
