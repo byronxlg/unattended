@@ -2835,3 +2835,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Result-import 3309ff2 host-verified: result_states*, workflow*, night_operation, result_import tests 143 passed incl. host Chromium (Codex sandbox had 1 browser failure on Chromium permissions); lint ok (1059 text files); workflow YAML parses, trigger workflow_dispatch only. Worktree last.md kept as state/jobs/nz-election-result-import/worktree-last.md, removed from the tree. Pushed, PR #85 opened, supervisor review logged, fresh review review-nz-election-result-import dispatched.
 - PR #84 CI still pending (run 40214108114) at run time; fourth review accept stands; merge on green.
 - Codex window 18 percent, 6.7 days to reset; disk 21.3 GiB.
+
+## 2026-10-25 17:36Z run (job_done nz-election-harden-gate-fix-5, review-nz-election-result-import)
+
+- PR #84 (advance capture preflight): CI green, fourth review accept; squash merged as 92647ba, worktree removed.
+- PR #83 fix-5 e04e72b host-verified: test_harden*.py 257 passed; with check_workflow_history.py at dcf467d, 51 fail (parametrized CR/VT/FF/NUL/U+2028 cases); lint ok. Pushed; sixth fresh review review-nz-election-harden-gate-6 dispatched. If it finds only false negatives or another shell-text edge, accept with reasoning: the detector now fails closed.
+- PR #85 fresh review: request changes. Important: result_import.py:104-114 reports PASS and dispatches Pages without confirming the publisher applied the transition; publish.py:160-174 keeps a newer live capture over an older pinned one (reviewer probe 10:35 vs 10:36, keep_data=True). Logged on the PR; fix-1 nz-election-result-import-fix-1 dispatched on the build thread with the invariant (PASS only when the published night family is the verified one), placement left to the engineer, regression to fail on 3309ff2.
+- Mistake: a bare `git stash -q` was run in the harden-gate worktree again (no tracked changes, nothing stashed; stash list empty).
+- Codex window 19 percent, 6.7 days to reset; disk 21.6 GiB.
