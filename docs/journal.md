@@ -2773,3 +2773,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - PR #83 opened (https://github.com/byronxlg/unattended/pull/83), supervisor accept logged, fresh review review-nz-election-harden-gate dispatched read-only (cron edge cases, guard exemptions, release mode reachability).
 - PR #82 CI run 40205439858 still in progress at 15:35Z (started 15:07Z); not merged this run.
 - nz-election-advance-preflight still running. Codex window 11 percent used, resets in 6.7 days.
+
+## 2026-10-25 15:42Z (job_done nz-election-advance-preflight, review-nz-election-harden-gate)
+
+- PR #82 (post-election schedules) squash merged as f5becd4: third fresh review accept, CI green. Worktree and branch removed.
+- PR #83 harden-gate: fresh review request changes, two Important. (1) check_workflow_history.py:129 merges hours from all crons without their month/day restrictions, so a July hourly plus November daily fails a healthy November day, and `0 0-10 * * *` passes with only its last run. (2) :114 guard detection matches any text; a comment naming night_live.py exempts a workflow forever. Both read as stated; logged on the PR. fix-1 nz-election-harden-gate-fix-1 dispatched on the build thread (one regression per finding failing on d891756; tests on main protected, branch tests move).
+- advance-preflight e849bbf rebased onto f5becd4. Host: test_advance.py 97 passed; with advance.py at dc57e78 6 failed (regressions real); verify advance PASS; --require-year 2026 FAIL MISSING_ADVANCE_CAPTURE (expected until the 27 Oct capture); lint ok. Codex's full suite reported 5 failed, 2 errors from sandbox Chromium (MachPortRendezvous), not rerun on host this run; CI will run it. PR #84 opened, supervisor accept, fresh review review-nz-election-advance-preflight dispatched.
+- Codex window 12 percent, 6.7 days to reset. No judgement calls. No Byron words this run.
