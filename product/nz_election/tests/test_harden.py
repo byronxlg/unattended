@@ -596,3 +596,37 @@ def test_review_restricted_window_keeps_two_hour_recovery(workflows, recovery_ho
     records.append(run_record((start + timedelta(hours=recovery_hour)).isoformat(), event='workflow_dispatch'))
     assert history.main(['--days', '1'], runner=lambda *a, **k: result(json.dumps(records)),
                         now=datetime(2026, 11, 4, tzinfo=timezone.utc), root=workflows) == int(not passes)
+
+
+@pytest.mark.parametrize('script,guarded', [
+    ("echo '\n' python3 product/nz_election/pipeline/night_live.py", False),
+    ('set -e # setup\npython3 product/nz_election/pipeline/night_live.py', True),
+    ('python3 \\\nproduct/nz_election/pipeline/night_live.py', True),
+    ('# setup\npython3 product/nz_election/pipeline/night_live.py', True),
+    ('set -e # setup\n# comment\npython3 product/nz_election/pipeline/night_live.py', True),
+    ('uv \\\nrun \\\nproduct/nz_election/pipeline/night_live.py', True),
+    ('python3 product/nz_election/pipeline/night_\\\nlive.py', True),
+    ('python3 "product/nz_election/pipeline/night_\\\nlive.py"', True),
+    ("echo '\n python3 product/nz_election/pipeline/night_live.py'", False),
+    ('echo "\n" python3 product/nz_election/pipeline/night_live.py', False),
+    ('echo \\\npython3 product/nz_election/pipeline/night_live.py', False),
+    ('echo "# not a comment\npython3 product/nz_election/pipeline/night_live.py"', False),
+    ('python3 product/nz_election/pipeline/night_live.py#not-a-comment', False),
+    ("python3 'product/nz_election/pipeline/night_\\\nlive.py'", False),
+], ids=['quoted-newline', 'trailing-comment', 'backslash-continuation',
+        'comment-line', 'consecutive-comments', 'uv-continuations', 'path-continuation',
+        'double-quoted-continuation', 'quoted-command-text', 'double-quoted-newline',
+        'continued-echo', 'quoted-comment', 'literal-hash', 'single-quoted-backslash'])
+def test_review2_guard_shell_boundaries(workflows, capsys, script, guarded):
+    path = workflows / '.github/workflows/new-name.yaml'
+    body = '\n'.join('          ' + line for line in script.split('\n'))
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: |\n' + body + '\n')
+    calls = []
+
+    def runner(*args, **kwargs):
+        calls.append(args)
+        return result('[]')
+
+    assert history.main(['--days', '1'], runner=runner, now=NOW, root=workflows) == int(not guarded)
+    assert bool(calls) == (not guarded)
+    assert ('not scheduled' if guarded else '; no runs') in capsys.readouterr().out

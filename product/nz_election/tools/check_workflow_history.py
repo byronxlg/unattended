@@ -115,6 +115,50 @@ def scheduled_times(schedules, start, end):
     return sorted(stamps)
 
 
+def shell_commands(source):
+    """Keep lexical newlines distinct from quoted data; do not evaluate shell."""
+    commands = [[]]
+    quote = None
+    in_word = False
+    index = 0
+    while index < len(source):
+        char = source[index]
+        if char == '\\' and quote != "'" and index + 1 < len(source):
+            following = source[index + 1]
+            if following != '\n':
+                commands[-1].extend((char, following))
+                in_word = True
+            index += 2
+            continue
+        if quote:
+            commands[-1].append(char)
+            if char == quote:
+                quote = None
+        elif char in {'"', "'"}:
+            commands[-1].append(char)
+            quote = char
+            in_word = True
+        elif char == '#' and not in_word:
+            # A comment consumes its text, not the command-separating newline.
+            while index < len(source) and source[index] != '\n':
+                index += 1
+            continue
+        elif char == '\n':
+            commands.append([])
+            in_word = False
+        else:
+            commands[-1].append(char)
+            in_word = char not in ' \t\r;&|()<>'
+        index += 1
+    tokenized = []
+    for command in commands:
+        lexer = shlex.shlex(''.join(command), posix=True, punctuation_chars=';&|()<>')
+        lexer.whitespace_split = True
+        lexer.commenters = ''
+        tokenized.append(list(lexer))
+    return tokenized
+
+
 def workflow_commands(source):
     """Read the repository's block-style step run scalars without executing YAML."""
     lines = source.splitlines()
@@ -169,17 +213,9 @@ def workflow_commands(source):
         if '<<' in value:
             continue
         try:
-            lexer = shlex.shlex(value, posix=True, punctuation_chars=';&|()<>\n')
-            lexer.whitespace = ' \t\r'
-            tokens = list(lexer)
+            commands = shell_commands(value)
         except ValueError:
             continue
-        commands = [[]]
-        for token in tokens:
-            if token and not token.strip('\n'):
-                commands.append([])
-            else:
-                commands[-1].append(token)
         for words in commands:
             if words[:2] == ['uv', 'run']:
                 words = words[2:]
