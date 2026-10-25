@@ -2758,3 +2758,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
   (research-nz-election-readiness) maps schedule.md milestones 26 Oct to 14 Nov to evidence and ranks at most five
   increments; the next increment is written from it. Judgement: an audit before the next build rather than guessing an
   increment; rejected alternative: writing an increment now from schedule.md alone. Codex window 9 percent.
+
+## 2026-10-25 15:18Z (job_done review-nz-election-post-schedules-3, research-nz-election-readiness)
+
+- PR #82 third fresh review: accept, no Critical, Important or Nit; logged on the PR with supervisor accept. CI pending at run end (run 40205439858); merge deferred to the next run.
+- Readiness audit (read-only Codex, 277 s) against schedule.md: 2 Nov campaign done for snapshot scope; 26 Oct advance, 30 Oct night client, 4 Nov harden, 6 Nov rehearsal, 7 Nov night, week after partly done; 5 Nov handover and 14 Nov close not started. Ranked increments: (1) check_workflow_history.py treats every non-hourly schedule as daily, so night workflow runs are required on 1 to 3 Nov, and harden.py rejects the SKIP lines the polls-only eval expects; (2) no workflow runs result_states.py, the runbook names an official import workflow that does not exist; (3) advance.load() returns None in production and verify.py advance passes on 2023 data alone; (4) electorate Q3 policy links absent on 71 of 71 pages (policy-links.json holds seven party records). Also flagged: plan-m3.md still assigns advance capture to Byron after 4 Nov, contradicting lab ownership; to correct in codex-notes and the handover.
+- Judgement (single changes, reversible, no line to Byron): dispatch (1) and (3) now as disjoint pipeline builds off origin/main, since neither touches #82's files; hold (2) until #82 merges because both edit runbook/night.md and result_states.py; (4) after (2), with real electorate destinations only.
+- Dispatched nz-election-harden-gate (.worktrees/nz-election-harden-gate) and nz-election-advance-preflight (.worktrees/nz-election-advance-preflight, new runbook/advance.md, no page change).
+- Codex window 10 percent used, resets in 6.7 days, allowance about 13 points per day.
