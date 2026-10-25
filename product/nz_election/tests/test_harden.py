@@ -330,3 +330,459 @@ def test_hourly_gap_crosses_empty_day(workflows, capsys):
                         now=NOW, root=hourly_root(workflows)) == 1
     out = capsys.readouterr().out
     assert out.count('success gap 27 hours exceeds 3 hours') == 3
+
+
+@pytest.mark.parametrize('missing,passes', [(False, True), (True, False)])
+def test_annual_history_only_requires_firing_days(workflows, capsys, missing, passes):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        'name: Annual\non:\n  schedule:\n    - cron: "2 6 7 11 *"\n')
+    records = [] if missing else [run_record('2026-11-07T06:02:00Z')]
+    assert history.main(['--days', '3'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 9, tzinfo=timezone.utc), root=workflows) == int(not passes)
+    out = capsys.readouterr().out
+    assert 'PASS Annual 2026-11-06: not scheduled' in out
+    if missing:
+        assert 'FAIL Annual 2026-11-07: 0 runs, 0 successes, 0 failures, 0 recovered; cron did not fire; no runs' in out
+
+
+def test_pre_night_annual_history_needs_no_runs(workflows, capsys):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        'name: Annual\non:\n  schedule:\n    - cron: "2 6 7 11 *"\n')
+
+    def runner(*args, **kwargs):
+        pytest.fail('inactive schedule must not query history')
+
+    assert history.main(['--days', '3'], runner=runner,
+                        now=datetime(2026, 11, 4, tzinfo=timezone.utc), root=workflows) == 0
+
+
+def test_daily_history_missing_middle_day(workflows, capsys):
+    records = [run_record('2026-10-22T00:00:00Z'), run_record('2026-10-24T00:00:00Z')]
+    assert history.main(['--days', '3'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=NOW, root=workflows) == 1
+    assert 'FAIL Example schedule 2026-10-23: 0 runs, 0 successes, 0 failures, 0 recovered; cron did not fire; no runs' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('required,passes', [(None, True), ('night,waterfall', False)])
+def test_harden_optional_night_context(gate_root, capsys, required, passes):
+    output = VERIFIED.replace('PASS night', 'SKIP night: family absent (night/index.json)').replace(
+        'PASS waterfall', 'SKIP waterfall: family absent (night/index.json)')
+    calls = []
+
+    def runner(cmd, **kwargs):
+        calls.append(cmd)
+        return result(output if 'all' in cmd else 'PASS step\n')
+
+    args = ['--history', '--data', 'd', '--site', 's']
+    if required:
+        args += ['--require', required]
+    assert harden.main(args, runner=runner, root=gate_root) == int(not passes)
+    command = next(cmd for cmd in calls if 'all' in cmd)
+    if required:
+        assert command[-2:] == ['--require', required]
+    assert ('PASS harden' if passes else 'FAIL harden: verify all') in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('line', ['SKIP polls: family absent (night/index.json)',
+                                  'SKIP night: unavailable', '  SKIP night: family absent (night/index.json)',
+                                  'FAIL night: broken'])
+def test_optional_context_rejects_other_omissions(gate_root, line):
+    output = VERIFIED.replace('PASS ' + ('polls' if 'polls' in line else 'night'), line)
+    assert harden.main(['--history', '--data', 'd', '--site', 's'], root=gate_root,
+                       runner=lambda cmd, **k: result(output if 'all' in cmd else 'PASS step')) == 1
+
+
+@pytest.mark.parametrize('required', ['', 'null', '1', '1.5', '999999999999999999999', '三', 'night,unknown'])
+def test_harden_invalid_required_checks(gate_root, required, capsys):
+    assert harden.main(['--history', '--data', 'd', '--site', 's', '--require', required],
+                       runner=green_runner, root=gate_root) == 1
+    assert 'INVALID_REQUIRED_CHECK' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('cron,expected', [
+    ('2 23 7 11 *', ['2026-11-07T23:02:00+00:00']),
+    ('2 6 7 11 *', []),
+    ('0 12-14/2 * NOV SUN', ['2026-11-08T12:00:00+00:00', '2026-11-08T14:00:00+00:00']),
+    ('0 12 7,8 NOV MON', ['2026-11-07T12:00:00+00:00', '2026-11-08T12:00:00+00:00']),
+])
+def test_cron_utc_dates_ranges_steps_and_weekdays(cron, expected):
+    schedules = history.workflow_schedule(f'    - cron: "{cron}"\n')
+    start = datetime(2026, 11, 7, 11, tzinfo=timezone.utc)
+    end = datetime(2026, 11, 8, 15, tzinfo=timezone.utc)
+    assert [s.isoformat() for s in history.scheduled_times(schedules, start, end)] == expected
+
+
+@pytest.mark.parametrize('cron', ['', '* * * *', '60 * * * *', '0 */0 * * *',
+                                  '0 99999999999999 * * *', 'null', '0 1.5 * * *', '0 三 * * *'])
+def test_invalid_cron_fails_closed(workflows, cron, capsys):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        f'name: Invalid\non:\n  schedule:\n    - cron: "{cron}"\n')
+    assert history.main(['--days', '1'], runner=green_runner, now=NOW, root=workflows) == 1
+    assert 'FAIL workflow history:' in capsys.readouterr().out
+
+
+def test_dated_hourly_cron_has_no_gap_outside_utc_date(workflows):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        'name: Dated hourly\non:\n  schedule:\n    - cron: "17 */1 7 NOV *"\n')
+    records = [run_record(f'2026-11-07T{hour:02}:17:00Z') for hour in range(24)]
+    assert history.main(['--days', '3'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 9, tzinfo=timezone.utc), root=workflows) == 0
+
+
+@pytest.mark.parametrize('hourly', [False, True])
+def test_declared_freeze_guard_bounds_expected_history(workflows, hourly):
+    cron = '17 * * * *' if hourly else '43 15 * * *'
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        f'name: Guarded\non:\n  schedule:\n    - cron: "{cron}"\n'
+        'jobs:\n  refresh:\n    steps:\n'
+        '      - run: python3 product/nz_election/pipeline/deployment_guard.py\n')
+    start = datetime(2026, 11, 5, 11, tzinfo=timezone.utc)
+    records = [run_record((start + timedelta(hours=hour, minutes=17)).isoformat())
+               for hour in range(72) if not 24 <= hour < 43]
+    # The last pre-freeze success is 13 minutes before the guard closes.
+    assert history.main(['--days', '3'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 9, tzinfo=timezone.utc), root=workflows) == 0
+
+
+def test_night_entry_point_guard_excludes_future_annual_firing(workflows):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        'name: Closed night\non:\n  schedule:\n    - cron: "2 6 7 11 *"\n'
+        'jobs:\n  live:\n    steps:\n'
+        '      - run: uv run product/nz_election/pipeline/night_live.py\n')
+
+    def runner(*args, **kwargs):
+        pytest.fail('closed night window must not query history')
+
+    assert history.main(['--days', '3'], runner=runner,
+                        now=datetime(2027, 11, 9, tzinfo=timezone.utc), root=workflows) == 0
+
+
+def test_repository_healthy_pre_night_history():
+    def runner(cmd, **kwargs):
+        start, end = map(datetime.fromisoformat, cmd[cmd.index('--created') + 1].split('..'))
+        records = [run_record((start + timedelta(hours=h, minutes=17)).isoformat())
+                   for h in range(int((end - start).total_seconds() / 3600))]
+        return result(json.dumps(records))
+
+    assert history.main(['--days', '3'], runner=runner,
+                        now=datetime(2026, 11, 4, tzinfo=timezone.utc)) == 0
+
+
+@pytest.mark.parametrize('release', [False, True])
+def test_polls_only_eval_expected_omission_in_both_contexts(gate_root, release):
+    directory = gate_root / 'evals/pages-verify-polls-only'
+    directory.mkdir()
+    (directory / 'check.sh').write_text('#!/bin/sh\n')
+    output = VERIFIED.replace('PASS night', 'SKIP night: family absent (night/index.json)').replace(
+        'PASS waterfall', 'SKIP waterfall: family absent (night/index.json)')
+
+    def runner(cmd, **kwargs):
+        if cmd[0] == 'bash' and Path(cmd[1]).parent == directory:
+            return result(output)
+        return green_runner(cmd, **kwargs)
+
+    args = ['--history', '--data', 'd', '--site', 's']
+    if release:
+        args += ['--require', 'night,waterfall']
+    assert harden.main(args, runner=runner, root=gate_root) == 0
+
+
+def test_polls_only_eval_skip_cannot_hide_incomplete_verification(gate_root):
+    directory = gate_root / 'evals/pages-verify-polls-only'
+    directory.mkdir()
+    (directory / 'check.sh').write_text('#!/bin/sh\n')
+
+    def runner(cmd, **kwargs):
+        if cmd[0] == 'bash' and Path(cmd[1]).parent == directory:
+            return result('SKIP night: family absent (night/index.json)\nPASS all\n')
+        return green_runner(cmd, **kwargs)
+
+    assert harden.main(['--history', '--data', 'd', '--site', 's'], runner=runner, root=gate_root) == 1
+
+
+@pytest.mark.parametrize('hourly_cron', ['17 * * 7 *', '17 * 7 * *', '17 * * * MON'])
+def test_review_cadence_uses_only_matching_dates(workflows, capsys, hourly_cron):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        f'name: Mixed cadence\non:\n  schedule:\n    - cron: "{hourly_cron}"\n'
+        '    - cron: "0 0 * 11 *"\n')
+    records = [run_record('2026-11-04T00:00:00Z')]
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 5, tzinfo=timezone.utc), root=workflows) == 0
+    assert 'success gap' not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('hours,passes', [(range(11), True), ([10], False), ([0], False)])
+def test_review_restricted_hourly_window(workflows, capsys, hours, passes):
+    (workflows / '.github/workflows/new-name.yaml').write_text(
+        'name: Restricted hourly\non:\n  schedule:\n    - cron: "0 0-10 * * *"\n')
+    records = [run_record(f'2026-11-04T{hour:02}:00:00Z') for hour in hours]
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 5, tzinfo=timezone.utc), root=workflows) == int(not passes)
+    if not passes:
+        assert 'success gap' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('mention', [
+    '# See product/nz_election/pipeline/night_live.py\n',
+    'jobs:\n  check:\n    steps:\n      - name: See product/nz_election/pipeline/night_live.py\n'
+    '        run: echo checking\n',
+    'jobs:\n  check:\n    steps:\n      - run: echo product/nz_election/pipeline/night_live.py\n',
+    'jobs:\n  check:\n    steps:\n      - run: |\n'
+    '          # python3 product/nz_election/pipeline/night_live.py\n          echo checking\n',
+])
+def test_review_incidental_guard_mention_cannot_exempt_history(workflows, capsys, mention):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + mention)
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert '; no runs' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('step', [
+    '- name: Run checker\n        env:\n          run: python3 product/nz_election/pipeline/night_live.py\n'
+    '        run: echo checking',
+    '- name: |\n          run: python3 product/nz_election/pipeline/night_live.py\n'
+    '        run: echo checking',
+    '- run: |\n          echo \'documentation\n          python3 product/nz_election/pipeline/night_live.py\n          \'',
+    '- run: |\n          cat <<EOF\n          python3 product/nz_election/pipeline/night_live.py\n          EOF',
+    '- run: python3 product/nz_election/pipeline/night_live.py||true',
+])
+def test_review_guard_requires_execution_not_nested_values(workflows, step):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      ' + step + '\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+
+
+@pytest.mark.parametrize('value', [
+    'python3 product/nz_election/pipeline/night_live.py',
+    '"python3 product/nz_election/pipeline/night_live.py"',
+    "'uv run product/nz_election/pipeline/night_live.py'",
+    '|\n          set -euo pipefail\n          uv run product/nz_election/pipeline/night_live.py',
+])
+def test_review_actual_guard_commands_keep_window(workflows, value):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: ' + value + '\n')
+
+    def runner(*args, **kwargs):
+        pytest.fail('guarded night command is outside its active window')
+
+    assert history.main(['--days', '1'], runner=runner, now=NOW, root=workflows) == 0
+
+
+@pytest.mark.parametrize('missing,passes', [(False, True), (True, False)])
+def test_review_cadence_transition_within_nz_day(workflows, capsys, missing, passes):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text('name: Transition\non:\n  schedule:\n'
+                    '    - cron: "17 * * * MON"\n    - cron: "0 0 * * TUE"\n')
+    # Tuesday NZ starts on Monday UTC: the first 13 hours remain hourly.
+    records = [run_record('2026-11-03T00:00:00Z')]
+    if not missing:
+        records += [run_record(f'2026-11-02T{hour:02}:17:00Z') for hour in range(11, 24)]
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 4, tzinfo=timezone.utc), root=workflows) == int(not passes)
+    if missing:
+        assert 'success gap 13 hours exceeds 3 hours' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize('recovery_hour,passes', [(12, True), (12.01, False)])
+def test_review_restricted_window_keeps_two_hour_recovery(workflows, recovery_hour, passes):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text('name: Restricted recovery\non:\n  schedule:\n    - cron: "0 0-10 * * *"\n')
+    start = datetime(2026, 11, 3, tzinfo=timezone.utc)
+    records = [run_record((start + timedelta(hours=hour)).isoformat(),
+                          conclusion='failure' if hour == 10 else 'success') for hour in range(11)]
+    records.append(run_record((start + timedelta(hours=recovery_hour)).isoformat(), event='workflow_dispatch'))
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result(json.dumps(records)),
+                        now=datetime(2026, 11, 4, tzinfo=timezone.utc), root=workflows) == int(not passes)
+
+
+@pytest.mark.parametrize('script,guarded', [
+    ("echo '\n' python3 product/nz_election/pipeline/night_live.py", False),
+    ('set -e # setup\npython3 product/nz_election/pipeline/night_live.py', True),
+    ('python3 \\\nproduct/nz_election/pipeline/night_live.py', True),
+    ('# setup\npython3 product/nz_election/pipeline/night_live.py', True),
+    ('set -e # setup\n# comment\npython3 product/nz_election/pipeline/night_live.py', True),
+    ('uv \\\nrun \\\nproduct/nz_election/pipeline/night_live.py', True),
+    ('python3 product/nz_election/pipeline/night_\\\nlive.py', True),
+    ('python3 "product/nz_election/pipeline/night_\\\nlive.py"', True),
+    ("echo '\n python3 product/nz_election/pipeline/night_live.py'", False),
+    ('echo "\n" python3 product/nz_election/pipeline/night_live.py', False),
+    ('echo \\\npython3 product/nz_election/pipeline/night_live.py', False),
+    ('echo "# not a comment\npython3 product/nz_election/pipeline/night_live.py"', False),
+    ('python3 product/nz_election/pipeline/night_live.py#not-a-comment', False),
+    ("python3 'product/nz_election/pipeline/night_\\\nlive.py'", False),
+], ids=['quoted-newline', 'trailing-comment', 'backslash-continuation',
+        'comment-line', 'consecutive-comments', 'uv-continuations', 'path-continuation',
+        'double-quoted-continuation', 'quoted-command-text', 'double-quoted-newline',
+        'continued-echo', 'quoted-comment', 'literal-hash', 'single-quoted-backslash'])
+def test_review2_guard_shell_boundaries(workflows, capsys, script, guarded):
+    path = workflows / '.github/workflows/new-name.yaml'
+    body = '\n'.join('          ' + line for line in script.split('\n'))
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: |\n' + body + '\n')
+    calls = []
+
+    def runner(*args, **kwargs):
+        calls.append(args)
+        return result('[]')
+
+    assert history.main(['--days', '1'], runner=runner, now=NOW, root=workflows) == int(not guarded)
+    assert bool(calls) == (not guarded)
+    assert ('not scheduled' if guarded else '; no runs') in capsys.readouterr().out
+
+
+def test_review3_ansi_c_string_cannot_declare_guard(workflows, capsys):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + r"""jobs:
+  check:
+    steps:
+      - run: |
+          echo $'a\'
+          python3 product/nz_election/pipeline/night_live.py
+          #'
+""")
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert '; no runs' in capsys.readouterr().out
+    assert list(history.workflow_commands(path.read_text())) == []
+
+
+@pytest.mark.parametrize('script,guarded', [
+    ("python3 product/nz_election/pipeline/night_live.py\necho $'text'", False),
+    ("echo $'text'\npython3 product/nz_election/pipeline/night_live.py", False),
+    ("python3 product/nz_election/pipeline/night_live.py $'text'", False),
+])
+def test_review3_ansi_c_syntax_rejects_whole_step(workflows, script, guarded):
+    path = workflows / '.github/workflows/new-name.yaml'
+    body = '\n'.join('          ' + line for line in script.split('\n'))
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: |\n' + body + '\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == int(not guarded)
+
+
+@pytest.mark.parametrize('script', [
+    'args=(\npython3 product/nz_election/pipeline/night_live.py\n)',
+    'unused() {\npython3 product/nz_election/pipeline/night_live.py\n}',
+    '(\npython3 product/nz_election/pipeline/night_live.py\n)',
+    'if false; then\npython3 product/nz_election/pipeline/night_live.py\nfi',
+], ids=['array', 'uncalled-function', 'subshell', 'if-body'])
+def test_review4_enclosing_construct_is_not_guard_evidence(workflows, capsys, script):
+    path = workflows / '.github/workflows/new-name.yaml'
+    body = '\n'.join('          ' + line for line in script.split('\n'))
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: |\n' + body + '\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert '; no runs' in capsys.readouterr().out
+    assert list(history.workflow_commands(path.read_text())) == []
+
+
+@pytest.mark.parametrize('unsupported', [
+    'args=(one two)', 'unused() { echo data; }', '(echo data)', '{ echo data; }',
+    'echo "$(echo data)"', 'echo `echo data`', 'cat <<EOF\ndata\nEOF',
+    'if false; then echo data; fi', 'for x in one; do echo data; done',
+    'while false; do echo data; done', 'case value in value) echo data;; esac',
+    'echo data && echo more', 'echo data || echo more', 'echo data | cat',
+    'echo data > output', 'exit 0', 'eval "echo data"', 'source helper.sh',
+])
+@pytest.mark.parametrize('guard_first', [False, True])
+def test_review4_unsupported_step_is_rejected_as_a_whole(workflows, unsupported, guard_first):
+    guard = 'python3 product/nz_election/pipeline/night_live.py'
+    script = '\n'.join([guard, unsupported] if guard_first else [unsupported, guard])
+    path = workflows / '.github/workflows/new-name.yaml'
+    body = '\n'.join('          ' + line for line in script.split('\n'))
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: |\n' + body + '\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert list(history.workflow_commands(path.read_text())) == []
+
+
+def test_review4_rejected_step_does_not_discard_separate_simple_guard(workflows):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + '''jobs:
+  check:
+    steps:
+      - run: |
+          args=()
+          echo data
+      - run: python3 product/nz_election/pipeline/night_live.py
+''')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 0
+
+
+@pytest.mark.parametrize('separator', ['\r', '\v', '\f', '\x00', '\u00a0'],
+                         ids=['CR', 'VT', 'FF', 'NUL', 'NBSP'])
+def test_review5_unsupported_characters_reject_whole_step(workflows, capsys, separator):
+    path = workflows / '.github/workflows/new-name.yaml'
+    original = path.read_text()
+    guard = 'python3 product/nz_election/pipeline/night_live.py'
+    malformed = 'python3' + separator + 'product/nz_election/pipeline/night_live.py'
+    # Unsupported characters invalidate both a command word and literal data
+    # in a step that otherwise contains a valid guard invocation.
+    for script in (malformed, guard + '\necho "' + malformed + '"'):
+        path.write_text(original + 'jobs:\n  check:\n    steps:\n      - run: ' + json.dumps(script) + '\n')
+        assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                            now=NOW, root=workflows) == 1
+        assert '; no runs' in capsys.readouterr().out
+        assert list(history.workflow_commands(path.read_text())) == []
+
+
+@pytest.mark.parametrize('char', [chr(n) for n in range(32) if n not in (9, 10)] +
+                         ['\x7f', '\x85', '\u00a0', '\u2028', '\u2029', '\u4e09'])
+def test_review5_forbidden_characters_cannot_hide_in_comments(char):
+    script = 'python3 product/nz_election/pipeline/night_live.py\n# ' + char
+    with pytest.raises(ValueError, match='unsupported shell character'):
+        history.shell_commands(script)
+
+
+@pytest.mark.parametrize('style', ['|', '>'])
+@pytest.mark.parametrize('char', ['\v', '\f', '\x00', '\u00a0', '\u2028'])
+def test_review5_block_scalars_preserve_forbidden_characters(style, char):
+    source = ('jobs:\n  check:\n    steps:\n      - run: ' + style + '\n'
+              '          python3 product/nz_election/pipeline/night_live.py\n'
+              '          # ' + char + '\n')
+    assert list(history.workflow_commands(source)) == []
+
+
+@pytest.mark.parametrize('separator', [' ', '\t', ' \\\n'])
+def test_review5_supported_whitespace_still_recognizes_guard(separator):
+    command = 'python3' + separator + 'product/nz_election/pipeline/night_live.py'
+    source = 'jobs:\n  check:\n    steps:\n      - run: ' + json.dumps(command) + '\n'
+    assert list(history.workflow_commands(source)) == [['product/nz_election/pipeline/night_live.py']]
+
+
+@pytest.mark.parametrize('style', ['>', '>-'])
+def test_review6_folded_blank_line_is_not_guard_evidence(workflows, capsys, style):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: ' + style + '\n'
+                    '          python3\n\n          product/nz_election/pipeline/night_live.py\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert '; no runs' in capsys.readouterr().out
+    assert list(history.workflow_commands(path.read_text())) == []
+
+
+@pytest.mark.parametrize('style', ['>', '>-', '>+'])
+def test_review6_even_simple_folded_commands_are_not_evidence(workflows, style):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + 'jobs:\n  check:\n    steps:\n      - run: ' + style + '\n'
+                    '          uv run\n          product/nz_election/pipeline/night_live.py\n')
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 1
+    assert list(history.workflow_commands(path.read_text())) == []
+
+
+def test_review6_folded_scalar_does_not_hide_following_simple_step(workflows):
+    path = workflows / '.github/workflows/new-name.yaml'
+    path.write_text(path.read_text() + '''jobs:
+  check:
+    steps:
+      - run: >-
+          python3
+
+          product/nz_election/pipeline/night_live.py
+      - run: python3 product/nz_election/pipeline/night_live.py
+''')
+    assert list(history.workflow_commands(path.read_text())) == [['product/nz_election/pipeline/night_live.py']]
+    assert history.main(['--days', '1'], runner=lambda *a, **k: result('[]'),
+                        now=NOW, root=workflows) == 0
