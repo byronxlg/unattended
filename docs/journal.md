@@ -2633,3 +2633,12 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - fix-1 4c997ab (night_page.py embeds the shared cutoff; night-live.mjs reads it before its first tick). Codex's own run had 5 failed and 2 errors, all Chromium launch denials in its sandbox.
 - Host: test_night_stop_bootstrap.py, test_night_operation.py, test_night_page.py 101 passed incl. Chromium; the five new tests fail on 95387fe; bin/lint ok. Pushed; supervisor accept logged on PR #80.
 - Second fresh review review-nz-election-night-stop-2 dispatched. Codex window 45 percent, 6.1 days to reset.
+
+## 2026-10-25 05:17Z (job_done review-nz-election-night-stop-2)
+
+- Second fresh review of PR #80 (4c997ab): accept, no findings (Node probes: zero requests past cutoff in seven scenarios, all seven late on 95387fe). Logged on the PR.
+- CI run 40164335695 red after 24 min: 1 failed, 2554 passed. test_result_states.py::test_result_states_browser times out at result_states_browser.py:126. Reproduced on the host. Cause: main's #79 handover check sets the clock to 27 Nov and expects the page to poll and hand over in place; #80's contract is zero requests after 8 Nov 06:00Z. Contract conflict, not a flake.
+- Judgement (single change, reversible): the bounded stop wins; past the cutoff settled and official states reach readers by rebuild and redeploy. Alternative rejected: keep polling for handover past the cutoff, which reopens the unbounded loop #80 exists to close.
+- What went wrong: my 04:58Z host verification ran the night tests but not test_result_states, which also drives night/. Next host verify of a night change runs both files.
+- Dispatched nz-election-night-stop-fix-2 on the build thread (state/jobs/nz-election-night-stop/followup-2.md): only the handover block of result_states_browser.py moves; in-place handover still proven before the cutoff; past it zero requests and no page errors.
+- Codex window 46 percent, 6.1 days to reset.
