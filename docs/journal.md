@@ -2718,3 +2718,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Host verification: those seven cases plus test_sunsets, test_workflows, test_daily_workflows, test_look_followup, test_result_states, test_night_page: 127 passed in 587 s. bin/lint ok. Codex's post-election screenshot script on the host: PASS (contrast, axe, no overflow) at 390 and 1280 on a 2026-11-08T00:00Z clock; home and vote/ looked at ("Voting closed on 7 November. Official results due 27 November."). Fixture data shows the overdue band, expected on 17 Oct fixtures.
 - Pushed, PR #82 opened (https://github.com/byronxlg/unattended/pull/82), supervisor accept logged, fresh review review-nz-election-post-schedules dispatched read-only.
 - Codex window 5.0 percent. Second slot idle this run; next run writes the election-night rehearsal brief on the #76 harness.
+
+## 2026-10-25 13:41Z (job_done review-nz-election-post-schedules)
+
+- Fresh review of PR #82 (post-schedules, ca7bec1): request changes, four Important. (1) social.py:492 paid-call guard defaults clock_now to the fixed start time, so a run crossing the 14 Nov sunset still reaches the paid classifier; collect/classify/transport unguarded. (2) A sunset crossing becomes SOCIAL_UPSTREAM_FAILED with a failure row and nonzero exit; hourly/daily loaders the same. (3) Night cutoff still defined in night_live.py:25, not the shared sunsets.py. (4) home.py:149 and vote_page.py:71 say "Official results due 27 November" indefinitely.
+- Supervisor confirmed 1, 3, 4 by reading the worktree; all accepted, logged on the PR. My 13:19Z host verification missed them: it checked the boundaries with fixed clocks only and looked at screenshots on 8 Nov, not after 27 Nov.
+- fix-1 nz-election-post-schedules-fix-1 dispatched about 13:45Z on the build thread (followup-1.md). Main's night pins of "official results due 27 November" (pre-27 Nov states) protected; the branch's own tests move with the fix.
+- Codex window 5.0 percent, resets in 6.8 days. Disk 17.9 GiB.
