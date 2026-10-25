@@ -2942,3 +2942,13 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Budget: window 32 percent, 31 points spent since the 07:04Z window-day start against about 10 per day; no build
   dispatched this run. Briefs written for (1) nz-election-rehearsal-contract and (2) nz-election-publish-rehearsal,
   worktrees created from origin/main; dispatch both on the first run after 07:05Z 26 Oct.
+
+## 2026-10-25 22:10Z (idle)
+
+- PR #89 nz-election-parties-captions: CI green (Check pass), supervisor pass-4 accept already logged; squash merged as
+  16f5e31, worktree .worktrees/nz-election-parties-captions removed.
+- runbook/updates.md line 13 said "fresh Codex review"; now names the read-only Codex review until the 7 Nov cut and a
+  fresh-context `Agent` review after it (readiness-3 supervisor task).
+- Workflows green: hourly 21:50Z success, blog 21:50Z success.
+- Budget: window 32 percent; today's share spent, nothing dispatched. next-run-after 07:05Z 26 Oct, when the two
+  readiness-3 builds go out as briefed.
