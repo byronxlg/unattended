@@ -206,3 +206,12 @@ def test_official_source_must_match_every_xml_source(live):
     del row['acquisition_source']
     with pytest.raises(ValueError, match='^NIGHT_STATE$'):
         night_live.validate_row(row, env, reference, official=True)
+
+
+@pytest.mark.parametrize('bad', [None, '', [], 1, 1.5, 10**100, 'official\x00'])
+def test_official_clock_validation_uses_parsed_payload(bad):
+    payloads, sources, hashes = night_live.loaded(capture('official'))
+    row = payloads['night/live/current'][0]
+    row['source_updated_local'] = bad
+    with pytest.raises(ValueError, match='^NIGHT_LIVE$'):
+        night_live.validate_row(row, dict(source=sources, input_hashes=hashes), payloads['night/references/live'][0], official=True)

@@ -124,7 +124,7 @@ def validate_row(row, env, reference, *, official=False):
     if ((acquisition['kind'] == 'demo') != row['rehearsal']
             or (acquisition['kind'] == 'official') != official
             or official and (row['mode'] != 'Official results' or not result_sources.official_date_reached(row.get('retrieved_at'))
-                             or row['source_updated_local'][:10] < result_sources.OFFICIAL_RESULTS_DATE.isoformat())):
+                             or result['source_updated_local'][:10] < result_sources.OFFICIAL_RESULTS_DATE.isoformat())):
         raise ValueError('NIGHT_STATE')
     if set(row) - {'acquisition_source'} != set(result) | {'id', 'source_ref', 'mode', 'retrieved_at', 'raw_xml', 'rehearsal', 'packaging_label'}:
         raise ValueError('NIGHT_LIVE')
