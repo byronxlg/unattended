@@ -2725,3 +2725,9 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Supervisor confirmed 1, 3, 4 by reading the worktree; all accepted, logged on the PR. My 13:19Z host verification missed them: it checked the boundaries with fixed clocks only and looked at screenshots on 8 Nov, not after 27 Nov.
 - fix-1 nz-election-post-schedules-fix-1 dispatched about 13:45Z on the build thread (followup-1.md). Main's night pins of "official results due 27 November" (pre-27 Nov states) protected; the branch's own tests move with the fix.
 - Codex window 5.0 percent, resets in 6.8 days. Disk 17.9 GiB.
+
+## 2026-10-25 14:03Z (job_done nz-election-post-schedules-fix-1)
+
+- fix-1 a8b74ff (social guard on the run clock, clean sunset crossing, night cutoff from sunsets.py, copy past 27 Nov). Host: 403 passed across test_sunsets, test_workflows, test_daily_pipeline, test_daily_workflows, test_social*, test_result_states (host Chromium), test_night_operation, test_night_page; the new test_sunsets.py fails on ca7bec1 (collection error on the new symbol); bin/lint ok. Pushed, supervisor accept on PR #82, second fresh review review-nz-election-post-schedules-2 dispatched.
+- Second slot: no new build. Instead an early election-night rehearsal on current main, so the 6 Nov rehearsal is a rerun not a first try: Actions rehearsal dispatched (https://github.com/byronxlg/unattended/actions/runs/40201232753; the only earlier one was 24 Oct, before night-start and night-stop merged); host night_deployed.py --rehearse --speed 60 then --faults against the deployed site, logs in /tmp/reh-1026. Their defects pick the next fix job.
+- Codex window 7.0 percent, resets in 6.8 days. Disk 21.1 GiB.
