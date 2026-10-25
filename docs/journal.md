@@ -2746,3 +2746,15 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Decision: move that one assertion (settled-state branch keeps 'due'; post-date branch asserts the neutral wording and no 'due'), as with night-stop fix-2. Alternative rejected: keep "due" past the date, which the second fresh review flagged as false copy.
 - Dispatched nz-election-post-schedules-fix-3 on the build thread (followup-3.md). Not pushed yet.
 - Codex window 9.0 percent, 6.8 days to reset.
+
+## 2026-10-25 14:57Z (job_done nz-election-post-schedules-fix-3)
+
+- fix-3 8951028 (moved main's result_states_browser.py 'due 27 November' assertion with the contract; cached night notices
+  switch to neutral wording after the date). Host: 273 passed across test_sunsets, test_workflows, test_daily_pipeline,
+  test_daily_workflows, test_result_states (host Chromium), test_night_operation, test_night_stop_bootstrap, test_social,
+  test_night_page; bin/lint ok. Note: the follow-up 2 list named test_daily.py, which does not exist; the two daily files ran.
+- Pushed, supervisor accept logged on PR #82, third fresh review review-nz-election-post-schedules-3 dispatched.
+- Second slot: the week-after plan has no Codex increments left, so a read-only readiness audit
+  (research-nz-election-readiness) maps schedule.md milestones 26 Oct to 14 Nov to evidence and ranks at most five
+  increments; the next increment is written from it. Judgement: an audit before the next build rather than guessing an
+  increment; rejected alternative: writing an increment now from schedule.md alone. Codex window 9 percent.
