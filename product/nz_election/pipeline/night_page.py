@@ -93,6 +93,7 @@ def live_status(built, retrieval):
 
 
 def page(envs, built):
+    from .night_live import CLOSE, stamp
     sequences = envs.get('night/index', {}).get('data', [])
     pre_close = datetime.fromisoformat(built.replace('Z', '+00:00')) < datetime.fromisoformat('2026-11-07T19:00:00+13:00')
     before = f'<p class="countdown">{escape(election_countdown(built))}</p><p><a href="{PREFIX}vote/">How to vote</a></p>'
@@ -135,7 +136,7 @@ def page(envs, built):
                 '<select id="night-speed"><option value="1">1x</option><option value="10">10x</option><option value="60">60x</option></select>'
                 '<span id="night-clock" aria-live="off">Paused</span>'
                 '<span id="night-announcement" role="status" aria-live="polite" aria-atomic="true"></span></div>')
-    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + f'<p id="night-live-status" role="status">{status}</p>' + controls + f'<div id="night-snapshot" data-retrieved-at="{escape(retrieval)}" data-mode="{escape(current.get("mode", ""))}">' + selected.replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ') + '</div>'
+    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + f'<p id="night-live-status" role="status">{status}</p>' + controls + f'<div id="night-snapshot" data-loop-ends-at="{stamp(lambda: CLOSE)}" data-retrieved-at="{escape(retrieval)}" data-mode="{escape(current.get("mode", ""))}">' + selected.replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ') + '</div>'
             + ('' if current.get('result_state') else f'<p id="night-result-status">2026: Preliminary; official results due {due_date()}.</p>') + links +
             ''.join(f'<template id="sequence-{s["id"]}">{p}</template>' for s, p in zip(sequences, panels)) +
             f'</div><script type="module" src="{PREFIX}night.mjs"></script><script type="module" src="{PREFIX}night-live.mjs"></script>')
