@@ -7,6 +7,7 @@ import argparse
 import base64
 import json
 import os
+import re
 from pathlib import Path
 import sys
 import shutil
@@ -39,8 +40,10 @@ def success_order(envs, family='polls'):
     return (envs['polls'].get('fetched_at') or '', envs['averages']['generated_at'])
 
 
-def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly', claim=None, now=None):
+def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly', claim=None, now=None, night_rollback=None):
     require_publication_allowed(now() if now else None)
+    if night_rollback is not None and (family != 'night' or not isinstance(night_rollback, str) or not re.fullmatch(r'[0-9a-f]{40}', night_rollback)):
+        raise ValueError('NIGHT_DATA_SHA')
     if claim is not None and family != 'social':
         raise ValueError('INVALID_FAMILY')
     if family not in {'hourly', 'daily', 'social', 'night'}:
@@ -71,6 +74,8 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
         for attempt in range(attempts):
             refs = git(checkout, 'ls-remote', remote, 'refs/heads/data').stdout.split()
             fetched_sha = refs[0] if refs else ''
+            if night_rollback is not None and fetched_sha != night_rollback:
+                raise ValueError('NIGHT_ROLLBACK_CONFLICT')
             if fetched_sha:
                 git(checkout, 'fetch', remote, fetched_sha)
                 # Inspect the tree before checkout, so data never installs git configuration.
@@ -167,6 +172,8 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                     # A delayed live job cannot reopen a settled count.
                     if rank(current) > rank(incoming):
                         keep_data = True
+                if night_rollback is not None:
+                    keep_data = False
                 keep_status = previous and previous['last_attempt_at'] > proposed['last_attempt_at']
                 all_older = all_older and bool(keep_status and keep_data)
                 if not keep_data:

@@ -1,0 +1,197 @@
+"""Exercise the Actions script with disposable git remotes, never network."""
+import json
+from pathlib import Path
+
+import pytest
+from product.nz_election.pipeline import export, fixtures, night_live, publish, result_import
+from product.nz_election.pipeline.daily_refresh import daily_refresh
+from product.nz_election.tests.test_result_states import capture
+from product.nz_election.tests.test_workflows import workflow
+
+NOW = '2026-11-28T00:00:00Z'
+
+
+def register(root, raw, name='reviewed'):
+    path = 'result-import/' + name + '.json'
+    target = root / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(raw))
+    entry = dict(path=path, sha256=export.digest(target.read_bytes()), capture_kind='human-reviewed-real', reviewer='Offline test')
+    (root / 'manifest.json').write_text(json.dumps(dict(entries=[entry])))
+    return path
+
+
+@pytest.fixture
+def repo(tmp_path):
+    remote = tmp_path / 'remote.git'
+    remote.mkdir()
+    publish.git(remote, 'init', '--bare', '-q')
+    data = tmp_path / 'data'
+    raw = capture('preliminary')
+    daily_refresh(data, loaders={'night': lambda: night_live.loaded(raw)}, now=raw['retrieved_at'])
+    sha = publish.publish(data, remote, family='night', now=lambda: NOW)['sha']
+    root = tmp_path / 'captures'
+    path = register(root, raw)
+    return remote, sha, root, path
+
+
+def execute(repo, **kwargs):
+    remote, sha, root, path = repo
+    return result_import.run(kwargs.pop('state', 'settled'), path, kwargs.pop('data_sha', sha),
+                             repository=remote, root=root, now=kwargs.pop('now', lambda: NOW),
+                             run_url='offline-verification', **kwargs)
+
+
+def test_rehearsal_imports_pin_and_rollback(repo, tmp_path):
+    remote, original, root, path = repo
+    deployments = []
+    settled = execute(repo, deploy=deployments.append)
+    assert settled['checks'] == ['PASS night', 'PASS waterfall']
+    assert settled['capture_sha256'] == export.digest((root / path).read_bytes())
+    register(root, capture('official'))
+    official = execute(repo, state='official', data_sha=settled['published_data_sha'])
+    assert official['checks'] == ['PASS night', 'PASS waterfall']
+    checkout = tmp_path / 'pinned'
+    checkout.mkdir()
+    result_import.pin(remote, original, checkout)
+    assert publish.git(checkout, 'rev-parse', 'HEAD').stdout.strip() == original
+    assert 'result_state' not in export.validate_bundle(checkout / publish.DATA)['night/live/current']['data'][0]
+    restored = execute(repo, rollback=True)
+    assert restored['published_data_sha'] != official['published_data_sha']
+    for suffix in ('json', 'csv'):
+        name = str(publish.DATA / ('night/live/current.' + suffix))
+        assert publish.git(remote, 'show', 'data:' + name).stdout == publish.git(remote, 'show', original + ':' + name).stdout
+    assert deployments == [settled['published_data_sha']]
+
+
+@pytest.mark.parametrize('bad', [None, '', [], 1, 1.5, 10**100, 'x\x00', 'a'*40, 'A'*40])
+def test_invalid_sha(repo, tmp_path, bad):
+    checkout = tmp_path / 'pin'
+    checkout.mkdir()
+    with pytest.raises(ValueError, match='^NIGHT_DATA_SHA$'):
+        result_import.pin(repo[0], bad, checkout)
+
+
+@pytest.mark.parametrize('fault,code', [('missing', 'MISSING_CAPTURE'), ('synthetic', 'NIGHT_CAPTURE_NOT_REAL'),
+    ('freeze', 'PUBLICATION_FROZEN'), ('verify', 'NIGHT_VERIFY_FAILED'), ('hash', 'CAPTURE_HASH_MISMATCH')])
+def test_refusals_leave_remote_unchanged(repo, fault, code):
+    remote, sha, root, path = repo
+    kwargs = {}
+    if fault == 'missing':
+        (root / 'manifest.json').write_text('{"entries": []}')
+    elif fault == 'synthetic':
+        doc = json.loads((root / 'manifest.json').read_text())
+        doc['entries'][0]['notes'] = 'Synthetic fixture'
+        (root / 'manifest.json').write_text(json.dumps(doc))
+    elif fault == 'freeze':
+        kwargs['now'] = lambda: '2026-11-07T00:00:00Z'
+    elif fault == 'verify':
+        kwargs['verifier'] = lambda data: ['FAIL night']
+    else:
+        (root / path).write_text('{}')
+    with pytest.raises(ValueError, match=code):
+        execute(repo, **kwargs)
+    assert publish.git(remote, 'rev-parse', 'data').stdout.strip() == sha
+
+
+@pytest.mark.parametrize('fault,code', [('source', 'NIGHT_STATE'), ('date', 'NIGHT_STATE'), ('reference', 'NIGHT_LIVE')])
+def test_official_refusals(repo, fault, code):
+    settled = execute(repo)
+    raw = capture('official')
+    if fault == 'source':
+        raw['acquisition_source'] = {'kind': 'official', 'url': 'https://invalid.example/'}
+    elif fault == 'date':
+        raw['retrieved_at'] = '2026-11-25T10:35:00Z'
+    else:
+        raw['raw']['parties.xml'] = raw['raw']['parties.xml'].replace('<short_name>', '<short_name>Changed ', 1)
+    register(repo[2], raw)
+    with pytest.raises(ValueError, match=code):
+        execute(repo, state='official', data_sha=settled['published_data_sha'])
+    assert publish.git(repo[0], 'rev-parse', 'data').stdout.strip() == settled['published_data_sha']
+
+
+def test_committed_synthetic_rejected():
+    for name in ('2026-11-07-preliminary-final', '2026-11-27-official'):
+        with pytest.raises(ValueError, match='NIGHT_CAPTURE_NOT_REAL'):
+            result_import.capture_bytes('result-states/' + name + '.json', fixtures.ROOT)
+
+
+def test_workflow_contract():
+    doc = workflow('nz-election-result-import.yml')
+    assert set(doc[True]) == {'workflow_dispatch'}
+    assert set(doc[True]['workflow_dispatch']['inputs']) == {'state', 'capture', 'data_sha', 'rollback'}
+    assert doc['concurrency'] == {'group': 'nz-election-data-publication', 'cancel-in-progress': False}
+    job = doc['jobs']['import']
+    assert job['if'] == "github.ref == 'refs/heads/main'"
+    assert job['steps'][0]['with'] == {'ref': '${{ github.sha }}', 'persist-credentials': False}
+    assert 'result_import.py' in job['steps'][-1]['run']
+    source = Path(result_import.__file__).read_text()
+    assert "family='night'" in source and "'pages.yml', '--ref', 'main'" in source
+
+
+def test_rollback_lease_conflict(repo):
+    result = execute(repo)
+    with pytest.raises(ValueError, match='NIGHT_ROLLBACK_CONFLICT'):
+        with __import__('tempfile').TemporaryDirectory() as tmp:
+            checkout = Path(tmp)
+            result_import.pin(repo[0], repo[1], checkout)
+            publish.publish(checkout / publish.DATA, repo[0], family='night', night_rollback=repo[1], now=lambda: NOW)
+    assert publish.git(repo[0], 'rev-parse', 'data').stdout.strip() == result['published_data_sha']
+
+
+@pytest.mark.parametrize('returncode,stdout', [(1, 'PASS night\n'), (0, 'SKIP night\n')])
+def test_verify_requires_exit_zero_and_pass(tmp_path, monkeypatch, returncode, stdout):
+    import subprocess
+    monkeypatch.setattr(result_import.subprocess, 'run', lambda *a, **kw: subprocess.CompletedProcess(a, returncode, stdout, ''))
+    with pytest.raises(ValueError, match='^NIGHT_VERIFY_FAILED$'):
+        result_import.verify(tmp_path)
+
+
+def test_unreachable_existing_commit(repo, tmp_path):
+    remote, sha, _, _ = repo
+    tree = publish.git(remote, 'rev-parse', sha + '^{tree}').stdout.strip()
+    publish.git(remote, 'config', 'user.name', 'Test')
+    publish.git(remote, 'config', 'user.email', 'test@example.com')
+    other = publish.git(remote, 'commit-tree', tree, '-m', 'Unrelated history').stdout.strip()
+    publish.git(remote, 'update-ref', 'refs/heads/other', other)
+    checkout = tmp_path / 'unreachable'
+    checkout.mkdir()
+    with pytest.raises(ValueError, match='^NIGHT_DATA_SHA$'):
+        result_import.pin(remote, other, checkout)
+
+
+def test_relocated_known_synthetic_is_rejected(tmp_path):
+    path = register(tmp_path, capture('official'))
+    manifest = json.loads((tmp_path / 'manifest.json').read_text())
+    manifest['entries'].append(dict(manifest['entries'][0], path='result-states/original.json', notes='Synthetic capture'))
+    (tmp_path / 'manifest.json').write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match='^NIGHT_CAPTURE_NOT_REAL$'):
+        result_import.capture_bytes(path, tmp_path)
+
+
+@pytest.mark.parametrize('bad', [None, '', [], 1, 1.5, 10**100, 'capture\x00'])
+def test_malformed_capture_contract(tmp_path, bad):
+    path = register(tmp_path, bad)
+    with pytest.raises(ValueError, match='^NIGHT_CAPTURE_NOT_REAL$'):
+        result_import.capture_bytes(path, tmp_path)
+    with pytest.raises(ValueError, match='^MISSING_CAPTURE'):
+        result_import.capture_bytes(bad, tmp_path)
+
+
+def test_cli_job_clock_and_producing_url(monkeypatch):
+    monkeypatch.setenv('GITHUB_TOKEN', 'offline-test-token')
+    monkeypatch.setenv('GITHUB_SERVER_URL', 'https://github.com')
+    monkeypatch.setenv('GITHUB_REPOSITORY', 'test/repo')
+    monkeypatch.setenv('GITHUB_RUN_ID', '123')
+    monkeypatch.setattr('sys.argv', ['result_import.py', '--state', 'settled', '--data-sha', 'a'*40])
+    called = []
+    def run(*args, **kwargs):
+        assert export.timestamp(kwargs['now']())
+        assert kwargs['run_url'] == 'https://github.com/test/repo/actions/runs/123'
+        called.append(args)
+    monkeypatch.setattr(result_import, 'run', run)
+    # Keep authentication configuration scoped to this test process.
+    for key in ('GIT_CONFIG_COUNT', 'GIT_CONFIG_KEY_0', 'GIT_CONFIG_VALUE_0'):
+        monkeypatch.setenv(key, '')
+    result_import.main()
+    assert len(called) == 1

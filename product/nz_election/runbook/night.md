@@ -264,7 +264,7 @@ or the full screenshot harness for the exact expanded state registry.
 4. To resume, enable the workflow and dispatch it again within the live window. Do not enable a
    second feed or browser XML transport. Keep the reviewed preliminary root; there is no guessed
    official-feed switch. For 27 November, capture and validate compatible official results through
-   the established daily capture workflow, keeping the preliminary baseline and its date. Stop
+   `nz-election-result-import.yml` with a reviewed human capture, keeping the preliminary baseline and its date. Stop
    the preliminary live loop before publishing that transition. Only evidence-supported official
    changes and specials components may appear.
 
@@ -389,14 +389,58 @@ For this rehearsal, generate the compatible preliminary and settled bundles with
 The harness builds both populated states and records home and night at 390x844 and 1280x800.
 The synthetic preliminary fixture is dated 7 November; neither fixture is a real EC capture.
 
-Publication remains a separate Actions-controlled step using the validated night family and
-existing leased publisher. These commands only prepare local artifacts; they do not dispatch,
-change infrastructure, or publish. On the real import, replace the synthetic fixture path with
-the reviewed human capture and pass `--run-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"`
-from the producing Actions job for both commands. Without that option the output remains
-labelled offline verification. Retain the original preliminary envelope throughout. The comparison
-is labelled “Change since preliminary result”, never “special votes”. The XML's aggregate
-special-vote statistic is not a party breakdown and does not enable a specials component.
+### Publish settled or official results
+
+Use `nz-election-result-import.yml` on main. It is dispatch-only, independent of the
+collection sunset, and uses the existing s197 guard and leased night-family publisher.
+Commit the reviewed real capture and manifest entry to main first. Use a filename under
+`fixtures/result-import/` (dispatch path `result-import/<name>.json`). The manifest entry
+must have `capture_kind: "human-reviewed-real"`, a nonempty `reviewer`, sha256, acquisition
+URL, retrieval time, licence and review notes. Never mark synthetic bytes as real.
+Test/rehearsal paths, including `result-states/`, are rejected. No real capture is bundled
+with this workflow. Settlement requires the reviewed capture to match the pinned live row.
+
+Record the full pre-import data SHA from `gh api repos/byronxlg/unattended/git/ref/heads/data --jq .object.sha`.
+Replace the capitalized values below with reviewed values; each transition needs one dispatch:
+
+```sh
+gh workflow run nz-election-result-import.yml --ref main \
+  -f state=settled -f capture=result-import/2026-11-07-preliminary-final.json \
+  -f data_sha=PRE_IMPORT_DATA_SHA
+gh workflow run nz-election-result-import.yml --ref main \
+  -f state=official -f capture=result-import/2026-11-27-official.json \
+  -f data_sha=SETTLED_DATA_SHA
+```
+
+The script checks ancestry before checking out exactly the requested data commit. It validates
+and hashes the capture, runs the result-state transition with the job clock and producing run
+URL, and requires `PASS night` and `PASS waterfall` before publishing. The summary records
+both data SHAs, capture path, sha256 and PASS lines. Check the dispatched `pages.yml` run
+(`gh run list --workflow pages.yml`) completes, its build manifest names the published SHA,
+and live `/nz-election/night/` shows the expected settled or official state and dated baseline.
+An official comparison is labelled "Change since preliminary result", never "special votes".
+If publication completed but Pages dispatch failed, rerun only Pages with the summary SHA:
+
+```sh
+gh workflow run pages.yml --ref main -f data_sha=PUBLISHED_DATA_SHA
+```
+
+### Roll back an import
+
+Restore the night family from the recorded pre-import SHA, preserving other current families:
+
+```sh
+gh workflow run nz-election-result-import.yml --ref main \
+  -f state=settled -f rollback=true -f data_sha=PRE_IMPORT_DATA_SHA
+```
+
+Rollback ignores state/capture, validates the pinned bundle and runs both checks. It uses the
+same publisher with a night-only restoration override, necessary to undo terminal-state
+ordering. It fails `NIGHT_ROLLBACK_CONFLICT` if the data head moves after resolution; inspect
+that publication and dispatch again if restoration is still appropriate. The freeze still
+applies. Check the summary and Pages as above. A rollback to live preliminary re-enables client
+polling; the collection sunset remains in force. Local bare-git tests cover both imports,
+restoration bytes, exact SHA pinning and refusal without publication.
 
 ## Stop
 
@@ -405,7 +449,7 @@ special-vote statistic is not a party breakdown and does not enable a specials c
 and deploy the reviewed code through Actions before the boundary. The starter,
 `bin/tick` watchdog (through `night_start.py`), acquisition and successor guards
 all read it. A manual live dispatch after it logs `Night live loop has ended.`
-and exits 0, including rehearsal dispatches. The separate official import path
+and exits 0, including rehearsal dispatches. The `nz-election-result-import.yml` workflow
 remains independent.
 
 Each browser package carries `loop_ends_at` and `loop_ended`, including an empty
@@ -420,4 +464,4 @@ If Byron requests a restart, move `NIGHT_CLOSE` into the future, deploy that cod
 its updated browser package through Actions, then manually dispatch
 `nz-election-night-live.yml` on main. Reload open browser tabs to pick up the
 new deadline. The watchdog marker and run history deliberately do not restart
-a loop that already ran. Do not disable the separate official import workflow.
+a loop that already ran. Do not disable `nz-election-result-import.yml`.
