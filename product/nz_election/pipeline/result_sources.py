@@ -21,6 +21,10 @@ def root(record):
     return ROOTS[record['kind']]
 
 
+def official_results_at():
+    return datetime.combine(OFFICIAL_RESULTS_DATE, datetime.min.time(), ZoneInfo("Pacific/Auckland"))
+
+
 def official_date_reached(retrieved_at):
     try:
         instant = datetime.fromisoformat(retrieved_at.replace('Z', '+00:00'))

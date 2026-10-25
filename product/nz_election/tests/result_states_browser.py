@@ -130,7 +130,11 @@ def main():
                     page.goto(origin + '/unattended/nz-election/night/')
                     page.wait_for_load_state('networkidle')
                     assert page.locator('#night-result-status').is_visible()
-                    assert 'official results due 27 November' in page.locator('#night-result-status').inner_text()
+                    if state == 'settled':
+                        assert 'official results due 27 November' in page.locator('#night-result-status').inner_text()
+                    else:
+                        assert 'check the electoral commission for official results.' in page.locator('#night-result-status').inner_text().lower()
+                        assert 'due 27 November' not in page.locator('#night-result-status').inner_text()
                     assert replies[0] == (1 if state == 'settled' else 0)
                     handover[0] = True
                     page.clock.run_for(121000)

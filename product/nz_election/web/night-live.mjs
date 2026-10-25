@@ -72,6 +72,15 @@ if (typeof document !== 'undefined' && [null, 'live'].includes(new URL(location.
       visible: () => !document.hidden,
       fetcher: () => fetch(url, {cache: 'no-store', credentials: 'omit', mode: 'same-origin', redirect: 'error', signal: AbortSignal.timeout(20000)}),
       status: text => {
+        // A cached pre-date build must retire its due notice even when polling has ended.
+        if (Date.now() >= Date.parse(target.dataset.resultNoticeAt)) {
+          const lowerInitial = value => value[0].toLowerCase() + value.slice(1);
+          const update = value => value.replace(target.dataset.resultNotice, target.dataset.postDateNotice)
+            .replace(lowerInitial(target.dataset.resultNotice), lowerInitial(target.dataset.postDateNotice));
+          text = update(text);
+          const resultStatus = document.querySelector('#night-result-status');
+          if (resultStatus) resultStatus.textContent = update(resultStatus.textContent);
+        }
         if (notice.textContent !== text) notice.textContent = text;
         if (Date.now() >= OPEN) document.querySelectorAll('.night-page > .countdown, .night-page > p:has(a[href$="vote/"])').forEach(n => n.remove());
       },
