@@ -1,5 +1,6 @@
 """Shared route summaries and browser-independent social card documents."""
 from html import escape
+from .sunsets import post_election
 from fractions import Fraction
 from .build import PREFIX, config, render, strip, label, source_note, compact_time, link, derivation_note
 from .home import note
@@ -53,6 +54,16 @@ def summary(route, envs, home, built):
         values = envs['averages']['data'][-1]['descriptive']
         leaders = sorted(((p, v) for p, v in values.items() if p != 'others' and v['value'] is not None), key=lambda x: (-Fraction(x[1]['value'], x[1]['scale']), x[0]))[:2]
         description = '; '.join(label(p) + ' ' + display(v['value'], v['scale']) for p, v in leaders) or description
+    if post_election(built):
+        title = title.replace('votes on', 'voted on').replace('Who is standing', 'Who stood')
+        description = description.replace('votes on', 'voted on')
+        if path == 'vote/':
+            title = 'Voting closed: election results'
+            description = 'Voting closed on 7 November. Find election results; official results due 27 November.'
+        if path == 'night/':
+            description = 'Current preliminary election results. Official results due 27 November.'
+            if any(r.get('result_state') == 'official' for r in envs.get('night/live/current', {}).get('data', [])):
+                description = 'Official 2026 election results and change since the preliminary result.'
     return title, description
 
 

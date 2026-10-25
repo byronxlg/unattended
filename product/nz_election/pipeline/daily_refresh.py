@@ -135,12 +135,15 @@ def daily_refresh(out, *, now=None, sha=None, run_url='offline-verification', lo
     return status
 
 
-def main():
+def main(*, now=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--live', action='store_true')
     parser.add_argument('--historical-advance', action='store_true', help='2023 offline verification only')
     args = parser.parse_args()
+    from product.nz_election.pipeline.sunsets import skip
+    if args.live and skip('daily', now() if now else None):
+        return
     if args.live and args.historical_advance:
         parser.error('historical advance is offline only')
     options = dict(historical_advance=args.historical_advance)
@@ -148,7 +151,7 @@ def main():
         from product.nz_election.pipeline.deployment_guard import require_publication_allowed
         require_publication_allowed()
         from product.nz_election.pipeline.daily_sources import live_loaders
-        loaders, messages = live_loaders()
+        loaders, messages = live_loaders(**({"now": now} if now else {}))
         options = dict(loaders=loaders, messages=messages, sha=os.environ['GITHUB_SHA'],
                        run_url=os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'])
     daily_refresh(args.out, **options)

@@ -8,8 +8,23 @@ on:
 permissions: {}
 
 jobs:
-  refresh:
+  window:
     if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      allowed: ${{ steps.window.outputs.allowed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - id: window
+        run: python3 product/nz_election/pipeline/sunsets.py daily
+  refresh:
+    needs: window
+    if: github.ref == 'refs/heads/main' && needs.window.outputs.allowed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -48,7 +63,7 @@ jobs:
           path: _nz-election-data/product/nz_election/data/
           if-no-files-found: error
       - name: Reject unexpected refresh failure
-        if: steps.refresh.outputs.validated != 'true'
+        if: steps.refresh.outputs.validated != 'true' && steps.refresh.outputs.skipped != 'true'
         run: exit 1
   publish:
     needs: refresh

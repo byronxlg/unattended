@@ -17,8 +17,23 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  reserve:
+  window:
     if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      allowed: ${{ steps.window.outputs.allowed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - id: window
+        run: python3 product/nz_election/pipeline/sunsets.py social
+  reserve:
+    needs: window
+    if: github.ref == 'refs/heads/main' && needs.window.outputs.allowed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -119,7 +134,7 @@ jobs:
           path: _nz-social-bundle/
           if-no-files-found: error
       - name: Reject unexpected collection failure
-        if: steps.freeze.outputs.allowed == 'true' && steps.collect.outputs.validated != 'true'
+        if: steps.freeze.outputs.allowed == 'true' && steps.collect.outputs.validated != 'true' && steps.collect.outputs.skipped != 'true'
         run: exit 1
   publish:
     needs: collect
@@ -127,6 +142,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     concurrency:
       group: nz-election-data-publication
       cancel-in-progress: false
@@ -150,3 +166,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: uv run product/nz_election/pipeline/publish.py --family social --bundle _nz-social-bundle
+      - name: Deploy published social data
+        if: steps.freeze.outputs.allowed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

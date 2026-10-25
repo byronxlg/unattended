@@ -2,6 +2,7 @@
 from decimal import Decimal
 from fractions import Fraction
 from html import escape
+from .sunsets import post_election
 from .build import (PREFIX, config, render, label, source_note, seat_module,
                     observation_label, compact_time, link, derivation_note)
 from .average import display
@@ -144,6 +145,8 @@ def voting_dates(built, rows=None):
     from datetime import datetime, date
     from zoneinfo import ZoneInfo
     from .snapshots import load_voting
+    if post_election(built):
+        return f'<section id="dates" class="home-dates"><p>Voting closed on 7 November. Official results due 27 November.</p><p><a href="{PREFIX}night/">Election results</a></p></section>'
     records = {r['id']: r for r in (load_voting() if rows is None else rows)}
     today = datetime.fromisoformat(built.replace('Z', '+00:00')).astimezone(ZoneInfo('Pacific/Auckland')).date()
     clauses = []
@@ -381,10 +384,10 @@ def page(envs, built, presentation):
     if watch_rows(envs):
         graphic += '<p>Closest 2023 margins on unchanged boundaries</p>' + closest(envs)
     graphic += f'<ul class="home-directory"><li><a href="{PREFIX}electorates/">Browse all electorates and candidates</a></li></ul></div></div>'
-    modules += module('electorates', 'Who is standing where I live?', 'Choose an electorate for its candidates. Map colours show 2023 holders, not 2026 predictions.', graphic, 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', '')
+    modules += module('electorates', 'Who stood where I live?' if post_election(built) else 'Who is standing where I live?', 'Choose an electorate for its candidates. Map colours show 2023 holders, not 2026 predictions.', graphic, 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', '')
     top = night or hero(envs, built, presentation)
     if not top:
-        top = '<h1>New Zealand votes on 7 November</h1>'
+        top = '<h1>New Zealand voted on 7 November</h1>' if post_election(built) else '<h1>New Zealand votes on 7 November</h1>'
     return render('home', dates=voting_dates(built), hero=top, state=state, modules=modules)
 
 

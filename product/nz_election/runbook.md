@@ -214,8 +214,9 @@ An already-spent budget day exits 0 through collection and publication, with no 
 Its status has no error code; the message explains the spent budget and retained sample, with the last-success timestamp preserved.
 A cap reached during collection remains fatal with `SOCIAL_CREDIT_CAP`.
 A sample older than 36 hours after its last NZ day closed is hidden on the page.
-The existing hourly Pages rebuild consumes the updated data branch; this workflow
-does not directly deploy Pages.
+Each social publication dispatches Pages to consume the updated data branch,
+including after hourly acquisition ends. Pages ignores expired hourly/daily completion
+triggers; manual dispatch remains independent.
 
 `social.py --check-freeze` omits its `allowed` output from midnight on 7 November
 2026 until 19:00 NZDT. Reservation, collection and publication check this guard,
@@ -323,3 +324,40 @@ Pages installs Playwright with Chromium only after verification, renders `--og-o
 and fails if any registered page references a missing PNG or wrong dimensions before
 upload. Existing build and deployment freeze guards retain their order and strength.
 Deployment completion still requires a successful Pages run; local checks cannot prove it.
+
+## Sunsets
+
+All cutoffs are exclusive: a run at the cutoff does no new collection. The workflow
+`window` job reads `pipeline/sunsets.py` before data resolution or reservation. Expired
+runs exit 0 and log one line. Loaders recheck the same policy. The publication freeze
+in `deployment_guard.py` remains unchanged and also applies to manual work.
+
+| Constant | Value | Consumers |
+| --- | --- | --- |
+| `sunsets.HOURLY_CLOSE` | `deployment_guard.END`, 7 Nov 2026 06:00 UTC (19:00 NZDT) | Hourly guard and poll loader |
+| `night_live.CLOSE` | 8 Nov 2026 06:00 UTC | Night loop, starter, watchdog, successor and browser package |
+| `sunsets.SOCIAL_CLOSE` | 15 Nov 2026 00:00 NZDT (14 Nov 11:00 UTC) | Social reservation, collection and every paid request |
+| `sunsets.DAILY_CLOSE` | 15 Nov 2026 00:00 NZDT (14 Nov 11:00 UTC) | Scheduled daily collection and loaders |
+
+To move a deadline, edit its named assignment, run the boundary tests in
+`tests/test_sunsets.py` and `tests/test_night_operation.py`, then deploy the reviewed
+commit through Actions. Hourly currently aliases polling close; to extend acquisition
+alone, replace that alias with the approved instant and keep copy keyed to polling close.
+Do not move the publication freeze to extend collection.
+
+Social's last budget day is 14 November NZ, normally sampling 13 November. Captions name
+the NZ sample dates and explicitly identify post-election days. No paid request starts
+at or after its cutoff, including classification following a long collection. Each
+social publish explicitly dispatches `pages.yml`, independently of hourly acquisition.
+
+After the daily cutoff, manual collection remains available:
+
+```sh
+gh workflow run nz-election-daily.yml --ref main
+gh workflow run pages.yml --ref main
+```
+
+Use the separate reviewed official capture/import procedure in `runbook/night.md` for
+27 November; daily dispatch does not itself acquire the official result. Manual Pages
+builds remain possible after all collection sunsets. Hourly and social dispatches do
+not bypass their cutoffs. A social publish already underway finishes its Pages dispatch.

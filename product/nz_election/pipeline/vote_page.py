@@ -1,6 +1,7 @@
 """Task-ordered voting guidance from the reviewed Electoral Commission snapshot."""
 from datetime import date, datetime, timezone
 from html import escape
+from .sunsets import post_election
 from zoneinfo import ZoneInfo
 
 from .snapshots import load_voting
@@ -64,6 +65,11 @@ def page(built, rows=None):
     compare = section('compare', 'Where can I compare candidates and policies?',
                       f'<p><a href="{PREFIX}electorates/">Find your electorate and candidates</a></p>'
                       '<p><a href="https://policy.nz/2026">Compare policies at Policy.nz</a></p>')
+    if post_election(built):
+        first = section('places', 'Where can I find election results?',
+                        f'<p>Voting closed on 7 November.</p><p><a href="{PREFIX}night/">Election results</a></p>')
+        basics = section('two-votes', 'When are official results due?', '<p>Official results due 27 November 2026.</p>')
+        help_section = ''
     sources = {r['source_url']: r for r in rows if r.get('source_url')}
     source = ('<div class="source-note" id="source-vote"><p>Source: Electoral Commission. Copyright Electoral Commission; '
               'no open licence stated. Independent summaries. Retrieved ' +

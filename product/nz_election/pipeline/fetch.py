@@ -106,7 +106,11 @@ def acquire(transport=http, *, sleep=time.sleep, now=lambda: datetime.now(timezo
     gamma_urls = {gamma_url(e['slug']) for e in events()}
     if url not in {URL, CANDIDATE_URL} | gamma_urls:
         raise FetchError('UNAPPROVED_SOURCE')
+    from .sunsets import allowed
+    kind = 'hourly' if url == URL else 'daily'
     for attempt in range(3):
+        if not allowed(kind, now()):
+            raise FetchError(kind.upper() + '_CLOSED')
         headers = {}
         try:
             with transport(Request(url, headers={'User-Agent': USER_AGENT}), timeout=20) as response:

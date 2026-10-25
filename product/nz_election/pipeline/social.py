@@ -480,9 +480,18 @@ def fixture_send():
 
 
 def refresh_social(out, day, *, now, x_key='', jev_key='', send=transport, sleep=clock.sleep, fixture=False, reserve=False, reservation=None, run_url='offline-verification', clock_now=None):
+    from product.nz_election.pipeline.sunsets import skip
+    if skip('social', now):
+        return 'ended'
     if frozen(now):
         return 'frozen'
     windows(day)
+    from product.nz_election.pipeline.sunsets import allowed
+    paid_send = send
+    def send(*args, **kwargs):
+        if not allowed('social', (clock_now or (lambda: now))()):
+            raise ValueError('SOCIAL_CLOSED')
+        return paid_send(*args, **kwargs)
     if date.fromisoformat(day) >= datetime.fromisoformat(now.replace('Z', '+00:00')).astimezone(NZ).date():
         raise ValueError('SOCIAL_DAY_NOT_CLOSED')
     out = Path(out).absolute()
@@ -587,6 +596,9 @@ def main():
     parser.add_argument('--check-freeze', action='store_true')
     args = parser.parse_args()
     now = args.now or utc_now()
+    from product.nz_election.pipeline.sunsets import skip
+    if skip('social', now):
+        return 'ended'
     if frozen(now):
         print('Social publication frozen until 19:00 NZDT on 7 November 2026.')
         return

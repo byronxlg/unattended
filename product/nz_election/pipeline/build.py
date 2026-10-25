@@ -173,15 +173,16 @@ def home_presentation(envs, built):
         result = None
     provenance = dict(polls, data=selected) if result else polls
     return dict(result=result, selected=selected, stale=stale,
-                title=home_sentence(result), source=source_note(provenance, 'source-seats',
+                title=home_sentence(result, built), source=source_note(provenance, 'source-seats',
                     'seats.json' if result else 'polls.json' if polls else 'validation-2023.json',
                     calculation='Seats calculated by this site.' if result else 'Seats withheld; see the headline.') +
                     (derivation_note(average[-1]) if result else ''))
 
 
-def home_sentence(result):
+def home_sentence(result, built=None):
     if not result or not result.get('seats'):
-        return 'New Zealand votes on 7 November 2026.'
+        from product.nz_election.pipeline.sunsets import post_election
+        return 'New Zealand voted on 7 November 2026.' if built and post_election(built) else 'New Zealand votes on 7 November 2026.'
     ordered = sorted(result['seats'].items(), key=lambda item: (-item[1], item[0]))
     maximum = ordered[0][1]
     leaders = [label(p) for p, n in ordered if n == maximum]
@@ -510,7 +511,8 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
         routes = config('routes')
         if len(routes) != 10 or {r['path'] for r in routes} != {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
             raise ValueError('INVALID_ROUTES')
-        primary_routes = [dict(r, label={'': 'Overview', 'polls/': 'Polls', 'night/': 'Night', 'vote/': 'Vote'}.get(r['path'], r['label'])) for r in routes if r['path'] in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'methods/'}]
+        from product.nz_election.pipeline.sunsets import post_election
+        primary_routes = [dict(r, label={'': 'Overview', 'polls/': 'Polls', 'night/': 'Night', 'vote/': 'Voting' if post_election(built) else 'Vote'}.get(r['path'], r['label'])) for r in routes if r['path'] in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'methods/'}]
         routes = routes + [dict(path='electorates/' + r['slug'] + '/', label=r['name']) for r in config('electorates')]
         from product.nz_election.pipeline.route_cards import route_key, summary, card, ORIGIN
         keys = [route_key(r["path"]) for r in routes]
@@ -561,8 +563,13 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
             target.mkdir(parents=True, exist_ok=True)
             title = ('New Zealand votes on 7 November 2026' if slug == '' else
                      'Proof of concept: what X says about the parties' if slug == 'social/poc/' else route['label'])
+            if post_election(built):
+                title = title.replace('votes on', 'voted on')
             heading = ('' if slug in {'', 'vote/', 'parties/', 'polls/'} else
                        '<h1>' + escape({'night/': 'Election night results', 'electorates/': 'Who is standing in your electorate?', 'methods/': 'How are these numbers calculated?', 'downloads/': 'Where does the data come from?', 'campaign/': 'What is happening in the campaign?', 'social/poc/': 'What are people posting about the parties?'}.get(slug, title)) + '</h1>')
+            if post_election(built):
+                heading = heading.replace('Who is standing', 'Who stood')
+                body = body.replace('How and when to vote', 'Voting dates and election results')
             title, description = summary(route, envs, home, built)
             key = route_key(slug)
             cards.append(dict(route=slug, key=key, title=title, description=description, html='og/' + key + '.html', png='og/' + key + '.png'))

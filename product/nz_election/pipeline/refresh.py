@@ -178,11 +178,14 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
             return status
 
 
-def main():
+def main(*, now=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--fixtures', action='store_true')
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
+    from product.nz_election.pipeline.sunsets import skip
+    if not args.fixtures and skip('hourly', now() if now else None):
+        return
     attempted_revision = None
     if args.fixtures:
         status = refresh(args.out)
@@ -193,6 +196,9 @@ def main():
         run_url = os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID']
         def live():
             nonlocal attempted_revision
+            from product.nz_election.pipeline.sunsets import allowed
+            if not allowed('hourly', now() if now else None):
+                raise ValueError('HOURLY_CLOSED')
             result = acquire()
             attempted_revision = result['revision']
             return result
