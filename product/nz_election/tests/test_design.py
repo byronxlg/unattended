@@ -118,7 +118,10 @@ def test_real_first_view_budget(built_design):
         assert {f'fonts/{name}.woff2' for name in ('libre-franklin-400', 'libre-franklin-700', 'jetbrains-mono-400')} <= files.keys()
         assert {'favicon.svg', 'icon-180.png', 'manifest.webmanifest', page, 'styles.css'} <= files.keys()
         assert not explorer_assets & files.keys()
-        assert not any(name.endswith('.mjs') for name in files)
+        modules = {name for name in files if name.endswith('.mjs')}
+        assert modules == ({'home-live.mjs'} if page == 'index.html' else set())
+        if page == 'index.html':
+            assert files['home-live.mjs'] < 2048, f"HOME_CLIENT_GZIP_BYTES: {files['home-live.mjs']}"
         if page == 'polls/index.html':
             assert 'polls.css' in files
         assert not any('2025' in name for name in files), page

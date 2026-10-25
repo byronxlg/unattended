@@ -2,12 +2,12 @@
 
 Script tags must have exactly type="module" and a same-origin PREFIX src, with
 no inline content or other scripts. Module bytes are not hashed here: build.py
-copies these product/nz_election/web/*.mjs files from the PR-reviewed code checkout.
+copies or bundles product/nz_election/web/*.mjs from the PR-reviewed code checkout.
 """
 from html.parser import HTMLParser
 
 PREFIX = '/unattended/nz-election/'
-SCRIPT_ALLOWLIST = {'allocator.mjs', 'electorates.mjs', 'night.mjs', 'night-live.mjs'}
+SCRIPT_ALLOWLIST = {'allocator.mjs', 'electorates.mjs', 'night.mjs', 'night-live.mjs', 'home-live.mjs'}
 
 
 def validate_scripts(html):
@@ -38,3 +38,18 @@ def validate_scripts(html):
     if parser.active:
         raise ValueError('UNSAFE_SCRIPT')
     return True
+
+
+def home_client(web):
+    """Inline the shared scheduler so home transfers exactly one reviewed module."""
+    scheduler, marker, _ = (web / 'night-live.mjs').read_text().partition("\nif (typeof document")
+    client = (web / 'home-live.mjs').read_text()
+    dependency = "import {NightLive, OPEN} from './night-live.mjs';\n"
+    if not marker or not client.startswith(dependency):
+        raise ValueError('HOME_CLIENT_BUNDLE')
+    from .sunsets import END
+    opening, separator, rest = scheduler.partition('\n')
+    if not opening.startswith('export const OPEN = Date.parse(') or not separator:
+        raise ValueError('HOME_CLIENT_BUNDLE')
+    scheduler = f"export const OPEN = Date.parse('{END.isoformat()}');\n" + rest
+    return scheduler + '\n' + client.removeprefix(dependency)

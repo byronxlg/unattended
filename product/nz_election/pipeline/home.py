@@ -148,7 +148,7 @@ def voting_dates(built, rows=None, envs=None):
     if post_election(built):
         from .result_sources import official_results_notice
         notice = official_results_notice(built, (envs or {}).get('night/live/current', {}).get('data', []))
-        return f'<section id="dates" class="home-dates"><p>Voting closed on 7 November. {notice}</p><p><a href="{PREFIX}night/">Election results</a> <a href="https://www.electionresults.govt.nz/">Electoral Commission results</a></p></section>'
+        return f'<section id="dates" class="home-dates"><p>Voting closed on 7 November at 7pm. {notice}</p><p><a href="{PREFIX}night/">Election results</a> <a href="https://www.electionresults.govt.nz/">Electoral Commission results</a></p></section>'
     records = {r['id']: r for r in (load_voting() if rows is None else rows)}
     today = datetime.fromisoformat(built.replace('Z', '+00:00')).astimezone(ZoneInfo('Pacific/Auckland')).date()
     clauses = []
@@ -167,9 +167,17 @@ def voting_dates(built, rows=None, envs=None):
             + f'<a href="{PREFIX}vote/">How to vote</a>' + ' ' + link(source, 'EC key dates') + '</p></section>')
 
 
+def night_waiting(*, ended=False):
+    heading = 'New Zealand voted on 7 November' if ended else 'Who is winning now?'
+    status = 'Live updates ended. See the latest election results.' if ended else 'Polls have closed and counting is under way.'
+    return (f'<section id="night-summary" class="home-hero"><h1>{heading}</h1>'
+            f'<p>{status}</p>'
+            f'<p><a href="{PREFIX}night/">Election night results</a></p>'
+            '<p><a href="https://www.electionresults.govt.nz/">Electoral Commission results</a></p></section>')
+
+
 def night_summary(envs, built):
-    from datetime import datetime
-    if datetime.fromisoformat(built.replace('Z', '+00:00')) < datetime.fromisoformat('2026-11-07T19:00:00+13:00'):
+    if not post_election(built):
         return ''
     # Consume only published 2026 observations through the validated family.
     observations = []
@@ -182,7 +190,8 @@ def night_summary(envs, built):
                         and row.get('mode') not in {'Recorded demo', 'Illustrative replay based on 2023 final results'} and refs):
                     observations.append((row['source_updated_local'], row, refs[0]))
     if not observations:
-        return ''
+        from .sunsets import NIGHT_CLOSE, instant
+        return night_waiting(ended=instant(built) >= NIGHT_CLOSE)
     clock, row, refs = max(observations, key=lambda item: (bool(item[1].get('packaging_label')), item[0]))
     from .result_states import sentence
     seats = '; '.join(escape(refs['parties'][p]['short_name']) + ' ' + str(r['total_seats'])
@@ -390,6 +399,13 @@ def page(envs, built, presentation):
     top = night or hero(envs, built, presentation)
     if not top:
         top = '<h1>New Zealand voted on 7 November</h1>' if post_election(built) else '<h1>New Zealand votes on 7 November</h1>'
+    from .sunsets import NIGHT_CLOSE, instant
+    if instant(built) < NIGHT_CLOSE:
+        # Embed the fallback before the publication freeze, independently of the feed.
+        top = (f'<div id="home-live" data-loop-ends-at="{NIGHT_CLOSE.isoformat()}" '
+               f'data-waiting="{escape(night_waiting(), quote=True)}" '
+               f'data-settled="{escape(night_waiting(ended=True), quote=True)}">{top}</div>'
+               f'<script type="module" src="{PREFIX}home-live.mjs"></script>')
     return render('home', dates=voting_dates(built, envs=envs), hero=top, state=state, modules=modules)
 
 
