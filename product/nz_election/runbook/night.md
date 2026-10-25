@@ -400,7 +400,7 @@ special-vote statistic is not a party breakdown and does not enable a specials c
 
 ## Stop
 
-`CLOSE` in `pipeline/night_live.py` is the single stop instant, default
+`NIGHT_CLOSE` in `pipeline/sunsets.py` is the single stop instant, default
 `2026-11-08T06:00:00Z`. Move that one assignment, run the night operation tests,
 and deploy the reviewed code through Actions before the boundary. The starter,
 `bin/tick` watchdog (through `night_start.py`), acquisition and successor guards
@@ -416,7 +416,7 @@ keeps the last complete capture and says "Preliminary; official results due
 freshness. A publish already underway finishes its pinned Pages deployment;
 no new source acquisition, publication or successor starts after the boundary.
 
-If Byron requests a restart, move `CLOSE` into the future, deploy that code and
+If Byron requests a restart, move `NIGHT_CLOSE` into the future, deploy that code and
 its updated browser package through Actions, then manually dispatch
 `nz-election-night-live.yml` on main. Reload open browser tabs to pick up the
 new deadline. The watchdog marker and run history deliberately do not restart

@@ -1,10 +1,12 @@
 """Shared route summaries and browser-independent social card documents."""
 from html import escape
+from .sunsets import post_election
 from fractions import Fraction
 from .build import PREFIX, config, render, strip, label, source_note, compact_time, link, derivation_note
 from .home import note
 from .average import display
 from .presentation import election_countdown
+from .result_sources import official_results_notice
 
 ORIGIN = 'https://byronxlg.github.io'
 RESULTS = 'https://www.electionresults.govt.nz/'
@@ -53,6 +55,14 @@ def summary(route, envs, home, built):
         values = envs['averages']['data'][-1]['descriptive']
         leaders = sorted(((p, v) for p, v in values.items() if p != 'others' and v['value'] is not None), key=lambda x: (-Fraction(x[1]['value'], x[1]['scale']), x[0]))[:2]
         description = '; '.join(label(p) + ' ' + display(v['value'], v['scale']) for p, v in leaders) or description
+    if post_election(built):
+        title = title.replace('votes on', 'voted on').replace('Who is standing', 'Who stood')
+        description = description.replace('votes on', 'voted on')
+        if path == 'vote/':
+            title = 'Voting closed: election results'
+            description = 'Voting closed on 7 November. Find election results. ' + official_results_notice(built, envs.get('night/live/current', {}).get('data', []))
+        if path == 'night/':
+            description = 'Current election results. ' + official_results_notice(built, envs.get('night/live/current', {}).get('data', []))
     return title, description
 
 
@@ -82,4 +92,6 @@ def card(route, envs, home, built):
                           links + f'<a href="{PREFIX + route["path"]}">Boundary correspondence and sources</a>')
         else:
             source = note('source-og', 'No published 2023 candidate results. Reviewed 2025 boundary correspondence.', f'<a href="{PREFIX + route["path"]}">Boundary correspondence and sources</a>')
+    if route['path'] in {'vote/', 'night/'}:
+        source = source.replace('</div>', f'<p class="source-actions"><a href="{RESULTS}">Electoral Commission results</a></p></div>')
     return render('og', title=escape(title), prefix=PREFIX, picture=picture, source=source, source_id=source_id)

@@ -1,12 +1,13 @@
 """Task-ordered voting guidance from the reviewed Electoral Commission snapshot."""
 from datetime import date, datetime, timezone
 from html import escape
+from .sunsets import post_election
 from zoneinfo import ZoneInfo
 
 from .snapshots import load_voting
 
 
-def page(built, rows=None):
+def page(built, rows=None, envs=None):
     from .build import PREFIX, link, compact_time, local_time
     rows = load_voting() if rows is None else rows
     records = {row['id']: row for row in rows}
@@ -64,6 +65,14 @@ def page(built, rows=None):
     compare = section('compare', 'Where can I compare candidates and policies?',
                       f'<p><a href="{PREFIX}electorates/">Find your electorate and candidates</a></p>'
                       '<p><a href="https://policy.nz/2026">Compare policies at Policy.nz</a></p>')
+    if post_election(built):
+        first = section('places', 'Where can I find election results?',
+                        f'<p>Voting closed on 7 November.</p><p><a href="{PREFIX}night/">Election results</a></p>')
+        from .result_sources import official_results_notice
+        notice = official_results_notice(built, (envs or {}).get('night/live/current', {}).get('data', []))
+        basics = section('two-votes', 'Official results', '<p>' + notice + '</p>'
+                         '<p><a href="https://www.electionresults.govt.nz/">Electoral Commission results</a></p>')
+        help_section = ''
     sources = {r['source_url']: r for r in rows if r.get('source_url')}
     source = ('<div class="source-note" id="source-vote"><p>Source: Electoral Commission. Copyright Electoral Commission; '
               'no open licence stated. Independent summaries. Retrieved ' +

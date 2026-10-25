@@ -21,6 +21,10 @@ def root(record):
     return ROOTS[record['kind']]
 
 
+def official_results_at():
+    return datetime.combine(OFFICIAL_RESULTS_DATE, datetime.min.time(), ZoneInfo("Pacific/Auckland"))
+
+
 def official_date_reached(retrieved_at):
     try:
         instant = datetime.fromisoformat(retrieved_at.replace('Z', '+00:00'))
@@ -31,3 +35,11 @@ def official_date_reached(retrieved_at):
 
 def due_date():
     return f'{OFFICIAL_RESULTS_DATE.day} {OFFICIAL_RESULTS_DATE:%B}'
+
+
+def official_results_notice(built, rows=()):
+    if any(row.get('result_state') == 'official' for row in rows):
+        return 'Official results are published.'
+    if official_date_reached(built):
+        return 'Check the Electoral Commission for official results.'
+    return f'Official results due {due_date()}.'

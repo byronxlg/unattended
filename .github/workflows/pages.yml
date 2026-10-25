@@ -31,8 +31,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  window:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      allowed: ${{ steps.window.outputs.allowed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - id: window
+        env:
+          UPSTREAM_WORKFLOW: ${{ github.event.workflow_run.name }}
+        run: python3 product/nz_election/pipeline/sunsets.py pages
   build:
+    needs: window
     if: >-
+      needs.window.outputs.allowed == 'true' &&
       github.ref == 'refs/heads/main' &&
       (github.event_name != 'workflow_run' ||
        (github.event.workflow_run.head_branch == 'main' &&

@@ -7,7 +7,7 @@ def test_daily_schedule_and_dispatch():
     assert doc['name'] == 'NZ election daily'
     assert doc[True] == {'schedule': [{'cron': '43 15 * * *'}], 'workflow_dispatch': None}
     assert doc['permissions'] == {}
-    assert doc['jobs']['refresh']['if'] == "github.ref == 'refs/heads/main'"
+    assert doc['jobs']['refresh']['if'] == "github.ref == 'refs/heads/main' && needs.window.outputs.allowed == 'true'"
 
 
 def test_daily_live_fetch_and_publication_contract():

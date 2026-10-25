@@ -22,7 +22,7 @@ MODE = 'Live preliminary results'
 REHEARSAL = 'Recorded demo'
 REFERENCES = ('electorates.xml', 'parties.xml', 'candidates.xml')
 FLOOR = 300
-CLOSE = datetime.fromisoformat('2026-11-08T06:00:00Z')
+from product.nz_election.pipeline.sunsets import NIGHT_CLOSE as CLOSE
 
 
 def stamp(now):

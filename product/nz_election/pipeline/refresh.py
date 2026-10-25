@@ -178,11 +178,14 @@ def refresh(out, *, now=None, end_date=None, parse=parse_polls, run_url='offline
             return status
 
 
-def main():
+def main(*, now=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--fixtures', action='store_true')
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
+    from product.nz_election.pipeline.sunsets import skip, require_collection, SunsetReached, ended
+    if not args.fixtures and skip('hourly', now() if now else None):
+        return
     attempted_revision = None
     if args.fixtures:
         status = refresh(args.out)
@@ -193,10 +196,15 @@ def main():
         run_url = os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID']
         def live():
             nonlocal attempted_revision
+            require_collection('hourly', now() if now else None)
             result = acquire()
             attempted_revision = result['revision']
             return result
-        status = refresh(args.out, acquire=live, run_url=run_url, sha=os.environ['GITHUB_SHA'])
+        try:
+            status = refresh(args.out, acquire=live, run_url=run_url, sha=os.environ['GITHUB_SHA'])
+        except SunsetReached as exc:
+            ended(exc.kind)
+            return
     if os.environ.get('GITHUB_OUTPUT'):
         with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
             output.write('validated=true\n')

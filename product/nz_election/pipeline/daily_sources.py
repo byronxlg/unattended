@@ -27,10 +27,14 @@ def acquired(sources, path):
     return next(s['fetched_at'] for s in sources if s['id'] == path)
 
 
-def live_loaders(acquire=None):
+def live_loaders(acquire=None, *, now=None, event=None):
     """Acquire in memory; failures propagate to atomic last-good family retention."""
     from . import fetch, markets, candidates, baseline, enrolment, electorate_polls, advance, night
-    acquire = acquire or fetch.acquire
+    from .sunsets import require_collection
+    transport = acquire or fetch.acquire
+    def acquire(**kwargs):
+        require_collection('daily', now() if callable(now) else now, event)
+        return transport(**kwargs)
     messages = {}
 
     def market_loader():
@@ -74,5 +78,11 @@ def live_loaders(acquire=None):
                                   'Supplemental identities still require reviewed mappings.')
         return payload
 
-    return {'candidates': candidate_loader, 'baseline-2023': baseline.load, 'enrolment': enrolment.load,
-            'electorate-polls': electorate_polls.load, 'markets': market_loader, 'night': night.load, 'advance': advance.load}, messages
+    loaders = {'candidates': candidate_loader, 'baseline-2023': baseline.load, 'enrolment': enrolment.load,
+            'electorate-polls': electorate_polls.load, 'markets': market_loader, 'night': night.load, 'advance': advance.load}
+    def guarded(loader):
+        def load():
+            require_collection('daily', now() if callable(now) else now, event)
+            return loader()
+        return load
+    return {name: guarded(loader) for name, loader in loaders.items()}, messages

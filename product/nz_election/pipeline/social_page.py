@@ -20,7 +20,8 @@ def notice(records):
         return ''
     n = sum(r['sample']['eligible'] for r in records)
     start, end = min(r['day'] for r in records), max(r['day'] for r in records)
-    return f'<p class="state">Proof of concept. {count(n)} posts sampled from X; {start} to {end}. {coverage(records)}. Not a measure of voter support.</p>'
+    period = ' Includes post-election days.' if end > '2026-11-07' else ' Includes election-day discussion.' if end == '2026-11-07' else ''
+    return f'<p class="state">Proof of concept. {count(n)} posts sampled from X; {start} to {end} (New Zealand dates).{period} {coverage(records)}. Not a measure of voter support.</p>'
 
 
 def fixture_notice(records):

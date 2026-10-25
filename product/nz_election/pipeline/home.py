@@ -2,6 +2,7 @@
 from decimal import Decimal
 from fractions import Fraction
 from html import escape
+from .sunsets import post_election
 from .build import (PREFIX, config, render, label, source_note, seat_module,
                     observation_label, compact_time, link, derivation_note)
 from .average import display
@@ -140,10 +141,14 @@ def module(name, heading, dek, graphic, publisher, date, route, action):
             + (f'<p><a href="{PREFIX}{route}">{action}</a></p>' if action else '') + footnote(name, publisher, date) + '</section>')
 
 
-def voting_dates(built, rows=None):
+def voting_dates(built, rows=None, envs=None):
     from datetime import datetime, date
     from zoneinfo import ZoneInfo
     from .snapshots import load_voting
+    if post_election(built):
+        from .result_sources import official_results_notice
+        notice = official_results_notice(built, (envs or {}).get('night/live/current', {}).get('data', []))
+        return f'<section id="dates" class="home-dates"><p>Voting closed on 7 November. {notice}</p><p><a href="{PREFIX}night/">Election results</a> <a href="https://www.electionresults.govt.nz/">Electoral Commission results</a></p></section>'
     records = {r['id']: r for r in (load_voting() if rows is None else rows)}
     today = datetime.fromisoformat(built.replace('Z', '+00:00')).astimezone(ZoneInfo('Pacific/Auckland')).date()
     clauses = []
@@ -188,7 +193,7 @@ def night_summary(envs, built):
     return ('<section id="night-summary" class="home-hero"><h1>Who is winning now?</h1>'
             '<figure id="home-night" aria-describedby="source-night"><p class="seat-answer">' + seats + '</p>'
             f'<p>{row["statistics"]["percent_voting_places_counted"]}% of voting places reported. House: {row["reported_house"]} seats.{majority}</p>'
-            '<p>' + escape(sentence(row)) + (' Updated ' + escape(clock.replace('T', ' ')) + ' (source local time).' if not row.get('result_state') else '') + '</p></figure>'
+            '<p>' + escape(sentence(row, built)) + (' Updated ' + escape(clock.replace('T', ' ')) + ' (source local time).' if not row.get('result_state') else '') + '</p></figure>'
             '<p>Government formation is separate from these seat totals.</p>'
             + footnote('night', 'Electoral Commission', updated(envs, 'night/index', built))
             + f'<p><a href="{PREFIX}night/">Election night results</a></p></section>')
@@ -381,11 +386,11 @@ def page(envs, built, presentation):
     if watch_rows(envs):
         graphic += '<p>Closest 2023 margins on unchanged boundaries</p>' + closest(envs)
     graphic += f'<ul class="home-directory"><li><a href="{PREFIX}electorates/">Browse all electorates and candidates</a></li></ul></div></div>'
-    modules += module('electorates', 'Who is standing where I live?', 'Choose an electorate for its candidates. Map colours show 2023 holders, not 2026 predictions.', graphic, 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', '')
+    modules += module('electorates', 'Who stood where I live?' if post_election(built) else 'Who is standing where I live?', 'Choose an electorate for its candidates. Map colours show 2023 holders, not 2026 predictions.', graphic, 'Electoral Commission and boundary registry', updated(envs, 'baseline-2023', built), 'electorates/', '')
     top = night or hero(envs, built, presentation)
     if not top:
-        top = '<h1>New Zealand votes on 7 November</h1>'
-    return render('home', dates=voting_dates(built), hero=top, state=state, modules=modules)
+        top = '<h1>New Zealand voted on 7 November</h1>' if post_election(built) else '<h1>New Zealand votes on 7 November</h1>'
+    return render('home', dates=voting_dates(built, envs=envs), hero=top, state=state, modules=modules)
 
 
 def poll_inputs(polls):

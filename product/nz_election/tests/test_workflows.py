@@ -26,7 +26,7 @@ def test_hourly_contract():
     assert doc['permissions'] == {}
     refresh_job, publication = doc['jobs']['refresh'], doc['jobs']['publish']
     assert refresh_job['permissions'] == {'contents': 'read'}
-    assert refresh_job['if'] == "github.ref == 'refs/heads/main'"
+    assert refresh_job['if'] == "github.ref == 'refs/heads/main' && needs.window.outputs.allowed == 'true'"
     assert publication['permissions'] == {'contents': 'write'}
     assert publication['needs'] == 'refresh'
     assert publication['if'] == "needs.refresh.outputs.validated == 'true'"
