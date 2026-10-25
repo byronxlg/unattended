@@ -22,7 +22,7 @@ MODE = 'Live preliminary results'
 REHEARSAL = 'Recorded demo'
 REFERENCES = ('electorates.xml', 'parties.xml', 'candidates.xml')
 FLOOR = 300
-CLOSE = END.replace(day=8)
+CLOSE = datetime.fromisoformat('2026-11-08T06:00:00Z')
 
 
 def stamp(now):
@@ -71,6 +71,10 @@ def cycle(*, acquire, now, rehearsal=False, monotonic=time.monotonic):
     def acquire(name):
         if monotonic() >= deadline:
             raise ValueError('NIGHT_CYCLE_TIMEOUT')
+        if now() >= CLOSE:
+            raise ValueError('NIGHT_CLOSED')
+        if not rehearsal:
+            require_open(now)
         return transport(name)
     if not rehearsal:
         require_open(now)
@@ -154,8 +158,9 @@ class Deployment:
         head = next((r['object']['sha'] for r in refs if r['ref'] == 'refs/heads/data'), None)
         return self.ensure(head) if head else False
 
-    def ensure(self, sha):
-        require_open(self.now)
+    def ensure(self, sha, *, finishing=False):
+        if not finishing:
+            require_open(self.now)
         if not isinstance(sha, str) or not re.fullmatch(r'[0-9a-f]{40}', sha):
             raise ValueError('NIGHT_DATA_SHA')
         if sha == self.confirmed_sha:
@@ -163,6 +168,8 @@ class Deployment:
         if fetch.deployed_data_sha() == sha:
             self.confirmed_sha = sha
             return False
+        if not finishing:
+            require_open(self.now)
         key = 'night-' + os.environ['GITHUB_RUN_ID'] + '-' + str(time.monotonic_ns())
         subprocess.run(['gh', 'workflow', 'run', 'pages.yml', '--ref', 'main',
                         '-f', 'data_sha=' + sha, '-f', 'night_cycle=' + key], check=True, timeout=120)
@@ -192,8 +199,12 @@ class Runner:
         self.digest = None
 
     def tick(self):
+        if self.now() >= CLOSE:
+            return 'ended'
         self.sleep(max(0, self.next_cycle - self.monotonic()))
         self.next_cycle = self.monotonic() + FLOOR
+        if self.now() >= CLOSE:
+            return 'ended'
         try:
             # A recovery consumes this cycle's slot, so it cannot double the deployment rate.
             if self.recover and self.recover():
@@ -221,10 +232,16 @@ def main(*, now=None):
     scheduled = os.environ.get('GITHUB_EVENT_NAME') == 'schedule'
     if scheduled:
         args.rehearsal = False
+    if now() >= CLOSE:
+        print('Night live loop has ended.', flush=True)
+        return 0
     if not args.rehearsal:
         try:
             require_open(now)
-        except ValueError:
+        except ValueError as exc:
+            if str(exc) == 'NIGHT_CLOSED':
+                print('Night live loop has ended.', flush=True)
+                return 0
             if scheduled:
                 return 0
             raise
@@ -245,22 +262,30 @@ def main(*, now=None):
                 args.out.mkdir(parents=True, exist_ok=True)
                 shutil.copytree(bundle, args.out / captured['retrieved_at'].replace(':', ''), dirs_exist_ok=True)
                 return
+            require_open(now)
             result = subprocess.run([sys.executable, 'product/nz_election/pipeline/publish.py', '--family', 'night', '--bundle', str(bundle)], check=True, capture_output=True, text=True, timeout=120)
             publication = json.loads(result.stdout)
-            deployment.ensure(publication['sha'])
+            deployment.ensure(publication['sha'], finishing=True)
     runner = Runner(acquire=lambda path: fetch.night_xml(root, path), now=now, monotonic=time.monotonic,
                     sleep=time.sleep, commit=commit, rehearsal=args.rehearsal,
                     recover=deployment.recover if deployment else None)
     deadline = time.monotonic() + (600 if args.rehearsal else 300 * 60)
     while time.monotonic() < deadline:
-        if not args.rehearsal and now() >= CLOSE:
+        if now() >= CLOSE:
             return 0
         print(runner.tick(), flush=True)
     if not args.rehearsal:
-        if now() >= CLOSE:
-            return 0
-        require_open(now)
-        subprocess.run(['gh', 'workflow', 'run', 'nz-election-night-live.yml', '--ref', 'main'], check=True, timeout=120)
+        chain(now)
+    return 0
+
+
+def chain(now):
+    instant = now()
+    if instant >= CLOSE:
+        return False
+    require_open(lambda: instant)
+    subprocess.run(['gh', 'workflow', 'run', 'nz-election-night-live.yml', '--ref', 'main'], check=True, timeout=120)
+    return True
 
 
 def verify_contract():

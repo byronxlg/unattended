@@ -3,14 +3,19 @@ export const FLOOR = 60000;
 export const STALE = 15 * 60000;
 
 export class NightLive {
-  constructor({fetcher, now = Date.now, visible = () => true, render = () => {}, status = () => {}}) {
-    Object.assign(this, {fetcher, now, visible, render, status});
+  constructor({fetcher, loopEndsAt, now = Date.now, visible = () => true, render = () => {}, status = () => {}}) {
+    Object.assign(this, {fetcher, loopEndsAt, now, visible, render, status});
     this.next = 0; this.failures = 0; this.pending = false; this.last = null; this.generation = 0;
   }
+  ended() { return this.loopEnded || this.now() >= Date.parse(this.loopEndsAt); }
   invalidate() { this.generation++; }
   notice() {
     if (['Settled preliminary results', 'Official results'].includes(this.last?.mode)) {
       this.status(this.last.state_sentence); return;
+    }
+    if (this.ended()) {
+      this.status('Preliminary; official results due 27 November. Live updates ended.' +
+        (this.last ? ' Last complete capture ' + this.last.retrieved_at + '.' : ' Check official results.')); return;
     }
     this.status(this.now() < OPEN ? 'Results start at 19:00 NZDT on 7 November.' : !this.last ?
       'Showing the dated packaged snapshot; check official results.' :
@@ -20,7 +25,7 @@ export class NightLive {
   }
   async tick() {
     this.notice();
-    if (['Settled preliminary results', 'Official results'].includes(this.last?.mode) || this.now() < OPEN || !this.visible() || this.pending || this.now() < this.next) return;
+    if (this.ended() || ['Settled preliminary results', 'Official results'].includes(this.last?.mode) || this.now() < OPEN || !this.visible() || this.pending || this.now() < this.next) return;
     this.pending = true;
     this.next = this.now() + FLOOR;
     const generation = this.generation;
@@ -33,12 +38,19 @@ export class NightLive {
         throw Error('PACKAGE_UNAVAILABLE');
       }
       const pack = await response.json();
+      if (generation !== this.generation || !this.visible()) return;
+      const hasStop = typeof pack.loop_ended === 'boolean' && typeof pack.loop_ends_at === 'string' &&
+        Number.isFinite(Date.parse(pack.loop_ends_at));
+      if (pack.available === false && hasStop) {
+        this.loopEnded = pack.loop_ended; this.loopEndsAt ??= pack.loop_ends_at; return;
+      }
       if (!pack.available || !['Live preliminary results', 'Settled preliminary results', 'Official results'].includes(pack.mode) ||
           (pack.mode !== 'Live preliminary results' && (typeof pack.state_sentence !== 'string' || !pack.state_sentence.trim())) || !Number.isFinite(Date.parse(pack.retrieved_at)) ||
           Date.parse(pack.retrieved_at) < OPEN || Date.parse(pack.retrieved_at) > this.now() || typeof pack.html !== 'string' ||
           !/^[a-f0-9]{64}$/.test(pack.reference_version)) throw Error('PACKAGE_INVALID');
       if (generation !== this.generation || !this.visible()) return;
       if (this.last && Date.parse(pack.retrieved_at) < Date.parse(this.last.retrieved_at)) return;
+      if (hasStop) { this.loopEnded = pack.loop_ended; this.loopEndsAt ??= pack.loop_ends_at; }
       this.last = pack; this.failures = 0;
       this.render(pack);
     } catch {
@@ -55,6 +67,7 @@ if (typeof document !== 'undefined' && [null, 'live'].includes(new URL(location.
     // import.meta.url is at the product root; requests never leave that origin.
     const url = new URL('night-live.json', import.meta.url);
     const live = new NightLive({
+      loopEndsAt: target.dataset.loopEndsAt,
       visible: () => !document.hidden,
       fetcher: () => fetch(url, {cache: 'no-store', credentials: 'omit', mode: 'same-origin', redirect: 'error', signal: AbortSignal.timeout(20000)}),
       status: text => {

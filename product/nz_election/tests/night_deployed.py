@@ -120,7 +120,10 @@ def validate_response(page, response, base):
     """Use the deployed client contract for its rendered package, Python for envelopes."""
     body = response.json()
     if response.url.split('?')[0].endswith('/night-live.json'):
-        if body == {'available': False}:
+        if body == {'available': False} or (
+                isinstance(body, dict) and set(body) == {'available', 'loop_ended', 'loop_ends_at'}
+                and body['available'] is False and type(body['loop_ended']) is bool
+                and export.timestamp(body['loop_ends_at'])):
             return 'Valid unavailable package (no complete live cycle)'
         result = page.evaluate('''async ({url, body}) => {
           const {NightLive, OPEN} = await import(url);

@@ -152,6 +152,9 @@ def night_xml(root, path, *, transport=http, sleep=time.sleep, now=lambda: datet
         raise FetchError('UNAPPROVED_SOURCE')
     url = root + path
     for attempt in range(3):
+        from product.nz_election.pipeline.night_live import CLOSE
+        if now() >= CLOSE:
+            raise ValueError('NIGHT_CLOSED')
         headers = {}
         try:
             with transport(Request(url, headers={'User-Agent': USER_AGENT}), timeout=20) as response:

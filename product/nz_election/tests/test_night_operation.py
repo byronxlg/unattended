@@ -673,3 +673,135 @@ Path({str(orphan_dispatch)!r}).touch()
                 os.killpg(group, signal.SIGKILL)
             except ProcessLookupError:
                 pass
+
+
+@pytest.mark.parametrize('offset,expected', [(-1, True), (0, False), (1, False)])
+def test_stop_successor_boundary(monkeypatch, offset, expected):
+    calls = []
+    monkeypatch.setattr(night_live.subprocess, 'run', lambda *a, **k: calls.append(a))
+    assert night_live.chain(lambda: night_live.CLOSE + timedelta(seconds=offset)) is expected
+    assert bool(calls) is expected
+
+
+@pytest.mark.parametrize('rehearsal', [False, True])
+def test_manual_after_stop_is_clean_noop(monkeypatch, capsys, rehearsal):
+    import sys
+    monkeypatch.setattr(sys, 'argv', ['night_live.py'] + (['--rehearsal'] if rehearsal else []))
+    monkeypatch.setenv('GITHUB_EVENT_NAME', 'workflow_dispatch')
+    monkeypatch.setattr(night_live.subprocess, 'run', lambda *a, **k: pytest.fail('dispatch'))
+    monkeypatch.setattr(night_live.subprocess, 'check_output', lambda *a, **k: pytest.fail('recovery'))
+    monkeypatch.setattr(night_live.fetch, 'night_xml', lambda *a, **k: pytest.fail('fetch'))
+    assert night_live.main(now=lambda: night_live.CLOSE + timedelta(seconds=1)) == 0
+    assert capsys.readouterr().out == 'Night live loop has ended.\n'
+
+
+def test_stop_during_wait_or_acquisition():
+    clock = Clock()
+    clock.origin = night_live.CLOSE - timedelta(seconds=1)
+    calls, commits = [], []
+    def acquire(path):
+        calls.append(path)
+        clock.seconds += 2
+        return captures()[path]
+    runner = night_live.Runner(acquire=acquire, now=clock.now, monotonic=clock.monotonic,
+                              sleep=clock.sleep, commit=commits.append)
+    assert runner.tick() == 'retained'
+    assert len(calls) == 1 and not commits
+    assert runner.tick() == 'ended'
+    clock.seconds = 0
+    runner.next_cycle = 2
+    assert runner.tick() == 'ended'
+    assert len(calls) == 1 and not commits
+
+
+def test_inflight_publish_finishes_without_successor(monkeypatch):
+    import sys
+    from types import SimpleNamespace
+    clock = Clock()
+    clock.origin = night_live.CLOSE - timedelta(seconds=1)
+    commands = []
+    def run(command, **kwargs):
+        commands.append(command)
+        if 'publish.py' in ' '.join(command):
+            clock.seconds = 2
+            return SimpleNamespace(stdout=json.dumps(dict(sha='a' * 40)))
+        return SimpleNamespace(returncode=0)
+    def output(command, **kwargs):
+        key = commands[-1][-1].removeprefix('night_cycle=')
+        return json.dumps([dict(displayTitle=key, status='completed', conclusion='success')]).encode()
+    monkeypatch.setattr(sys, 'argv', ['night_live.py'])
+    monkeypatch.setattr(night_live.time, 'monotonic', clock.monotonic)
+    monkeypatch.setattr(night_live.time, 'sleep', clock.sleep)
+    monkeypatch.setattr(night_live.Deployment, 'recover', lambda _: False)
+    monkeypatch.setattr(night_live.fetch, 'night_xml', lambda root, path: captures()[path])
+    monkeypatch.setattr(night_live.fetch, 'deployed_data_sha', lambda: None)
+    monkeypatch.setattr(night_live.subprocess, 'run', run)
+    monkeypatch.setattr(night_live.subprocess, 'check_output', output)
+    for key in ('GITHUB_SERVER_URL', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID', 'GITHUB_SHA'):
+        monkeypatch.setenv(key, 'test')
+    assert night_live.main(now=clock.now) == 0
+    assert len(commands) == 2
+    assert 'publish.py' in ' '.join(commands[0]) and 'pages.yml' in commands[1]
+
+
+def test_watchdog_after_shared_stop(monkeypatch, tmp_path):
+    import runpy
+    from product.nz_election.pipeline import night_start
+    monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: pytest.fail('history query'))
+    assert night_start.main(lambda: night_live.CLOSE + timedelta(seconds=1), dispatch=True) == 1
+    wrapper = runpy.run_path(str(ROOT / 'bin/night-watchdog'))
+    class Child:
+        pid = 123
+        def wait(self, **kwargs):
+            return night_start.main(lambda: night_live.CLOSE + timedelta(seconds=1), dispatch=True)
+    monkeypatch.setattr(subprocess, 'Popen', lambda *a, **k: Child())
+    monkeypatch.setattr(wrapper['os'], 'killpg', lambda *a: None)
+    wrapper['watchdog'](tmp_path)
+    assert not (tmp_path / 'night-start-2026.dispatched').exists()
+
+
+def test_package_stop_field_and_client(tmp_path):
+    from product.nz_election.pipeline.night_page import live_package
+    clock = Clock()
+    captured = night_live.cycle(acquire=captures().__getitem__, now=clock.now)
+    night.prepare(tmp_path, night_live.loaded(captured), 'offline-verification', 'a'*40, captured['retrieved_at'])
+    envs = {p.relative_to(tmp_path).as_posix()[:-5]: json.loads(p.read_text()) for p in tmp_path.rglob('*.json')}
+    before = live_package(envs, now=night_live.CLOSE - timedelta(seconds=1))
+    after = live_package(envs, now=night_live.CLOSE + timedelta(seconds=1))
+    assert before['loop_ended'] is False and after['loop_ended'] is True
+    assert before['loop_ends_at'] == night_live.stamp(lambda: night_live.CLOSE)
+    for package in (before, after, live_package({}, now=night_live.CLOSE)):
+        js("""
+Object.assign(pack, """ + json.dumps(package) + """);
+time=Date.parse(pack.loop_ends_at)-1000;
+await live.tick();
+time+=2000; await live.tick(); time+=STALE; await live.tick();
+assert.equal(calls,1); assert.match(texts.at(-1),/Live updates ended/);
+assert.match(texts.at(-1),/official results due 27 November/);
+""")
+
+
+def test_retry_does_not_fetch_after_stop():
+    from urllib.error import HTTPError
+    from product.nz_election.pipeline import fetch
+    clock, calls = Clock(), []
+    clock.origin = night_live.CLOSE - timedelta(seconds=1)
+    def transport(request, **kwargs):
+        calls.append(request)
+        raise HTTPError(request.full_url, 429, 'test', {'Retry-After': '3'}, None)
+    with pytest.raises(ValueError, match='NIGHT_CLOSED'):
+        fetch.night_xml(fetch.NIGHT_ROOTS[0], 'election.xml',
+                       transport=transport, sleep=clock.sleep, now=clock.now)
+    assert len(calls) == 1
+
+
+def test_recovery_rechecks_stop_before_deployment(monkeypatch):
+    clock = Clock()
+    clock.origin = night_live.CLOSE - timedelta(seconds=1)
+    def served():
+        clock.seconds = 2
+        return None
+    monkeypatch.setattr(night_live.fetch, 'deployed_data_sha', served)
+    monkeypatch.setattr(night_live.subprocess, 'run', lambda *a, **k: pytest.fail('late recovery deployment'))
+    with pytest.raises(ValueError, match='NIGHT_CLOSED'):
+        night_live.Deployment(clock.now).ensure('a' * 40)

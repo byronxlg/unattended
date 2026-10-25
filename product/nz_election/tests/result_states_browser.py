@@ -98,11 +98,21 @@ def main():
         threading.Thread(target=server.serve_forever, daemon=True).start()
         origin = f'http://127.0.0.1:{server.server_port}'
         try:
+            from datetime import timedelta
+            # The per-state builds above cover redeployment after the live loop ends.
+            official_site = next(site for state, _, site in sites if state == 'official')
+            official_html = (official_site / 'nz-election/night/index.html').read_text()
+            assert 'data-mode="Official results"' in official_html
+            assert 'Change since preliminary result' in official_html
+            assert 'official results due' not in official_html
             for state, pack in handover_packs.items():
                 for width, height in [(390, 844), (1280, 800)]:
                     context = browser.new_context(viewport=dict(width=width, height=height))
                     page = context.new_page()
-                    page.clock.install(time=datetime(2026, 11, 27, 11, tzinfo=timezone.utc))
+                    # A live poll can hand over only before the shared cutoff.
+                    instant = (night_live.CLOSE - timedelta(minutes=5) if state == 'settled'
+                               else datetime(2026, 11, 27, 11, tzinfo=timezone.utc))
+                    page.clock.install(time=instant)
                     replies = [0]
                     handover = [False]
                     errors = []
@@ -121,20 +131,25 @@ def main():
                     page.wait_for_load_state('networkidle')
                     assert page.locator('#night-result-status').is_visible()
                     assert 'official results due 27 November' in page.locator('#night-result-status').inner_text()
+                    assert replies[0] == (1 if state == 'settled' else 0)
                     handover[0] = True
                     page.clock.run_for(121000)
-                    page.wait_for_function("mode => document.querySelector('#night-snapshot').dataset.mode === mode", arg=pack['mode'])
-                    assert page.locator('#night-result-status').count() == 0
-                    assert 'Live preliminary results' not in page.evaluate('document.body.innerText')
-                    nav_link = page.locator('nav[aria-label="Packaged results"] a[href="?sequence=live"]')
-                    assert nav_link.is_visible()
-                    assert nav_link.get_attribute('href') == '?sequence=live'
-                    assert page.locator('#night-live-status').inner_text() == pack['state_sentence']
-                    if state == 'official':
-                        assert 'official results due' not in page.locator('.night-page').inner_text()
-                        assert 'Change since preliminary result' in page.locator('#night-snapshot').inner_text()
-                    else:
+                    if state == 'settled':
+                        page.wait_for_function("mode => document.querySelector('#night-snapshot').dataset.mode === mode", arg=pack['mode'])
+                        assert replies[0] == 2  # One 503 followed by the settled package.
+                        assert page.locator('#night-result-status').count() == 0
+                        assert 'Live preliminary results' not in page.evaluate('document.body.innerText')
+                        nav_link = page.locator('nav[aria-label="Packaged results"] a[href="?sequence=live"]')
+                        assert nav_link.is_visible()
+                        assert nav_link.get_attribute('href') == '?sequence=live'
+                        assert page.locator('#night-live-status').inner_text() == pack['state_sentence']
                         assert 'live updates ended' in page.locator('#night-live-status').inner_text()
+                    else:
+                        # An old page cannot poll into official results after the cutoff;
+                        # the official build checked above supplies that state instead.
+                        assert replies[0] == 0
+                        assert page.locator('#night-snapshot').get_attribute('data-mode') == night_live.MODE
+                        assert 'Live updates ended.' in page.locator('#night-live-status').inner_text()
                     calls = replies[0]
                     page.clock.run_for(120000)
                     assert replies[0] == calls

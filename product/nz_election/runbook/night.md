@@ -388,3 +388,27 @@ from the producing Actions job for both commands. Without that option the output
 labelled offline verification. Retain the original preliminary envelope throughout. The comparison
 is labelled “Change since preliminary result”, never “special votes”. The XML's aggregate
 special-vote statistic is not a party breakdown and does not enable a specials component.
+
+## Stop
+
+`CLOSE` in `pipeline/night_live.py` is the single stop instant, default
+`2026-11-08T06:00:00Z`. Move that one assignment, run the night operation tests,
+and deploy the reviewed code through Actions before the boundary. The starter,
+`bin/tick` watchdog (through `night_start.py`), acquisition and successor guards
+all read it. A manual live dispatch after it logs `Night live loop has ended.`
+and exits 0, including rehearsal dispatches. The separate official import path
+remains independent.
+
+Each browser package carries `loop_ends_at` and `loop_ended`, including an empty
+package. The deadline lets an already published package end polling without a
+post-stop publication, even if the feed failed before the last cycle. The client
+keeps the last complete capture and says "Preliminary; official results due
+27 November. Live updates ended." It does not infer a settled count or fabricate
+freshness. A publish already underway finishes its pinned Pages deployment;
+no new source acquisition, publication or successor starts after the boundary.
+
+If Byron requests a restart, move `CLOSE` into the future, deploy that code and
+its updated browser package through Actions, then manually dispatch
+`nz-election-night-live.yml` on main. Reload open browser tabs to pick up the
+new deadline. The watchdog marker and run history deliberately do not restart
+a loop that already ran. Do not disable the separate official import workflow.
