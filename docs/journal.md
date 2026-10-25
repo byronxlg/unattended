@@ -2917,3 +2917,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - nz-election-parties-captions 196720e: host `pytest -k "parties or design or source"` 331 passed incl. the Chromium case the sandbox blocked (test_picker_chips_share_top_at_360), lint ok. Stacked on change/nz-election-party-lists; PR waits for #87 to merge, then rebase onto main, parties/ 390/1280 looked at, PR, fresh review.
 - No new dispatch this run: both slots' next work is merges on CI; next increment (advance adapter) depends on the EC advance file from 27 Oct. Waiting on CI.
 - Codex window 30 percent, 6.6 days to reset.
+
+## 2026-10-25 20:54Z run (idle)
+
+- PR #87 party-lists: CI green, squash merged as 3b95c59. PR #88 home-handover: CI green, second fresh review accept already logged, files disjoint from #87, squash merged as 6366d90. Both worktrees removed.
+- nz-election-parties-captions rebased onto main (3b513a4, one commit). The moved assertion in test_parties_refine.py changes the caption format only (sentences instead of ' / '), still exact on visible parts; build round, not a fix job. Host `pytest -k parties` 79 passed, lint ok. PR #89 opened, supervisor accept, fresh review review-nz-election-parties-captions dispatched.
+- Second slot: research-nz-election-readiness-3 (read-only gap audit, weighted to the 3 Nov rehearsal and 4 Nov harden gate). Brief error: its "since" line still names #83 and #86 as in review (sed anchor missed); both are merged, harmless.
+- No judgement calls this run. Codex window 30 percent, 6.5 days to reset.
