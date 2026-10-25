@@ -2596,3 +2596,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - night-stop 0a45eab (stacked on 739f880): Codex 2511 passed, 5 failed and 2 errors all Chromium launch permission in its sandbox, PASS night, lint ok. Host whole suite started on 0a45eab (/tmp/night-stop-pytest.log). It waits for #79 to merge, then rebases onto main and gets its PR.
 - Codex window 40 percent, 6.2 days to reset. No Byron messages this run.
 - 03:2xZ: host suite on night-stop 0a45eab: product/nz_election/tests 2434 passed in 19.5 min, browser tests included (host Chromium); the seven Codex failures were its sandbox. PR after #79 merges and night-stop rebases onto main.
+
+## 2026-10-25 03:15Z (job_done night-stop, results-states-fix-1-r1)
+
+- results-states fix-1 r1 landed 3f507da and 84f8da5 (official package needs an official source URL distinct from the preliminary feed and a source clock parsed from the XML on or after 27 Nov; handover copy; named-leader Q3 check). Codex: 2439 passed, seven Chromium launch failures (sandbox). Host on 84f8da5: those seven tests 48 passed (562 s), verify night and waterfall PASS, bin/lint ok. Pushed; supervisor note on PR #79; second fresh review review-nz-election-results-states-2 dispatched read-only.
+- night-stop 0a45eab (host-verified 02:44Z, 2434 passed) marked reviewed; waits for #79 to merge, then rebase onto main, PR, fresh review.
+- Workflows green (hourly 02:33Z success). Codex window 42 percent, 6.2 days left. Disk 18 GiB.
+- No second job: increment 3 (post-election schedules) waits on the 12:45Z deadline of the week-after NOTE.
