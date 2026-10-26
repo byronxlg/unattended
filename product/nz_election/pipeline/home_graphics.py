@@ -289,7 +289,7 @@ def hex_map(envs, cells, rows, held_for):
         # Keep both label lines inside the map and above the first Maori hex.
         mx = width - 4
         my = min(c['y'] for c in maori) * size * Decimal('1.5') - 26
-        marks += f'<text x="{mx:.1f}" y="{my:.1f}" class="map-label" text-anchor="end">Māori</text><text x="{mx:.1f}" y="{my + 22:.1f}" class="map-label" text-anchor="end">electorates</text>'
+        marks += f'<text x="{mx:.1f}" y="{my:.1f}" text-anchor="end" class="map-label">Māori</text><text x="{mx:.1f}" y="{my + 22:.1f}" text-anchor="end" class="map-label">electorates</text>'
     svg = (f'<svg class="hex-map" viewBox="0 0 {width:.0f} {height:.0f}" role="group" aria-describedby="source-electorates" '
            f'aria-label="Electorates coloured by 2023 winning party; darker means a larger margin">{marks}</svg>')
     return svg, hidden(table('2023 holders on original boundaries', ['Electorate', 'Party', 'Margin'], records, source='source-electorates'))
