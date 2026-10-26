@@ -3261,3 +3261,12 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
   side (main's product tree equals the branch base 4a47034, checked by git diff). Host pytest -k vote 208 passed incl.
   Chromium, lint ok, pushed, supervisor accept logged on #101, second fresh review review-nz-election-vote-nits-2
   dispatched. Second slot still free until the 20:00Z design critique. Codex window 27 percent.
+
+## 2026-10-26 17:18Z (job_done review-nz-election-vote-nits-2)
+
+- PR #101 second fresh review accept, no findings (both review-1 items closed at vote_page.py:43-47; three visual
+  weaknesses noted: repetitive deadline wording, long mobile help section, repeated source wording). Logged on the PR
+  with supervisor accept. CI run 40365736010 pending, not merged.
+- nz-election-vote-polish dispatched (build, stacked on change/nz-election-vote-nits 76b5126, worktree
+  .worktrees/nz-election-vote-polish, Page plan pages/vote.md, DESIGN.md): the 2026-10-26 backlog item from the #101
+  review (deadline wording once, label/answer width at 1280, one source credit per module). Codex window 27 percent.
