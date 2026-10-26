@@ -3231,3 +3231,14 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #100 CI run 40358186858 in progress on 4a47034; not merged.
 - Second slot left free until the 20:00Z design critique sets the next item (vote/ files are busy). Codex
   window 26 percent, 6.6 days to reset.
+
+## 2026-10-26 16:43Z (job_done nz-election-vote-nits-fix-1)
+
+- fix-1 8eac454 (vote_page.py, styles.css): date credits under the countdown and timeline as plain text with
+  retrieval dates, no links before #help, so main's first-screen contract in test_vote_page.py holds untouched.
+- Host: `pytest test_vote_page*.py test_design.py` 141 passed incl. Chromium (Codex sandbox denied 3 browser cases).
+  origin/data build PASS 81 routes; vote/ at 390 and 1280 looked at: no sideways scroll, credits sit under what they
+  source, help rows in two columns at 1280. Nit for later: the overseas row restates a past enrolment deadline.
+- PR #101 opened stacked on #100, supervisor accept logged, fresh review review-nz-election-vote-nits dispatched.
+- #100 CI run 40358186858 still pending at about 30 min; not merged. Second slot left for the design-loop critique
+  after 20:00Z (no backlog item left that does not touch #100/#101 files).
