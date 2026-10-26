@@ -3064,3 +3064,9 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - rehearsal-contract 58e918d: host test_night*.py 1 failed, 258 passed; test_night_deployed[faults] fails at the branch's own night_live_browser.py:104 (whole #night-snapshot markup equality after an incomplete package), reproduced on a second run; verify night PASS on origin/data. Sent back: fix-1 nz-election-rehearsal-contract-fix-1 on the build thread (find what changed; product defect vs per-response field; keep renamed-not-shown check). No PR yet.
 - nz-election-publish-rehearsal (readiness-3 increment 2) rebased onto eb61e0a and dispatched. Three jobs running at run end (two fixes plus one build), all on today's share.
 - Codex window 5.0 percent, resets in 7.0 days; even spread about 14 points per day.
+
+## 2026-10-26 08:15Z run (job_done nz-election-rehearsal-contract-fix-1)
+
+- rehearsal-contract fix-1 b4535af (baseline for reference retention captured after screenshot caret cleanup, which had left style="" on the search input; whole-markup equality kept). Host `pytest -q product/nz_election/tests/test_night*.py` 259 passed incl. host Chromium in 521 s; lint ok. Pushed, PR #95 opened, supervisor accept logged, fresh review review-nz-election-rehearsal-contract dispatched read-only.
+- nz-election-publish-rehearsal ended rc 1 at 08:04Z after 607 s with no last.md and usage null; stderr: "failed to record rollout items: thread ... not found". Worktree holds a staged uncommitted diff (7 files, +444 -36: new nz-election-night-rehearsal.yml, night_rehearsal.py, publish.py, night_live.py, runbook, two tests). Treated as a partial: next free slot resumes it on its thread (or a fresh build from the staged diff if resume fails); not resumed this run because two jobs are running (night-design fix-1, the #95 review).
+- Codex window 8.0 percent, resets in 7.0 days; even spread about 13 points per day.
