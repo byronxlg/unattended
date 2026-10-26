@@ -3252,3 +3252,41 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
   Three visual nits to the design backlog.
 - PR #100 CI run 40358186858 still in progress at 35 min; not merged. Second slot left free: no disjoint item before
   the 20:00Z design critique. Codex window 26 percent.
+
+## 2026-10-26 17:07Z (job_done nz-election-vote-nits-fix-2)
+
+- PR #100 vote/ enrolment copy CI green, squash merged as 2bc1efa, worktree removed. #101 retargeted to main.
+- Fix-2 50c1736: every drawn dated record credited regardless of source_url (closes the dangling aria-describedby and
+  stale retrieved date). Main merged into change/nz-election-vote-nits; vote_page.py conflict resolved to the branch
+  side (main's product tree equals the branch base 4a47034, checked by git diff). Host pytest -k vote 208 passed incl.
+  Chromium, lint ok, pushed, supervisor accept logged on #101, second fresh review review-nz-election-vote-nits-2
+  dispatched. Second slot still free until the 20:00Z design critique. Codex window 27 percent.
+
+## 2026-10-26 17:18Z (job_done review-nz-election-vote-nits-2)
+
+- PR #101 second fresh review accept, no findings (both review-1 items closed at vote_page.py:43-47; three visual
+  weaknesses noted: repetitive deadline wording, long mobile help section, repeated source wording). Logged on the PR
+  with supervisor accept. CI run 40365736010 pending, not merged.
+- nz-election-vote-polish dispatched (build, stacked on change/nz-election-vote-nits 76b5126, worktree
+  .worktrees/nz-election-vote-polish, Page plan pages/vote.md, DESIGN.md): the 2026-10-26 backlog item from the #101
+  review (deadline wording once, label/answer width at 1280, one source credit per module). Codex window 27 percent.
+
+## 2026-10-26 17:30Z (job_done nz-election-vote-polish)
+
+- vote-polish f728f4d: Codex 144 passed, 3 Chromium cases sandbox-denied. Host: vote and design tests 147 passed incl.
+  Chromium; origin/data build PASS 81 routes; vote/ at 390 and 1280 looked at. First screenshots came from a stale
+  http.server on 8833 left by an earlier run (showed the old repeated "Deadline: ... NZDT (New Zealand time)" text);
+  caught by grepping the served HTML against the build, redone on a fresh port, old server killed. Third time a stale
+  local server has misled a look; from now serve each look on a new port and check the served HTML first.
+- On the new build: each deadline once ("by 7pm NZ time, 7 November"), help answers span the column at 1280, one credit
+  per module, no sideways scroll. PR #102 opened stacked on #101, supervisor accept logged, fresh review
+  review-nz-election-vote-polish dispatched (deadline_phrases agree with voting.json, skipped deadlines still visible
+  in every phase, describedby ids resolve).
+- Seen, not in scope: after the 25 Oct close the enrolment block says only "The enrolment close has passed."; NZ allows
+  enrolment to election day with a special vote. Next vote/ round, from the EC record only.
+- #101 CI run 40365736010 still pending at 17:40Z; not merged. Codex window 28 percent.
+
+## 2026-10-26 17:43Z (job_done review-nz-election-vote-polish)
+
+- PR #102 fresh review request changes on f728f4d: exact enrolment deadline lost after the close (vote_page.py:86); dedup covers help only, election-day 7pm stated more than once (vote_page.py:108); missing retrieved_at raises KeyError (vote_page.py:126, pre-existing in the parent's credits). All three accepted, logged on the PR; fix-1 nz-election-vote-polish-fix-1 dispatched on the build thread (invariant: each deadline's date and time stated once in visible text per phase; protected tests are those at 76b5126).
+- PR #101 CI run 40365736010 still in progress at 35 min; not merged. Window 28 percent.
