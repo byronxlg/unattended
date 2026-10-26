@@ -3110,3 +3110,9 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #94 fix-5 (6ee9bf4 merge of main, 51a52c9 four source-action links restored, jump target inset): supervisor host run with Chromium of the fix-4 list 467 passed, 0 failed (Codex sandbox 451 passed, failures all Chromium launch denials). Pushed, accept logged on the PR, third fresh review review-nz-election-night-design-3 dispatched.
 - nz-election-hexmap e579ec6 (hex-native layout, 71 cells, geometry tests): host test_snapshots*, test_home*, test_design 178 passed incl. Chromium. Home map screenshotted on Codex's fixture build at 390 and 1280 and looked at: islands recognisable, no overlapping cells, Maori group and label clear, no sideways scroll; nit one empty cell in the central North Island. PR #97 opened, supervisor accept, fresh review review-nz-election-hexmap dispatched. #97 merges after #94 (both touch home_graphics.py; main merged in, no force-push).
 - Codex window 13 percent at run start.
+
+## 2026-10-26 10:34Z (job_done review-nz-election-hexmap, review-nz-election-night-design-3)
+
+- PR #94 third fresh review (review-nz-election-night-design-3): accept, no findings; review-2 items resolved. Logged on the PR. CI run 40307082449 pending, not merged.
+- PR #97 fresh review (review-nz-election-hexmap): accept, no findings (71 unique cells, no overlaps, 390 targets min 26.31 px). Logged on the PR. CI run 40307089207 pending; merge after #94 with main merged in.
+- No dispatch: both slots wait on merges that touch home_graphics.py. Codex window 14 percent.
