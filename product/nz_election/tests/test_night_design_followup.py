@@ -58,3 +58,30 @@ def test_night_countdown_hook_and_early_electorate_jump():
     assert 'href="#night-search-proof"' in html and 'id="night-search-proof"' in html
     assert 'timezone unverified' not in html
     assert 'Results last updated 10 November 2024 at 00:00.' in html
+
+
+def test_electorate_precedes_detailed_arithmetic_in_live_and_terminal_states(tmp_path):
+    from product.nz_election.pipeline import fixtures, night_live, result_states
+
+    def capture(name):
+        path = 'result-states/' + name + '.json'
+        return json.loads(fixtures.captures(paths={path})[path])
+
+    def prepare(loaded, state, now):
+        folder = tmp_path / state
+        night.prepare(folder, loaded, 'offline-verification', 'a' * 40, now)
+        return {p.relative_to(folder).as_posix()[:-5]: json.loads(p.read_text()) for p in folder.rglob('*.json')}
+
+    envs = prepare(night_live.loaded(capture('2026-11-07-preliminary-final')), 'live', '2026-11-07T10:35:00Z')
+    for state, now in [('live', '2026-11-07T10:35:00Z'), ('settled', '2026-11-08T06:00:00Z'), ('official', '2026-11-27T11:00:00Z')]:
+        if state != 'live':
+            loaded = result_states.transition(envs, state, now=now,
+                                               captured=capture('2026-11-27-official') if state == 'official' else None)
+            envs = prepare(loaded, state, now)
+        html = night_page.live_package(envs)['html']
+        assert html.index('Who is winning?') < html.index('class="night-search"')
+        assert html.index('class="night-search"') < html.index('class="night-map-key map-key"')
+        assert html.index('class="night-search"') < html.index('Who has enough seats?') < html.index('class="night-votes"')
+        tree = Tree(html)
+        row = next(n for n in tree.nodes if n.tag == 'tr' and 'Auckland Central' in n.text)
+        assert 'Johan Chang' in row.text and 'CHANG, Johan' in row.text

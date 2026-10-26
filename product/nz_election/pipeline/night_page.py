@@ -49,6 +49,7 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
         updated = ', updated ' + clock[11:16] if clock else ''
         reporting = (f'<p class="night-reporting">Results cover <strong>{percent} percent</strong> of voting places{updated}.</p>'
                     f'<progress aria-label="Voting places reported" max="100" value="{percent}">{percent}%</progress>')
+    combinations_html = ''
     content = context_html + reporting
     if row.get('reported_house'):
         house = row['reported_house']
@@ -84,19 +85,20 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
                    if sum(n for _, n in group) >= majority and all(sum(n for _, n in group)-n < majority for _, n in group)]
         cards = g.majority_cards(winners, names, {p: mapping.get(refs['parties'][p]['abbrev']) for p, _ in seats})
         from .home import section, footnote
-        content += section('combinations-' + identity, 'Who has enough seats?',
+        combinations_html = section('combinations-' + identity, 'Who has enough seats?',
                            'These combinations currently reach a majority; government formation is separate.',
                            cards, 'Electoral Commission', row.get('source_updated_local', 'Replay')).replace(
                                footnote('combinations-' + identity, 'Electoral Commission', row.get('source_updated_local', 'Replay')),
                                f'<div class="source-note" id="source-combinations-{identity}"><p>Electoral Commission.</p><p class="source-actions"><a href="{RESULTS}">Official results</a></p></div>')
     if not row.get('reported_house'):
         content = '<section class="hero night-hero"><p class="kicker">' + escape(row['mode']) + '</p><h1>Who is winning?</h1></section>' + content
+    from .night_electorates import electorate_view, seat_chart, comparison_view
+    content += electorate_view(row, refs, source, identity) + combinations_html
     content += f'<p class="night-votes"><strong>{row["valid_party_votes"]:,}</strong> valid party votes</p>'
     caption = 'Party results: ' + row['mode'] + ', ' + (row.get('source_updated_local') or str(row['elapsed_seconds']) + ' seconds')
     content += '<details><summary>Party votes and source-reported seats</summary>' + table(caption, ['Party', 'Valid party votes'] + (['Source-reported seats'] if 'reported_house' in row else []),
                      [[escape(names[p]), f'{r["votes"]:,}'] + ([str(r['total_seats'])] if 'reported_house' in row else []) for p, r in parties], source=source) + '</details>'
-    from .night_electorates import electorate_view, seat_chart, comparison_view
-    content += electorate_view(row, refs, source, identity) + seat_chart(row, source)
+    content += seat_chart(row, source)
     if row.get('result_state') == 'official':
         content += comparison_view(comparison(row['preliminary_package']['data'][0], 'preliminary'), comparison(row, 'official'), source, names=names)
     else:

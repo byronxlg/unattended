@@ -27,3 +27,14 @@
 @media(max-width:599px){.night-combinations{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.night-combination{padding:12px}.night-party{overflow-wrap:anywhere}}
 .night-find a{font-weight:700}.night-find{margin:8px 0}.night-more-combinations li{margin:8px 0}
 .night-page .night-frame-context{font-size:var(--fs-caption);color:var(--grey)}
+/* Keep the electorate and leader together in the first phone-width table view. */
+@media(max-width:599px){
+.night-page .night-electorates{margin-top:24px}
+.night-page .night-electorates table{table-layout:fixed;width:720px}
+.night-page .night-electorates th{white-space:normal}
+.night-page .night-electorates th:first-child{width:124px}
+.night-page .night-electorates th:nth-child(2){width:176px}
+.night-page .night-electorates th:nth-child(3){width:112px}
+.night-page .night-electorates td:first-child{min-width:0}
+.night-party-cell{overflow-wrap:anywhere}
+}

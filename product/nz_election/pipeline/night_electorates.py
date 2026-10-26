@@ -66,6 +66,9 @@ def electorate_view(row, refs, source, identity):
             status += f"; {stats['total_voting_places_counted']} of {stats['total_voting_places']} voting places"
         link = (f'<a href="{PREFIX}electorates/{current["slug"]}/">{escape(name)}</a>' if current else
                 f'<a href="{PREFIX}electorates/">{escape(name)} (2023 electorate)</a>')
+        source_name = leader.get('candidate_name', '')
+        if source_name and display_name(source_name) != source_name:
+            status += '; source name: ' + source_name
         rows.append([link, escape(label + (' (' + party['short_name'] + ')' if party else '')), str(margin) if margin is not None else 'Not yet reported', escape(status)])
         if not current:
             related = [r for r in registry if int(e) in r['baseline_ids']]
@@ -87,14 +90,17 @@ def electorate_view(row, refs, source, identity):
         map_rows[e] = dict(name=name, slug=current['slug'] if current else '', description=description,
                            held=dict(party_id=party_id, party=party.get('short_name', ''), margin=margin or 0) if leader else None)
         rows[-1][1] = f'<span class="night-party-cell" style="--c:{colour};--a:18%">{rows[-1][1]}</span>'
-    content = '<section class="night-electorates module"><h2>Who is ahead in my electorate?</h2><p>Provisional leaders, not elected members. Grey means no reported leader; deeper colour means a larger margin.</p>'
+    content = '<section class="night-electorates module"><h2>Who is ahead in my electorate?</h2>'
+    guidance = '<p>Provisional leaders, not elected members. Grey means no reported leader; deeper colour means a larger margin.</p>'
     if official:
-        content = content.replace('Provisional leaders, not elected members.', 'Official source-reported leaders.')
+        guidance = guidance.replace('Provisional leaders, not elected members.', 'Official source-reported leaders.')
     if '2023' in row['mode'] or row['source_ref'] == ['ec-2023-xml/election.xml']:
-        content += '<p>2023 electorates, on their original boundaries. Links lead to today’s electorate information; no votes are transferred to new boundaries.</p>'
+        guidance += '<p>2023 electorates, on their original boundaries. Links lead to today’s electorate information; no votes are transferred to new boundaries.</p>'
     content += f'<label for="night-search-{identity}">Find an electorate</label><input id="night-search-{identity}" class="night-search" type="search" placeholder="Electorate name">'
+    content += '<div class="night-map-key map-key">' + guidance
     if legend:
-        content += '<div class="night-map-key map-key"><ul>' + ''.join(f'<li><i style="background:{colour}"></i>{escape(name)}</li>' for name, colour in sorted(legend.items())) + '</ul><p class="tones"><span>Margin</span><i class="close"></i>under 2,000<i class="mid"></i>2,000 to 8,000<i class="safe"></i>over 8,000</p></div>'
+        content += '<ul>' + ''.join(f'<li><i style="background:{colour}"></i>{escape(name)}</li>' for name, colour in sorted(legend.items())) + '</ul><p class="tones"><span>Margin</span><i class="close"></i>under 2,000<i class="mid"></i>2,000 to 8,000<i class="safe"></i>over 8,000</p>'
+    content += '</div>'
     svg, _ = g.hex_map({}, cells, map_rows, lambda r: r['held'], source=source, night=True)
     content += f'<figure class="night-map" aria-describedby="{source}">' + svg + '<figcaption>Find an electorate in the searchable table below.</figcaption></figure>'
     context = row['mode'] + ', ' + (row.get('source_updated_local') or str(row.get('elapsed_seconds', 0)) + ' seconds')
