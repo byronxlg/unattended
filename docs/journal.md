@@ -3306,3 +3306,9 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Page plan intent/nz-election/pages/funding.md drafted from the issue and the parties research (Q5), on snapshots/donations.json (146 of 146 EC returns at 20 Oct 08:46Z; ACT 49, National 38, Labour 17, NZ First 16, Greens 11, TOP 10, TPM 3, two others 1 each). Questions: who declared most, biggest donors, pace over time, counts, every return with its EC document.
 - Judgement call sent (fleet line NOTE | tg send, delivered): top three questions and above the fold (headline sentence with the "not total party funding" caveat plus a ranked bar chart); alternative rejected: a bigger parties/ block only; plan accepted 06:20Z 27 Oct if silent, build 07:05Z.
 - Build brief state/jobs/nz-election-funding-page/prompt.md written. Not dispatched: today's window day (from 07:04Z) has used about 28 points against an even-spread share of about 11 (window 29 percent, resets in 6.6 days). Waiting for plan acceptance does not block the build; the budget does. Dispatch first run after 07:05Z 27 Oct.
+
+## 2026-10-26 19:10Z (idle)
+
+- PR #102 vote-polish squash merged as 32ef0de (CI run 40373245768 pass, supervisor and second fresh review accept); worktree and branch removed; state/changes.yaml prs updated with 101 and 102; link line sent to Byron (tg send, delivered).
+- No job running. Not dispatched: today's Codex share is spent (window 29 percent, even spread about 11 points per day). The funding-page build waits for 07:05Z 27 Oct as planned.
+- next-run-after set to 20:01Z for the first design-loop critique.
