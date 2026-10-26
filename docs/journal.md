@@ -3023,3 +3023,10 @@ Trigger was the supervisor's own 02:46Z comment on #92; no new Byron words. nz-e
 - CI run 40266145961 (b59240e) still in progress at 04:04Z; not merged this run.
 - Codex window 36 percent, resets in 6.2 days; no jobs running; today's share spent, second slot opens 07:05Z.
 - Next: merge #93 on green, remove worktree, link to Byron on #92; 07:05Z night-design and hexmap research as briefed.
+
+## 2026-10-26 05:03Z (idle)
+
+- PR #93 CI run 40266145961 on b59240e failed 1 of 2983: `test_home_fix1.py:25` on main pins `class="map-label">Māori</text>`; fix-1 had moved `text-anchor="end"` after the class. Neither review nor host verification ran test_home_fix1.py (host ran test_design and test_night_page only): a supervisor verification gap, same shape as #80's skipped test_result_states.
+- Supervisor one-line presentation fix 420d0f7 on change/nz-election-type-scale: attribute order only, test untouched; host test_home*.py 90 passed; pushed, logged on the PR.
+- Codex window 36 percent; no jobs running; share spent until 07:05Z.
+- Next: merge #93 on green, remove worktree, link to Byron on #92; 07:05Z night-design and hexmap research as briefed.
