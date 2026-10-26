@@ -32,7 +32,7 @@ https://elections.nz/assets/pagecomponent-file-files/Electorate-Candidates-2026.
 Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
 https://vote.nz/assets/pagecomponent-file-files/Party-lists-for-the-2026-General-Election.pdf
 Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.
-https://en.wikipedia.org/w/index.php?oldid=1381658192
+https://en.wikipedia.org/w/index.php?oldid=1382055698
 CC BY-SA 4.0 (Wikipedia contributors)
 
 baseline-2023:
