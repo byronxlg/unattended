@@ -3144,3 +3144,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Main (#94) conflicted with the branch in home_graphics.hex_map (selected mode vs night mode), build.py's own-h1 set and the DESIGN.md hex map row. Supervisor resolved by keeping both modes (merge e647444, no force-push); host Chromium after merge 441 passed (test_design, test_home*, test_night*, test_electorate*, test_content_checks, test_parties_page), lint ok, origin/data build PASS 81 routes.
 - Looked at Nelson, Waiariki, Epsom at 390 and 1280: no sideways scroll; first phone screen has hero, locator, enrolment and Policy.nz actions and two candidate cards. Nits for the next round: blank gap above "Who won last time?" at 1280; 2026 card and 2023 bar name forms differ (source spellings); "General electorate" in place of a region (no sourced mapping).
 - PR #98 opened, supervisor accept logged, fresh review review-nz-election-electorate-design dispatched. Second slot left empty this run (run time spent on host tests); next run fills it from the design backlog.
+
+## 2026-10-26 13:02Z (job_done review-nz-election-electorate-design)
+
+- PR #98 fresh review: request changes, one Important: the branch's own test_electorate_page_plan.py pins markup (class strings, class order `race-candidates module`, generated SVG inclusion, polygon counts). Agreed: the Design loop rule says tests check data, provenance, absence and accessibility, never markup. Logged on the PR. CI on #98 pending at run time.
+- Dispatched fix-1 nz-election-electorate-design-fix-1 on the build thread 01a17800-59be-7311-9b0e-4f3be731ec7a: semantic checks (candidates by name and party, page-plan order by heading text, selected seat by accessible attribute, link names and routes); main's tests protected.
+- Second slot: nz-election-vote-design dispatched in .worktrees/nz-election-vote-design from origin/main (design-backlog item 2, part 1; Page plan pages/vote.md; DESIGN.md). Vote first because advance voting opened 26 Oct. Parties is the next part of item 2.
+- Codex window 19 percent, 6.8 days to reset, even spread about 12 points per day.
