@@ -3097,3 +3097,22 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #96 publish-rehearsal: CI run 40298755113 still pending, not merged.
 - Second slot left empty: hexmap touches home_graphics.py, same as #94; it waits for #94.
 - No judgement calls. Codex window 11.0 percent.
+
+## 2026-10-26 09:43Z run (job_done nz-election-night-design-fix-4)
+
+- PR #96 publish-rehearsal: CI green, squash merged as a5b88b6; worktree removed (only untracked last.md and artifacts/). Actions proof: `nz-election-night-rehearsal.yml` dispatched on main, run 40303064779 (generation 0) success and its bounded successor 40303120397 success.
+- PR #94 night-design fix-4 (5aa1172 merge of main, 8eedc0c caveats visible during search, behaviour checks): host list with Chromium 2 failed, 461 passed. (1) main's test_night_deployed.py::test_browser_checks[rehearse] FAIL source-links; the same test passes on origin/main (3 passed), so the branch dropped one of the four `#night-snapshot .source-actions` links. (2) the branch's night_design_browser.py:90, search box off screen after the "Find your electorate" jump. Verdict request changes, logged on #94; fix-5 nz-election-night-design-fix-5 dispatched on the build thread (main's tests untouched, the jump assertion not loosened). Codex reported only sandbox Chromium denials; host checks remain the gate for browser work.
+- nz-election-hexmap dispatched from origin/main (a5b88b6) in .worktrees/nz-election-hexmap rather than waiting for #94; overlap is `home_graphics.py` (hemicycle in #94, `hex_map` here), brief carries a base note to merge main in.
+- Codex window 12 percent at run start.
+
+## 2026-10-26 10:09Z (job_done nz-election-hexmap, nz-election-night-design-fix-5)
+
+- PR #94 fix-5 (6ee9bf4 merge of main, 51a52c9 four source-action links restored, jump target inset): supervisor host run with Chromium of the fix-4 list 467 passed, 0 failed (Codex sandbox 451 passed, failures all Chromium launch denials). Pushed, accept logged on the PR, third fresh review review-nz-election-night-design-3 dispatched.
+- nz-election-hexmap e579ec6 (hex-native layout, 71 cells, geometry tests): host test_snapshots*, test_home*, test_design 178 passed incl. Chromium. Home map screenshotted on Codex's fixture build at 390 and 1280 and looked at: islands recognisable, no overlapping cells, Maori group and label clear, no sideways scroll; nit one empty cell in the central North Island. PR #97 opened, supervisor accept, fresh review review-nz-election-hexmap dispatched. #97 merges after #94 (both touch home_graphics.py; main merged in, no force-push).
+- Codex window 13 percent at run start.
+
+## 2026-10-26 10:34Z (job_done review-nz-election-hexmap, review-nz-election-night-design-3)
+
+- PR #94 third fresh review (review-nz-election-night-design-3): accept, no findings; review-2 items resolved. Logged on the PR. CI run 40307082449 pending, not merged.
+- PR #97 fresh review (review-nz-election-hexmap): accept, no findings (71 unique cells, no overlaps, 390 targets min 26.31 px). Logged on the PR. CI run 40307089207 pending; merge after #94 with main merged in.
+- No dispatch: both slots wait on merges that touch home_graphics.py. Codex window 14 percent.
