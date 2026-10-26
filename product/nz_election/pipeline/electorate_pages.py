@@ -161,7 +161,7 @@ def local_hero(row, envs):
     party = SHORT.get(held['party_id'], held['party'])
     close = 'Decided by fewer than 1,000 votes.' if held['margin'] < 1000 else ''
     changed = '' if row['mapping_status'] == 'unchanged' else f' (as {escape(held["baseline_name"])}, before the 2025 boundary changes)'
-    ink = ';--chip-ink:#16181D' if held['party_id'] == 'act' else ''
+    ink = ';--chip-ink:var(--ink)' if held['party_id'] == 'act' else ''
     return (f'<div class="local-hero" style="--party:{pc(held["party_id"])}{ink}"><p class="kicker">Electorate</p>'
             f'<p class="held"><span class="chip">{escape(party)}</span> held by {escape(winner_name(row, held))}</p>'
             f'<p class="by"><b>{held["margin"]:,}</b> vote margin in 2023{changed}.</p>'

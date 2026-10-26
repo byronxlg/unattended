@@ -215,7 +215,7 @@ def poll_table(polls, average, names, count=8, *, reports=False, caption='Latest
         if reports:
             from .build import link
             body += (f'<td class="dates">{r["sample"]:,}</td>' if r.get('sample') else '<td class="dates"></td>')
-            body += '<td class="dates">' + ' '.join(link(u, 'Report') for u in r['reference_urls'][:1]) + '</td>'
+            body += '<td class="dates">' + ' '.join(link(u, 'Report') for u in r['reference_urls']) + '</td>'
         body += '</tr>'
     return (f'<div class="poll-table" tabindex="0" role="region" aria-label="{escape(caption, quote=True)}">'
             f'<table aria-describedby="source-polls"><caption class="chart-data">{escape(caption)}</caption>'
