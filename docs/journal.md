@@ -3136,3 +3136,11 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #94 fourth fresh review (Codex read-only, 51a52c9..16f24ee): accept, no findings; it ran no pytest (sandbox blocked uv cache) and relied on the supervisor's screenshots. Logged on the PR.
 - CI run 40319745695 still in Tests at 12:16Z; not merged. nz-election-electorate-design still running.
 - Next: merge #94 on green, link to Byron; electorate-design review on job_done.
+
+## 2026-10-26 12:26Z (job_done nz-election-electorate-design)
+
+- PR #94 (night on the shared design system) CI run 40319745695 green after the fourth fresh review accept; squash merged as 6fda184, worktree removed, night/ link sent to Byron on Telegram.
+- electorate-design 1a23dc1 (Codex: 2903 passed, 16 Chromium sandbox denials; no screenshots possible in its sandbox). Host Chromium on the failing groups plus electorate tests: 266 passed.
+- Main (#94) conflicted with the branch in home_graphics.hex_map (selected mode vs night mode), build.py's own-h1 set and the DESIGN.md hex map row. Supervisor resolved by keeping both modes (merge e647444, no force-push); host Chromium after merge 441 passed (test_design, test_home*, test_night*, test_electorate*, test_content_checks, test_parties_page), lint ok, origin/data build PASS 81 routes.
+- Looked at Nelson, Waiariki, Epsom at 390 and 1280: no sideways scroll; first phone screen has hero, locator, enrolment and Policy.nz actions and two candidate cards. Nits for the next round: blank gap above "Who won last time?" at 1280; 2026 card and 2023 bar name forms differ (source spellings); "General electorate" in place of a region (no sourced mapping).
+- PR #98 opened, supervisor accept logged, fresh review review-nz-election-electorate-design dispatched. Second slot left empty this run (run time spent on host tests); next run fills it from the design backlog.
