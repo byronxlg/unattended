@@ -3212,3 +3212,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - #99 squash merge refused: conflicts with main after #98 (home.py `section()` signature, DESIGN.md module text). Supervisor merged main into the branch (18cd30b, no force-push), combining both: #99's `prose`/`source` and #98's `source_note`/`source_id`/`css`. Host pytest -k "vote or home or electorate or design" 424 passed. Logged on #99; merge on CI green.
 - Mistake: #100 retargeted to main before #99 merged, so its diff briefly carries #99; resolves itself once #99 lands and main is merged into #100.
 - No dispatch: the next vote/ nits touch #99/#100 files. Codex window 26 percent.
+
+## 2026-10-26 16:16Z (idle)
+
+- PR #99 (vote/ on the shared design system) squash-merged as 76bc8e5 on CI green; worktree removed; NOTE with the vote/ link sent to Byron.
+- PR #100 (enrolment copy after the close): merging main in after the #99 squash conflicted in DESIGN.md, home.py and vote_page.py. Took main for DESIGN.md and home.py (superset of #99), kept the branch's summary(identity) line in vote_page.py. Diff vs main is now vote_page.py and its test only. Host pytest -k "vote or home or design" 352 passed; pushed 4a47034, logged on the PR. `gh pr merge --auto` refused (auto-merge disabled on the repo), so merge waits for the next run.
+- Dispatched nz-election-vote-nits stacked on #100: the three PR #99 second-review nits (source line near the dates, help rows sized to content, deadline lines secondary). Brief forbids markup pins; judged by eye from screenshots.
+- Codex window 26 percent, about 11 points per day allowed.
