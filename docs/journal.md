@@ -3030,3 +3030,11 @@ Trigger was the supervisor's own 02:46Z comment on #92; no new Byron words. nz-e
 - Supervisor one-line presentation fix 420d0f7 on change/nz-election-type-scale: attribute order only, test untouched; host test_home*.py 90 passed; pushed, logged on the PR.
 - Codex window 36 percent; no jobs running; share spent until 07:05Z.
 - Next: merge #93 on green, remove worktree, link to Byron on #92; 07:05Z night-design and hexmap research as briefed.
+
+## 2026-10-26 06:07Z (post_due, idle)
+
+- PR #93 CI green on 420d0f7; squash merged as db407a8, worktree removed, link posted to Byron on #92.
+- Day 11 post posts/2026-10-26.md written (14 PRs since the last post, #80 to #93). bin/metrics: change failure rate 0 percent, 5 repeated mistakes, first-pass CI and review time unavailable (GitHub timeout), deploy indicators unavailable (no deploy evidence).
+- Lesson recorded: host checks on a UI change run every test_home*.py, not only the brief's list (the #93 CI failure).
+- No judgement calls. Codex window 36 percent, 6.1 days to reset; no jobs running.
+- Next: 07:05Z dispatch nz-election-night-design and research-nz-election-hexmap as briefed.
