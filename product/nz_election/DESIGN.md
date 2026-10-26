@@ -47,7 +47,7 @@ the bar; the screenshot is.
 | Component | Function | Use |
 |---|---|---|
 | Seat hemicycle | `hemicycle(result)`, `seat_legend(result)` | one dot per seat in contiguous party sectors, opposition left, government right, dashed radial with a paper-colour underlay at the majority, big bloc numbers under each end |
-| Majority cards | `majority_cards(groups, names, colours)` | three smallest winning combinations as cards, all combinations in one disclosure; party chips and seat totals from the night source |
+| Majority cards | `majority_cards(groups, names, colours)` | three smallest winning combinations as cards, all combinations in an open list; party chips and seat totals from the night source |
 | Trend chart | `trend(averages, polls, election, wide=)` | all parties, polls as faint dots, 30-day average as thick lines (4 px over 15%), end labels with values, 5% line, shaded run-up to election day. Render `wide` and `narrow`; CSS shows one |
 | Poll table | `poll_table(polls, average, names, count, reports=)` | heat-tinted cells (`--c`, `--a`), average row outlined first |
 | Party cards | `party_cards(averages, result, leaders)` | leader photo ringed in party colour, share big, month change, bar, seats |

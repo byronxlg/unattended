@@ -16,7 +16,7 @@ Search, home, news-link and shared-result arrivals from 19:00 NZDT on 7 November
 ## Answers
 
 1. Seat hemicycle with the majority line: "These combinations currently reach a majority; government formation is separate."
-   A jump to electorate search follows the hero. The electorate search and table follow before the detailed seat arithmetic. The three smallest winning combinations then appear as compact cards with party chips, seat totals and a majority mark; all combinations sit behind one control.
+   A jump to electorate search follows the hero. The electorate search and table follow before the detailed seat arithmetic. The three smallest winning combinations then appear as compact cards with party chips, seat totals and a majority mark; an open list shows all combinations and their seat totals.
 2. "Results cover N percent of voting places, updated HH:MM." Never labelled votes counted.
 3. Electorate table: leader, margin, reporting status, linking each electorate page. Search precedes the map; filtering hides the map so the matching leader stays beside the search within one scroll. The provisional-status and original-boundary caveats stay visible while filtering. Clearing the search restores map-first browsing.
 4. Status line: "Preliminary; official results due 27 November", then the preliminary to official change.

@@ -104,10 +104,10 @@ def majority_cards(groups, names, colours):
         cards += f'<div class="night-combination"><div>{chips}</div><p><strong>{sum(n for _, n in group)}</strong> seats <span class="majority-reached">Majority reached</span></p></div>'
     cards += '</div>'
     if len(ordered) > 3:
-        cards += f'<details class="night-more-combinations"><summary>All {len(ordered)} majority combinations</summary><ul>'
+        cards += f'<section class="night-more-combinations"><h3>All {len(ordered)} majority combinations</h3><ul aria-label="All majority combinations">'
         for group in ordered:
             cards += '<li>' + ' + '.join(escape(names[p]) for p, _ in group) + f': <strong>{sum(n for _, n in group)} seats</strong></li>'
-        cards += '</ul></details>'
+        cards += '</ul></section>'
     return cards
 
 

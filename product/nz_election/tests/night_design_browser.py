@@ -80,12 +80,12 @@ def main(out):
                         assert page.get_by_text('Replay of 2023', exact=True).is_visible()
                         assert page.get_by_text('Results last updated 10 November 2024 at 00:00.', exact=True).is_visible()
                         assert 'timezone unverified' not in page.locator('body').inner_text()
-                        disclosure = page.get_by_text('All 8 majority combinations', exact=True)
-                        assert disclosure.is_visible()
-                        disclosure.click()
-                        assert page.get_by_role('listitem').filter(has_text=re.compile(r': \d+ seats$')).count() == 8
-                        assert all(item.is_visible() for item in page.get_by_role('listitem').filter(has_text=re.compile(r': \d+ seats$')).all())
-                        disclosure.click()
+                        assert page.get_by_role('heading', name='All 8 majority combinations', exact=True).is_visible()
+                        combinations = page.get_by_role('list', name='All majority combinations', exact=True)
+                        groups = combinations.get_by_role('listitem')
+                        assert groups.count() == 8
+                        assert all(group.is_visible() for group in groups.all())
+                        assert all(int(re.search(r': (\d+) seats$', group.inner_text())[1]) >= 62 for group in groups.all())
                     jump.click()
                     search_y = search.bounding_box()['y']
                     assert 0 <= search_y < height, f'JUMP_TARGET: state={state}, width={width}, y={search_y}'
