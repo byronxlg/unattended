@@ -3151,3 +3151,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Dispatched fix-1 nz-election-electorate-design-fix-1 on the build thread 01a17800-59be-7311-9b0e-4f3be731ec7a: semantic checks (candidates by name and party, page-plan order by heading text, selected seat by accessible attribute, link names and routes); main's tests protected.
 - Second slot: nz-election-vote-design dispatched in .worktrees/nz-election-vote-design from origin/main (design-backlog item 2, part 1; Page plan pages/vote.md; DESIGN.md). Vote first because advance voting opened 26 Oct. Parties is the next part of item 2.
 - Codex window 19 percent, 6.8 days to reset, even spread about 12 points per day.
+
+## 2026-10-26 13:14Z (job_done nz-election-electorate-design-fix-1)
+
+- fix-1 ec403fc (Codex) replaced the branch's markup pins in test_electorate_page_plan.py with semantic checks; its new question-order test failed on the product: enrolment and Policy.nz actions before the candidates, against pages/electorate.md. Codex stopped rather than weaken it (correct).
+- Supervisor found 1a23dc1 had inverted two of main's order contracts to fit that layout (test_electorate_policy_links.py, route_checks.py 'candidate-first order'). That is a weakened check; restored main's direction and moved the actions after the candidate cards in detail() (presentation, supervisor commit 9488223). Mistake: the first fresh review and the supervisor's 12:26Z host-verify both missed the inverted contracts.
+- Host: 36 targeted plus 44 test_design (Chromium) passed, lint ok, origin/data build PASS 81 routes, Nelson 1280 and Waiariki 390 looked at. Logged on PR #98, supervisor accept, second fresh review review-nz-election-electorate-design-2 dispatched.
+- vote-design still running. Nit for the design backlog: electorate map source note now sits below the actions.
