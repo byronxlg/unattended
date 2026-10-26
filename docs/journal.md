@@ -3204,3 +3204,11 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
   in progress. Nothing merged this run.
 - Second slot not filled: the next backlog item (vote/ review nits) touches the files in #99 and #100; holding until
   they merge rather than stacking a third branch. Codex window 25 percent.
+
+## 2026-10-26 15:10Z run (job_done review-nz-election-vote-enrolment-2)
+
+- PR #100 second fresh review: accept, no findings (192 sparse/source/boundary probes PASS); logged on the PR. Retargeted #100 to main.
+- PR #98 CI run 40338915300 passed (closes the --auto slip from 14:33Z: the merged commit af5a1ef was green). #99 CI 40339051781 passed.
+- #99 squash merge refused: conflicts with main after #98 (home.py `section()` signature, DESIGN.md module text). Supervisor merged main into the branch (18cd30b, no force-push), combining both: #99's `prose`/`source` and #98's `source_note`/`source_id`/`css`. Host pytest -k "vote or home or electorate or design" 424 passed. Logged on #99; merge on CI green.
+- Mistake: #100 retargeted to main before #99 merged, so its diff briefly carries #99; resolves itself once #99 lands and main is merged into #100.
+- No dispatch: the next vote/ nits touch #99/#100 files. Codex window 26 percent.
