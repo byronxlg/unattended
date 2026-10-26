@@ -17,7 +17,12 @@ def descriptions(html):
                   for identity in node.attrs.get('aria-describedby', '').split()]
     assert references, 'Expected date provenance descriptions'
     assert set(references) <= targets.keys(), 'Dangling description references'
-    return [targets[identity].text for identity in references]
+    for node in nodes:
+        identities = node.attrs.get('aria-describedby', '').split()
+        if identities:
+            assert any('Source: Electoral Commission.' in targets[identity].text for identity in identities)
+    return [targets[identity].text for identity in references
+            if 'Source: Electoral Commission.' in targets[identity].text]
 
 
 def test_vote_countdown_without_source_url_has_resolved_description():
@@ -46,4 +51,45 @@ def test_vote_credits_use_newest_retrieval_among_drawn_records():
         elif row['id'] not in TIMELINE_IDS:
             row['retrieved_at'] = '2026-10-27T01:00:00Z'
     credits = descriptions(page(CLOCK, rows))
-    assert all(compact_time(newest_drawn) in credit for credit in credits)
+    expected = {f'Source: Electoral Commission. Retrieved {compact_time(when)}.'
+                for when in (newest_drawn, '2026-10-27T01:00:00Z')}
+    assert set(credits) == expected
+    nodes = Tree(page(CLOCK, rows)).nodes
+    targets = {node.attrs['id']: node for node in nodes if 'id' in node.attrs}
+    timeline = next(node for node in nodes if 'Advance voting opens' in node.text
+                    and 'aria-describedby' in node.attrs)
+    assert all(compact_time(newest_drawn) in targets[identity].text
+               for identity in timeline.attrs['aria-describedby'].split())
+
+
+def test_shared_date_credit_describes_countdown_and_timeline():
+    rows = [row for row in load_voting() if row['id'] == 'election-day']
+    html = page(CLOCK, rows)
+    credits = descriptions(html)
+    assert len(credits) >= 2
+    assert len(set(credits)) == 1
+    assert html.count(credits[0]) == 1
+
+
+def test_help_actions_keep_sources_and_all_descriptions_resolve():
+    rows = load_voting()
+    html = page(CLOCK, rows)
+    descriptions(html)
+    nodes = Tree(html).nodes
+    targets = {node.attrs['id']: node for node in nodes if 'id' in node.attrs}
+    for row in rows:
+        if row['id'] not in {'overseas-voting', 'accessible-formats', 'assisted-voting',
+                             'takeaway-voting', 'telephone-dictation'}:
+            continue
+        answer = next(node for node in nodes if row['summary'] in node.text
+                      and 'aria-describedby' in node.attrs)
+        credits = [targets[identity].text for identity in answer.attrs['aria-describedby'].split()]
+        assert any('Source: Electoral Commission.' in credit for credit in credits)
+        assert row['url'] in html
+
+
+def test_absent_help_actions_leave_no_action_guidance():
+    rows = [row for row in load_voting() if row['kind'] != 'action']
+    html = page(CLOCK, rows)
+    assert all(row['summary'] not in html for row in load_voting() if row['kind'] == 'action')
+    descriptions(html)

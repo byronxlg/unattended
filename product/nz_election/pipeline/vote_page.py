@@ -1,5 +1,5 @@
 """Task-ordered voting guidance from the reviewed Electoral Commission snapshot."""
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from html import escape
 from .sunsets import post_election
 from zoneinfo import ZoneInfo
@@ -13,8 +13,47 @@ def advance_open(records, today):
     return bool(start and last and date.fromisoformat(start) <= today <= date.fromisoformat(last))
 
 
+def deadline_details(records, include_enrolment):
+    """Share an exact instant across all voting methods that close then."""
+    from .build import local_time
+    labels = {
+        'enrolment-closes': 'Enrolment',
+        'telephone-registration-closes': 'Telephone dictation registration, including if you have used it before',
+        'voting-closes': 'Voting in New Zealand',
+        'overseas-upload-closes': 'Uploads of completed overseas voting papers',
+        'telephone-voting-closes': 'Voting by registered telephone-dictation voters',
+    }
+    groups = {}
+    for key, label in labels.items():
+        row = records.get(key, {})
+        if key == 'enrolment-closes' and not include_enrolment:
+            continue
+        if row.get('date') and row.get('at'):
+            instant = datetime.fromisoformat(row['at']).astimezone(ZoneInfo('Pacific/Auckland'))
+            groups.setdefault(instant, []).append((key, label))
+    body, targets = '', {}
+    for instant, entries in sorted(groups.items()):
+        identity = 'deadline-' + entries[0][0]
+        targets.update((key, identity) for key, _ in entries)
+        if instant.hour == 0 and instant.minute == 0:
+            previous = instant - timedelta(days=1)
+            short = f'midnight at the end of {previous.day} {previous:%B} (NZ time)'
+        else:
+            short = f'{instant.hour % 12 or 12}' + (f':{instant.minute:02d}' if instant.minute else '')
+            short += 'am' if instant.hour < 12 else 'pm'
+            if instant.hour == 12 and instant.minute == 0:
+                short = 'noon'
+            short += f' NZ time, {instant.day} {instant:%B}'
+        full = local_time(instant.astimezone(timezone.utc).isoformat().replace('+00:00', 'Z'))
+        labels_text = '; '.join(label for _, label in entries)
+        body += (f'<p class="dek" id="{identity}" aria-describedby="source-help">'
+                 + escape(labels_text) + ': '
+                 + f'<time datetime="{instant.isoformat()}" aria-label="{escape(full)}">{short}</time>.</p>')
+    return body, targets
+
+
 def page(built, rows=None, envs=None):
-    from .build import PREFIX, link, compact_time, local_time
+    from .build import PREFIX, link, compact_time
     rows = load_voting() if rows is None else rows
     records = {row['id']: row for row in rows}
     now = datetime.fromisoformat(built.replace('Z', '+00:00')).astimezone(ZoneInfo('Pacific/Auckland'))
@@ -40,11 +79,17 @@ def page(built, rows=None, envs=None):
         from .home import section as module
         return module(identity, title, '', body, 'Electoral Commission', '', prose=True, source=source)
 
-    def date_source(identity, keys):
+    def retrieval(keys):
         dates = [records[key]['retrieved_at'] for key in keys
-                 if records.get(key, {}).get('date')]
-        return (f'<p class="home-footnote" id="{identity}">Source: Electoral Commission. Retrieved '
-                + escape(compact_time(max(dates))) + '.</p>') if dates else ''
+                 if records.get(key, {}).get('retrieved_at')]
+        return ' Retrieved ' + escape(compact_time(max(dates))) + '.' if dates else ''
+
+    def credit(identity, keys):
+        return (f'<p class="home-footnote" id="{identity}">Source: Electoral Commission.'
+                + retrieval(keys) + '</p>') if keys else ''
+
+    def date_source(identity, keys):
+        return credit(identity, [key for key in keys if records.get(key, {}).get('date')])
 
     if enrolment_closed:
         enrol_action = (link(close['source_url'], 'Electoral Commission enrolment information')
@@ -57,9 +102,9 @@ def page(built, rows=None, envs=None):
     countdown = ''
     if election.get('date'):
         days = (date.fromisoformat(election['date']) - today).days
-        countdown = (f'<p class="countdown" aria-describedby="source-countdown"><strong>{days}</strong> {"day" if days == 1 else "days"} to election day</p>' if days > 0
-                     else '<p class="countdown" aria-describedby="source-countdown"><strong>Today</strong> is election day. Voting closes at 7pm.</p>' if days == 0 else '')
-    dates = key_dates(records, today)
+        countdown = (f'<p class="countdown" aria-describedby="source-timeline"><strong>{days}</strong> {"day" if days == 1 else "days"} to election day</p>' if days > 0
+                     else '<p class="countdown" aria-describedby="source-timeline"><strong>Today</strong> is election day.</p>' if days == 0 else '')
+    dates = key_dates(records, today, election_label='Election day')
     timeline_source = date_source('source-timeline', ('overseas-opens', 'enrolment-closes', 'advance-opens',
                                                     'advance-closes', 'election-day'))
     graphic = (f'<div class="vote-dates"><figure aria-describedby="source-timeline">{dates}</figure>'
@@ -75,8 +120,7 @@ def page(built, rows=None, envs=None):
     if not places_body and graphic:
         # A date-only answer still belongs under the where-and-when question.
         places_body, graphic = graphic, ''
-    places = section('places', 'Where can I vote, and when?', places_body,
-                     date_source('source-countdown', ('election-day',)) if countdown else '')
+    places = section('places', 'Where can I vote, and when?', places_body)
     bring = '<p>' + escape(records['what-to-bring']['summary']) + '</p>' if records.get('what-to-bring') else ''
     votes = '<p>' + escape(records['two-votes']['summary']) + '</p>' if records.get('two-votes') else ''
     guidance = action('two-votes', 'Official voting guidance') or action('what-to-bring', 'Official voting guidance')
@@ -84,19 +128,30 @@ def page(built, rows=None, envs=None):
     advance = records.get('advance-opens', {}).get('date')
     first = places + enrol if advance and today >= date.fromisoformat(advance) else enrol + places
     help_body = ''
+    deadlines, deadline_targets = deadline_details(records, enrolment_closed or post_election(built))
+    help_sources = list(deadline_targets)
+    if close.get('date') and not enrolment_closed and not post_election(built):
+        deadline_targets['enrolment-closes'] = 'enrol'
+        help_sources.append('enrolment-closes')
+    if records.get('overseas-opens', {}).get('date'):
+        help_sources.append('overseas-opens')
     for key, label in [('overseas-voting', 'Vote overseas'), ('accessible-formats', 'Accessible formats'),
                        ('assisted-voting', 'Help marking your vote'), ('takeaway-voting', 'Someone can collect your papers'),
                        ('telephone-dictation', 'Telephone dictation')]:
         anchor = action(key, label)
         if not anchor:
             continue
-        deadlines = ''
-        for identity in records[key].get('deadline_ids', []):
-            row = records.get(identity, {})
-            if row.get('date') and row.get('at'):
-                deadlines += '<p class="dek">' + escape(summary(identity)) + ' Deadline: ' + escape(local_time(datetime.fromisoformat(row['at']).astimezone(timezone.utc).isoformat().replace('+00:00', 'Z'))) + ' (New Zealand time).</p>'
-        help_body += '<div class="vote-help"><h3>' + anchor + '</h3><div><p>' + escape(records[key]['summary']) + '</p>' + deadlines + '</div></div>'
-    help_section = section('help', 'Overseas or need help voting?', sentence('overseas-opens') + ('<div class="help-grid">' + help_body + '</div>' if help_body else ''))
+        help_sources.append(key)
+        descriptions = ['source-help']
+        descriptions.extend(deadline_targets[identity] for identity in records[key].get('deadline_ids', [])
+                            if identity in deadline_targets)
+        help_body += ('<div class="vote-help" aria-describedby="' + ' '.join(dict.fromkeys(descriptions)) + '"><h3>'
+                      + anchor + '</h3><div><p>' + escape(records[key]['summary']) + '</p></div></div>')
+    help_credit = credit('source-help', help_sources)
+    help_intro = sentence('overseas-opens').replace('<p>', '<p aria-describedby="source-help">', 1)
+    help_content = help_body + ('<div class="vote-help">' + deadlines + '</div>' if deadlines else '')
+    help_section = section('help', 'Overseas or need help voting?', help_intro +
+                           ('<div class="help-grid">' + help_content + '</div>' if help_content else ''), help_credit)
     compare = section('compare', 'Where can I compare candidates and policies?',
                       f'<p><a href="{PREFIX}electorates/">Find your electorate and candidates</a></p>'
                       '<p><a href="https://policy.nz/2026">Compare policies at Policy.nz</a></p>')
@@ -107,12 +162,13 @@ def page(built, rows=None, envs=None):
         notice = official_results_notice(built, (envs or {}).get('night/live/current', {}).get('data', []))
         basics = section('two-votes', 'Official results', '<p>' + notice + '</p>'
                          '<p><a href="https://www.electionresults.govt.nz/">Electoral Commission results</a></p>')
-        help_section = ''
+        help_section = section('help', 'Voting deadlines',
+                               '<div class="help-grid">' + deadlines + '</div>' if deadlines else '',
+                               credit('source-help', list(deadline_targets)))
         graphic = ''
     sources = {r['source_url']: r for r in rows if r.get('source_url')}
     source = ('<div class="source-note" id="source-vote"><p>Source: Electoral Commission. Copyright Electoral Commission; '
-              'no open licence stated. Independent summaries. Retrieved ' +
-              escape(compact_time(max(r['retrieved_at'] for r in rows))) + '.</p><p class="source-actions">' +
+              'no open licence stated. Independent summaries.' + retrieval(records) + '</p><p class="source-actions">' +
               link('https://vote.nz/', 'vote.nz') + f'<a href="{PREFIX}methods/#vote-sources">All {len(sources)} pages used</a>' + '</p></div>') if rows else ''
     content = '<div class="vote-first">' + first + basics + '</div>' + graphic + help_section + compare
     # With sparse records, the first answer can be guidance, help or comparison.

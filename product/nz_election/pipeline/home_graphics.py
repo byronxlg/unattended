@@ -374,9 +374,9 @@ def threshold_bars(rows):
 
 # Key dates
 
-def timeline(records, today):
+def timeline(records, today, *, election_label='Election day, polls close 7pm'):
     wanted = [('overseas-opens', 'Overseas voting opens'), ('enrolment-closes', 'Enrolment closes'), ('advance-opens', 'Advance voting opens'),
-              ('advance-closes', 'Last day of advance voting'), ('election-day', 'Election day, polls close 7pm')]
+              ('advance-closes', 'Last day of advance voting'), ('election-day', election_label)]
     items = [(date.fromisoformat(records[k]['date']), text, k) for k, text in wanted if records.get(k, {}).get('date')]
     if not items:
         return ''
