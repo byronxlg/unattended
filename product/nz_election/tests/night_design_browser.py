@@ -81,7 +81,7 @@ def main(out):
                         assert page.get_by_text('Results last updated 10 November 2024 at 00:00.', exact=True).is_visible()
                         assert 'timezone unverified' not in page.locator('body').inner_text()
                         assert page.get_by_role('heading', name='All 8 majority combinations', exact=True).is_visible()
-                        combinations = page.get_by_role('list', name='All majority combinations', exact=True)
+                        combinations = page.get_by_role('list', name=re.compile(r'All majority combinations$'))
                         groups = combinations.get_by_role('listitem')
                         assert groups.count() == 8
                         assert all(group.is_visible() for group in groups.all())
