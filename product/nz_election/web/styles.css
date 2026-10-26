@@ -324,6 +324,7 @@ footer p{margin:4px 0}
 .hero .answer{font-size:var(--fs-h3);line-height:1.35;font-weight:600;color:var(--soft);max-width:34ch;margin:0 auto 24px}
 .hero figure{margin:0 auto;max-width:680px}
 .hemicycle{display:block;width:100%;height:auto;overflow:visible}
+.hemicycle .majority-underlay{stroke:var(--paper);stroke-width:7;fill:none}
 .hemicycle .majority-mark{stroke:var(--ink);stroke-width:2.5;stroke-dasharray:5 4}
 .hemi-need{font-size:var(--fs-chart-figure);font-weight:800;fill:var(--ink);letter-spacing:-.03em}
 .hemi-need-label{font-size:var(--fs-chart-label);font-weight:600;fill:var(--grey)}

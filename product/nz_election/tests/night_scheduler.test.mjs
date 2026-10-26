@@ -73,7 +73,7 @@ test('60x replay renders the final frame within 10,000 ms of Play and stops', as
     t.after(() => original ? Object.defineProperty(globalThis, key, original) : delete globalThis[key]);
   }
   await import(process.env.NIGHT_MODULE_URL || '../web/night.mjs');
-  const frame = () => Number(section.children[1].dataset.frame);
+  const frame = () => Number(section.children[0].dataset.frame);
   assert.equal(frame(), 0);
   // Play is an interaction, not necessarily aligned to the page-load timer phase.
   time.advance(37);
@@ -89,7 +89,7 @@ test('60x replay renders the final frame within 10,000 ms of Play and stops', as
   assert.equal(time.pending(), 0, 'completed replay must stop scheduling draws');
   time.advance(10000);
   assert.equal(frame(), 2);
-  assert.equal(section.children[0], mode);
+  assert.equal(section.children[1], mode);
 
   controls['#night-reset'].dispatch('click');
   assert.equal(frame(), 0);

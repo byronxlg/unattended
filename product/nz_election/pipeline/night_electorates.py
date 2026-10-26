@@ -3,6 +3,15 @@ from html import escape
 import json
 from .build import PREFIX, PRODUCT, config, table
 from .night_seats import waterfall
+from . import home_graphics as g
+
+
+def display_name(name):
+    if ", " in name:
+        surname, given = name.split(", ", 1)
+        if surname.isupper():
+            return given + " " + surname.title()
+    return name
 
 
 def seat_chart(row, source):
@@ -34,8 +43,7 @@ def electorate_view(row, refs, source, identity):
     by_name = {r['name']: r for r in registry}
     layout = json.loads((PRODUCT / 'snapshots/hexmap.json').read_text())['records']
     positions = {r['electorate_slug']: (r['x'], r['y']) for r in layout}
-    rows, tiles = [], []
-    colours = config('party-colours')
+    rows, cells, map_rows = [], [], {}
     extra = 0
     legend = {}
     for e, ref in refs['electorates'].items():
@@ -44,9 +52,9 @@ def electorate_view(row, refs, source, identity):
         item = row['leaders'].get(e, {})
         leader = refs['candidates'].get(item.get('leader'), {})
         party = refs['parties'].get(leader.get('party'), {})
-        label = leader.get('candidate_name', 'Tied; no sole leader' if item.get('status') in {'provisional', 'final'} else 'Not yet reported')
+        label = display_name(leader.get('candidate_name', 'Tied; no sole leader' if item.get('status') in {'provisional', 'final'} else 'Not yet reported'))
         if item.get('tied_candidates'):
-            label = 'Tied: ' + ', '.join(refs['candidates'][c]['candidate_name'] for c in item['tied_candidates'])
+            label = 'Tied: ' + ', '.join(display_name(refs['candidates'][c]['candidate_name']) for c in item['tied_candidates'])
         margin = item.get('margin')
         status = item.get('status', 'not yet reported')
         if status == 'final':
@@ -58,6 +66,9 @@ def electorate_view(row, refs, source, identity):
             status += f"; {stats['total_voting_places_counted']} of {stats['total_voting_places']} voting places"
         link = (f'<a href="{PREFIX}electorates/{current["slug"]}/">{escape(name)}</a>' if current else
                 f'<a href="{PREFIX}electorates/">{escape(name)} (2023 electorate)</a>')
+        source_name = leader.get('candidate_name', '')
+        if source_name and display_name(source_name) != source_name:
+            status += '; source name: ' + source_name
         rows.append([link, escape(label + (' (' + party['short_name'] + ')' if party else '')), str(margin) if margin is not None else 'Not yet reported', escape(status)])
         if not current:
             related = [r for r in registry if int(e) in r['baseline_ids']]
@@ -68,25 +79,33 @@ def electorate_view(row, refs, source, identity):
             extra += 1
         abbrev = party.get('abbrev')
         mapping = {'NAT':'nat','LAB':'lab','GP':'grn','ACT':'act','NZF':'nzf','TPMAO':'tpm','MAOR':'tpm'}
-        colour = colours.get(mapping.get(abbrev), {}).get('colour', '#777777') if leader else '#d9d9d9'
+        party_id = mapping.get(abbrev, 'other')
+        colour = g.pc(party_id)
         if leader:
             legend[party.get('short_name', 'Independent')] = colour
-        opacity = '1' if margin is not None and margin >= 5000 else '.65' if leader else '1'
-        title = escape(name + ': ' + label + (' (' + party['short_name'] + ')' if party else '') + (f', margin {margin}' if margin is not None else '') + '; ' + status)
-        # The shared layout is schematic. Historic seats retain names, never transfer votes to successors.
-        points = ' '.join(f'{x*30+dx},{y*25+dy}' for dx,dy in [(15,0),(29,8),(29,22),(15,30),(1,22),(1,8)])
-        tiles.append(f'<polygon points="{points}" fill="{colour}" fill-opacity="{opacity}" stroke="#ffffff"><title>{title}</title></polygon>')
-    content = '<section class="night-electorates"><h2>Who is ahead in my electorate?</h2><p>Provisional leaders, not elected members. Grey means no reported leader; deeper colour means a margin of at least 5,000 votes.</p>'
+        description = label + (' (' + party['short_name'] + ')' if party else '') + (f', margin {margin}' if margin is not None else '') + '; ' + status
+        cell = next((c.copy() for c in layout if current and c['electorate_slug'] == current['slug']), dict(x=x, y=y, group='general'))
+        cell['electorate_slug'] = e
+        cells.append(cell)
+        map_rows[e] = dict(name=name, slug=current['slug'] if current else '', description=description,
+                           held=dict(party_id=party_id, party=party.get('short_name', ''), margin=margin or 0) if leader else None)
+        rows[-1][1] = f'<span class="night-party-cell" style="--c:{colour};--a:18%">{rows[-1][1]}</span>'
+    content = '<section class="night-electorates module"><h2>Who is ahead in my electorate?</h2>'
+    guidance = '<p>Provisional leaders, not elected members.</p>'
     if official:
-        content = content.replace('Provisional leaders, not elected members.', 'Official source-reported leaders.')
+        guidance = guidance.replace('Provisional leaders, not elected members.', 'Official source-reported leaders.')
     if '2023' in row['mode'] or row['source_ref'] == ['ec-2023-xml/election.xml']:
-        content += '<p>2023 electorates, on their original boundaries. Links lead to today’s electorate information; no votes are transferred to new boundaries.</p>'
+        guidance += '<p>2023 electorates, on their original boundaries. Links lead to today’s electorate information; no votes are transferred to new boundaries.</p>'
     content += f'<label for="night-search-{identity}">Find an electorate</label><input id="night-search-{identity}" class="night-search" type="search" placeholder="Electorate name">'
+    content += guidance
+    content += '<div class="night-map-key map-key"><p>Grey means no reported leader; deeper colour means a larger margin.</p>'
     if legend:
-        content += '<ul class="night-map-key">' + ''.join(f'<li><span style="background:{colour}"></span>{escape(name)}</li>' for name, colour in sorted(legend.items())) + '</ul>'
-    content += f'<figure class="night-map" aria-describedby="{source}"><svg class="night-leader-map" viewBox="0 0 480 700" role="img" aria-describedby="{source}" aria-label="Electorate provisional leaders">' + ''.join(tiles) + '</svg><figcaption>Find an electorate in the searchable table below.</figcaption></figure>'
+        content += '<ul>' + ''.join(f'<li><i style="background:{colour}"></i>{escape(name)}</li>' for name, colour in sorted(legend.items())) + '</ul><p class="tones"><span>Margin</span><i class="close"></i>under 2,000<i class="mid"></i>2,000 to 8,000<i class="safe"></i>over 8,000</p>'
+    content += '</div>'
+    svg, _ = g.hex_map({}, cells, map_rows, lambda r: r['held'], source=source, night=True)
+    content += f'<figure class="night-map" aria-describedby="{source}">' + svg + '<figcaption>Find an electorate in the searchable table below.</figcaption></figure>'
     context = row['mode'] + ', ' + (row.get('source_updated_local') or str(row.get('elapsed_seconds', 0)) + ' seconds')
-    rendered = table('Electorate provisional leaders: ' + context, ['Electorate', 'Leader', 'Margin (votes)', 'Reporting status'], rows, source=source)
+    rendered = table('Electorate provisional leaders: ' + context, ['Electorate', 'Leader', 'Margin (votes)', 'Reporting status'], rows, css="poll-table", source=source)
     for e in refs['electorates']:
         rendered = rendered.replace('<tr><td>', f'<tr id="night-row-{identity}-{e}"><td>', 1)
     if official:

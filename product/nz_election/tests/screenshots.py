@@ -46,7 +46,10 @@ def contrast(a, b):
 CONTRAST = '''() => [...document.querySelectorAll('body *')].filter(el =>
   [...el.childNodes].some(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim()) &&
   el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden').map(el => {
-    const parse = color => (color.match(/[\\d.]+/g)||[]).map(Number);
+    const parse = color => {
+      const channels = (color.slice(color.indexOf('(') + 1).match(/[-+]?(?:[0-9]*[.])?[0-9]+(?:e[-+]?[0-9]+)?/gi)||[]).map(Number);
+      return color.startsWith('color(srgb ') ? channels.map((v,i)=>i<3?v*255:v) : channels;
+    };
     let p=el, bg;
     while(p) {bg=parse(getComputedStyle(p).backgroundColor); if(bg.length===3 || bg[3]===1) break; p=p.parentElement;}
     return {text:el.textContent.slice(0,80),fg:parse(getComputedStyle(el).color),bg:p?bg:[255,255,255]};
@@ -157,8 +160,9 @@ def check_page(page, url, site, origin):
 
     assert max(map(len, page.locator('body').inner_text().split()), default=0) <= 200, 'VISIBLE_TEXT_RUN: ' + url
     if page.viewport_size['width'] in (360, 390):
-        assert page.locator('header').evaluate('e=>e.scrollWidth<=e.clientWidth'), 'HEADER_OVERFLOW'
-        assert page.locator('header a').evaluate_all('els=>els.every(e=>{const r=e.getBoundingClientRect();return r.left>=0 && r.right<=innerWidth && r.height>=44})'), 'HEADER_TARGET_BOUNDS'
+        banner = page.get_by_role('banner')
+        assert banner.evaluate('e=>e.scrollWidth<=e.clientWidth'), 'HEADER_OVERFLOW'
+        assert banner.locator('a').evaluate_all('els=>els.every(e=>{const r=e.getBoundingClientRect();return r.left>=0 && r.right<=innerWidth && r.height>=44})'), 'HEADER_TARGET_BOUNDS'
     for href in page.locator('a[href],link[href]').evaluate_all('(els)=>els.map(e=>new URL(e.getAttribute("href"), document.baseURI).href)'):
         parsed = urlsplit(href)
         if not href.startswith(origin):
