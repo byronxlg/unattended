@@ -3252,3 +3252,12 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
   Three visual nits to the design backlog.
 - PR #100 CI run 40358186858 still in progress at 35 min; not merged. Second slot left free: no disjoint item before
   the 20:00Z design critique. Codex window 26 percent.
+
+## 2026-10-26 17:07Z (job_done nz-election-vote-nits-fix-2)
+
+- PR #100 vote/ enrolment copy CI green, squash merged as 2bc1efa, worktree removed. #101 retargeted to main.
+- Fix-2 50c1736: every drawn dated record credited regardless of source_url (closes the dangling aria-describedby and
+  stale retrieved date). Main merged into change/nz-election-vote-nits; vote_page.py conflict resolved to the branch
+  side (main's product tree equals the branch base 4a47034, checked by git diff). Host pytest -k vote 208 passed incl.
+  Chromium, lint ok, pushed, supervisor accept logged on #101, second fresh review review-nz-election-vote-nits-2
+  dispatched. Second slot still free until the 20:00Z design critique. Codex window 27 percent.
