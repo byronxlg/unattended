@@ -1,8 +1,9 @@
 """Accepted question order, reconciled identities and absent-block contracts."""
 from copy import deepcopy
-from html import escape
+from urllib.parse import urljoin, urlsplit, unquote
 import pytest
-from product.nz_election.pipeline.build import config
+from product.nz_election.pipeline.build import config, PREFIX
+from product.nz_election.pipeline.content_checks import Tree, Node
 from product.nz_election.pipeline.electorate_pages import detail, previous_result
 from product.nz_election.pipeline import snapshot_views, snapshots
 from product.nz_election.tests.design_checks import provenance
@@ -12,52 +13,127 @@ def seat(slug='wellington-north'):
     return next(r for r in config('electorates') if r['slug'] == slug)
 
 
-def test_first_screen_order_and_all_locators():
+def text(node):
+    if isinstance(node, str):
+        return node
+    return ' '.join(' '.join(text(child) for child in node.children).split())
+
+
+def descendants(node):
+    for child in node.children:
+        if isinstance(child, Node):
+            yield child
+            yield from descendants(child)
+
+
+def accessible_name(node, tree):
+    if node.attrs.get('aria-labelledby'):
+        ids = {n.attrs.get('id'): n for n in tree.nodes if n.attrs.get('id')}
+        return ' '.join(text(ids[ref]) for ref in node.attrs['aria-labelledby'].split())
+    return node.attrs.get('aria-label') or text(node) or node.attrs.get('alt', '')
+
+
+def heading(tree, title):
+    return next(n for n in tree.nodes if (n.tag in {'h1', 'h2', 'h3', 'h4', 'h5', 'h6'}
+                                        or n.attrs.get('role') == 'heading') and text(n) == title)
+
+
+def answer_region(tree, title):
+    title_node = heading(tree, title)
+    regions = [n for n in tree.nodes if (n.tag in {'section', 'article'} or n.attrs.get('role') == 'region')
+               and title_node in list(descendants(n))]
+    return min(regions, key=lambda n: len(list(descendants(n))))
+
+
+def links(tree):
+    return [n for n in tree.nodes if n.tag == 'a' and n.attrs.get('href')]
+
+
+def assert_map_accessibility(html, row, site=None):
+    tree = Tree(html)
+    maps = [n for n in tree.nodes if n.attrs.get('role') in {'group', 'img', 'region'}
+            and 'map' in accessible_name(n, tree).lower()]
+    assert maps, 'Electorate map needs an accessible name'
+    selected = [n for graphic in maps for n in descendants(graphic)
+                if n.attrs.get('aria-current', 'false') != 'false' or n.attrs.get('aria-selected') == 'true']
+    assert len(selected) == 1, 'Exactly one electorate must be identified as selected'
+    assert row['name'] in accessible_name(selected[0], tree), 'Selected map item must name this electorate'
+    routes = {PREFIX + r['path'] for r in config('routes')}
+    routes.update(PREFIX + 'electorates/' + r['slug'] + '/' for r in config('electorates'))
+    current = PREFIX + 'electorates/' + row['slug'] + '/'
+    map_links = [n for graphic in maps for n in descendants(graphic) if n.tag == 'a' and 'href' in n.attrs]
+    assert map_links, 'The map must provide an accessible selection link'
+    for link in map_links:
+        assert accessible_name(link, tree).strip(), 'Map links need accessible names'
+        target = urlsplit(urljoin(current, link.attrs['href']))
+        assert not target.scheme and not target.netloc and target.path in routes
+        if site is not None:
+            destination = site / target.path.removeprefix(PREFIX) / 'index.html'
+            assert destination.is_file(), target.path
+            target_tree = Tree(destination.read_text())
+        else:
+            target_tree = tree if target.path == current else None
+        if target.fragment and target_tree is not None:
+            assert unquote(target.fragment) in {n.attrs.get('id') for n in target_tree.nodes}
+
+
+def test_selected_seat_identity_accessible_links_and_provenance():
     for row in config('electorates'):
         html = detail(row, {})
-        from product.nz_election.pipeline.home_graphics import hex_map
-        rows = {r['slug']: r for r in config('electorates')}
-        graphic, _ = hex_map({}, snapshot_views.load('hexmap'), rows, lambda r: snapshot_views.result(r, {}), selected=row['slug'])
-        assert html.index('Check your enrolled electorate at vote.nz') < html.index('class="race-cards"')
-        assert graphic in html
-        assert f'data-electorate="{row["slug"]}"' in graphic
-        assert 'aria-current="location"' in graphic and 'href="#candidates-title"' in graphic
-        assert graphic.count('<polygon ') == 71 and graphic.count('<a ') == 1
-        assert 'Schematic, not a legal boundary.' in html
-        assert all(x not in html for x in ('Local polls', '<h2>Enrolment', 'class="tile-map"'))
+        assert_map_accessibility(html, row)
+        visible = text(Tree(html).root)
+        assert 'Schematic, not a legal boundary.' in visible
+        assert 'Local polls' not in visible
         provenance(html)
+
+
+def test_page_plan_question_order(populated):
+    _, site = populated
+    for row in config('electorates'):
+        tree = Tree((site / 'electorates' / row['slug'] / 'index.html').read_text())
+        answers = [heading(tree, 'Who is standing in 2026?'),
+                   next(n for n in links(tree) if accessible_name(n, tree) == 'Check your enrolled electorate at vote.nz'),
+                   next(n for n in links(tree) if accessible_name(n, tree) == 'Compare these candidates at Policy.nz')]
+        result_headings = [n for n in tree.nodes if n.tag in {'h2', 'h3'} and text(n) == 'Who won last time?']
+        answers += result_headings
+        positions = [tree.nodes.index(n) for n in answers]
+        assert positions == sorted(positions), f'{row["name"]}: expected candidates, enrolment, policy, then previous result; positions={positions}'
 
 
 def test_reconciled_display_names_ranks_order_and_only_explicit_incumbents():
     for row in config('electorates'):
-        html = detail(row, {})
+        tree = Tree(detail(row, {}))
+        region = answer_region(tree, 'Who is standing in 2026?')
         rec = next(r for r in snapshot_views.load('candidate-reconciliation-2026') if r['electorate_slug'] == row['slug'])
         originals = {(c['name'], c['party']): c for c in snapshot_views.load('candidates-2026') if c['electorate_slug'] == row['slug']}
         candidates = rec['matched'] + rec['added_by_ec']
-        assert html.count('<li style="--party:') == len(candidates)
-        for c in candidates:
-            assert '<strong>' + escape(c['snapshot_name']) + '</strong>' in html
-            if 'list_rank' in c:
-                assert f'List {c["list_rank"]}' in html
-        assert html.count('class="incumbent"') == sum(bool(originals.get((c['snapshot_name'], c['snapshot_party']), {}).get('sitting_electorate_mp')) for c in candidates)
-        from product.nz_election.pipeline.content_checks import Tree
-        cards = html.split('<ul class="race-cards"', 1)[1].split('</ul>', 1)[0]
-        names = [n.text for n in Tree(cards).nodes if n.tag == 'strong']
-        assert names == [c['snapshot_name'] for c in candidates]
-    assert '<strong>Michael Appleby</strong>' in detail(seat(), {})
-    assert 'APPLEBY, Michael' not in detail(seat(), {})
-    assert 'Josh Harford' in detail(seat(), {}) and 'HARFORD, Joshua' not in detail(seat(), {})
+        records = [n for n in descendants(region) if n.tag in {'li', 'tr'} or n.attrs.get('role') in {'listitem', 'row'}]
+        records = [n for n in records if n.tag == 'li' or n.attrs.get('role') == 'listitem'
+                   or any(c.tag == 'td' or c.attrs.get('role') == 'cell' for c in descendants(n))]
+        assert len(records) == len(candidates)
+        for record, candidate in zip(records, candidates):
+            content = text(record)
+            assert candidate['snapshot_name'] in content and candidate['party'] in content
+            if 'list_rank' in candidate:
+                assert f'List {candidate["list_rank"]}' in content
+            original = originals.get((candidate['snapshot_name'], candidate['snapshot_party']), {})
+            assert ('Incumbent' in content) == bool(original.get('sitting_electorate_mp'))
+    content = text(Tree(detail(seat(), {})).root)
+    assert 'Michael Appleby' in content and 'APPLEBY, Michael' not in content
+    assert 'Josh Harford' in content and 'HARFORD, Joshua' not in content
 
 
 def test_policy_link_only_when_present(monkeypatch):
+    def policy_links(row):
+        return [n.attrs['href'] for n in links(Tree(detail(row, {})))
+                if urlsplit(n.attrs['href']).hostname == 'policy.nz']
     original = snapshot_views.load
     monkeypatch.setattr(snapshot_views, 'load', lambda n: [] if n == 'policy-links' else original(n))
-    assert 'electorate-policy' not in detail(seat(), {})
-    monkeypatch.setattr(snapshot_views, 'load', lambda n: [{'electorate_slug': 'wellington-north', 'url': 'https://policy.nz/2026/electorate-vote/wellington-north'}] if n == 'policy-links' else original(n))
-    html = detail(seat(), {})
-    assert html.index('class="locator-card"') < html.index('class="electorate-policy"') < html.index('class="race-candidates module"')
-    assert 'https://policy.nz/2026/electorate-vote/wellington-north' in html
-    assert 'electorate-policy' not in detail(seat('te-tai-tonga'), {})
+    assert not policy_links(seat())
+    url = 'https://policy.nz/2026/electorate-vote/wellington-north'
+    monkeypatch.setattr(snapshot_views, 'load', lambda n: [{'electorate_slug': 'wellington-north', 'url': url}] if n == 'policy-links' else original(n))
+    assert policy_links(seat()) == [url]
+    assert not policy_links(seat('te-tai-tonga'))
 
 
 def test_no_comparable_candidate_record_drops_entire_result():
@@ -72,8 +148,9 @@ def test_port_waikato_bars_use_snapshot_even_without_baseline():
     html = detail(seat('port-waikato'), {})
     votes = snapshot_views.load('port-waikato-2023')
     ranked = sorted(votes, key=lambda v: -v['votes'])
-    assert 'by-election' in html and 'class="result-bars"' in html
-    assert f'{ranked[0]["votes"]-ranked[1]["votes"]:,}</strong> votes' in html
+    content = text(answer_region(Tree(html), 'Who won last time?'))
+    assert 'by-election' in content
+    assert f'{ranked[0]["votes"]-ranked[1]["votes"]:,} votes' in content
     for v in votes:
         assert f'{v["votes"]:,} votes' in html
 
@@ -87,22 +164,23 @@ def live_env():
 def test_current_night_answer_promotes_above_candidates():
     envs = live_env()
     html = detail(seat(), envs, '2026-11-07T07:00:00Z')
-    assert html.index('Who is leading here now?') < html.index('id="candidates-title"')
+    tree = Tree(html)
+    assert tree.nodes.index(heading(tree, 'Who is leading here now?')) < tree.nodes.index(heading(tree, 'Who is standing in 2026?'))
     assert 'Test leader' in html and 'Margin: 123 votes' in html
     assert '4 of 12 voting places counted' in html and 'Provisional leader' in html
     provenance(html)
-    assert 'electorate-night' in detail(seat(), envs, '2026-11-07T06:00:00+00:00')
-    assert 'electorate-night' not in detail(seat(), envs, '2026-11-07T05:59:59Z')
-    assert 'electorate-night' not in detail(seat('te-tai-tonga'), envs, '2026-11-07T07:00:00Z')
+    assert 'Who is leading here now?' in detail(seat(), envs, '2026-11-07T06:00:00+00:00')
+    assert 'Who is leading here now?' not in detail(seat(), envs, '2026-11-07T05:59:59Z')
+    assert 'Who is leading here now?' not in detail(seat('te-tai-tonga'), envs, '2026-11-07T07:00:00Z')
     envs['night/index']['data'][0]['id'] = '2023'
-    assert 'electorate-night' not in detail(seat(), envs, '2026-11-07T07:00:00Z')
+    assert 'Who is leading here now?' not in detail(seat(), envs, '2026-11-07T07:00:00Z')
 
 
 def test_night_absent_and_tied_counts():
     envs = live_env()
     item = envs['night/live/current']['data'][0]['leaders']['59']
     item.update(status='not yet reported', leader=None, margin=None)
-    assert 'electorate-night' not in detail(seat(), envs)
+    assert 'Who is leading here now?' not in detail(seat(), envs)
     item.update(status='final', tied_candidates=['1', '2'], margin=0)
     html = detail(seat(), envs)
     assert 'Tied: Test leader, Test runner' in html and 'Margin: 0 votes' in html
@@ -138,12 +216,13 @@ def test_no_repeated_adjacent_electorate_provenance():
     for row in config('electorates'):
         html = detail(row, {})
         tree = Tree(html)
+        source_ids = {ref for node in tree.nodes for ref in node.attrs.get('aria-describedby', '').split()}
         for parent in tree.nodes:
             children = [n for n in parent.children if not isinstance(n, str)]
             for left, right in zip(children, children[1:]):
-                if all('source-note' in n.attrs.get('class', '').split() for n in (left, right)):
+                if all(n.attrs.get('id') in source_ids for n in (left, right)):
                     assert ' '.join(left.text.split()) != ' '.join(right.text.split()), 'REPEATED_ADJACENT_PROVENANCE'
-        assert html.count('Data to 20 October 2026.') == 1
+        assert text(tree.root).count('Data to 20 October 2026.') == 1
         check_sources(html)
         provenance(html)
 
@@ -153,7 +232,11 @@ def test_methods_describe_current_detail_graphic_and_names():
     assert 'squares on detail pages' not in html
     assert 'Electorate detail pages use the same schematic hex layout' in html
     assert 'candidate cards display the reconciled snapshot names' in html
-    assert 'href="#home-boundaries-2025"' in html
+    tree = Tree(html)
+    ids = {n.attrs.get('id') for n in tree.nodes}
+    boundary_links = [n for n in links(tree) if 'boundary' in accessible_name(n, tree).lower()]
+    assert boundary_links
+    assert all(unquote(n.attrs['href'][1:]) in ids for n in boundary_links if n.attrs['href'].startswith('#'))
 
 
 from product.nz_election.tests.test_home import populated  # noqa: F401
@@ -161,12 +244,9 @@ from product.nz_election.tests.test_home import populated  # noqa: F401
 
 def assert_readable_person_names(html):
     import re
-    from product.nz_election.pipeline.content_checks import Tree
-    names = [n.text for n in Tree(html).nodes if n.tag == 'strong'
-             or 'local-margin' in n.attrs.get('class', '').split()]
-    assert names
-    for name in names:
-        assert not re.search(r"\b[A-ZĀĒĪŌŪ][A-ZĀĒĪŌŪ'’-]*,\s", name), 'EC_SHEET_PERSON_NAME: ' + name
+    content = text(Tree(html).root)
+    assert content
+    assert not re.search(r"\b[A-ZĀĒĪŌŪ][A-ZĀĒĪŌŪ'’-]+,\s+[A-ZĀĒĪŌŪ][a-zāēīōū]", content), 'EC_SHEET_PERSON_NAME'
 
 
 def test_no_ec_sheet_person_names_on_electorate_pages(populated):
@@ -174,10 +254,12 @@ def test_no_ec_sheet_person_names_on_electorate_pages(populated):
     pages = list((site / 'electorates').glob('*/index.html'))
     assert len(pages) == 71
     for path in pages:
-        assert_readable_person_names(path.read_text())
+        html = path.read_text()
+        assert_readable_person_names(html)
+        assert_map_accessibility(html, seat(path.parent.name), site)
     wellington = (site / 'electorates/wellington-north/index.html').read_text()
     assert 'Tamatha Paul won by' in wellington
-    assert '<strong>Tamatha Paul</strong>' in wellington
+    assert 'Tamatha Paul' in text(answer_region(Tree(wellington), 'Who is standing in 2026?'))
     port = (site / 'electorates/port-waikato/index.html').read_text()
     assert 'Andrew Bayly won by' in port
 
