@@ -3055,3 +3055,32 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Hexmap research done (343 s): odd-r pointy-top layout, 71 slugs on 71 unique cells, 64 general and 7 Maori, each island connected, Maori two-column cluster; neighbour agreement 76/101 old to 106/138 new. Saved to state/jobs/nz-election-hexmap/hexmap.json; build brief written, dispatch on the next free slot after publish-rehearsal (election-night readiness ranks ahead of the look).
 - Dispatched nz-election-rehearsal-contract (readiness-3 increment 1) after rebasing its worktree onto 497f3ff; runs beside nz-election-night-design (files mostly disjoint: harness and pipeline/night.py vs night page markup).
 - Codex window 1.0 percent, resets in 7.0 days.
+
+## 2026-10-26 07:52Z run (job_done nz-election-night-design, nz-election-rehearsal-contract)
+
+- night-design 18ab8ef (Codex sandbox could not launch Chromium; 2883 passed otherwise). Host: origin/data build PASS build: 81 routes; night/ and home screenshotted at 390x844 and 1280x900 and looked at; scrollWidth equals viewport at both widths; night/ is 12,209 px tall at 390. Supervisor nits: hemicycle not in clean party wedges (NZ First column down the centre with a Labour dot inside); "timezone unverified" source line reads as an internal note.
+- PR #94 opened. Fresh review review-nz-election-night-design: request changes. Important: eight majority cards push electorate search past two phone screens (pages/night.md wants one scroll); overlapping historic electorate cells (pre-existing, deferred to the hexmap change, which replaces the layout). Nit: majority marker over NZ First dots.
+- Host browser run on 18ab8ef (test_design, test_home*, test_night*, test_waterfall): 1 failed, 400 passed, 2 errors. TEXT_CONTRAST errors in two test_night_page cases (background computed in 0-1 channels, likely color-mix); FAIL deployed-probe: night-data-transport. Verdict request changes; fix-1 nz-election-night-design-fix-1 dispatched on the build thread with all items. Logged on PR #94.
+- rehearsal-contract 58e918d: host test_night*.py 1 failed, 258 passed; test_night_deployed[faults] fails at the branch's own night_live_browser.py:104 (whole #night-snapshot markup equality after an incomplete package), reproduced on a second run; verify night PASS on origin/data. Sent back: fix-1 nz-election-rehearsal-contract-fix-1 on the build thread (find what changed; product defect vs per-response field; keep renamed-not-shown check). No PR yet.
+- nz-election-publish-rehearsal (readiness-3 increment 2) rebased onto eb61e0a and dispatched. Three jobs running at run end (two fixes plus one build), all on today's share.
+- Codex window 5.0 percent, resets in 7.0 days; even spread about 14 points per day.
+
+## 2026-10-26 08:15Z run (job_done nz-election-rehearsal-contract-fix-1)
+
+- rehearsal-contract fix-1 b4535af (baseline for reference retention captured after screenshot caret cleanup, which had left style="" on the search input; whole-markup equality kept). Host `pytest -q product/nz_election/tests/test_night*.py` 259 passed incl. host Chromium in 521 s; lint ok. Pushed, PR #95 opened, supervisor accept logged, fresh review review-nz-election-rehearsal-contract dispatched read-only.
+- nz-election-publish-rehearsal ended rc 1 at 08:04Z after 607 s with no last.md and usage null; stderr: "failed to record rollout items: thread ... not found". Worktree holds a staged uncommitted diff (7 files, +444 -36: new nz-election-night-rehearsal.yml, night_rehearsal.py, publish.py, night_live.py, runbook, two tests). Treated as a partial: next free slot resumes it on its thread (or a fresh build from the staged diff if resume fails); not resumed this run because two jobs are running (night-design fix-1, the #95 review).
+- Codex window 8.0 percent, resets in 7.0 days; even spread about 13 points per day.
+
+## 2026-10-26 08:35Z (job_done night-design-fix-1, review-rehearsal-contract)
+
+- PR #95 rehearsal-contract: fresh review accept, no findings (historical replay golden 2,851,211 votes, House 122 confirmed by its probes). Logged on the PR. CI pending at run time; merge on green next run.
+- PR #94 night-design fix-1 218d9aa: Codex sandbox could not launch Chromium (12 failed, 2 errors, all sandbox). Host run with real Chromium over test_design*, test_home*, test_night*, test_waterfall*: 321 passed, then 1 error under -x: test_night_page.py::test_xml_python_browser_parity, screenshots.py:163 `locator('header')` strict mode violation, the banner plus the new `<header class="module-head">` on night/. A harness ambiguity, not a weakened check. fix-2 nz-election-night-design-fix-2 dispatched on the build thread: target the banner unambiguously, same assertions, or drop the second header.
+- publish-rehearsal: the 07:54Z job died with its Codex rollout thread lost, so resuming was not possible. Dispatched a fresh job nz-election-publish-rehearsal-r1 on the same worktree with the original brief and a note to continue from the 7 staged files.
+- No judgement calls. Codex window 9.0 percent.
+
+## 2026-10-26 08:52Z run (job_done nz-election-night-design-fix-2, nz-election-publish-rehearsal-r1)
+
+- PR #95 rehearsal-contract: CI green on b4535af (run 40292008587), squash merged as 338fa7a, worktree removed.
+- PR #94 night-design fix-2 12d16c0 (header checks scoped to role=banner): host run with Chromium over test_night_deployed, test_result_states, test_night_page, test_design, test_waterfall*, test_home*, test_night*: 101 passed, 1 failed under -x: main's result_states_browser.py:75 (night/ electorate search below two phone screens at 390 in a result state, the first fresh review's finding not fully met). The CI failures on #94 (TEXT_CONTRAST bg in 0-1 channels, deployed-probe) were on the pre-fix-1 head. Fix-3 nz-election-night-design-fix-3 dispatched on the build thread, main's test protected. Logged on #94.
+- publish-rehearsal r1 9ac171a: host test_night_operation, test_workflows, test_publish* 74 passed; workflow dispatch-only, permissions {} with job contents: read. PR #96 opened, supervisor accept logged, fresh review review-nz-election-publish-rehearsal dispatched. runbook/night.md also changed in #95: rebase before merge.
+- No judgement calls. Codex window 9.0 percent.

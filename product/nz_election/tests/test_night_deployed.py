@@ -48,6 +48,7 @@ def local_site(tmp_path_factory):
     feed = root / 'served/unattended/nz-election/offline-feed'
     feed.mkdir()
     for name, raw in national_captures().items():
+        (feed / name).parent.mkdir(parents=True, exist_ok=True)
         (feed / name).write_bytes(raw)
     server = ThreadingHTTPServer(('127.0.0.1', 0), partial(SimpleHTTPRequestHandler, directory=str(root / 'served')))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -110,7 +111,7 @@ sys.exit(int(failed))
 def national_captures():
     from product.nz_election.pipeline import fixtures
     prefix = 'ec-2026-media-xml/'
-    names = ('electorates.xml', 'parties.xml', 'candidates.xml', 'election.xml')
+    names = ('electorates.xml', 'parties.xml', 'candidates.xml', 'election.xml', 'e01/e01.xml')
     return {path.removeprefix(prefix): raw for path, raw in
             fixtures.captures(paths={prefix + name for name in names}).items()}
 
@@ -134,7 +135,7 @@ def test_cors_readable_requires_validation(monkeypatch, tmp_path, failure):
 @pytest.mark.parametrize('mode', ['blocked', 'readable'])
 def test_cors_valid_evidence(monkeypatch, tmp_path, mode):
     checks, record = probe_evidence(monkeypatch, tmp_path, mode)
-    assert len(checks) == 4 and all(c['status'] == 'PASS' for c in checks)
+    assert len(checks) == 5 and all(c['status'] == 'PASS' for c in checks)
     assert not record.write()[1]
 
 
@@ -147,12 +148,12 @@ def probe_evidence(monkeypatch, tmp_path, mode):
         if mode in {'dns', 'tls', 'timeout'}:
             raise OSError(mode + ' failure')
         return dict(status=503 if mode == 'http' else 200,
-                    raw=b'' if mode == 'empty' else captured[url.rsplit('/', 1)[-1]])
+                    raw=b'' if mode == 'empty' else captured['e01/e01.xml' if url.endswith('/e01/e01.xml') else url.rsplit('/', 1)[-1]])
     def evaluate(script, url):
         if url.endswith('night-live.mjs'):
             return schedule_result(False)
         if mode.startswith('readable'):
-            raw = captured[url.rsplit('/', 1)[-1]]
+            raw = captured['e01/e01.xml' if url.endswith('/e01/e01.xml') else url.rsplit('/', 1)[-1]]
             if mode == 'readable-count' and url.endswith('election.xml'):
                 raw = raw.replace(b'<votes>0</votes>', b'<votes>-1</votes>', 1)
             text = '' if mode == 'readable-empty' else '<invalid>' if mode == 'readable-malformed' else raw.decode('utf-8-sig')
