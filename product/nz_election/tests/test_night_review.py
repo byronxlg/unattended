@@ -46,7 +46,9 @@ def test_reported_tie_python_retains_margin_and_names(tied_count, final):
     target = next(n for n in tree.nodes if n.attrs.get('id') == 'night-row-proof-1')
     cells = [c for c in target.children if not isinstance(c, str) and c.tag == 'td']
     assert 'Tied:' in cells[1].text
-    assert all(refs['candidates'][c]['candidate_name'] in cells[1].text for c in tied)
+    for c in tied:
+        surname, given = refs['candidates'][c]['candidate_name'].split(', ', 1)
+        assert given + ' ' + surname.title() in cells[1].text
     assert cells[2].text == '0'
     assert 'Not yet reported' not in target.text
 

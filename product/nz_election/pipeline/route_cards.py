@@ -22,7 +22,7 @@ def night(built):
     if countdown[0].isdigit():
         number, unit = countdown.split(' ', 1)
         countdown = f'<strong>{number}</strong><br>{unit}'
-    return render('night', countdown=countdown, source=note(
+    return render('night', countdown=countdown, timeline='', source=note(
         'source-night', 'No results feed is published yet. No publication between 00:00 and 19:00 NZDT on election day, under Electoral Act s197.',
         f'<a href="{LAW}">Electoral Act s197</a><a href="{RESULTS}">Official Electoral Commission results</a>'))
 

@@ -87,6 +87,16 @@ def hemicycle(result):
             + marks + '</svg>')
 
 
+
+def majority_cards(groups, names, colours):
+    """Minimal winning groups, retaining every source party name and seat total."""
+    cards = '<div class="night-combinations">'
+    for group in groups:
+        chips = ''.join(f'<span class="night-party" style="--c:{pc(colours.get(p))}"><i></i>{escape(names[p])}</span>' for p, _ in group)
+        cards += f'<div class="night-combination"><div>{chips}</div><p><strong>{sum(n for _, n in group)}</strong> seats <span class="majority-reached">Majority reached</span></p></div>'
+    return cards + '</div>'
+
+
 def seat_legend(result):
     opposition, neutral, government = hemicycle_order(result)
     def chips(parties):
@@ -260,7 +270,7 @@ def party_cards(averages, result, leaders, *, prefix=PREFIX):
 
 # Electorate map
 
-def hex_map(envs, cells, rows, held_for):
+def hex_map(envs, cells, rows, held_for, *, source="source-electorates", night=False):
     size = 17
     w = Decimal(size) * Decimal(3).sqrt()
     marks, records = '', []
@@ -280,9 +290,16 @@ def hex_map(envs, cells, rows, held_for):
         tone = 'low' if not held else 'close' if held['margin'] < 2000 else 'mid' if held['margin'] < 8000 else 'safe'
         fill = pc(held['party_id']) if held else 'var(--rule)'
         description = (f'{held["party"]} by {held["margin"]:,} votes in 2023' if held else 'no comparable 2023 result')
+        if night:
+            description = row['description']
         title = escape(f'{row["name"]}: {description}')
-        marks += (f'<a href="{PREFIX}electorates/{row["slug"]}/" aria-label="{title}"><title>{title}</title>'
-                  f'<polygon points="{points}" class="hex {tone}" style="fill:{fill}"/></a>')
+        polygon = f'<polygon points="{points}" class="hex {tone}" style="fill:{fill}"/>'
+        if night:
+            # The searchable table supplies full-size keyboard targets on phones.
+            marks += f'<g><title>{title}</title>{polygon}</g>'
+        else:
+            marks += (f'<a href="{PREFIX}electorates/{row["slug"]}/" aria-label="{title}"><title>{title}</title>'
+                      + polygon + '</a>')
         records.append([escape(row['name']), escape(held['party']) if held else '', f'{held["margin"]:,}' if held else ''])
     width, height = cx_max + w / 2 + 6, cy_max + size + 6
     if maori:
@@ -292,6 +309,8 @@ def hex_map(envs, cells, rows, held_for):
         marks += f'<text x="{mx:.1f}" y="{my:.1f}" text-anchor="end" class="map-label">Māori</text><text x="{mx:.1f}" y="{my + 22:.1f}" text-anchor="end" class="map-label">electorates</text>'
     svg = (f'<svg class="hex-map" viewBox="0 0 {width:.0f} {height:.0f}" role="group" aria-describedby="source-electorates" '
            f'aria-label="Electorates coloured by 2023 winning party; darker means a larger margin">{marks}</svg>')
+    if night:
+        svg = svg.replace('class="hex-map"', 'class="night-leader-map hex-map"').replace('source-electorates', source).replace('Electorates coloured by 2023 winning party; darker means a larger margin', 'Electorate provisional leaders; darker means a larger margin')
     return svg, hidden(table('2023 holders on original boundaries', ['Electorate', 'Party', 'Margin'], records, source='source-electorates'))
 
 

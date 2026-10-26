@@ -58,7 +58,7 @@ def test_populated_night_has_backed_results_and_sources():
     assert '62 for a majority' in html
     assert 'These combinations currently reach a majority; government formation is separate.' in html
     assert 'votes counted' not in html
-    assert 'class="night-leader-map"' in html
+    assert 'class="night-leader-map hex-map"' in html
     assert 'Electorate provisional leaders' in html
     assert html.count('<template ') == 6
 
@@ -226,3 +226,29 @@ def test_route_gate_independently_requires_night_publication_freeze(tmp_path, mo
     monkeypatch.setattr(night_page, 'page', lambda envs, built: original(envs, built).replace(removed, ''))
     with pytest.raises(ValueError, match='night publication freeze notice'):
         check_site(site, {})
+
+
+
+def test_night_seat_graphic_uses_source_totals_and_tokens(night_envs):
+    from product.nz_election.pipeline.night_page import snapshot
+    from product.nz_election.pipeline.content_checks import Tree
+    seq = next(s for s in night_envs['night/index']['data'] if s['id'] == '2023')
+    row = night_envs[seq['snapshot_paths'][0][:-5]]['data'][0]
+    refs = night_envs[seq['reference_path'][:-5]]['data'][0]
+    html = snapshot(row, refs, 'proof', seq['snapshot_paths'][0])
+    tree = Tree(html)
+    assert '<h1>Who is winning?</h1>' in html and 'Replay of 2023' in html
+    assert sum(n.tag == 'circle' for n in tree.nodes) == row['reported_house']
+    assert 'class="strip"' not in html
+    assert 'class="night-combinations"' in html and 'Majority reached' in html
+    assert 'class="scroll poll-table"' in html
+    assert all('var(--' in n.attrs['style'] for n in tree.nodes
+               if n.tag in {'circle', 'polygon'} and 'style' in n.attrs)
+
+
+@pytest.mark.parametrize('raw,expected', [('SMITH, Jane', 'Jane Smith'),
+                                        ('MĀORI, Hēmi', 'Hēmi Māori'),
+                                        ('Jane McDonald', 'Jane McDonald')])
+def test_night_display_names(raw, expected):
+    from product.nz_election.pipeline.night_electorates import display_name
+    assert display_name(raw) == expected

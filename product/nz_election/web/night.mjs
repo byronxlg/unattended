@@ -39,7 +39,7 @@ if (typeof document !== 'undefined') {
       const wasRunning = clock.running;
       const index = clock.tick();
       if (wasRunning && !clock.running) announcement.textContent = 'Replay ended.';
-      if (visible !== index) { section.replaceChildren(mode, frames[index]); visible = index; }
+      if (visible !== index) { section.replaceChildren(frames[index], mode); visible = index; }
       play.textContent = clock.running ? 'Pause' : 'Play';
       const text = `${clock.running ? 'Playing' : 'Paused'}: ${Math.floor(clock.elapsed)} seconds`;
       if (frames.length > 1 && output.textContent !== text) output.textContent = text;
