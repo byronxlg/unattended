@@ -21,3 +21,5 @@ __pycache__/
 state/jobs/*/reviewed
 *.egg-info/
 state/issues.seen
+state/supervisor.hold
+.playwright-mcp/

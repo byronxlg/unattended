@@ -78,6 +78,9 @@ if [ "$RUNNING_JOBS" = "0" ] && [ $((NOW-LAST_RUN)) -ge 3600 ] && [ "$NOW" -ge "
 [ $((NOW-LAST_RUN)) -ge 10800 ] && REASONS+=("heartbeat")
 [ $FORCE -eq 1 ] && REASONS+=("force")
 
+# Hold (operator): state/supervisor.hold pauses supervisor runs while a human session works on the
+# repo; the watchdogs above keep the data workflows running. Remove the file to resume.
+if [ -f "$STATE/supervisor.hold" ] && [ $FORCE -eq 0 ]; then log "held by state/supervisor.hold: ${REASONS[*]:-}"; REASONS=(); fi
 SUP_RAN=0; SUP_RC=""; SUP_ERR=""
 if [ ${#REASONS[@]} -eq 0 ]; then
   log "nothing to do (jobs running: $RUNNING_JOBS)"
