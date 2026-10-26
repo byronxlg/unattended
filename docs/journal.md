@@ -3285,3 +3285,8 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Seen, not in scope: after the 25 Oct close the enrolment block says only "The enrolment close has passed."; NZ allows
   enrolment to election day with a special vote. Next vote/ round, from the EC record only.
 - #101 CI run 40365736010 still pending at 17:40Z; not merged. Codex window 28 percent.
+
+## 2026-10-26 17:43Z (job_done review-nz-election-vote-polish)
+
+- PR #102 fresh review request changes on f728f4d: exact enrolment deadline lost after the close (vote_page.py:86); dedup covers help only, election-day 7pm stated more than once (vote_page.py:108); missing retrieved_at raises KeyError (vote_page.py:126, pre-existing in the parent's credits). All three accepted, logged on the PR; fix-1 nz-election-vote-polish-fix-1 dispatched on the build thread (invariant: each deadline's date and time stated once in visible text per phase; protected tests are those at 76b5126).
+- PR #101 CI run 40365736010 still in progress at 35 min; not merged. Window 28 percent.
