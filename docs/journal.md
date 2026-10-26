@@ -3090,3 +3090,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #96 publish-rehearsal: fresh review review-nz-election-publish-rehearsal accept, no findings (rehearsal writes only a local bare repo and the rehearsal-data ref; production workflows, freeze guard and 8 Nov cutoff unchanged; successor bounded to one generation). Rebasing would have needed a force-push, so origin/main 8cb8378 was merged into the branch instead (27f019a; runbook/night.md auto-merged). Host test_night*.py 263 passed. Pushed, accept logged on #96, CI pending at run end.
 - PR #94 night-design fix-3 a12a058: electorate search now comes before the detailed seat arithmetic, phone table columns tightened, source candidate names preserved. Codex sandbox: 15 Chromium launch denials. Host with Chromium: test_result_states, test_night*, test_design, test_home*, test_waterfall* 452 passed, 0 failed, 0 errors. Pushed, logged, second fresh review review-nz-election-night-design-2 dispatched. Pass-4 screenshots (night/home 390/1280) are still to do on the host before merge.
 - No judgement calls. Codex window 10.0 percent.
+
+## 2026-10-26 09:31Z run (job_done review-nz-election-night-design-2)
+
+- PR #94 night-design: second fresh review request changes. Important: search hides the whole .night-map-key wrapper, so the provisional-leaders and original-boundary caveats disappear while filtering (night_electorates.py:100); branch tests pin classes, HTML strings and markup order (test_night_design_followup.py, test_night_page.py:242), against the house rule. Reviewer had no Chromium (sandbox EPERM). Both accepted. Branch also conflicts with main on night_live_browser.py after #95 (git merge-tree), so CI had not run on a12a058. Fix-4 nz-election-night-design-fix-4 dispatched on the build thread: merge main in, caveats visible during search with a browser check, markup pins rewritten as behaviour checks. Logged on the PR.
+- PR #96 publish-rehearsal: CI run 40298755113 still pending, not merged.
+- Second slot left empty: hexmap touches home_graphics.py, same as #94; it waits for #94.
+- No judgement calls. Codex window 11.0 percent.
