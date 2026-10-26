@@ -82,7 +82,7 @@ if (typeof document !== 'undefined' && [null, 'live'].includes(new URL(location.
           if (resultStatus) resultStatus.textContent = update(resultStatus.textContent);
         }
         if (notice.textContent !== text) notice.textContent = text;
-        if (Date.now() >= OPEN) document.querySelectorAll('.night-page > .countdown, .night-page > p:has(a[href$="vote/"])').forEach(n => n.remove());
+        if (Date.now() >= OPEN) document.querySelectorAll('.night-page > .night-countdown, .night-page > .night-timeline, .night-page > .countdown, .night-page > p:has(a[href$="vote/"])').forEach(n => n.remove());
       },
       render: pack => {
         const query = target.querySelector('.night-search')?.value || '';

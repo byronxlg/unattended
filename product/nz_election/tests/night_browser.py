@@ -25,7 +25,7 @@ REPLAY_STATES = ('illustrative-start', 'illustrative-middle', 'illustrative-end'
           'waterfall-early', 'waterfall-middle', 'waterfall-final', 'overhang', 'unresolved-tie',
           'unchecked-capacity', 'selected-leader', 'electorate-map', 'electorate-table',
           'official-comparison', 'no-specials', 'unavailable-live')
-SIZES = ((390, 844), (1280, 800))
+SIZES = ((390, 844), (1280, 900))
 from product.nz_election.tests.night_live_browser import STATES as LIVE_STATES, images as live_images
 STATES = REPLAY_STATES + LIVE_STATES
 
@@ -150,7 +150,12 @@ def images(browser, out):
                         name = f'night-{state}-{width}x{height}.png'
                         if state in STATES[:10]:
                             page.evaluate('scrollTo(0, 0)')
-                        page.screenshot(path=str(out / name))
+                        page.screenshot(path=str(out / name), full_page=state == 'final-2023')
+                        if state == 'final-2023':
+                            page.emulate_media(color_scheme='dark')
+                            for pair in page.evaluate(CONTRAST):
+                                assert contrast(pair['fg'], pair['bg']) >= Decimal('4.5'), pair
+                            page.screenshot(path=str(out / name.replace('.png', '-dark.png')), full_page=True)
                         results.append(dict(state='night-' + state, path=name, viewport=dict(width=width, height=height)))
                         context.close()
             finally:

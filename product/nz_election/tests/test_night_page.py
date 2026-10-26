@@ -58,7 +58,9 @@ def test_populated_night_has_backed_results_and_sources():
     assert '62 for a majority' in html
     assert 'These combinations currently reach a majority; government formation is separate.' in html
     assert 'votes counted' not in html
-    assert 'class="night-leader-map"' in html
+    from product.nz_election.pipeline.content_checks import Tree
+    assert any(n.attrs.get('role') == 'group' and 'Electorate provisional leaders' in n.attrs.get('aria-label', '')
+               for n in Tree(html).nodes)
     assert 'Electorate provisional leaders' in html
     assert html.count('<template ') == 6
 
@@ -145,7 +147,9 @@ def test_replay_frames_explain_coverage_without_inventing_data(night_envs):
         else:
             basis = night_envs['night/illustrative-2023/step-2']['data'][0]['derivation']['basis']
             updated = night_envs[basis[:-5]]['data'][0]['source_updated_local']
-            assert f'Final archive updated {updated[11:16]} on {updated[:10]}' in context.text
+            from datetime import datetime
+            stamp = datetime.fromisoformat(updated)
+            assert f'Final archive updated {stamp.day} {stamp:%B %Y} at {stamp:%H:%M}' in context.text
             assert 'House 122' in frame.text and '2,851,211' in frame.text
 
 
@@ -226,3 +230,28 @@ def test_route_gate_independently_requires_night_publication_freeze(tmp_path, mo
     monkeypatch.setattr(night_page, 'page', lambda envs, built: original(envs, built).replace(removed, ''))
     with pytest.raises(ValueError, match='night publication freeze notice'):
         check_site(site, {})
+
+
+
+def test_night_seat_graphic_uses_source_totals_and_tokens(night_envs):
+    from product.nz_election.pipeline.night_page import snapshot
+    from product.nz_election.pipeline.content_checks import Tree
+    seq = next(s for s in night_envs['night/index']['data'] if s['id'] == '2023')
+    row = night_envs[seq['snapshot_paths'][0][:-5]]['data'][0]
+    refs = night_envs[seq['reference_path'][:-5]]['data'][0]
+    html = snapshot(row, refs, 'proof', seq['snapshot_paths'][0])
+    tree = Tree(html)
+    assert 'Who is winning?' in tree.root.text and 'Replay of 2023' in tree.root.text
+    assert sum(n.tag == 'circle' for n in tree.nodes) == row['reported_house']
+    assert 'Majority reached' in tree.root.text
+    assert 'Electorate provisional leaders' in tree.root.text
+    assert all('var(--' in n.attrs['style'] for n in tree.nodes
+               if n.tag in {'circle', 'polygon'} and 'style' in n.attrs)
+
+
+@pytest.mark.parametrize('raw,expected', [('SMITH, Jane', 'Jane Smith'),
+                                        ('MĀORI, Hēmi', 'Hēmi Māori'),
+                                        ('Jane McDonald', 'Jane McDonald')])
+def test_night_display_names(raw, expected):
+    from product.nz_election.pipeline.night_electorates import display_name
+    assert display_name(raw) == expected

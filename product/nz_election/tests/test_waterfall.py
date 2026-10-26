@@ -142,7 +142,9 @@ def test_detail_tie_is_reported_without_a_leader():
     assert detail['margin'] == 0
     html = electorate_view(row, refs, 'source-test', 'test')
     assert 'Tied:' in html
-    assert all(refs['candidates'][c]['candidate_name'] in html for c in detail['tied_candidates'])
+    for c in detail['tied_candidates']:
+        surname, given = refs['candidates'][c]['candidate_name'].split(', ', 1)
+        assert given + ' ' + surname.title() in html
 
 
 def test_legacy_national_package_can_upgrade(tmp_path):

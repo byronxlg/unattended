@@ -49,42 +49,66 @@ def hemicycle(result):
     """One dot per seat, left to right in angle order; the radial mark sits where the majority starts."""
     total = result['assumed_house']
     opposition, neutral, government = hemicycle_order(result)
-    order = [p for p in opposition + neutral + government for _ in range(result['seats'].get(p, 0))]
-    order += [None] * (total - len(order))
+    parties = [(p, result['seats'].get(p, 0)) for p in opposition + neutral + government]
+    if total > sum(n for _, n in parties):
+        parties.append((None, total - sum(n for _, n in parties)))
     rows = max(5, round(math.sqrt(total / 2.6)))
-    outer, inner = Decimal(300), Decimal(300) * Decimal('0.42')
+    outer, inner = Decimal(300), Decimal(126)
     radii = [inner + (outer - inner) * i / (rows - 1) for i in range(rows)]
     weight = sum(radii)
-    counts = [int(total * r / weight) for r in radii]
-    # Hand the remainder to the outer rows, which have the most room.
-    for i in range(total - sum(counts)):
-        counts[-1 - i % rows] += 1
-    seats = []
-    for r, n in zip(radii, counts):
-        for k in range(n):
-            angle = math.pi * (1 - k / (n - 1)) if n > 1 else math.pi / 2
-            seats.append((angle, -float(r), float(r) * math.cos(angle), float(r) * math.sin(angle)))
-    seats.sort(key=lambda s: (-s[0], s[1]))
+    seats, start = [], math.pi
+    for party, count in parties:
+        if not count:
+            continue
+        width = math.pi * count / total
+        quotas = [count * radius / weight for radius in radii]
+        counts = [int(q) for q in quotas]
+        # Allocate each party across rings, then keep its dots inside its own angular sector.
+        remainder_order = sorted(range(rows), key=lambda i: (quotas[i] - counts[i], i), reverse=True)
+        for i in remainder_order[:count - sum(counts)]:
+            counts[i] += 1
+        for radius, n in zip(radii, counts):
+            for k in range(n):
+                angle = start - width * (k + .5) / n
+                seats.append((party, float(radius), angle, width / n))
+        start -= width
     spacing = float(outer - inner) / (rows - 1)
-    dot = min(spacing * 0.42, math.pi * float(inner) / max(counts[0] - 1, 1) * 0.42)
+    dot = min([spacing * .42] + [radius * math.sin(step / 2) * .84 for _, radius, _, step in seats])
     marks = ''
-    for party, (_, _, x, y) in zip(order, seats):
+    for party, radius, angle, _ in seats:
         fill = pc(party) if party else 'var(--rule)'
+        x, y = radius * math.cos(angle), radius * math.sin(angle)
         marks += f'<circle cx="{320 + x:.1f}" cy="{316 - y:.1f}" r="{dot:.1f}" style="fill:{fill}"/>'
     majority = result['assumed_majority']
     government_seats = sum(result['seats'].get(p, 0) for p in government)
-    # The line sits between the last seat a minority would hold and the first of a majority.
-    split = total - majority
-    a = (seats[split - 1][0] + seats[split][0]) / 2 if 0 < split < total else math.pi / 2
+    a = math.pi * majority / total
     x1, y1 = 320 + float(inner - 18) * math.cos(a), 316 - float(inner - 18) * math.sin(a)
     x2, y2 = 320 + float(outer + 14) * math.cos(a), 316 - float(outer + 14) * math.sin(a)
-    marks += f'<path d="M{x1:.1f} {y1:.1f}L{x2:.1f} {y2:.1f}" class="majority-mark"/>'
+    path = f'M{x1:.1f} {y1:.1f}L{x2:.1f} {y2:.1f}'
+    marks += f'<path d="{path}" class="majority-underlay"/><path d="{path}" class="majority-mark"/>'
     marks += f'<text x="320" y="300" class="hemi-need" text-anchor="middle">{majority}</text>'
     marks += '<text x="320" y="324" class="hemi-need-label" text-anchor="middle">for a majority</text>'
     title = (f'One dot per seat in a {total}-seat House. Government parties {government_seats}, '
              f'{majority} needed for a majority.')
     return (f'<svg class="hemicycle" viewBox="0 0 640 330" role="img" aria-label="{escape(title, quote=True)}" aria-describedby="source-seats">'
             + marks + '</svg>')
+
+
+
+def majority_cards(groups, names, colours):
+    """Minimal winning groups, retaining every source party name and seat total."""
+    ordered = sorted(groups, key=lambda group: (sum(n for _, n in group), tuple(p for p, _ in group)))
+    cards = '<div class="night-combinations">'
+    for group in ordered[:3]:
+        chips = ''.join(f'<span class="night-party" style="--c:{pc(colours.get(p))}"><i></i>{escape(names[p])}</span>' for p, _ in group)
+        cards += f'<div class="night-combination"><div>{chips}</div><p><strong>{sum(n for _, n in group)}</strong> seats <span class="majority-reached">Majority reached</span></p></div>'
+    cards += '</div>'
+    if len(ordered) > 3:
+        cards += f'<section class="night-more-combinations"><h3>All {len(ordered)} majority combinations</h3><ul aria-label="All majority combinations">'
+        for group in ordered:
+            cards += '<li>' + ' + '.join(escape(names[p]) for p, _ in group) + f': <strong>{sum(n for _, n in group)} seats</strong></li>'
+        cards += '</ul></section>'
+    return cards
 
 
 def seat_legend(result):
@@ -260,7 +284,7 @@ def party_cards(averages, result, leaders, *, prefix=PREFIX):
 
 # Electorate map
 
-def hex_map(envs, cells, rows, held_for, *, selected=None):
+def hex_map(envs, cells, rows, held_for, *, selected=None, source="source-electorates", night=False):
     size = 17
     w = Decimal(size) * Decimal(3).sqrt()
     marks, records = '', []
@@ -280,17 +304,23 @@ def hex_map(envs, cells, rows, held_for, *, selected=None):
         tone = 'low' if not held else 'close' if held['margin'] < 2000 else 'mid' if held['margin'] < 8000 else 'safe'
         fill = pc(held['party_id']) if held else 'var(--rule)'
         description = (f'{held["party"]} by {held["margin"]:,} votes in 2023' if held else 'no comparable 2023 result')
+        if night:
+            description = row['description']
         title = escape(f'{row["name"]}: {description}')
-        mark = (f'<a href="{PREFIX}electorates/{row["slug"]}/" aria-label="{title}"><title>{title}</title>'
-                  f'<polygon points="{points}" class="hex {tone}" style="fill:{fill}"/></a>')
+        polygon = f'<polygon points="{points}" class="hex {tone}" style="fill:{fill}"/>'
         if selected:
             polygon = f'<polygon points="{points}" class="hex" style="fill:var(--rule)"/>'
             if row['slug'] == selected:
                 polygon = (f'<a href="#candidates-title" aria-label="{escape(row["name"])} candidates" aria-current="location">'
                            f'<title>{escape(row["name"])}</title><polygon data-electorate="{selected}" points="{points}" '
                            f'class="hex selected" style="fill:{pc(held["party_id"]) if held else "var(--ink)"}"/></a>')
-            mark = polygon
-        marks += mark
+            marks += polygon
+        elif night:
+            # The searchable table supplies full-size keyboard targets on phones.
+            marks += f'<g><title>{title}</title>{polygon}</g>'
+        else:
+            marks += (f'<a href="{PREFIX}electorates/{row["slug"]}/" aria-label="{title}"><title>{title}</title>'
+                      + polygon + '</a>')
         records.append([escape(row['name']), escape(held['party']) if held else '', f'{held["margin"]:,}' if held else ''])
     width, height = cx_max + w / 2 + 1, cy_max + size + 6
     if maori and not selected:
@@ -305,6 +335,8 @@ def hex_map(envs, cells, rows, held_for, *, selected=None):
             'Electorates coloured by 2023 winning party; darker means a larger margin',
             escape(rows[selected]['name']) + ' highlighted on the schematic electorate map')
         return svg, ''
+    if night:
+        svg = svg.replace('class="hex-map"', 'class="night-leader-map hex-map"').replace('source-electorates', source).replace('Electorates coloured by 2023 winning party; darker means a larger margin', 'Electorate provisional leaders; darker means a larger margin')
     return svg, hidden(table('2023 holders on original boundaries', ['Electorate', 'Party', 'Margin'], records, source='source-electorates'))
 
 

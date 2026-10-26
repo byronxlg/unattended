@@ -17,7 +17,7 @@ from decimal import Decimal
 
 STATES = ('live-fresh', 'live-selected-detail', 'live-hidden-resumed', 'live-stale-last-good',
           'live-packaged-fallback', 'live-reference-retention', 'live-leader-change', 'live-pre-close', 'live-post-close')
-SIZES = ((390, 844), (1280, 800))
+SIZES = ((390, 844), (1280, 900))
 
 
 def transition_packages():
@@ -65,7 +65,8 @@ def transition_proof(page, base, scenario, capture=lambda state: None):
         page.clock.set_system_time(datetime(2026, 11, 7, 6, 1, tzinfo=timezone.utc))
         page.goto(base + 'night/')
         page.wait_for_function("document.querySelector('#night-snapshot').textContent.includes('Synthetic transition:')")
-        cell = page.locator(cases['selector'] + ' td:nth-child(2)')
+        # Display and source spellings are now in separate cells of this row.
+        cell = page.locator(cases['selector'])
         before_name = cases['old'] if scenario == 'leader-change' else cases['new']
         assert before_name in cell.inner_text()
         capture('synthetic-' + scenario + '-before')
@@ -166,12 +167,16 @@ def images(browser, out):
                         page.clock.run_for(1000)
                         page.wait_for_function("document.querySelector('#night-live-status').textContent.includes('Packaged by the site')")
                         assert page.locator('.countdown').count() == 0
+                        assert page.locator('.night-countdown').count() == 0
+                        assert page.locator('.night-timeline').count() == 0
                     elif state == 'live-packaged-fallback':
                         assert 'dated packaged snapshot' in page.locator('#night-live-status').inner_text()
                         assert 'Final snapshot' in page.locator('#night-snapshot').inner_text()
                     else:
                         page.wait_for_function("document.querySelector('#night-live-status').textContent.includes('Packaged by the site')")
                         assert 'House 122' in page.locator('#night-snapshot').inner_text()
+                        assert page.locator('.hemicycle circle').count() == 122
+                        assert page.locator('main h1').count() == 1
                         if state == 'live-selected-detail':
                             page.locator('.night-search').fill('Auckland Central')
                             page.locator('.night-search').focus()
@@ -230,7 +235,7 @@ def images(browser, out):
                         assert contrast(pair['fg'],pair['bg']) >= Decimal('4.5'), pair
                     assert not page.evaluate('async()=> (await axe.run(document)).violations'), state
                     name = f'night-{state}-{width}x{height}.png'
-                    page.screenshot(path=str(out/name))
+                    page.screenshot(path=str(out/name), full_page=state == 'live-fresh')
                     results.append(dict(state='night-'+state,path=name,viewport=dict(width=width,height=height)))
                     context.close()
         finally:

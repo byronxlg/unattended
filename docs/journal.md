@@ -3116,3 +3116,23 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #94 third fresh review (review-nz-election-night-design-3): accept, no findings; review-2 items resolved. Logged on the PR. CI run 40307082449 pending, not merged.
 - PR #97 fresh review (review-nz-election-hexmap): accept, no findings (71 unique cells, no overlaps, 390 targets min 26.31 px). Logged on the PR. CI run 40307089207 pending; merge after #94 with main merged in.
 - No dispatch: both slots wait on merges that touch home_graphics.py. Codex window 14 percent.
+
+## 2026-10-26 11:36Z (idle)
+
+- PR #97 hexmap: CI run 40307089207 green, fresh review accept; squash merged as 2fa5be9, worktree removed.
+- PR #94 night-design: CI run 40307082449 red, 3 failures on main's contracts: test_disclosures (PROSE_DISCLOSURE night/index.html:23, details requires a table) and test_verify_required x2 (FAIL all: CAMPAIGN_DATA). Host verification at fix-5 had not run test_disclosures (supervisor gap: the host list was test_design/home/night/waterfall). Logged on the PR; fix-6 nz-election-night-design-fix-6 dispatched on the build thread (disclosure shape is the engineer's choice, merge main incl. #97, tests untouched).
+- nz-election-electorate-design dispatched (design backlog item 1, Page plan pages/electorate.md, DESIGN.md) in .worktrees/nz-election-electorate-design from 2fa5be9.
+- Codex window 14 percent. No Byron words this run.
+
+## 2026-10-26 11:48Z (job_done nz-election-night-design-fix-6)
+
+- PR #94 fix-6 (8244ce1, merge of main c840c83 incl. #97): the night "All 8 majority combinations" details became an open section with a list, for main's test_disclosures PROSE_DISCLOSURE rule; Codex could not launch Chromium in its sandbox.
+- Host Chromium run (test_disclosures, test_verify_required, test_design, test_home*, test_night*, test_waterfall): 450 passed, 1 failed. The failure was the branch's own night_design_browser.py locator: exact accessible name 'All majority combinations', but the build renders 'Static All majority combinations'. Supervisor one-line fix 16f24ee (regex on the name; count of 8 and the 62-seat floor kept); test_night_design_followup 5 passed.
+- Looked at: combinations list at 1280, night/ top at 390 on a replay build under /unattended. Accept logged on PR #94; fourth fresh review review-nz-election-night-design-4 dispatched. CI on 16f24ee pending.
+- electorate-design still running. Codex window 15 percent.
+
+## 2026-10-26 12:16Z (job_done review-nz-election-night-design-4)
+
+- PR #94 fourth fresh review (Codex read-only, 51a52c9..16f24ee): accept, no findings; it ran no pytest (sandbox blocked uv cache) and relied on the supervisor's screenshots. Logged on the PR.
+- CI run 40319745695 still in Tests at 12:16Z; not merged. nz-election-electorate-design still running.
+- Next: merge #94 on green, link to Byron; electorate-design review on job_done.
