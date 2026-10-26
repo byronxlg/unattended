@@ -3010,3 +3010,9 @@ Trigger was the supervisor's own 02:46Z comment on #92; no new Byron words. nz-e
 - PR #93 fresh review: request changes, one Important (SVG text below the 12 px DESIGN.md minimum at 360: map 11.26 px, narrow trend 10.93 px, styles.css:425 and :387; the trend case predates the diff). Funding provenance passed for seven parties.
 - Host browser tests on 679e2fc (/tmp/type-scale-browser.log): 196 passed, 2 errors, both test_night_page setup on HEADER_TARGET_BOUNDS (screenshots.py:161): the larger type pushes a header link out of bounds or under 44 px. Supervisor accept from 03:17Z withdrawn; I had judged 390 and 1280 by eye and not run the browser suite before accepting.
 - Logged on PR #93; fix-1 nz-election-type-scale-fix-1 dispatched on the build thread (followup-1.md: header targets at 360, SVG labels at least 12 px with a measuring test that fails on 679e2fc). A fix to work in flight, not a new build; window 35 percent.
+
+## 2026-10-26 03:42Z (job_done nz-election-type-scale-fix-1)
+
+- Fix-1 b59240e (PR #93): header links wrap at 16 px with 44 px targets; SVG labels enlarged and repositioned; new rendered-size test tests/type_scale_browser.py run from test_design.py. Codex: 50 passed, 3 failed and 2 errors all Chromium sandbox launch; lint ok.
+- Supervisor host: test_design.py and test_night_page.py 55 passed with Chromium; the new test fails on 679e2fc (SVG_TEXT_TOO_SMALL map 11.26, trend 10.93) in a detached temp worktree; origin/data build PASS build: 81 routes; home at 360 and 390 looked at (header two rows, Maori electorates label legible, no horizontal scroll). Supervisor accept logged on the PR; second fresh review review-nz-election-type-scale-2 dispatched.
+- No judgement calls. Codex window 35 percent, 6.2 days to reset.
