@@ -17,7 +17,7 @@ def enrolment_answer(html):
 def answer_links(node):
     for child in node.children:
         if not isinstance(child, str):
-            if child.attrs.get('href'):
+            if 'href' in child.attrs:
                 yield child
             yield from answer_links(child)
 
@@ -45,3 +45,22 @@ def test_after_enrolment_close_only_sourced_fallback(tmp_path, clock):
     assert 'not available' not in answer.lower()
     assert [node.attrs['href'] for node in links] == [records['enrolment-closes']['source_url']]
     assert all(node.attrs['href'] in {row['source_url'] for row in records.values()} for node in links)
+
+
+@pytest.mark.parametrize('clock', ['2026-10-25T11:00:00Z', '2026-10-27T00:00:00Z'])
+@pytest.mark.parametrize('source', ['missing', None, ''])
+def test_closed_enrolment_without_source_keeps_message_only(tmp_path, monkeypatch, clock, source):
+    from product.nz_election.pipeline import vote_page
+
+    rows = load_voting()
+    close = next(row for row in rows if row['id'] == 'enrolment-closes')
+    if source == 'missing':
+        close.pop('source_url')
+    else:
+        close['source_url'] = source
+    monkeypatch.setattr(vote_page, 'load_voting', lambda: rows)
+    site = build(tmp_path / 'absent', tmp_path / 'site/nz-election', built=clock)
+    answer, links = enrolment_answer((site / 'vote/index.html').read_text())
+    assert answer == 'Am I enrolled, and is it too late?The enrolment close has passed.'
+    assert links == []
+    assert close['summary'] not in answer

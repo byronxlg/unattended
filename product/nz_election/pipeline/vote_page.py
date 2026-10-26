@@ -40,8 +40,11 @@ def page(built, rows=None, envs=None):
         from .home import section as module
         return module(identity, title, '', body, 'Electoral Commission', '', prose=True, source='')
 
-    enrol_action = (link(close['source_url'], 'Electoral Commission enrolment information') if enrolment_closed else
-                    action('check-or-update-enrolment', 'Check or update your enrolment'))
+    if enrolment_closed:
+        enrol_action = (link(close['source_url'], 'Electoral Commission enrolment information')
+                        if close.get('source_url') else '')
+    else:
+        enrol_action = action('check-or-update-enrolment', 'Check or update your enrolment')
     enrol = section('enrol', 'Am I enrolled, and is it too late?', sentence('enrolment-closes') + enrol_action)
     from .home_graphics import timeline as key_dates
     election = records.get('election-day', {})
