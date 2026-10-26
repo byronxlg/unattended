@@ -42,7 +42,7 @@ def page(built, rows=None, envs=None):
 
     def date_source(identity, keys):
         dates = [records[key]['retrieved_at'] for key in keys
-                 if records.get(key, {}).get('date') and records[key].get('source_url')]
+                 if records.get(key, {}).get('date')]
         return (f'<p class="home-footnote" id="{identity}">Source: Electoral Commission. Retrieved '
                 + escape(compact_time(max(dates))) + '.</p>') if dates else ''
 
