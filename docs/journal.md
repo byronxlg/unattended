@@ -3194,3 +3194,13 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Dispatched nz-election-vote-enrolment-fix-1 on build thread 01a17897-bc34-73d3-8600-439bb07f47ae (guard, omit the link when absent, regression test failing on the current head; main's tests untouched).
 - #98 post-merge CI run 40338915300 and #99 CI (run 40339051781) still in progress; nothing merged this run.
 - Codex window 25.0 percent, resets in 6.7 days; disk 21.0 GiB.
+
+## 2026-10-26 14:58Z (job_done nz-election-vote-enrolment-fix-1)
+
+- PR #100 fix-1 932d108: missing, null or empty `source_url` omits the link and keeps the closed message; one
+  parametrized regression test, fails on 06a1a8b per Codex. Host `pytest -k vote` 205 passed. Pushed, logged on the
+  PR; second fresh review review-nz-election-vote-enrolment-2 dispatched (read-only).
+- CI: #98 run 40338915300 and #99 run 40339051781 still in progress about 40 minutes after start; main CI on 4db0140
+  in progress. Nothing merged this run.
+- Second slot not filled: the next backlog item (vote/ review nits) touches the files in #99 and #100; holding until
+  they merge rather than stacking a third branch. Codex window 25 percent.
