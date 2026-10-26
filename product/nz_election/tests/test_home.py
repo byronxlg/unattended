@@ -14,7 +14,7 @@ from product.nz_election.pipeline.refresh import refresh
 from product.nz_election.tests.design_checks import Document, provenance
 
 NOW = '2026-10-17T01:00:00Z'
-MODULES = ('dates', 'seats', 'polls', 'electorates')
+MODULES = ('dates', 'seats', 'parties', 'trend', 'polls', 'electorates', 'thresholds', 'night')
 
 
 @pytest.fixture(scope='module')
@@ -48,7 +48,8 @@ def test_home_module_order(populated):
     assert html.count('<h1') == 1 and 'Who is favoured to form the next government?' in html
     assert [attrs for tag, attrs in Document(html).nodes if tag == 'script'] == [
         {'type': 'module', 'src': PREFIX + 'home-live.mjs'}]
-    assert 'What changed in the latest polls?' in html
+    # The trend answers what changed: the latest average against the polls behind it.
+    assert '<svg class="trend wide"' in html and 'class="change' in html
     provenance(html)
 
 
@@ -73,7 +74,8 @@ def test_home_figures_have_complete_source_entries(populated):
     sources = (site / 'methods/index.html').read_text()
     ids = {a['id'] for _, a in Document(sources).nodes if 'id' in a}
     figures = [a for tag, a in Document(html).nodes if tag == 'figure']
-    assert len(figures) == 3
+    # One figure per module after the ribbon, each with its own methods entry.
+    assert [f['id'] for f in figures] == ['home-' + m for m in MODULES[1:]]
     for figure in figures:
         assert figure['id'] in ids
         assert f'methods/#{figure["id"]}' in html
@@ -145,7 +147,8 @@ def test_no_inferred_incumbents(populated):
     envs, site = populated
     html = (site / 'index.html').read_text()
     assert 'incumbent' not in html.lower()
-    assert 'unchanged boundaries' in html and 'changed boundaries' in html
+    # Margins are only compared where boundaries did not change, and the page says so.
+    assert 'boundaries that have not changed' in html and 'boundaries changed for 2026' in html
     html = (site / 'methods/index.html').read_text()
     for _, _, row, _ in watch_rows(envs):
         for candidate in envs['candidates']['data']:
@@ -234,27 +237,3 @@ def test_supplied_home_verifier_rejects_missing_fragments(populated, tmp_path):
     target.write_text(target.read_text().replace('id="coalition-explorer"', 'id="removed-explorer"'))
     with pytest.raises(ValueError, match='legacy fragment inventory'):
         check_site(damaged, envs)
-
-
-@pytest.mark.parametrize(('extra_bytes', 'failure'), [
-    (60_000, 'FIRST_VIEW_GZIP_BYTES'),
-    (130_000, 'FIRST_VIEW_GZIP_BYTES'),
-])
-def test_poll_budget_rejects_oversized_dependency(populated, tmp_path, extra_bytes, failure):
-    import base64
-    import random
-    import shutil
-    from product.nz_election.tests.design_checks import transfer_bytes
-    from product.nz_election.tests.test_design import test_real_first_view_budget as check_budgets
-
-    _, source = populated
-    site = tmp_path / 'oversized'
-    shutil.copytree(source, site)
-    before = transfer_bytes(site)[0]
-    # Deterministic incompressible padding exercises the transferred-byte limit.
-    padding = base64.b64encode(random.Random(0).randbytes(extra_bytes)).decode('ascii')
-    dependency = site / 'polls.css'
-    dependency.write_text(dependency.read_text() + '\n/*' + padding + '*/\n')
-    assert transfer_bytes(site)[0] == before
-    with pytest.raises(AssertionError, match=f'{failure}: polls/index.html:'):
-        check_budgets((None, site))

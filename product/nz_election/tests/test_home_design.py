@@ -13,8 +13,15 @@ from product.nz_election.tests.test_home import populated, NOW  # noqa: F401
 def test_named_modules_have_accessible_svg(populated, name):
     _, site = populated
     section = (site / 'index.html').read_text().split(f'<section id="{name}"')[1].split('</section>')[0]
-    charts = [attrs for tag, attrs in Document(section).nodes if tag == 'svg' and attrs.get('aria-hidden') != 'true']
-    assert charts and all(a.get('role') == ('group' if a.get('class') == 'tile-map' else 'img') and a.get('aria-label') and a.get('aria-describedby') for a in charts)
+    nodes = Document(section).nodes
+    charts = [attrs for tag, attrs in nodes if tag == 'svg' and attrs.get('aria-hidden') != 'true']
+    tables = [attrs for tag, attrs in nodes if tag == 'table']
+    # A graphic is an SVG with a name and a source, or a captioned table with a source.
+    assert charts or tables
+    assert all(a.get('role') == ('group' if a.get('class') == 'hex-map' else 'img') and a.get('aria-label') and a.get('aria-describedby') for a in charts)
+    assert all(a.get('aria-describedby') for a in tables) and '<caption' in section
+    for a in charts + tables:
+        assert f'id="{a["aria-describedby"]}"' in section
     assert 'class="chart-data"' in section
 
 
@@ -31,34 +38,34 @@ def test_hero_answers_from_allocator(populated, difference, answer):
 
 def test_reading_column_is_capped(populated):
     _, site = populated
-    assert 'main:has(.home-hero){max-width:732px}' in (site / 'styles.css').read_text()
+    import re
+    css = (site / 'styles.css').read_text()
+    width = int(re.search(r'--text:(\d+)px', css)[1])
+    assert width <= 732 and '.module-head{max-width:var(--text)}' in css
 
 
 def test_trend_has_direct_labels_and_threshold(populated):
     _, site = populated
-    html = (site / 'index.html').read_text().split('<div id="trend"')[1].split('</section>')[0]
+    html = (site / 'index.html').read_text().split('<section id="trend"')[1].split('</section>')[0]
     svg = html.split('</svg>')[0]
-    assert 'stroke-dasharray="4 3"' in svg
+    assert 'class="threshold"' in svg and '5% threshold' in svg
+    labels = svg.split('class="end-label"')[1:]
     for party in ['National', 'Labour', 'ACT', 'NZ First', 'Te Pāti Māori']:
-        assert party in html
+        assert any(f'<tspan class="end-name">{party}</tspan>' in label for label in labels)
     assert '<path d="M' in svg and 'L' in svg
 
 
-def test_compact_poll_rows_and_threshold_marks(populated):
-    from product.nz_election.pipeline.home import party_order
+def test_threshold_marks(populated):
     _, site = populated
     html = (site / 'index.html').read_text()
-    polls = html.split('<section id="polls"')[1].split('</section>')[0]
-    assert polls.count('class="chart-row"') == len(party_order()) + 1
-    assert all(shape in polls for shape in ['Filled circle', 'Open square', 'Triangle', '(newest)'])
+    section = html.split('<section id="thresholds"')[1].split('</section>')[0]
+    # The 5% line is drawn, and each party says which side of it it is on and why.
+    assert 'class="five"' in section and '>5%</span>' in section
+    assert 'Above 5%' in section and 'holds an electorate' in section and 'no electorate' in section
     from product.nz_election.pipeline.home import thresholds
     threshold = thresholds(populated[0])
     assert '<rect ' in threshold and 'stroke-dasharray="4 3"' in threshold
     assert 'Electorate assumed' in threshold and 'Needs 5%' in threshold
-    for module in ['polls', 'electorates']:
-        section = html.split(f'<section id="{module}"')[1].split('</section>')[0]
-        assert '<text ' not in section
-        assert 'chart-label' in section
 
 
 @pytest.mark.parametrize('width', [360, 390, 1280])

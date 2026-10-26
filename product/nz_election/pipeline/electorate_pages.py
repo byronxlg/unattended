@@ -175,7 +175,7 @@ def detail(row, envs, built=None):
     content += '<div class="electorate-columns"><div>' + candidate_cards(row)
     content += policy_link(row) + '</div><aside>'
     content += ('<figure class="locator-card" aria-describedby="source-boundaries-2025">' + locator(row)
-                + '<figcaption>2025 boundary locator, not a legal boundary. Stats NZ, CC BY 4.0.</figcaption></figure>'
+                + '<figcaption>2025 locator, not a legal boundary. Stats NZ, CC BY 4.0.</figcaption></figure>'
                 '<p class="enrolled-electorate">' + link('https://vote.nz/', 'Check your enrolled electorate at vote.nz') + '</p></aside></div>')
     # Both descriptions share one visible note and retain their existing source anchors.
     content += '<div id="source-boundaries-2025">' + footnote('candidates-2026', '20 October 2026') + '</div>'

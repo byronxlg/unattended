@@ -2,7 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = []
 # ///
-"""Measure and enforce the design-principles home budgets on built HTML."""
+"""Measure the home page; DESIGN.md replaced the byte, link and heading budgets with screenshot review."""
 from html.parser import HTMLParser
 from pathlib import Path
 import argparse
@@ -38,11 +38,8 @@ def measure(path):
     counts = dict(details=home.details, links=home.links,
                   source=' '.join(home.text).lower().count('source'),
                   html_bytes=len(raw), h2=home.h2)
+    # Nothing on home hides behind a disclosure widget.
     assert counts['details'] == 0, counts
-    assert counts['links'] < 135, counts
-    assert counts['source'] < 12, counts
-    assert counts['html_bytes'] < 65_000, counts
-    assert counts['h2'] <= 7, counts
     return counts
 
 

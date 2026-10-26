@@ -83,7 +83,7 @@ def hemicycle(result):
     marks += '<text x="320" y="324" class="hemi-need-label" text-anchor="middle">for a majority</text>'
     title = (f'One dot per seat in a {total}-seat House. Government parties {government_seats}, '
              f'{majority} needed for a majority.')
-    return (f'<svg class="hemicycle" viewBox="0 0 640 330" role="img" aria-label="{escape(title, quote=True)}">'
+    return (f'<svg class="hemicycle" viewBox="0 0 640 330" role="img" aria-label="{escape(title, quote=True)}" aria-describedby="source-seats">'
             + marks + '</svg>')
 
 
@@ -177,7 +177,7 @@ def trend(averages, polls, election, *, wide=True):
         marks += (f'<text x="{lx}" y="{ly + font * Decimal("0.35"):.1f}" class="end-label" style="fill:{pc(party)}">'
                   f'<tspan class="end-name">{escape(name)}</tspan> <tspan class="end-value">{display(int(value * 1000), 1000)}</tspan></text>')
     title = 'Party vote, 30-day poll average and individual polls, ' + f'{start:%-d %B} to {last_day:%-d %B %Y}'
-    return (f'<svg class="trend {"wide" if wide else "narrow"}" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(title, quote=True)}" style="--font:{font}px">'
+    return (f'<svg class="trend {"wide" if wide else "narrow"}" viewBox="0 0 {W} {H}" role="img" aria-label="{escape(title, quote=True)}" aria-describedby="source-trend" style="--font:{font}px">'
             + marks + '</svg>')
 
 
@@ -193,7 +193,7 @@ def trend_table(averages):
 
 # Latest polls table
 
-def poll_table(polls, average, names, count=8, *, reports=False):
+def poll_table(polls, average, names, count=8, *, reports=False, caption='Latest national polls, party vote percent'):
     rows = sorted(polls, key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:count]
     parties = [p for p in PARTIES if any(r['shares'].get(p) is not None for r in rows)]
     head = '<tr><th scope="col">Pollster</th><th scope="col" class="dates">Fieldwork</th>' + ''.join(
@@ -217,8 +217,8 @@ def poll_table(polls, average, names, count=8, *, reports=False):
             body += (f'<td class="dates">{r["sample"]:,}</td>' if r.get('sample') else '<td class="dates"></td>')
             body += '<td class="dates">' + ' '.join(link(u, 'Report') for u in r['reference_urls'][:1]) + '</td>'
         body += '</tr>'
-    return ('<div class="poll-table" tabindex="0" role="region" aria-label="Latest polls">'
-            '<table aria-describedby="source-polls"><caption class="chart-data">Latest national polls, party vote percent</caption>'
+    return (f'<div class="poll-table" tabindex="0" role="region" aria-label="{escape(caption, quote=True)}">'
+            f'<table aria-describedby="source-polls"><caption class="chart-data">{escape(caption)}</caption>'
             f'<thead>{head}</thead><tbody>{body}</tbody></table></div>')
 
 
@@ -288,7 +288,7 @@ def hex_map(envs, cells, rows, held_for):
         mx = (min(c['x'] for c in maori) + gap) * w + 4
         my = min(c['y'] for c in maori) * size * Decimal('1.5') - 14
         marks += f'<text x="{mx:.1f}" y="{my:.1f}" class="map-label">Māori</text><text x="{mx:.1f}" y="{my + 16:.1f}" class="map-label">electorates</text>'
-    svg = (f'<svg class="hex-map" viewBox="0 0 {width:.0f} {height:.0f}" role="group" '
+    svg = (f'<svg class="hex-map" viewBox="0 0 {width:.0f} {height:.0f}" role="group" aria-describedby="source-electorates" '
            f'aria-label="Electorates coloured by 2023 winning party; darker means a larger margin">{marks}</svg>')
     return svg, hidden(table('2023 holders on original boundaries', ['Electorate', 'Party', 'Margin'], records, source='source-electorates'))
 

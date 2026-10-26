@@ -13,8 +13,10 @@ def test_all_server_rendered_routes(populated):
     assert check_site(site) == 81
     polls = (site / 'polls/index.html').read_text()
     names = [attrs['aria-label'] for _, attrs in Document(polls).nodes if attrs.get('role') == 'region']
-    assert names == ['Ten most recent national polls; reported party vote percent']
-    assert '<caption>Ten most recent national polls; reported party vote percent</caption>' in polls
+    # Each scrolling table is a named region whose name matches its caption.
+    assert names == ['Weekly snapshots of the 30-day average, percent', 'Every national poll this year, party vote percent']
+    for name in names:
+        assert f'>{name}</caption>' in polls
     assert '<fieldset' not in polls
 
 

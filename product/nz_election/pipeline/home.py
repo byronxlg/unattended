@@ -418,7 +418,7 @@ def ribbon(built, envs):
     from .snapshots import load_voting
     from .home_graphics import nz_today
     if post_election(built):
-        return ''
+        return voting_dates(built, envs=envs)
     records = {r['id']: r for r in load_voting()}
     today = nz_today(built)
     day = date.fromisoformat(records['election-day']['date']) if records.get('election-day', {}).get('date') else None
@@ -429,8 +429,8 @@ def ribbon(built, envs):
     phase = ('Advance voting is open' if advance and date.fromisoformat(advance) <= today else 'Advance voting opens ' +
              (f'{date.fromisoformat(advance):%-d %B}' if advance else 'soon'))
     count = 'Election day is today' if left == 0 else f'<b>{left}</b> day{"s" if left != 1 else ""} to election day'
-    return (f'<div class="ribbon"><p><span class="live-dot" aria-hidden="true"></span>{phase}</p><p>{count}</p>'
-            f'<p><a href="{PREFIX}vote/">How and where to vote</a></p></div>')
+    return (f'<section id="dates" class="ribbon" aria-label="Voting now"><p><span class="live-dot" aria-hidden="true"></span>{phase}</p><p>{count}</p>'
+            f'<p><a href="{PREFIX}vote/">How and where to vote</a></p></section>')
 
 
 def section(name, heading, dek, graphic, publisher, date, more=None):
@@ -496,13 +496,6 @@ def page(envs, built, presentation):
             modules += section('thresholds', 'Which parties are near the 5% line?',
                                'Under MMP a party needs 5% of the party vote, or one electorate, to share in list seats.',
                                g.threshold_bars(rows_t), 'Wikipedia contributors', updated(envs, 'polls', built))
-    if 'markets' in envs:
-        from .market_panel import leaders, question, yes
-        entries = [(question(row), yes(row)['price'], row['closed']) for _, row in leaders(envs['markets']['data']) if row]
-        if entries:
-            modules += section('markets', 'What are the betting markets saying?',
-                               'Prices on Polymarket, read as the chance traders put on each outcome. Markets are not polls and can be thin.',
-                               g.market_cards(entries), 'Polymarket', updated(envs, 'markets', built))
     if not post_election(built):
         modules += section('night', 'When can I vote?', 'Key dates from the Electoral Commission.',
                            g.timeline(records, g.nz_today(built)), 'Electoral Commission', 'Checked ' + compact_time(built), ('vote/', 'How to vote'))
@@ -517,6 +510,15 @@ def page(envs, built, presentation):
                f'data-settled="{escape(night_waiting(ended=True), quote=True)}">{top}</div>'
                f'<script type="module" src="{PREFIX}home-live.mjs"></script>')
     return render('home', dates=ribbon(built, envs), hero=top, state=state, modules=modules)
+
+
+def parties_credits():
+    from .snapshot_views import load
+    rows = ''.join(f'<li>{escape(r["name"])}: {link(r["photo"]["source_url"], r["photo"]["author"])}, '
+                   f'{link(r["photo"]["licence_url"], r["photo"]["licence"])}. {escape(r["photo"]["changes"])}</li>'
+                   for r in load('leaders') if r.get('photo'))
+    return ('<p>Shares are the 30-day average below; change is against the average 30 days earlier; seats are the calculation under Seats.</p>'
+            + (f'<ul>{rows}</ul>' if rows else ''))
 
 
 def poll_inputs(polls):
@@ -548,6 +550,7 @@ def sources(envs, built, presentation):
                 ('trend', 'Poll trend inputs', trend_inputs + polls_page(envs, built, presentation, full_sources=True).replace(seats, '')),
                 ('electorates', 'Closest electorate inputs', watch(envs) + family_note(envs, 'source-watch', ('electorates', 'baseline-2023', 'candidates'))),
                 ('thresholds', 'Threshold inputs', threshold_body + selected),
+                ('parties', 'Party cards: averages and photos', parties_credits() + selected),
                 ('markets', 'Market observations and terms', panel(envs, built) + family_note(envs, 'source-market-metadata', ('markets',))),
                 ('night', 'Election night inputs', (family_note(envs, 'source-night-family', ('night/index',)) if 'night/index' in envs else '') + note('source-election', 'Election date: Electoral Commission, 7 November 2026. Countdown updated ' + compact_time(built) + '.', link('https://vote.nz/', 'Electoral Commission') + f'<a href="{PREFIX}build-manifest.json">Build record</a>')),
                 ('directory', 'Electorate directory inputs', family_note(envs, 'source-directory', ('electorates', 'baseline-2023'))),

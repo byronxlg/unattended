@@ -60,7 +60,7 @@ def test_incomplete_vector_withholds_seats(tmp_path):
     html = (out / 'polls/index.html').read_text()
     assert 'class="strip"' not in html
     assert 'Incomplete party coverage' in (out / 'methods/index.html').read_text()
-    assert 'Missing observations' not in html and 'Has support changed?' in html
+    assert 'Missing observations' not in html and '<section id="trend"' in html
     assert 'Missing observations' in (out / 'methods/index.html').read_text()
 
 

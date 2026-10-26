@@ -62,10 +62,14 @@ def test_live_capture_seats_and_published_derivations(tmp_path):
     assert 'Others includes derived remainders.' in polls
     assert 'Affected pollsters: Anacta, Talbot Mills.' in methods
     home = (site / 'index.html').read_text()
-    assert 'Government 67 seats' in home
-    assert 'Opposition 58 seats' in home and '67 needed' in home
-    assert re.findall(r'class="segment bloc-fill-([^"]+)"', home) == ['left', 'right', 'neutral']
-    assert '8 seats outside these groups or unassigned' in home
+    hero = home.split('<section id="seats"', 1)[1].split('</section>', 1)[0]
+    text = ' '.join(re.sub(r'<[^>]+>', ' ', hero).split())
+    assert '67 Government' in text and 'Government parties 67, 67 needed' in hero
+    assert '58 Opposition' in text
+    # Opposition, then parties outside both groups, then government, around the hemicycle.
+    legend = hero.split('class="seat-legend"', 1)[1]
+    assert [u.split('</ul>')[0].count('<li>') > 0 for u in legend.split('<ul')[1:4]] == [True, True, True]
+    assert '8 seats sit outside both groups.' in text
     assert 'methods/#home-seats' in home
 
 

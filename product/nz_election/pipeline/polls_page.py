@@ -95,6 +95,7 @@ def page(envs, built, presentation):
     seats = seat_hero(envs, built, presentation)
     if seats:
         seats = seats.replace('<h1>Who is favoured to form the next government?</h1>', '<h2>Could these parties reach a majority?</h2>')
+        seats = seats.replace('</figure>', '<figcaption class="chart-note">List capacity not checked. Others are derived as the remainder of reported shares.</figcaption></figure>', 1)
         content += seats.replace('class="hero"', 'class="hero module"')
     else:
         content += aliases('seats', 'source-seats')
@@ -111,7 +112,7 @@ def page(envs, built, presentation):
         names = {identity: name for name, identity in config('party-map')['pollsters'].items()}
         content += ('<section id="recent-polls" class="module"><header class="module-head"><h2>Every poll this year</h2>'
                     f'<p class="dek">All {len(polls)} national polls since January, newest first. Darker cells are larger shares.</p></header>'
-                    + g.poll_table(polls, average, names, count=len(polls), reports=True).replace('aria-describedby="source-polls"', 'aria-describedby="source-history"')
+                    + g.poll_table(polls, average, names, count=len(polls), reports=True, caption='Every national poll this year, party vote percent').replace('aria-describedby="source-polls"', 'aria-describedby="source-history"')
                     + f'<div class="module-foot"><div class="source-note home-footnote" id="source-history"><p class="source-actions">Wikipedia contributors. '
                     f'<a href="{PREFIX}methods/#source-history">Sources and method</a></p></div></div></section>')
         content += ''.join(aliases(p['id'], 'source-' + p['id']) for p in polls)

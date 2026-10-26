@@ -19,7 +19,8 @@ def fallback(html):
 
 
 def colour(party):
-    return config('party-colours').get(party, {}).get('colour', 'var(--grey)')
+    # Display tokens from styles.css (light and dark); DESIGN.md explains the palette.
+    return f'var(--p-{party})' if party in config('party-colours') else 'var(--p-other)'
 
 
 def party_text(p, suffix="", css="", style=""):

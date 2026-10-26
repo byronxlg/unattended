@@ -16,13 +16,16 @@ def test_picker_target_check_rejects_shrunken_and_missing_links():
 def test_home_movement_and_single_directory_link(populated):
     _, site = populated
     html = (site / 'index.html').read_text()
-    hero = html.split('id="seats"', 1)[1].split('</section>', 1)[0]
-    assert 'class="poll-change"' in hero and 'since ' in hero
-    assert hero.index('class="poll-change"') < hero.index('class="strip"')
-    assert html.count('Browse all electorates and candidates') == 1
-    assert 'See all electorates' not in html
-    assert 'Māori<br>electorates' in html
-    assert 'class="picker-map" tabindex="0"' in html
+    # Movement is stated with its baseline date on the party cards.
+    parties = html.split('<section id="parties"', 1)[1].split('</section>', 1)[0]
+    assert 'class="change' in parties and 'since ' in parties
+    assert html.index('<section id="seats"') < html.index('<section id="parties"')
+    electorates = html.split('<section id="electorates"', 1)[1].split('</section>', 1)[0]
+    assert 'href="/unattended/nz-election/electorates/"' in electorates
+    assert 'class="map-label">Māori</text>' in electorates
+    # Every hexagon is a link, so the map is reachable by keyboard.
+    hexes = electorates.split('<svg class="hex-map"')[1].split('</svg>')[0]
+    assert hexes.count('<a href="/unattended/nz-election/electorates/') == 71
 
 
 def test_picker_directory_overrides_shared_desktop_grid():

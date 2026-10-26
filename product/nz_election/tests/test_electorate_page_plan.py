@@ -16,7 +16,8 @@ def seat(slug='wellington-north'):
 def test_first_screen_order_and_all_locators():
     for row in config('electorates'):
         html = detail(row, {})
-        assert html.index('class="race-cards"') < html.index('Check your enrolled electorate at vote.nz') < html.index('class="electorate-locator"')
+        # Candidates first; the locator and the enrolment check sit beside them.
+        assert html.index('class="race-cards"') < html.index('class="electorate-locator"') < html.index('Check your enrolled electorate at vote.nz')
         graphic = locator(row)
         assert graphic in html and len(graphic.encode()) < LOCATOR_BYTE_CAP == 24000
         assert f'data-electorate="{row["slug"]}"' in graphic
@@ -52,7 +53,7 @@ def test_policy_link_only_when_present(monkeypatch):
     assert 'electorate-policy' not in detail(seat(), {})
     monkeypatch.setattr(snapshot_views, 'load', lambda n: [{'electorate_slug': 'wellington-north', 'url': 'https://policy.nz/2026/electorate-vote/wellington-north'}] if n == 'policy-links' else original(n))
     html = detail(seat(), {})
-    assert html.index('class="locator-card"') < html.index('class="electorate-policy"')
+    assert html.index('class="race-candidates"') < html.index('class="electorate-policy"') < html.index('class="locator-card"')
     assert 'https://policy.nz/2026/electorate-vote/wellington-north' in html
     assert 'electorate-policy' not in detail(seat('te-tai-tonga'), {})
 
@@ -84,7 +85,7 @@ def live_env():
 def test_current_night_answer_promotes_above_candidates():
     envs = live_env()
     html = detail(seat(), envs, '2026-11-07T07:00:00Z')
-    assert html.index('Who is leading here now?') < html.index('Standing in 2026')
+    assert html.index('Who is leading here now?') < html.index('id="candidates-title"')
     assert 'Test leader' in html and 'Margin: 123 votes' in html
     assert '4 of 12 voting places counted' in html and 'Provisional leader' in html
     provenance(html)

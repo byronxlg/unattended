@@ -19,13 +19,15 @@ def test_answer_order_and_marks(populated):
     assert 'methods/#average' in html
     assert html.index('id="recent-polls"') < html.index('class="polls-method"')
     assert '<script' not in html and '<fieldset' not in html
-    assert '<circle ' in html and 'fill-opacity="0.3"' in html
-    assert 'stroke-dasharray="4 3"' in html and 'class="majority"' in html
+    # Polls as dots, the 5% line on the trend, and the majority marked on the seats.
+    assert 'class="poll-dot"' in html and 'class="threshold"' in html and 'class="majority-mark"' in html
     average = envs['averages']['data'][-1]
     expected = sorted((p for p, d in average['descriptive'].items() if d['value'] is not None),
-                      key=lambda p: (-Fraction(average['descriptive'][p]['value'], average['descriptive'][p]['scale']), p))
-    assert re.findall(r'class="average-row" data-party="([^"]+)"', html) == expected
-    assert html.count('class="seat"') == home_presentation(envs, NOW)['result']['assumed_house']
+                      key=lambda p: (p == 'others', -Fraction(average['descriptive'][p]['value'], average['descriptive'][p]['scale']), p))
+    bars = html.split('class="average-list"')[1].split('</ul>')[0]
+    assert re.findall(r'<li style="--c:var\(--p-(\w+)\)">', bars) == [{'others': 'other'}.get(p, p) for p in expected]
+    hemicycle = html.split('<svg class="hemicycle"')[1].split('</svg>')[0]
+    assert hemicycle.count('<circle ') == home_presentation(envs, NOW)['result']['assumed_house']
     provenance(html)
 
 
@@ -44,6 +46,9 @@ def test_absence_and_legacy_fragments(populated):
     envs = deepcopy(envs)
     for d in envs['averages']['data'][-1]['descriptive'].values():
         d.update(value=8, scale=1)
+    # No party near 5% in the average or in any poll behind it.
+    for poll in envs['polls']['data']:
+        poll['shares'] = {k: (None if v is None else 8 * poll['scale']) for k, v in poll['shares'].items()}
     html = polls_page(envs, NOW, home_presentation(envs, NOW))
     assert '<section id="thresholds"' not in html
     ids = {a['id'] for _, a in Document(html).nodes if 'id' in a}
@@ -59,18 +64,22 @@ def test_absence_and_legacy_fragments(populated):
 def test_recent_polls_newest_first_with_original_reports(populated):
     from product.nz_election.pipeline.content_checks import Tree
     envs, site = populated
+    from datetime import date
     tree = Tree((site / 'polls/index.html').read_text())
-    rows = [n for n in tree.nodes if n.tag == 'tr'][1:]
-    recent = sorted(envs['polls']['data'], key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:10]
+    table = next(n for n in tree.nodes if n.tag == 'table' and 'Every national poll this year' in n.text)
+    # Header, then the average row, then every poll newest first.
+    def descendants(node):
+        for child in node.children:
+            if not isinstance(child, str):
+                yield child
+                yield from descendants(child)
+    rows = [n for n in descendants(table) if n.tag == 'tr'][2:]
+    recent = sorted(envs['polls']['data'], key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)
     assert len(rows) == len(recent)
     for row, poll in zip(rows, recent):
-        assert poll['fieldwork_start'] + ' to ' + poll['fieldwork_end'] in row.text
-        assert str(poll['sample']) in row.text if poll['sample'] is not None else True
+        start, end = date.fromisoformat(poll['fieldwork_start']), date.fromisoformat(poll['fieldwork_end'])
+        assert f'{start.day}' in row.text and f'{end.day} {end:%b}' in row.text
+        assert f'{poll["sample"]:,}' in row.text if poll['sample'] is not None else True
         # Each row's report belongs to that poll, rather than the collection source.
-        def descendants(node):
-            for child in node.children:
-                if not isinstance(child, str):
-                    yield child
-                    yield from descendants(child)
         links = [n.attrs.get('href') for n in descendants(row) if n.tag == 'a']
         assert set(poll['reference_urls']) <= set(links)

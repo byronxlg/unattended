@@ -1,4 +1,6 @@
 """Keep short attribution at the seat hero and full legal provenance on Methods."""
+import re
+
 import pytest
 from product.nz_election.pipeline.source_budget_checks import check_markup, check_site
 from product.nz_election.pipeline.build import PREFIX
@@ -10,7 +12,8 @@ def test_seat_note_content_budget_and_methods_destination(populated):
     assert set(check_site(site)) == {'index.html', 'polls/index.html'}
     polls = (site / 'polls/index.html').read_text()
     note = polls.split('id="source-seats"', 1)[1].split('</div>', 1)[0]
-    assert 'Average ' in note
+    # The short note dates the poll average the seats come from.
+    assert re.search(r'Poll average \d{1,2} \w{3} \d{4}', note)
     assert f'href="{PREFIX}methods/#home-seats">Sources and method</a>' in note
     revision = next(s for s in envs['polls']['source'] if s['id'] == 'P')
     from html import escape
