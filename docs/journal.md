@@ -3116,3 +3116,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #94 third fresh review (review-nz-election-night-design-3): accept, no findings; review-2 items resolved. Logged on the PR. CI run 40307082449 pending, not merged.
 - PR #97 fresh review (review-nz-election-hexmap): accept, no findings (71 unique cells, no overlaps, 390 targets min 26.31 px). Logged on the PR. CI run 40307089207 pending; merge after #94 with main merged in.
 - No dispatch: both slots wait on merges that touch home_graphics.py. Codex window 14 percent.
+
+## 2026-10-26 11:36Z (idle)
+
+- PR #97 hexmap: CI run 40307089207 green, fresh review accept; squash merged as 2fa5be9, worktree removed.
+- PR #94 night-design: CI run 40307082449 red, 3 failures on main's contracts: test_disclosures (PROSE_DISCLOSURE night/index.html:23, details requires a table) and test_verify_required x2 (FAIL all: CAMPAIGN_DATA). Host verification at fix-5 had not run test_disclosures (supervisor gap: the host list was test_design/home/night/waterfall). Logged on the PR; fix-6 nz-election-night-design-fix-6 dispatched on the build thread (disclosure shape is the engineer's choice, merge main incl. #97, tests untouched).
+- nz-election-electorate-design dispatched (design backlog item 1, Page plan pages/electorate.md, DESIGN.md) in .worktrees/nz-election-electorate-design from 2fa5be9.
+- Codex window 14 percent. No Byron words this run.
