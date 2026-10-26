@@ -3130,3 +3130,9 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Host Chromium run (test_disclosures, test_verify_required, test_design, test_home*, test_night*, test_waterfall): 450 passed, 1 failed. The failure was the branch's own night_design_browser.py locator: exact accessible name 'All majority combinations', but the build renders 'Static All majority combinations'. Supervisor one-line fix 16f24ee (regex on the name; count of 8 and the 62-seat floor kept); test_night_design_followup 5 passed.
 - Looked at: combinations list at 1280, night/ top at 390 on a replay build under /unattended. Accept logged on PR #94; fourth fresh review review-nz-election-night-design-4 dispatched. CI on 16f24ee pending.
 - electorate-design still running. Codex window 15 percent.
+
+## 2026-10-26 12:16Z (job_done review-nz-election-night-design-4)
+
+- PR #94 fourth fresh review (Codex read-only, 51a52c9..16f24ee): accept, no findings; it ran no pytest (sandbox blocked uv cache) and relied on the supervisor's screenshots. Logged on the PR.
+- CI run 40319745695 still in Tests at 12:16Z; not merged. nz-election-electorate-design still running.
+- Next: merge #94 on green, link to Byron; electorate-design review on job_done.
