@@ -2,7 +2,7 @@
 
 Polls, averages, theoretical seats and their CSV siblings: CC BY-SA 4.0.
 Source: Wikipedia contributors. CC BY-SA 4.0. Parsed and averaged by this project.
-Revision: https://en.wikipedia.org/w/index.php?oldid=1382114858
+Revision: https://en.wikipedia.org/w/index.php?oldid=1382144830
 Contributor history: https://en.wikipedia.org/w/index.php?title=Opinion_polling_for_the_2026_New_Zealand_general_election&action=history
 Licence: https://creativecommons.org/licenses/by-sa/4.0/
 
