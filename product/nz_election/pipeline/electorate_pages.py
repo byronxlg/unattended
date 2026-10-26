@@ -179,10 +179,10 @@ def detail(row, envs, built=None):
     content += '<div class="electorate-intro">' + local_hero(row, envs)
     content += ('<figure class="locator-card" aria-describedby="source-electorates">' + graphic
                 + '<figcaption>Highlighted seat</figcaption></figure>')
+    content += '</div>' + candidate_cards(row)
     content += '<div class="electorate-actions source-note"><p class="source-actions enrolled-electorate">'
     content += link('https://vote.nz/', 'Check your enrolled electorate at vote.nz')
-    content += '</p>' + policy_link(row) + '</div></div>'
-    content += candidate_cards(row)
+    content += '</p>' + policy_link(row) + '</div>'
     content += ('<div class="source-note" id="source-electorates"><p class="source-actions">'
                 f'Schematic, not a legal boundary. Stats NZ 2025 boundaries, CC BY 4.0. <a href="{PREFIX}methods/#home-map">Map sources</a></p></div>')
     content += previous_result(row, envs, built)

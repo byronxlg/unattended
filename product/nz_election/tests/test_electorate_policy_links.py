@@ -19,10 +19,10 @@ def test_registered_policy_links_on_populated_pages(populated, monkeypatch):
         html = (site / 'electorates' / slug / 'index.html').read_text()
         sections = [n for n in Tree(html).nodes if n.tag == 'section']
         candidates = next(i for i, n in enumerate(sections) if 'race-candidates' in n.attrs.get('class', '').split())
-        policy = next(n for n in sections[:candidates] if n.attrs.get('class') == 'electorate-policy')
+        policy = sections[candidates + 1]
         assert policy.attrs.get('class') == 'electorate-policy'
         assert any(n.tag == 'a' and n.attrs.get('href') == record['url'] for n in policy.children[0].children if not isinstance(n, str))
-        assert html.index('class="electorate-policy"') < html.index('class="race-candidates module"')
+        assert html.index('class="race-candidates module"') < html.index('class="electorate-policy"')
         if 'Who won last time?' in html:
             assert html.index('class="electorate-policy"') < html.index('Who won last time?')
     original = snapshot_views.load

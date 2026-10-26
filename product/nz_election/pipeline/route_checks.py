@@ -56,7 +56,7 @@ def check_site(site, envs):
             require(graphic in html and len(graphic.encode()) < LOCATOR_BYTE_CAP,
                     'shared hex locator within byte cap')
             require('id="source-boundaries-2025"' in html and 'CC BY 4.0' in html, 'locator provenance')
-            require(html.index('Check your enrolled electorate at vote.nz') < html.index('class="race-cards"'), 'first-screen enrolment action')
+            require(html.index('class="race-cards"') < html.index('enrolled-electorate"'), 'candidate-first order')
             require('aria-current="location"' in graphic and f'data-electorate="{row["slug"]}"' in graphic, 'selected electorate')
             require('class="tile-map"' not in html and 'Local polls' not in html and '<h2>Enrolment' not in html,
                     'only accepted page answers')
