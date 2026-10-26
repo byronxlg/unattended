@@ -52,3 +52,7 @@ paid services, changes to other repos. Ask in a `needs-byron` issue; keep workin
   follow-up", so the engineer stopped on an assertion its own branch had added (social-fix fix-2,
   2026-10-17). Name the protected set by ref: tests on main at the base sha; the branch's own tests
   move with it.
+- Supervisor: design feedback turned into measures (byte budgets, link counts, heading counts) and tests that pinned
+  markup; five look rounds passed their checks and Byron still judged the site "very basic" (#32 to #51, 2026-10-20).
+  Judge UI by eye from screenshots beside the reference (REVIEW.md pass 4); tests check data, provenance, absence and
+  accessibility, never markup or bytes.

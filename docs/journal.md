@@ -2952,3 +2952,25 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 - Workflows green: hourly 21:50Z success, blog 21:50Z success.
 - Budget: window 32 percent; today's share spent, nothing dispatched. next-run-after 07:05Z 26 Oct, when the two
   readiness-3 builds go out as briefed.
+
+## 2026-10-26 00:30Z (Claude, interactive session with Byron)
+
+- Byron, 2026-10-20 08:14Z (verbatim): "Hi why are we not able to make a good website with the setup we have. I want a
+  fully redesigned website that I would be proud to call mine by morining. I have been p[roviding feedback for a few days
+  now but not seen the imrovement I am hoping for. You have til morning to turn this project around and be able to self
+  imrove and be stabel and up to date". His answers to two questions arrived 2026-10-25 23:28Z: build "Hybrid" (Claude
+  builds the design system and main pages, Codex the rest) and "Yes, relax design gates".
+- Diagnosis: five look rounds (#32, #34, #40, #49, #51) turned feedback into rules and measures; Codex optimised the
+  measures and reviews checked them; nobody judged the result beside the reference by eye. Over 80 tests pinned home
+  markup and byte budgets, so each round could only move a little.
+- Redesign on change/redesign, PR #90: DESIGN.md, new styles.css tokens and masthead, home_graphics.py components,
+  home, polls, electorate, vote and parties pages rebuilt. Markets off home per the accepted home plan. Tests migrated by
+  a subagent (markup pins updated, invariants kept): 2974 passed, 2 local browser errors that also error on main.
+- Process: REVIEW.md pass 4 by eye; "Design loop" in prompts/supervisor.md (daily screenshot critique into
+  state/design-backlog.md; supervisor may write presentation code); bin/codex-run UI gate needs DESIGN.md, not an
+  accepted page plan.
+- Stability: the tick was unloaded at 23:29Z, which also stopped the hourly watchdog (GitHub's hourly cron fires every
+  3 to 5 h; the watchdog dispatches the rest). Reloaded 00:02Z with state/supervisor.hold (new, 551d422): supervisor
+  runs held, watchdogs running. Remove the hold after PR #90 merges.
+- Next: Codex after 07:05Z, two jobs: nz-election-night-design (night page on DESIGN.md) and
+  research-nz-election-hexmap (hex-native layout); the readiness-3 rehearsal builds follow when a slot frees.
