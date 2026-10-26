@@ -3097,3 +3097,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #96 publish-rehearsal: CI run 40298755113 still pending, not merged.
 - Second slot left empty: hexmap touches home_graphics.py, same as #94; it waits for #94.
 - No judgement calls. Codex window 11.0 percent.
+
+## 2026-10-26 09:43Z run (job_done nz-election-night-design-fix-4)
+
+- PR #96 publish-rehearsal: CI green, squash merged as a5b88b6; worktree removed (only untracked last.md and artifacts/). Actions proof: `nz-election-night-rehearsal.yml` dispatched on main, run 40303064779 (generation 0) success and its bounded successor 40303120397 success.
+- PR #94 night-design fix-4 (5aa1172 merge of main, 8eedc0c caveats visible during search, behaviour checks): host list with Chromium 2 failed, 461 passed. (1) main's test_night_deployed.py::test_browser_checks[rehearse] FAIL source-links; the same test passes on origin/main (3 passed), so the branch dropped one of the four `#night-snapshot .source-actions` links. (2) the branch's night_design_browser.py:90, search box off screen after the "Find your electorate" jump. Verdict request changes, logged on #94; fix-5 nz-election-night-design-fix-5 dispatched on the build thread (main's tests untouched, the jump assertion not loosened). Codex reported only sandbox Chromium denials; host checks remain the gate for browser work.
+- nz-election-hexmap dispatched from origin/main (a5b88b6) in .worktrees/nz-election-hexmap rather than waiting for #94; overlap is `home_graphics.py` (hemicycle in #94, `hex_map` here), brief carries a base note to merge main in.
+- Codex window 12 percent at run start.

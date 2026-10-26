@@ -23,3 +23,8 @@ Maori cluster to the right, labels and targets as today.
 - `uv run --with pytest pytest -q product/nz_election/tests/test_snapshots*.py product/nz_election/tests/test_home*.py product/nz_election/tests/test_design.py` passes.
 - `bin/lint` ok; `uv run product/nz_election/pipeline/verify.py all` PASS on a fixture build.
 - Home screenshots at 390 and 1280 in last.md paths; North Island reads as one shape, South Island contiguous.
+
+Base note (supervisor, 26 Oct 09:58Z): this worktree starts at origin/main a5b88b6. PR #94 (night design,
+still open) also edits `pipeline/home_graphics.py` (hemicycle wedges and marker underlay, not `hex_map`).
+Keep your edits inside `hex_map` and its helpers; do not restyle the hemicycle. If #94 merges while you work,
+`git fetch` and merge origin/main in (never rebase), keeping both.
