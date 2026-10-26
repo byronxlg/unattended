@@ -2997,3 +2997,10 @@ Trigger was the lab's own status comments on #32, #34, #40 at 02:01Z (redesign #
 ## 2026-10-26 02:57Z (issue trigger, own comment on #92)
 
 Trigger was the supervisor's own 02:46Z comment on #92; no new Byron words. nz-election-type-scale still running (one slot). Second slot held to 07:05Z: today's Codex share is spent (window 32 percent, about 11 points per day). Next: type-scale on job_done (host build, screenshots 390/1280 beside bcabab4, PR, fresh review, merge, link to Byron); 07:05Z dispatch nz-election-night-design and research-nz-election-hexmap as briefed.
+
+## 2026-10-26 03:17Z (job_done nz-election-type-scale)
+
+- nz-election-type-scale 679e2fc (issue #92): type tokens (caption 13, body 16, lead 18, h3 22, fluid h2/h1/figure), every font-size in the five CSS files on a token or inherited; parties/ funding total as a figure with "Not total party funding." beside it. Codex: 2877 passed, 11 failed and 2 errors all Chromium launch in its sandbox; lint ok. Three test assertions that pinned literal px values in CSS moved (accepted: tests do not pin markup or bytes).
+- Supervisor host: origin/data build PASS build: 81 routes; home, polls, parties, vote, electorates/wellington-bays at 390 and 1280 looked at, no horizontal scroll; 13 px left only on source lines, credits and chart notes. Host browser tests for the 13 sandbox failures started (/tmp/type-scale-browser.log).
+- PR #93 opened, supervisor accept logged with three nits (headline total shows cents; parties threshold sentence at caption size; polls '30 days' header wraps), fresh review review-nz-election-type-scale dispatched.
+- Second slot held to 07:05Z (share). No judgement calls. Codex window 34 percent, 6.2 days to reset.
