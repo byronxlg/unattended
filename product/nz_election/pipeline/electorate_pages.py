@@ -182,7 +182,7 @@ def detail(row, envs, built=None):
     content += '</div>' + candidate_cards(row)
     content += '<div class="electorate-actions source-note"><p class="source-actions enrolled-electorate">'
     content += link('https://vote.nz/', 'Check your enrolled electorate at vote.nz')
-    content += '</p><p class="source-actions">' + link('#electorate-map', 'Boundary map (schematic)') + '</p>' + policy_link(row) + '</div>'
+    content += '</p><p class="source-actions">' + '<a href="#electorate-map">Boundary map (schematic)</a>' + '</p>' + policy_link(row) + '</div>'
     content += ('<div class="source-note" id="source-electorates"><p class="source-actions">'
                 f'Schematic, not a legal boundary. Stats NZ 2025 boundaries, CC BY 4.0. <a href="{PREFIX}methods/#home-map">Map sources</a></p></div>')
     content += previous_result(row, envs, built)
