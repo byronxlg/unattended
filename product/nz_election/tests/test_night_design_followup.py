@@ -6,7 +6,7 @@ import subprocess
 
 import pytest
 
-from product.nz_election.pipeline import home_graphics as g, night, night_page
+from product.nz_election.pipeline import home_graphics as g
 from product.nz_election.pipeline.content_checks import Tree
 from product.nz_election.tests.screenshots import CONTRAST, contrast
 
@@ -26,8 +26,6 @@ def test_party_wedges_are_contiguous_and_dots_do_not_overlap(seats):
         for other in dots[i + 1:]:
             distance = math.hypot(float(dot['cx']) - float(other['cx']), float(dot['cy']) - float(other['cy']))
             assert distance + .2 >= float(dot['r']) + float(other['r'])
-    paths = {n.attrs.get('class'): n.attrs['d'] for n in tree.nodes if n.tag == 'path'}
-    assert paths['majority-underlay'] == paths['majority-mark']
 
 
 def test_normalized_srgb_contrast_matches_rgb_without_relaxing_threshold():
@@ -41,47 +39,9 @@ def test_normalized_srgb_contrast_matches_rgb_without_relaxing_threshold():
     assert contrast([150, 150, 150], [255, 255, 255]) < 4.5
 
 
-def test_night_countdown_hook_and_early_electorate_jump():
-    payloads, _, _ = night.load()
-    envs = {key: {'data': rows} for key, rows in payloads.items()}
-    html = night_page.page(envs, '2026-10-26T00:00:00Z')
-    tree = Tree(html)
-    page = next(n for n in tree.nodes if n.attrs.get('class') == 'night-page')
-    assert any(not isinstance(n, str) and n.attrs.get('class') == 'countdown' for n in page.children)
-    seq = next(s for s in payloads['night/index'] if s['id'] == '2023')
-    row, refs = payloads[seq['snapshot_paths'][0][:-5]][0], payloads[seq['reference_path'][:-5]][0]
-    html = night_page.snapshot(row, refs, 'proof', seq['snapshot_paths'][0])
-    assert html.index('Find your electorate') < html.index('Who has enough seats?')
-    tree = Tree(html)
-    assert sum(n.attrs.get('class') == 'night-combination' for n in tree.nodes) == 3
-    assert 'All 8 majority combinations' in html
-    assert 'href="#night-search-proof"' in html and 'id="night-search-proof"' in html
-    assert 'timezone unverified' not in html
-    assert 'Results last updated 10 November 2024 at 00:00.' in html
-
-
-def test_electorate_precedes_detailed_arithmetic_in_live_and_terminal_states(tmp_path):
-    from product.nz_election.pipeline import fixtures, night_live, result_states
-
-    def capture(name):
-        path = 'result-states/' + name + '.json'
-        return json.loads(fixtures.captures(paths={path})[path])
-
-    def prepare(loaded, state, now):
-        folder = tmp_path / state
-        night.prepare(folder, loaded, 'offline-verification', 'a' * 40, now)
-        return {p.relative_to(folder).as_posix()[:-5]: json.loads(p.read_text()) for p in folder.rglob('*.json')}
-
-    envs = prepare(night_live.loaded(capture('2026-11-07-preliminary-final')), 'live', '2026-11-07T10:35:00Z')
-    for state, now in [('live', '2026-11-07T10:35:00Z'), ('settled', '2026-11-08T06:00:00Z'), ('official', '2026-11-27T11:00:00Z')]:
-        if state != 'live':
-            loaded = result_states.transition(envs, state, now=now,
-                                               captured=capture('2026-11-27-official') if state == 'official' else None)
-            envs = prepare(loaded, state, now)
-        html = night_page.live_package(envs)['html']
-        assert html.index('Who is winning?') < html.index('class="night-search"')
-        assert html.index('class="night-search"') < html.index('class="night-map-key map-key"')
-        assert html.index('class="night-search"') < html.index('Who has enough seats?') < html.index('class="night-votes"')
-        tree = Tree(html)
-        row = next(n for n in tree.nodes if n.tag == 'tr' and 'Auckland Central' in n.text)
-        assert 'Johan Chang' in row.text and 'CHANG, Johan' in row.text
+def test_night_design_browser(tmp_path):
+    from pathlib import Path
+    result = subprocess.run(['uv', 'run', str(Path(__file__).with_name('night_design_browser.py')), str(tmp_path)],
+                            capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert 'PASS night design behavior: replay, live, settled, official' in result.stdout

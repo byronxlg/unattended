@@ -91,13 +91,14 @@ def electorate_view(row, refs, source, identity):
                            held=dict(party_id=party_id, party=party.get('short_name', ''), margin=margin or 0) if leader else None)
         rows[-1][1] = f'<span class="night-party-cell" style="--c:{colour};--a:18%">{rows[-1][1]}</span>'
     content = '<section class="night-electorates module"><h2>Who is ahead in my electorate?</h2>'
-    guidance = '<p>Provisional leaders, not elected members. Grey means no reported leader; deeper colour means a larger margin.</p>'
+    guidance = '<p>Provisional leaders, not elected members.</p>'
     if official:
         guidance = guidance.replace('Provisional leaders, not elected members.', 'Official source-reported leaders.')
     if '2023' in row['mode'] or row['source_ref'] == ['ec-2023-xml/election.xml']:
         guidance += '<p>2023 electorates, on their original boundaries. Links lead to today’s electorate information; no votes are transferred to new boundaries.</p>'
     content += f'<label for="night-search-{identity}">Find an electorate</label><input id="night-search-{identity}" class="night-search" type="search" placeholder="Electorate name">'
-    content += '<div class="night-map-key map-key">' + guidance
+    content += guidance
+    content += '<div class="night-map-key map-key"><p>Grey means no reported leader; deeper colour means a larger margin.</p>'
     if legend:
         content += '<ul>' + ''.join(f'<li><i style="background:{colour}"></i>{escape(name)}</li>' for name, colour in sorted(legend.items())) + '</ul><p class="tones"><span>Margin</span><i class="close"></i>under 2,000<i class="mid"></i>2,000 to 8,000<i class="safe"></i>over 8,000</p>'
     content += '</div>'

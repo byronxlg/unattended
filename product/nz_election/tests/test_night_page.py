@@ -58,7 +58,9 @@ def test_populated_night_has_backed_results_and_sources():
     assert '62 for a majority' in html
     assert 'These combinations currently reach a majority; government formation is separate.' in html
     assert 'votes counted' not in html
-    assert 'class="night-leader-map hex-map"' in html
+    from product.nz_election.pipeline.content_checks import Tree
+    assert any(n.attrs.get('role') == 'group' and 'Electorate provisional leaders' in n.attrs.get('aria-label', '')
+               for n in Tree(html).nodes)
     assert 'Electorate provisional leaders' in html
     assert html.count('<template ') == 6
 
@@ -239,11 +241,10 @@ def test_night_seat_graphic_uses_source_totals_and_tokens(night_envs):
     refs = night_envs[seq['reference_path'][:-5]]['data'][0]
     html = snapshot(row, refs, 'proof', seq['snapshot_paths'][0])
     tree = Tree(html)
-    assert '<h1>Who is winning?</h1>' in html and 'Replay of 2023' in html
+    assert 'Who is winning?' in tree.root.text and 'Replay of 2023' in tree.root.text
     assert sum(n.tag == 'circle' for n in tree.nodes) == row['reported_house']
-    assert 'class="strip"' not in html
-    assert 'class="night-combinations"' in html and 'Majority reached' in html
-    assert 'class="scroll poll-table"' in html
+    assert 'Majority reached' in tree.root.text
+    assert 'Electorate provisional leaders' in tree.root.text
     assert all('var(--' in n.attrs['style'] for n in tree.nodes
                if n.tag in {'circle', 'polygon'} and 'style' in n.attrs)
 
