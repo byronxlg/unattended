@@ -3270,3 +3270,18 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - nz-election-vote-polish dispatched (build, stacked on change/nz-election-vote-nits 76b5126, worktree
   .worktrees/nz-election-vote-polish, Page plan pages/vote.md, DESIGN.md): the 2026-10-26 backlog item from the #101
   review (deadline wording once, label/answer width at 1280, one source credit per module). Codex window 27 percent.
+
+## 2026-10-26 17:30Z (job_done nz-election-vote-polish)
+
+- vote-polish f728f4d: Codex 144 passed, 3 Chromium cases sandbox-denied. Host: vote and design tests 147 passed incl.
+  Chromium; origin/data build PASS 81 routes; vote/ at 390 and 1280 looked at. First screenshots came from a stale
+  http.server on 8833 left by an earlier run (showed the old repeated "Deadline: ... NZDT (New Zealand time)" text);
+  caught by grepping the served HTML against the build, redone on a fresh port, old server killed. Third time a stale
+  local server has misled a look; from now serve each look on a new port and check the served HTML first.
+- On the new build: each deadline once ("by 7pm NZ time, 7 November"), help answers span the column at 1280, one credit
+  per module, no sideways scroll. PR #102 opened stacked on #101, supervisor accept logged, fresh review
+  review-nz-election-vote-polish dispatched (deadline_phrases agree with voting.json, skipped deadlines still visible
+  in every phase, describedby ids resolve).
+- Seen, not in scope: after the 25 Oct close the enrolment block says only "The enrolment close has passed."; NZ allows
+  enrolment to election day with a special vote. Next vote/ round, from the EC record only.
+- #101 CI run 40365736010 still pending at 17:40Z; not merged. Codex window 28 percent.
