@@ -214,3 +214,14 @@ def test_self_hosted_font_contract():
         assert raw[:4] == b'wOF2'
     for name in ('LibreFranklin-OFL.txt', 'JetBrainsMono-OFL.txt'):
         assert 'SIL OPEN FONT LICENSE Version 1.1' in (PRODUCT / 'web/fonts' / name).read_text()
+
+
+@pytest.mark.parametrize('chart', ['map', 'trend', 'header'])
+def test_phone_rendered_type_and_targets(built_design, tmp_path, chart):
+    import subprocess
+    _, site = built_design
+    result = subprocess.run(['uv', 'run', str(Path(__file__).with_name('type_scale_browser.py')),
+                             '--site', str(site.parent), '--chart', chart, '--out', str(tmp_path)],
+                            capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert 'PASS ' + chart in result.stdout
