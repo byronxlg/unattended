@@ -2974,3 +2974,10 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
   runs held, watchdogs running. Remove the hold after PR #90 merges.
 - Next: Codex after 07:05Z, two jobs: nz-election-night-design (night page on DESIGN.md) and
   research-nz-election-hexmap (hex-native layout); the readiness-3 rehearsal builds follow when a slot frees.
+
+## 2026-10-26 01:53Z (heartbeat)
+
+- Pages deploys of bcabab4 (redesign, PR #90) and b5d33ea in progress at 01:53Z; site 200. Hourly last success 00:25Z,
+  the tick watchdog covers it after 90 min. No Codex job running.
+- Budget: window 32 percent, share for the window day to 07:04Z spent per the 00:30Z session; nothing dispatched.
+  next-run-after stays 07:05Z, when nz-election-night-design and research-nz-election-hexmap go out as briefed.
