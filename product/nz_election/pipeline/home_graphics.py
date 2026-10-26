@@ -264,15 +264,15 @@ def hex_map(envs, cells, rows, held_for):
     size = 17
     w = Decimal(size) * Decimal(3).sqrt()
     marks, records = '', []
-    general = [c for c in cells if c['group'] != 'maori']
     maori = [c for c in cells if c['group'] == 'maori']
-    gap = -1 if maori else 0
+    # Compact the empty sea gap so phone targets stay at least 24 px.
+    gap = -2 if maori else 0
     cx_max = cy_max = Decimal(0)
     for c in cells:
         row = rows[c['electorate_slug']]
         held = held_for(row)
         shift = gap if c['group'] == 'maori' else 0
-        cx = (c['x'] + shift) * w + (w / 2 if c['y'] % 2 else 0) + w / 2 + 4
+        cx = (c['x'] + shift) * w + (w / 2 if c['y'] % 2 else 0) + w / 2 + 1
         cy = Decimal(c['y']) * size * Decimal('1.5') + size + 4
         cx_max, cy_max = max(cx_max, cx), max(cy_max, cy)
         points = ' '.join(f'{cx + Decimal(size) * Decimal(str(round(math.cos(math.radians(60 * k - 30)), 4))):.1f},'
@@ -284,7 +284,7 @@ def hex_map(envs, cells, rows, held_for):
         marks += (f'<a href="{PREFIX}electorates/{row["slug"]}/" aria-label="{title}"><title>{title}</title>'
                   f'<polygon points="{points}" class="hex {tone}" style="fill:{fill}"/></a>')
         records.append([escape(row['name']), escape(held['party']) if held else '', f'{held["margin"]:,}' if held else ''])
-    width, height = cx_max + w / 2 + 6, cy_max + size + 6
+    width, height = cx_max + w / 2 + 1, cy_max + size + 6
     if maori:
         # Keep both label lines inside the map and above the first Maori hex.
         mx = width - 4
