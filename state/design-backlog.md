@@ -3,6 +3,12 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-27 (supervisor, from PR #99 host screenshots)
+
+- vote/ "Am I enrolled, and is it too late?" still reads "Enrol or update your details by midnight at the end of
+  25 October" on 27 Oct, after enrolment closed. Phase copy, on main before #99: past tense once the close has passed,
+  and say what a reader who missed it can still do (only what the EC sources state). Next vote/ change.
+
 ## 2026-10-26 (Byron, issue #92, Telegram 02:35Z, verbatim)
 
 "It's better. I feel like there is a lot of small text. And the party funding total is hidden in a
