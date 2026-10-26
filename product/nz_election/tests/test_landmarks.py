@@ -33,5 +33,5 @@ def test_scroll_regions_need_name_and_keyboard_access(attributes):
 
 def test_open_records_keep_wrapping_and_source_typography():
     css = (Path(__file__).resolve().parents[1] / 'web/styles.css').read_text()
-    assert '.download-catalogue pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;max-width:100%}' in css
-    assert '.candidate-list .candidate-sources{font-size:14px;overflow-wrap:anywhere}' in css
+    assert '.download-catalogue pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:var(--fs-body);max-width:100%}' in css
+    assert '.candidate-list .candidate-sources{font-size:var(--fs-caption);overflow-wrap:anywhere}' in css

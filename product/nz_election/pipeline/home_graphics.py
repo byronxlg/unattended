@@ -102,8 +102,9 @@ def seat_legend(result):
 def trend(averages, polls, election, *, wide=True):
     """All parties on one plot to election day; dots are polls, lines the 30-day average."""
     W, H = (1000, 430) if wide else (360, 330)
-    left, right, top, bottom = (40, 168, 16, 36) if wide else (28, 92, 12, 30)
-    font = 15 if wide else 12
+    left, right, top, bottom = (40, 168, 16, 36) if wide else (34, 100, 16, 34)
+    # The 360-unit chart renders in a 328 px column on a 360 px phone.
+    font = 15 if wide else 14
     start = date.fromisoformat(averages[0]['date'])
     end = max(election, date.fromisoformat(averages[-1]['date']))
     days = max(1, (end - start).days)
@@ -285,9 +286,10 @@ def hex_map(envs, cells, rows, held_for):
         records.append([escape(row['name']), escape(held['party']) if held else '', f'{held["margin"]:,}' if held else ''])
     width, height = cx_max + w / 2 + 6, cy_max + size + 6
     if maori:
-        mx = (min(c['x'] for c in maori) + gap) * w + 4
-        my = min(c['y'] for c in maori) * size * Decimal('1.5') - 14
-        marks += f'<text x="{mx:.1f}" y="{my:.1f}" class="map-label">Māori</text><text x="{mx:.1f}" y="{my + 16:.1f}" class="map-label">electorates</text>'
+        # Keep both label lines inside the map and above the first Maori hex.
+        mx = width - 4
+        my = min(c['y'] for c in maori) * size * Decimal('1.5') - 26
+        marks += f'<text x="{mx:.1f}" y="{my:.1f}" text-anchor="end" class="map-label">Māori</text><text x="{mx:.1f}" y="{my + 22:.1f}" text-anchor="end" class="map-label">electorates</text>'
     svg = (f'<svg class="hex-map" viewBox="0 0 {width:.0f} {height:.0f}" role="group" aria-describedby="source-electorates" '
            f'aria-label="Electorates coloured by 2023 winning party; darker means a larger margin">{marks}</svg>')
     return svg, hidden(table('2023 holders on original boundaries', ['Electorate', 'Party', 'Margin'], records, source='source-electorates'))

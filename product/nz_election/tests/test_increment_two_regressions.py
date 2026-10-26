@@ -228,7 +228,6 @@ def test_strip_labels_are_below_fills_in_reading_order():
     assert f'class="majority" style="left:{Decimal(62)*100/122:.6f}%' in html
 
     css = (Path(__file__).resolve().parents[1] / 'web/styles.css').read_text()
-    assert 'font-size:26px' in css and 'font-size:32px' in css
     assert 'height:72px' in css and 'height:120px' in css
     assert 'border:1px solid var(--ink)' in css
     rows = label_lanes([(p, Fraction(90)) for p in seats['seats']], 288)

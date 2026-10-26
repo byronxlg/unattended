@@ -139,7 +139,7 @@ def page(envs, built, facts=None):
         if donations:
             total = sum((Decimal(r['amount_nzd']) for r in donations), Decimal(0))
             top = largest_donors(donations)
-            content += f'<div class="party-donations" data-total="{total:.2f}" data-count="{len(donations)}"><{answer_tag}>Who funds it?</{answer_tag}><p>{len(donations)} declared returns over NZD 20,000 in {built[:4]}, totalling <strong>NZD {total:,.2f}</strong>.</p><ul>'
+            content += f'<div class="party-donations" data-total="{total:.2f}" data-count="{len(donations)}"><{answer_tag}>Who funds it?</{answer_tag}><p class="funding-total"><span>{built[:4]} returns over NZD 20,000</span><small>NZD </small>{total:,.2f}</p><p class="funding-caveat">Not total party funding.</p><p>{len(donations)} declared returns.</p><ul>'
             content += ''.join('<li>' + escape(name) + f': NZD {donor["amount"]:,.2f}, received ' + ', '.join(observation_label(day) for day in sorted(donor['dates'])) + '.</li>' for name, donor in top)
             content += '</ul><p class="source-actions">' + link(donations[0]['source_url'], 'EC returns') + '</p><p class="party-credit">As listed by the EC, including returns whose documents have not been independently checked. Largest donors grouped by exact EC name. Return totals may combine donations; not total party funding. Copyright Electoral Commission.</p></div>'
         content += '</div></section>'
