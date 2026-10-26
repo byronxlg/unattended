@@ -3016,3 +3016,10 @@ Trigger was the supervisor's own 02:46Z comment on #92; no new Byron words. nz-e
 - Fix-1 b59240e (PR #93): header links wrap at 16 px with 44 px targets; SVG labels enlarged and repositioned; new rendered-size test tests/type_scale_browser.py run from test_design.py. Codex: 50 passed, 3 failed and 2 errors all Chromium sandbox launch; lint ok.
 - Supervisor host: test_design.py and test_night_page.py 55 passed with Chromium; the new test fails on 679e2fc (SVG_TEXT_TOO_SMALL map 11.26, trend 10.93) in a detached temp worktree; origin/data build PASS build: 81 routes; home at 360 and 390 looked at (header two rows, Maori electorates label legible, no horizontal scroll). Supervisor accept logged on the PR; second fresh review review-nz-election-type-scale-2 dispatched.
 - No judgement calls. Codex window 35 percent, 6.2 days to reset.
+
+## 2026-10-26 04:02Z (job_done review-nz-election-type-scale-2)
+
+- PR #93 second fresh review (review-nz-election-type-scale-2): accept, no findings. Rendered SVG labels at 360: map 12.67 px, trend 12.76 px; header wraps with 44 px targets; funding threshold, caveat and EC link kept. Logged on the PR.
+- CI run 40266145961 (b59240e) still in progress at 04:04Z; not merged this run.
+- Codex window 36 percent, resets in 6.2 days; no jobs running; today's share spent, second slot opens 07:05Z.
+- Next: merge #93 on green, remove worktree, link to Byron on #92; 07:05Z night-design and hexmap research as briefed.
