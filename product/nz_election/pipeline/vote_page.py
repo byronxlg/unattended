@@ -41,10 +41,10 @@ def page(built, rows=None, envs=None):
         return module(identity, title, '', body, 'Electoral Commission', '', prose=True, source=source)
 
     def date_source(identity, keys):
-        urls = dict.fromkeys(records[key]['source_url'] for key in keys
-                             if records.get(key, {}).get('date') and records[key].get('source_url'))
-        return (f'<p class="home-footnote" id="{identity}">Source: '
-                + ' '.join(link(url, 'Electoral Commission') for url in urls) + '.</p>') if urls else ''
+        dates = [records[key]['retrieved_at'] for key in keys
+                 if records.get(key, {}).get('date') and records[key].get('source_url')]
+        return (f'<p class="home-footnote" id="{identity}">Source: Electoral Commission. Retrieved '
+                + escape(compact_time(max(dates))) + '.</p>') if dates else ''
 
     if enrolment_closed:
         enrol_action = (link(close['source_url'], 'Electoral Commission enrolment information')
