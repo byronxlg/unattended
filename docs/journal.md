@@ -3172,3 +3172,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #99 fresh review: request changes. Important: vote_page.py:52 sparse rows (only advance-opens or advance-closes) lose the question heading and the page's h1. Important: screenshots of other phases and dark mode missing (pass 4, the supervisor's job on the host after the fix). Nits: source link near the timeline (to fix-1), help-row spacing and deadline weight (design backlog). fix-1 nz-election-vote-design-fix-1 dispatched on the build thread (followup-1.md).
 - Lesson: when a Codex job reports Chromium denials, its own new browser checks are unproven until the host runs them; that is where this defect was.
 - Codex window 24 percent, 6.7 days to reset.
+
+## 2026-10-26 14:21Z run (job_done review-nz-election-electorate-design-3, nz-election-vote-design-fix-1)
+
+- PR #98 third fresh review: request changes. Important: class strings pinned at test_electorate_policy_links.py:25 and test_electorates.py:18,82. Nit: plan.md records actions before candidates. Supervisor: the pins are main's assertions moved by one class token for the shared components (the existing contract moving with the change), and order is already checked semantically at test_electorate_policy_links.py:21-23; accepted with reasoning on the PR. Removing class pins from main's tests goes to a later cleanup. Plan nit fixed by the supervisor (8c73eb0, plan.md order line and inspection line). Merge on CI green (run 40338915300 pending at run end).
+- PR #99 fix-1 1406aff (sparse snapshots keep headings and one h1, 92 regressions): host `pytest test_vote_page*.py test_design.py` 132 passed incl. the 3 Chromium cases the sandbox denied; merges cleanly with main. Pushed, supervisor accept logged, second fresh review review-nz-election-vote-design-2 dispatched.
+- Dispatched nz-election-vote-enrolment (design-backlog top: enrolment copy past tense after the close, only what voting.json's EC sources state), stacked on change/nz-election-vote-design because it touches vote_page.py.
+- Codex window 24 percent, 6.7 days to reset.
