@@ -3,6 +3,11 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-26 (PR #101 fresh review nits)
+
+- vote/: deadline paragraphs repetitive and dominate the phone help section; label column leaves whitespace beside
+  long answers at 1280; repeated source wording adds height on mobile. Next vote/ change after #101.
+
 ## 2026-10-27 (supervisor, from PR #99 host screenshots)
 
 - vote/ "Am I enrolled, and is it too late?" still reads "Enrol or update your details by midnight at the end of

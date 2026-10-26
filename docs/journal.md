@@ -3242,3 +3242,13 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #101 opened stacked on #100, supervisor accept logged, fresh review review-nz-election-vote-nits dispatched.
 - #100 CI run 40358186858 still pending at about 30 min; not merged. Second slot left for the design-loop critique
   after 20:00Z (no backlog item left that does not touch #100/#101 files).
+
+## 2026-10-26 16:55Z (job_done review-nz-election-vote-nits)
+
+- PR #101 fresh review: request changes. Important: vote_page.py:44-47 credits filter on source_url while the
+  countdown and timeline draw any dated record; a record without a URL leaves aria-describedby dangling and drops
+  out of the retrieved-date choice. Logged on the PR. Fix-2 nz-election-vote-nits-fix-2 dispatched on the build
+  thread (invariant: provenance from drawn records, every describedby resolves; regressions fail on 8eac454).
+  Three visual nits to the design backlog.
+- PR #100 CI run 40358186858 still in progress at 35 min; not merged. Second slot left free: no disjoint item before
+  the 20:00Z design critique. Codex window 26 percent.
