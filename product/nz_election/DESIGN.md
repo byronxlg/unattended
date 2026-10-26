@@ -52,7 +52,7 @@ the bar; the screenshot is.
 | Trend chart | `trend(averages, polls, election, wide=)` | all parties, polls as faint dots, 30-day average as thick lines (4 px over 15%), end labels with values, 5% line, shaded run-up to election day. Render `wide` and `narrow`; CSS shows one |
 | Poll table | `poll_table(polls, average, names, count, reports=)` | heat-tinted cells (`--c`, `--a`), average row outlined first |
 | Party cards | `party_cards(averages, result, leaders)` | leader photo ringed in party colour, share big, month change, bar, seats |
-| Hex map | `hex_map(envs, cells, rows, held_for, selected=None, night=False)`, `map_key` | electorates as hexes coloured by holder, three margin tones, each links to its page; selected-seat mode uses the same layout with neutral neighbours and one focusable highlighted seat, with HTML captions at card size; night variant uses the same geometry and tones with full-size selection links in its searchable table |
+| Hex map | `hex_map(envs, cells, rows, held_for, selected=None, night=False)`, `map_key` | electorates as hexes coloured by holder, three margin tones, each links to its page; selected-seat mode uses the same layout with neutral neighbours and one focusable highlighted seat linking to the always-present electorate heading, with HTML captions at card size; night variant uses the same geometry and tones with full-size selection links in its searchable table |
 | Candidate result bars | `candidate_result_bars(ranked, names, source_id)` | thick horizontal bars with candidate, party, share and vote labels; hidden data table; the caller supplies the original-boundary margin and source note |
 | Closest list | `closest_list(rows, held_for)` | name, holder, margin bar in party colour |
 | Threshold bars | `threshold_bars(rows)` | 0 to 10% bars with the 5% line drawn through every bar |
@@ -78,3 +78,13 @@ Screenshots at 1280 and 390 of every changed page, in light mode, put beside the
 beside the previous version, looked at by the supervisor (not measured). Write down the three
 weakest things on the page; fix or file them. See `REVIEW.md` pass 4 and "Design loop" in
 `prompts/supervisor.md`.
+
+
+## Electorate phone ballot
+
+Below 600 px, candidate cards become compact two-line ballot rows: name and list/incumbent
+status first, full party name second, all at `--fs-body`. The party-colour rail carries the
+card identity; decorative portraits are reserved for wider layouts. Names, parties and status
+remain visible without a nested scroller or disclosure. The electorate heading, complete ballot,
+enrolment check and schematic boundary-map link precede the historical summary and locator.
+Source notes remain linked from the ballot. Desktop retains the larger cards and hero context.

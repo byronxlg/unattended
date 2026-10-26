@@ -311,7 +311,7 @@ def hex_map(envs, cells, rows, held_for, *, selected=None, source="source-electo
         if selected:
             polygon = f'<polygon points="{points}" class="hex" style="fill:var(--rule)"/>'
             if row['slug'] == selected:
-                polygon = (f'<a href="#candidates-title" aria-label="{escape(row["name"])} candidates" aria-current="location">'
+                polygon = (f'<a href="#electorate-title" aria-label="{escape(row["name"])}" aria-current="location">'
                            f'<title>{escape(row["name"])}</title><polygon data-electorate="{selected}" points="{points}" '
                            f'class="hex selected" style="fill:{pc(held["party_id"]) if held else "var(--ink)"}"/></a>')
             marks += polygon

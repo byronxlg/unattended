@@ -284,3 +284,26 @@ def test_shared_winner_helper_prefers_reconciled_name():
     # Matching a current candidate requires exact source evidence, never a similar name.
     assert snapshot_views.winner_name(seat(), {'name': 'HAGUE, Matthew', 'party': 'ACT New Zealand', 'party_id': 'act'}) == 'Matthew Hague'
     assert snapshot_views.winner_name(seat(), {'name': 'HAGUE, Another', 'party': 'ACT New Zealand', 'party_id': 'act'}) == 'Another Hague'
+
+
+def test_empty_candidates_map_links_resolve(monkeypatch):
+    original = snapshot_views.load
+    monkeypatch.setattr(snapshot_views, 'load', lambda name: [dict(r, matched=[], added_by_ec=[])
+        for r in original(name)] if name == 'candidate-reconciliation-2026' else original(name))
+    for row in config('electorates'):
+        html = detail(row, {})
+        assert 'Who is standing in 2026?' not in text(Tree(html).root)
+        assert_map_accessibility(html, row)
+        provenance(html)
+
+
+@pytest.mark.parametrize('case', ['fold', 'empty'])
+def test_electorate_phone_browser(populated, tmp_path, case):
+    import subprocess
+    from pathlib import Path
+    _, site = populated
+    result = subprocess.run(['uv', 'run', str(Path(__file__).with_name('electorate_phone_browser.py')),
+                             '--site', str(site.parent), '--case', case, '--out', str(tmp_path)],
+                            capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert 'PASS electorate ' + case in result.stdout

@@ -43,3 +43,28 @@
 @media(max-width:599px){.result-bar{grid-template-columns:minmax(0,1fr) auto}.result-bar .track{grid-column:1/-1;grid-row:2}.result-bar .votes{grid-row:1;grid-column:2}}
 .race-cards img{float:right;object-fit:cover;border-radius:50%;margin:0 0 8px 8px}
 .race-candidates .dek{margin-bottom:16px}
+
+/* Put the complete ballot and electorate check ahead of historical context on phones. */
+@media(max-width:599px){
+  .electorate-page{display:grid;grid-template-columns:minmax(0,1fr)}
+  .electorate-intro,.local-hero,.electorate-page .race-candidates{display:contents}
+  .electorate-night{order:-6}
+  .local-hero h1{order:-5;margin:8px 0 6px}
+  .race-candidates .module-head{order:-4;border-top:3px solid var(--ink);padding-top:4px}
+  .race-candidates h2{font-size:var(--fs-h3);margin:0 0 6px}
+  .race-candidates .dek{display:none}
+  .race-candidates figure{order:-3;margin:0}
+  .electorate-actions{order:-2;margin:4px 0 0}
+  .electorate-actions .source-actions a{padding:10px 0;min-height:44px}
+  .race-cards{display:grid;grid-template-columns:minmax(0,1fr);gap:1px}
+  .race-cards li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;padding:2px 4px;border-top:0;border-left:3px solid var(--party)}
+  .race-cards strong,.race-cards .party,.race-cards .meta{font-size:var(--fs-body);line-height:1.15;margin:0}
+  .race-cards strong{grid-column:1;grid-row:1}
+  .race-cards .party{grid-column:1/-1;grid-row:2}
+  .race-cards .meta{grid-column:2;grid-row:1;align-items:start;gap:4px}
+  .race-cards .meta span{padding:0;background:none;color:var(--ink);font-weight:400}
+  .race-cards .meta .incumbent{font-weight:700}
+  .race-cards img{display:none}
+  .local-hero .kicker{margin-top:20px}
+  .locator-card{margin:16px 0}
+}
