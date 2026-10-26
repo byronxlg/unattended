@@ -87,7 +87,8 @@ def main(out):
                         assert all(item.is_visible() for item in page.get_by_role('listitem').filter(has_text=re.compile(r': \d+ seats$')).all())
                         disclosure.click()
                     jump.click()
-                    assert 0 <= search.bounding_box()['y'] < height
+                    search_y = search.bounding_box()['y']
+                    assert 0 <= search_y < height, f'JUMP_TARGET: state={state}, width={width}, y={search_y}'
                     search.fill('Auckland Central')
                     table = page.get_by_role('table', name=re.compile('electorate', re.I))
                     matches = table.get_by_role('row').filter(has_text='Auckland Central')

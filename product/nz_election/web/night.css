@@ -15,7 +15,7 @@
 .night-party{font-size:var(--fs-body)}.night-party i{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--c);margin-right:6px}
 .night-combination p{margin:12px 0 0}.night-combination strong{font-size:var(--fs-figure);line-height:1;font-variant-numeric:tabular-nums}
 .majority-reached{display:block;font-size:var(--fs-caption);font-weight:700;margin-top:8px}
-.night-page .night-search{display:block;font:inherit;padding:10px;width:100%;max-width:480px;margin:8px 0 20px}
+.night-page .night-search{scroll-margin-top:16px;display:block;font:inherit;padding:10px;width:100%;max-width:480px;margin:8px 0 20px}
 .night-page .night-electorates table{font-family:inherit}.night-page .night-electorates td{white-space:normal;min-width:90px;font-weight:400;text-align:left}
 .night-page .night-electorates td:first-child{position:sticky;left:0;z-index:1;background:var(--paper);min-width:140px;font-weight:600}
 .night-page .night-electorates tr:target,.night-page .night-electorates tr:focus-within{outline:3px solid var(--ink);outline-offset:-3px}

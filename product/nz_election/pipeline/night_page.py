@@ -89,7 +89,7 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
                            'These combinations currently reach a majority; government formation is separate.',
                            cards, 'Electoral Commission', row.get('source_updated_local', 'Replay')).replace(
                                footnote('combinations-' + identity, 'Electoral Commission', row.get('source_updated_local', 'Replay')),
-                               f'<div class="source-note" id="source-combinations-{identity}"><p>Electoral Commission.</p><p class="source-actions"><a href="{RESULTS}">Official results</a></p></div>')
+                               f'<div class="source-note" id="source-combinations-{identity}"><p>Electoral Commission. Snapshot sources and exports below.</p></div>')
     if not row.get('reported_house'):
         content = '<section class="hero night-hero"><p class="kicker">' + escape(row['mode']) + '</p><h1>Who is winning?</h1></section>' + content
     from .night_electorates import electorate_view, seat_chart, comparison_view
