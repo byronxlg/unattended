@@ -3319,3 +3319,9 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Three weakest written to the top of state/design-backlog.md: (1) masthead nav wraps to two rows at 390 on every page, about 160 px; (2) parties/ portrait credit and image processing note sit between leader and polling number; (3) night/ replay "updated 00:00" and a three-line bloc label at 390. Data question noted: home seats sum to 133 with 67 for a majority, overhang arithmetic to check.
 - Top item not done this run: it is not a CSS-only fix (header checks require 16 px type, 44 px targets and every link in the viewport, so the remedy is a link-set decision) and the funding page adds an eighth link. Folded into the nz-election-funding-page brief as a supervisor note, dispatching 07:05Z 27 Oct as planned. No Codex dispatch (today's share spent, window 29 percent).
 - next-run-after set to 01:01Z 27 Oct for the EC advance file capture.
+
+## 2026-10-26 23:15Z run (heartbeat, idle)
+
+- No new Byron words (no new issue comments since 17:54Z). No job running; today's Codex share spent (window 29 percent, resets in 6.3 days).
+- Workflows green: hourly 22:04Z success, daily 20:44Z success, blog publish success.
+- Nothing dispatched. next-run-after left at 01:01Z 27 Oct (EC advance file capture); 07:05Z dispatch nz-election-funding-page as written.
