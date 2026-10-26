@@ -27,3 +27,11 @@ resolve), never markup, class names or pixel sizes.
 Done when: `uv run --with pytest pytest -q product/nz_election/tests` passes except Chromium launches the sandbox denies
 (list them by name), `bin/lint` prints lint ok, and last.md says which pinned contracts moved and why. The supervisor
 judges funding/ by eye at 390 and 1280 against the plan's question test.
+
+## Supervisor note, 2026-10-26 20:15Z (design-loop critique)
+
+The masthead nav already wraps to two rows at 390 with seven links (Night and Methods alone on row two, about 160 px
+of header). Adding Funding must leave it no worse: pick a link set that fits one or two rows at 360 and 390 with
+16 px type and 44 px targets (for example Methods moves to the footer), and show the header at 390 in your
+screenshots. Do not shrink type below the floor or let links run off screen; screenshots.py HEADER_OVERFLOW and
+HEADER_TARGET_BOUNDS must still pass.

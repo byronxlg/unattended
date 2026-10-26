@@ -3312,3 +3312,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #102 vote-polish squash merged as 32ef0de (CI run 40373245768 pass, supervisor and second fresh review accept); worktree and branch removed; state/changes.yaml prs updated with 101 and 102; link line sent to Byron (tg send, delivered).
 - No job running. Not dispatched: today's Codex share is spent (window 29 percent, even spread about 11 points per day). The funding-page build waits for 07:05Z 27 Oct as planned.
 - next-run-after set to 20:01Z for the first design-loop critique.
+
+## 2026-10-26 20:11Z (idle, first design-loop critique)
+
+- Screenshots of the deployed site (home, polls, parties, electorates/nelson, vote, night) at 1280x900 and 390x844 via Playwright, all 200, first screens read.
+- Three weakest written to the top of state/design-backlog.md: (1) masthead nav wraps to two rows at 390 on every page, about 160 px; (2) parties/ portrait credit and image processing note sit between leader and polling number; (3) night/ replay "updated 00:00" and a three-line bloc label at 390. Data question noted: home seats sum to 133 with 67 for a majority, overhang arithmetic to check.
+- Top item not done this run: it is not a CSS-only fix (header checks require 16 px type, 44 px targets and every link in the viewport, so the remedy is a link-set decision) and the funding page adds an eighth link. Folded into the nz-election-funding-page brief as a supervisor note, dispatching 07:05Z 27 Oct as planned. No Codex dispatch (today's share spent, window 29 percent).
+- next-run-after set to 01:01Z 27 Oct for the EC advance file capture.

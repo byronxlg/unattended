@@ -3,6 +3,22 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-26 20:15Z (supervisor, design-loop critique, deployed site 1280 and 390)
+
+1. Sitewide at 390: the masthead nav wraps to two rows (Night and Methods alone on the second), so the header
+   takes about 160 px of the first screen on every page. The funding page adds an eighth link and would make it
+   worse. Next UI change: rides with nz-election-funding-page (note added to its brief); options are a shorter
+   label set or Methods moved to the footer, not smaller type (16 px floor) or links pushed off screen.
+2. parties/ at 390: the portrait credit block ("New Zealand Labour Party. CC BY-SA 4.0. Square crop, resized to 320
+   pixels and converted to WebP.") sits between the leader and the polling number, ahead of the party's answer.
+   Credit belongs in a small line under the card or on Methods; the processing note is not reader copy.
+3. night/ replay at 390: "updated 00:00" reads as midnight, not a replay frame; the bloc label "Labour, Green and
+   Maori" wraps to three lines beside 55. Short bloc names (as home uses: Opposition, Government) and a frame
+   label that says it is the 2023 final count.
+
+Also seen, a data question not a design one: home seats sum to 133 (59 + 67 + TOP 7) with 67 for a majority;
+check the overhang arithmetic in the seat projection before election night.
+
 ## 2026-10-26 (Byron, issue #103, Telegram 17:47Z, verbatim)
 
 "Let's make a dedicated funding page. That's interesting"
