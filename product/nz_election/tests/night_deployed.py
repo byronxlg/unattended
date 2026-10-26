@@ -19,6 +19,7 @@ from product.nz_election.pipeline.fetch import night_xml
 from product.nz_election.tests.night_browser import launch_chromium, SIZES
 
 FEED = 'https://media.election.net.nz/xml/'
+SELECTED_DETAIL = 'e01/e01.xml'  # Observed 2026 media capture, electorate 1.
 NATIONAL = ('electorates.xml', 'parties.xml', 'candidates.xml', 'election.xml')
 
 
@@ -144,6 +145,9 @@ def validate_response(page, response, base):
 def host_fetch(url):
     """Independent, bounded read: never proxy these bytes into the browser."""
     root, filename = url.rsplit('/', 1)
+    if re.fullmatch(r'e[0-9]{2}\.xml', filename):
+        root, directory = root.rsplit('/', 1)
+        filename = directory + '/' + filename
     # The existing fetcher permits only reviewed roots and returns bytes only on HTTP 200.
     return dict(status=200, raw=night_xml(root + '/', filename))
 
@@ -151,7 +155,7 @@ def host_fetch(url):
 def cors_probe(page, record, *, feed_root=FEED, acquire=None):
     acquire = acquire or host_fetch
     evidence, bodies = {}, {}
-    for filename in NATIONAL:
+    for filename in (*NATIONAL, SELECTED_DETAIL):
         url = urljoin(feed_root, filename)
         offset = len(record.data['console_errors'])
         browser = page.evaluate('''async url => {
@@ -190,7 +194,7 @@ def cors_probe(page, record, *, feed_root=FEED, acquire=None):
                 item.update(status='PASS', reason='Browser CORS diagnostic and independently reachable upstream')
         item['bytes'] = len(raw)
         try:
-            xml_parser.document(raw, filename.removesuffix('.xml'))
+            xml_parser.document(raw, 'electorate' if filename == SELECTED_DETAIL else filename.removesuffix('.xml'))
             bodies[filename] = raw
         except ValueError as exc:
             item.update(status='FAIL', reason='Invalid XML: ' + str(exc))
@@ -211,6 +215,13 @@ def cors_probe(page, record, *, feed_root=FEED, acquire=None):
                 xml_parser.election(bodies['election.xml'], refs)
             except ValueError as exc:
                 evidence['election.xml'].update(status='FAIL', reason='Invalid election: ' + str(exc))
+        if SELECTED_DETAIL in bodies:
+            try:
+                detail = xml_parser.detail(bodies[SELECTED_DETAIL], refs)
+                if detail['electorate_id'] != '1':
+                    raise ValueError('XML_REFERENCE')
+            except ValueError as exc:
+                evidence[SELECTED_DETAIL].update(status='FAIL', reason='Invalid selected detail: ' + str(exc))
     record.data['cors_evidence'] = list(evidence.values())
     for filename, item in evidence.items():
         name, reason = 'cors-evidence-' + filename, json.dumps(item)
@@ -347,6 +358,7 @@ def rehearse(page, base, record, speed=60):
     house = int(match[1]) if match else None
     record.check('golden', golden(votes, house), f'{votes} valid party votes; House {house}')
     record.check('end-label-paused', labelled() and page.locator('#night-clock').inner_text() == 'Paused: 600 seconds', label.inner_text())
+    populated_evidence(page, record)
     pictures(page, record, 'end')
     started = time.monotonic()
     page.locator('#night-reset').click()
@@ -362,6 +374,46 @@ def rehearse(page, base, record, speed=60):
     record.data['official_feed_requests'] = official
     record.check('no-official-feed', not official, json.dumps(official))
     record.check('console-errors', not record.data['console_errors'], json.dumps(record.data['console_errors']))
+
+
+def populated_evidence(page, record):
+    """Download the page's packaged exports and retain their provenance, without interception."""
+    target = page.locator('#night-snapshot')
+    figure = target.locator('.night-waterfall')
+    record.check('waterfall', figure.is_visible() and
+                 'Calculated occupied House: 122' in figure.inner_text(), figure.inner_text())
+    text = target.inner_text()
+    record.check('places-terminology', 'voting places' in text and 'votes counted' not in text.lower(), text)
+    record.check('static-tables', target.locator('.night-electorates tbody tr').count() == 72 and
+                 target.locator('table').count() >= 3, 'Electorates, party votes and calculated seats tables')
+    links = target.locator('.source-actions a').evaluate_all('(links) => links.map(a => ({text:a.textContent, url:a.href}))')
+    record.check('source-links', len(links) == 4 and all(urlsplit(link['url']).scheme in {'http', 'https'} for link in links)
+                 and any(link['text'] == 'Official results' for link in links), json.dumps(links))
+    if not all(any(urlsplit(link['url']).path.endswith('.' + ext) for link in links) for ext in ('json', 'csv')):
+        record.check('export-links', False, 'Missing JSON/CSV source links')
+        return
+    downloads = {}
+    for extension in ('json', 'csv'):
+        link = next(link for link in links if urlsplit(link['url']).path.endswith('.' + extension))
+        response = page.evaluate("""async url => {
+          const r = await fetch(url, {credentials:'omit', mode:'same-origin', redirect:'error'});
+          return {status:r.status, body:await r.text()};
+        }""", link['url'])
+        record.check('export-' + extension, response['status'] == 200, json.dumps(link))
+        downloads[extension] = response['body']
+        (record.out / ('replay-export.' + extension)).write_text(response['body'])
+    try:
+        env = export.validate_envelope(json.loads(downloads['json']), 'night/illustrative-2023/step-2')
+    except ValueError as exc:
+        record.check('export-provenance', False, str(exc))
+        return
+    row = env['data'][0]
+    record.check('export-provenance', downloads['csv'].encode() == export.csv_bytes(env) and
+                 bool(env['source']) and all(s['url'].startswith('https://') and s['id'] in env['input_hashes'] and s['fetched_at'] for s in env['source']) and
+                 bool(env['code_sha'] and env['run_url'] and env['input_hashes']) and
+                 row['mode'] == night.LABEL and row['elapsed_seconds'] == 600 and row['source_ref'] and
+                 row['valid_party_votes'] == 2851211,
+                 'Downloaded JSON/CSV agree, with source URLs, capture hashes, acquisition times, build SHA and illustrative provenance')
 
 
 def fault_package(record_dir):
@@ -408,6 +460,11 @@ def faults(page, base, record):
                      json.dumps(injected[offset:]))
         pictures(page, record, scenario)
         record.phase(scenario, started)
+    from product.nz_election.tests.night_live_browser import transition_proof
+    for scenario in ('leader-change', 'reference-retention'):
+        evidence = transition_proof(page, base, scenario, capture=lambda state: pictures(page, record, state))
+        record.check('synthetic-' + scenario, True, json.dumps(evidence))
+        pictures(page, record, 'synthetic-' + scenario)
 
 
 def run(mode, base, root=Path('artifacts/nz-election/deployed'), speed=60):
