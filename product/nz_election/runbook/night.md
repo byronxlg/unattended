@@ -87,8 +87,8 @@ Every frame is packaged into inert HTML templates at build time. Playback makes 
 source downloads are explicit links. Static HTML keeps the usable final table if scripts fail.
 
 Run `uv run product/nz_election/tests/night_browser.py` for browser XML parity, replay controls,
-request assertions and the exact 60-image night registry. The full screenshot harness adds the
-same 30 states at 390x844 and 1280x800. It requires a host that permits Chromium to launch.
+request assertions and the exact 62-image night registry. The full screenshot harness adds the
+same 31 states at 390x844 and 1280x800. It requires a host that permits Chromium to launch.
 
 The replay includes provisional electorate leaders and margins from the captured 2023 candidate
 results, with a leader-coloured map and searchable table. Intermediate illustrative snapshots contain no
@@ -286,7 +286,8 @@ Requiring both checks prevents an absent or lost night family from passing relea
 Before election night, omit `--require` to allow the verifier's explicit absent-family SKIPs.
 Harden still requires every family result, all evals, freeze tests and workflow history.
 
-Run the three separate modes for the 30 October and 6 November acceptance records:
+Run these exact commands on 3 November, then repeat on 6 November before 23:30 NZDT.
+Keep all three records together: historical replay, unmodified CORS probe, synthetic faults.
 
 ```sh
 uv run --with playwright python product/nz_election/tests/night_deployed.py --probe
@@ -319,8 +320,10 @@ host's Python UTC clock, without executing the module. The page's `Date.now()` v
 as informational `page_now_ms` only and cannot decide the phase. From close, a completed, successful, validated
 night JSON response requested after opening is required; zero or pending responses fail.
 Unexpected page errors fail every mode and are listed in `unexpected_page_errors`; expected
-CORS diagnostics and injected fault HTTP errors remain separately recorded. The four ordinary in-page
-CORS fetches validate readable HTTP 200 XML through the existing reference and election parsers.
+CORS diagnostics and injected fault HTTP errors remain separately recorded. The five ordinary in-page
+CORS fetches cover the three references, national results and selected `e01/e01.xml`
+(detail path observed in the 2026 media capture). They validate readable HTTP 200 XML
+through the reference, election and detail parsers, including the selected electorate ID.
 A blocked fetch passes only with a URL-specific browser CORS diagnostic and an independent
 host read returning a non-empty, valid upstream body. Host reads use the existing bounded feed
 fetcher and never substitute bytes into the browser. DNS, TLS, timeout, unreachable or empty
@@ -329,13 +332,33 @@ INCONCLUSIVE. Invalid readable responses fail acceptance.
 A local base URL still probes the real official URLs; only the offline pytest fixture substitutes
 local feed URLs. Replay uses real elapsed time, pauses at the middle frame for screenshots,
 resumes to the golden endpoint, resets, and selects all three final archives. Its console errors
-and official-feed requests must be empty.
+and official-feed requests must be empty. The populated endpoint checks voting-place terminology,
+static electorate/party/calculation tables, source-link targets and the visible waterfall.
+It downloads the page-linked JSON and CSV with ordinary same-origin browser fetches, saves
+`replay-export.json` and `replay-export.csv` beside the record, and verifies matching contents,
+source URLs/revisions/acquisition times, build SHA, input hashes and illustrative provenance.
+These are packaged exports, not live exports labelled "This browser". External official-source
+links are checked as page targets, not fetched during replay.
 
 Faults alone installs a simulated post-close clock and intercepts packaged JSON. Its initial
 package is explicitly labelled offline fixture data, validated through the existing night
 pipeline and retained beneath the record directory in `fault-fixture/`. It then tests HTTP failure and an unchanged package aging past 15 minutes, retaining
 the exact last-good HTML and showing Stale. This is client resilience evidence, never evidence
 of a real published live cycle or an Actions acquisition rehearsal.
+
+Two additional synthetic transitions run only under `--faults` and in `night_live_browser.py`:
+- Leader change: two separately labelled frames change one electorate leader; assert the
+  table shows the new candidate and no longer shows the old candidate in that cell.
+- Reference retention: change the reference digest and candidate name, return an incomplete
+  new package with HTTP 200, and assert exact retention of the last complete HTML. Then
+  deliver the complete new package and assert the renamed candidate appears. This is separate
+  from HTTP 503 and stale tests. The client consumes atomic packages, not individual XML files.
+
+The deployed fault record includes before/retained/complete screenshots and the delivered
+reference versions, availability and HTTP statuses. Synthetic frames never enter
+`2023-illustrative`, its exports, or its golden totals; the historical replay keeps final leaders.
+Run `uv run --with playwright python -m product.nz_election.tests.night_live_browser` for the
+18-image local live-state registry. Browser screenshots require a host that can launch Chromium.
 
 ## Settled and official results (week-after increment 2)
 
