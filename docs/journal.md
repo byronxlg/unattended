@@ -3144,3 +3144,63 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Main (#94) conflicted with the branch in home_graphics.hex_map (selected mode vs night mode), build.py's own-h1 set and the DESIGN.md hex map row. Supervisor resolved by keeping both modes (merge e647444, no force-push); host Chromium after merge 441 passed (test_design, test_home*, test_night*, test_electorate*, test_content_checks, test_parties_page), lint ok, origin/data build PASS 81 routes.
 - Looked at Nelson, Waiariki, Epsom at 390 and 1280: no sideways scroll; first phone screen has hero, locator, enrolment and Policy.nz actions and two candidate cards. Nits for the next round: blank gap above "Who won last time?" at 1280; 2026 card and 2023 bar name forms differ (source spellings); "General electorate" in place of a region (no sourced mapping).
 - PR #98 opened, supervisor accept logged, fresh review review-nz-election-electorate-design dispatched. Second slot left empty this run (run time spent on host tests); next run fills it from the design backlog.
+
+## 2026-10-26 13:02Z (job_done review-nz-election-electorate-design)
+
+- PR #98 fresh review: request changes, one Important: the branch's own test_electorate_page_plan.py pins markup (class strings, class order `race-candidates module`, generated SVG inclusion, polygon counts). Agreed: the Design loop rule says tests check data, provenance, absence and accessibility, never markup. Logged on the PR. CI on #98 pending at run time.
+- Dispatched fix-1 nz-election-electorate-design-fix-1 on the build thread 01a17800-59be-7311-9b0e-4f3be731ec7a: semantic checks (candidates by name and party, page-plan order by heading text, selected seat by accessible attribute, link names and routes); main's tests protected.
+- Second slot: nz-election-vote-design dispatched in .worktrees/nz-election-vote-design from origin/main (design-backlog item 2, part 1; Page plan pages/vote.md; DESIGN.md). Vote first because advance voting opened 26 Oct. Parties is the next part of item 2.
+- Codex window 19 percent, 6.8 days to reset, even spread about 12 points per day.
+
+## 2026-10-26 13:14Z (job_done nz-election-electorate-design-fix-1)
+
+- fix-1 ec403fc (Codex) replaced the branch's markup pins in test_electorate_page_plan.py with semantic checks; its new question-order test failed on the product: enrolment and Policy.nz actions before the candidates, against pages/electorate.md. Codex stopped rather than weaken it (correct).
+- Supervisor found 1a23dc1 had inverted two of main's order contracts to fit that layout (test_electorate_policy_links.py, route_checks.py 'candidate-first order'). That is a weakened check; restored main's direction and moved the actions after the candidate cards in detail() (presentation, supervisor commit 9488223). Mistake: the first fresh review and the supervisor's 12:26Z host-verify both missed the inverted contracts.
+- Host: 36 targeted plus 44 test_design (Chromium) passed, lint ok, origin/data build PASS 81 routes, Nelson 1280 and Waiariki 390 looked at. Logged on PR #98, supervisor accept, second fresh review review-nz-election-electorate-design-2 dispatched.
+- vote-design still running. Nit for the design backlog: electorate map source note now sits below the actions.
+
+## 2026-10-26 13:37Z (job_done nz-election-vote-design, review-nz-election-electorate-design-2)
+
+- PR #98 second fresh review: request changes. (1) At 390 the enrolment line falls below the first screen after 7 (Nelson) or 8 (Wellington North) single-column candidate cards; pages/electorate.md puts name, candidates and the is-this-mine line above the 390 fold. Moving the actions after the candidates (supervisor 9488223) fixed the order and exposed the fold. (2) Selected-seat map link targets the omitted #candidates-title when candidates are empty. Both confirmed against the plan, logged on #98; fix-2 nz-election-electorate-design-fix-2 dispatched on the build thread (compact candidates at phone width, engineer picks the shape; browser checks on viewport and link targets, failing on 9488223). Nit (plan.md:318) not applicable.
+- vote-design 995ac4b (Codex): presentation only, content parity PASS 4 phases x 22 variants, 2911 passed, 17 Chromium sandbox denials, lint ok. Host: origin/data build at 26 Oct 21:00Z PASS 81 routes; vote/ 390 and 1280 served under /unattended looked at (first attempt over file:// had no CSS, a supervisor harness slip, redone): question order holds, timeline and answer columns read well, no sideways scroll. Host Chromium run of those files: 247 passed, exit 0. PR #99 opened, supervisor accept, fresh review review-nz-election-vote-design dispatched.
+- Found on main, not this PR: vote/ enrolment answer still says "by midnight at the end of 25 October" on 27 Oct. Added to the top of state/design-backlog.md as the next vote/ change.
+- Codex window 22 percent, 6.7 days to reset.
+
+## 2026-10-26 14:00Z (job_done nz-election-electorate-design-fix-2, review-nz-election-vote-design)
+
+- PR #98 fix-2 d6d8c0f (Codex): compact phone candidate rows, empty-list map destinations repaired, new electorate_phone_browser.py fold and empty checks; Codex 129 passed, 11 Chromium sandbox denials. Host Chromium: 139 passed, 1 failed, fold case could not find the "Boundary map" link: build.link drops fragment-only hrefs through safe_url, so the in-page anchor rendered as plain text. The branch's own new check caught it; Codex could not run it. Supervisor one-line fix 74c8fa5 writes the anchor directly. Host 140 passed incl. Chromium, fold and empty PASS on 5 electorates (largest list 11), lint ok, Nelson and Christchurch East 390 looked at (all cards, then enrolment, map and Policy.nz links in the first screen). Pushed, logged on #98, third fresh review review-nz-election-electorate-design-3 dispatched.
+- PR #99 fresh review: request changes. Important: vote_page.py:52 sparse rows (only advance-opens or advance-closes) lose the question heading and the page's h1. Important: screenshots of other phases and dark mode missing (pass 4, the supervisor's job on the host after the fix). Nits: source link near the timeline (to fix-1), help-row spacing and deadline weight (design backlog). fix-1 nz-election-vote-design-fix-1 dispatched on the build thread (followup-1.md).
+- Lesson: when a Codex job reports Chromium denials, its own new browser checks are unproven until the host runs them; that is where this defect was.
+- Codex window 24 percent, 6.7 days to reset.
+
+## 2026-10-26 14:21Z run (job_done review-nz-election-electorate-design-3, nz-election-vote-design-fix-1)
+
+- PR #98 third fresh review: request changes. Important: class strings pinned at test_electorate_policy_links.py:25 and test_electorates.py:18,82. Nit: plan.md records actions before candidates. Supervisor: the pins are main's assertions moved by one class token for the shared components (the existing contract moving with the change), and order is already checked semantically at test_electorate_policy_links.py:21-23; accepted with reasoning on the PR. Removing class pins from main's tests goes to a later cleanup. Plan nit fixed by the supervisor (8c73eb0, plan.md order line and inspection line). Merge on CI green (run 40338915300 pending at run end).
+- PR #99 fix-1 1406aff (sparse snapshots keep headings and one h1, 92 regressions): host `pytest test_vote_page*.py test_design.py` 132 passed incl. the 3 Chromium cases the sandbox denied; merges cleanly with main. Pushed, supervisor accept logged, second fresh review review-nz-election-vote-design-2 dispatched.
+- Dispatched nz-election-vote-enrolment (design-backlog top: enrolment copy past tense after the close, only what voting.json's EC sources state), stacked on change/nz-election-vote-design because it touches vote_page.py.
+- Codex window 24 percent, 6.7 days to reset.
+
+## 2026-10-26 14:33Z run (job_done nz-election-vote-enrolment, review-nz-election-vote-design-2)
+
+- PR #99 second fresh review: request changes. Important: pass-4 screenshots only in advance voting (before, election day, after, dark missing). Nits: sparse tests assert headings only; source credit far from the timeline; help-row gaps at 1280; deadline weight. Supervisor did the Important on the host: 1406aff built on origin/data at 24 Oct 21:00Z, 27 Oct 01:00Z, 6 Nov 10:00Z (an election-day build at 6 Nov 20:00Z refused PUBLICATION_FROZEN, the s197 guard working; 10:00Z is the last pre-freeze build) and 8 Nov 01:00Z; 12 screenshots (390/1280 light, 390 dark), scrollWidth equals the viewport in all; election-day-eve 390, after 1280 and before 390 dark looked at: phase order holds, one h1, dark reads. Three design nits to state/design-backlog.md; the sparse-test nit accepted (tests check headings, not markup, by design). Accept logged on #99; merge on CI green (auto-merge is not enabled on the repo). CI pending on #98 and #99.
+- vote-enrolment 06a1a8b (Codex: 3 Chromium cases sandbox-denied): host `pytest test_vote_page*.py test_design.py` 135 passed; diff read (20 lines in vote_page.py). PR #100 opened stacked on #99, supervisor accept, fresh review review-nz-election-vote-enrolment dispatched.
+- Second slot not filled: the next UI item is the vote/ nits, which touch the files of the #99/#100 stack; the 20:00Z design-loop critique picks the next disjoint one.
+- Codex window 25 percent, 6.7 days to reset.
+- Incident (supervisor): `gh pr merge 98 --squash --auto` merged #98 immediately as af5a1ef at 14:34:44Z while CI run 40338915300 was still in progress (auto-merge is disabled on the repo, and gh merges at once when no required checks block). Not reverted: three fresh reviews and the host suite (140 passed incl. Chromium) cover the branch; next run reads 40338915300 and main's CI, a fix job if red. Link to Byron waits for green. Lesson: never `--auto` here; merge by hand on green. #99 was not merged (same command errored). Worktree removed.
+
+## 2026-10-26 14:47Z run (job_done review-nz-election-vote-enrolment)
+
+- PR #100 fresh review review-nz-election-vote-enrolment: request changes, one Important: product/nz_election/pipeline/vote_page.py:43 raises KeyError 'source_url' at and after the enrolment close when the record lacks source_url (snapshot validation rejects such input, but the sparse-field contract covers it). Probes in the review confirmed the before/at/after copy switch otherwise. Logged on the PR.
+- Dispatched nz-election-vote-enrolment-fix-1 on build thread 01a17897-bc34-73d3-8600-439bb07f47ae (guard, omit the link when absent, regression test failing on the current head; main's tests untouched).
+- #98 post-merge CI run 40338915300 and #99 CI (run 40339051781) still in progress; nothing merged this run.
+- Codex window 25.0 percent, resets in 6.7 days; disk 21.0 GiB.
+
+## 2026-10-26 14:58Z (job_done nz-election-vote-enrolment-fix-1)
+
+- PR #100 fix-1 932d108: missing, null or empty `source_url` omits the link and keeps the closed message; one
+  parametrized regression test, fails on 06a1a8b per Codex. Host `pytest -k vote` 205 passed. Pushed, logged on the
+  PR; second fresh review review-nz-election-vote-enrolment-2 dispatched (read-only).
+- CI: #98 run 40338915300 and #99 run 40339051781 still in progress about 40 minutes after start; main CI on 4db0140
+  in progress. Nothing merged this run.
+- Second slot not filled: the next backlog item (vote/ review nits) touches the files in #99 and #100; holding until
+  they merge rather than stacking a third branch. Codex window 25 percent.

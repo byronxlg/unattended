@@ -566,7 +566,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                      'Proof of concept: what X says about the parties' if slug == 'social/poc/' else route['label'])
             if post_election(built):
                 title = title.replace('votes on', 'voted on')
-            heading = ('' if slug in {'', 'vote/', 'parties/', 'polls/', 'night/'} else
+            heading = ('' if slug in {'', 'vote/', 'parties/', 'polls/', 'night/'} or (slug.startswith('electorates/') and slug != 'electorates/') else
                        '<h1>' + escape({'night/': 'Election night results', 'electorates/': 'Who is standing in your electorate?', 'methods/': 'How are these numbers calculated?', 'downloads/': 'Where does the data come from?', 'campaign/': 'What is happening in the campaign?', 'social/poc/': 'What are people posting about the parties?'}.get(slug, title)) + '</h1>')
             if post_election(built):
                 heading = heading.replace('Who is standing', 'Who stood')

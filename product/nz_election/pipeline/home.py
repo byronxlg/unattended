@@ -438,7 +438,8 @@ def ribbon(built, envs):
             f'<p><a href="{PREFIX}vote/">How and where to vote</a></p></section>')
 
 
-def section(name, heading, dek, graphic, publisher, date, more=None, *, prose=False, source=None):
+def section(name, heading, dek, graphic, publisher, date, more=None, *, prose=False, source=None,
+            source_note=None, source_id=None, css="module"):
     if not graphic:
         return ''
     link_html = f'<a class="more" href="{PREFIX}{more[0]}">{more[1]}</a>' if more else ''
@@ -449,10 +450,12 @@ def section(name, heading, dek, graphic, publisher, date, more=None, *, prose=Fa
         intro = f'<p class="dek">{dek}</p>' if dek else ''
         return (f'<section id="{name}"><div class="module"><h2>{heading}</h2>'
                 f'{intro}<div class="module-body">{graphic}</div>{foot}</div></section>')
-    return (f'<section id="{name}" class="module"><header class="module-head"><h2>{heading}</h2>'
+    note = footnote(name, publisher, date) if source_note is None else source_note
+    description = source_id or 'source-' + name
+    return (f'<section id="{name}" class="{css}"><header class="module-head"><h2>{heading}</h2>'
             f'<p class="dek">{dek}</p></header>'
-            f'<figure id="home-{name}" aria-describedby="source-{name}">{graphic}</figure>'
-            f'<div class="module-foot">{footnote(name, publisher, date)}{link_html}</div></section>')
+            f'<figure id="home-{name}" aria-describedby="{description}">{graphic}</figure>'
+            f'<div class="module-foot">{note}{link_html}</div></section>')
 
 
 def page(envs, built, presentation):

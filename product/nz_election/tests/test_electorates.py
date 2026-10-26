@@ -15,7 +15,7 @@ def test_original_names_and_successor_comparisons():
     rows, _, _ = baseline.load()
     row = next(r for r in config('electorates') if r['slug'] == 'wellington-north')
     html = detail(row, {})
-    assert 'class="electorate-locator"' in html and 'not a legal boundary' in html
+    assert 'class="hex-map electorate-locator"' in html and 'not a legal boundary' in html
     env = dict(data=rows['baseline-2023'], source=[], run_url='offline-verification')
     html = detail(row, {'baseline-2023': env})
     old = next(r for r in rows['baseline-2023'] if r['old_electorate_id'] == row['baseline_ids'][0])
@@ -79,7 +79,7 @@ def test_local_polls_are_outside_accepted_page_answers():
     row = next(r for r in config('electorates') if r['id'] == poll['electorate_id'])
     html = detail(row, {'electorate-polls': dict(data=[poll], source=[], run_url='offline-verification')})
     assert 'Local polls' not in html and poll['pollster'] not in html
-    assert 'class="race-cards"' in html and 'class="electorate-locator"' in html
+    assert 'class="race-cards"' in html and 'class="hex-map electorate-locator"' in html
 
 
 def test_71_pages_and_missing_data(tmp_path):

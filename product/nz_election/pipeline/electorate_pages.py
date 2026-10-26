@@ -1,6 +1,5 @@
 """Electorate answers in the accepted page order; absent facts omit their blocks."""
 from .presentation import overdue
-from decimal import Decimal
 from datetime import datetime, timezone
 from html import escape
 from urllib.parse import urlsplit
@@ -71,23 +70,31 @@ def candidate_cards(row):
     for c in reconciliation['matched'] + reconciliation['added_by_ec']:
         # The reconciliation explicitly records the source identity; no fuzzy name join.
         original = originals.get((c['snapshot_name'], c['snapshot_party']), {})
-        cards += (f'<li style="--party:{pc(parties.get(c["party"]))}"><strong>' + escape(c['snapshot_name'])
+        photo = original.get('photo')
+        portrait = (f'<img src="{PREFIX}{photo["path"].removeprefix("web/")}" alt="" width="56" height="56" loading="lazy">' if photo else '')
+        cards += (f'<li style="--party:{pc(parties.get(c["party"]))}">' + portrait + '<strong>' + escape(c['snapshot_name'])
                   + '</strong><p class="party">' + escape(c['party']) + '</p><p class="meta">'
                   + (f'<span>List {c["list_rank"]}</span>' if 'list_rank' in c else '')
                   + (' <span class="incumbent">Incumbent</span>' if original.get('sitting_electorate_mp') else '') + '</p></li>')
-    return ('<section class="race-candidates"><h2 id="candidates-title">Who is standing in 2026?</h2>'
-            '<ul class="race-cards" aria-describedby="source-candidates-2026">' + cards + '</ul></section>') if cards else ''
+    from .home import section
+    from .snapshot_views import footnote
+    if not cards:
+        return ''
+    return section('candidates-title', 'Who is standing in 2026?', 'Candidates for your electorate vote.',
+                   '<ul class="race-cards" aria-describedby="source-candidates-2026">' + cards + '</ul>', '', '',
+                   source_note=footnote('candidates-2026', '20 October 2026'),
+                   source_id='source-candidates-2026', css='race-candidates module')
 
 
 def policy_link(row):
     from .snapshot_views import load
     entry = next((r for r in load('policy-links') if r.get('electorate_slug') == row['slug']), None)
-    return ('<section class="electorate-policy"><p>' + link(entry['url'], 'Compare these candidates at Policy.nz') + '</p></section>') if entry else ''
+    return ('<section class="electorate-policy"><p class="source-actions">' + link(entry['url'], 'Compare these candidates at Policy.nz') + '</p></section>') if entry else ''
 
 
 def previous_result(row, envs, built):
     from .snapshot_views import load, footnote, result, winner_name, person_name
-    from .home_graphics import pc as colour
+    from .home_graphics import candidate_result_bars
     if row['slug'] == 'port-waikato':
         votes, name, note = load('port-waikato-2023'), row['name'], footnote('port-waikato')
         source_id = 'source-port-waikato'
@@ -102,23 +109,15 @@ def previous_result(row, envs, built):
         return ''
     ranked = sorted(votes, key=lambda v: -v['votes'])
     margin = ranked[0]['votes'] - ranked[1]['votes']
-    total = sum(v['votes'] for v in votes)
     held = result(row, envs)
     display_names = [winner_name(row, held) if i == 0 and held else person_name(v['name'])
                      for i, v in enumerate(ranked)]
-    aliases = {'National Party': 'nat', 'Labour Party': 'lab', 'Green Party': 'grn',
-               'ACT New Zealand': 'act', 'Te Pāti Māori': 'tpm', 'New Zealand First Party': 'nzf'}
     content = '<section class="original-results"><h2>Who won last time?</h2><p>' + escape(name) + ' (2023)'
     content += (' by-election' if row['slug'] == 'port-waikato' else '') + '</p>'
     if row['mapping_status'] != 'unchanged':
         content += '<p>2023 boundaries. These votes have not been moved or added together to fit the 2025 boundaries.</p>'
     content += '<p class="local-margin">' + (escape(display_names[0]) + f' won by <strong>{margin:,}</strong> votes.' if margin else 'Tied on votes; no sole winner.') + '</p>'
-    content += f'<figure class="result-bars" aria-describedby="{source_id}">'
-    for v, display_name in zip(ranked, display_names):
-        share = Decimal(v['votes']) * 100 / total
-        content += (f'<div class="result-bar" style="--party:{colour(v.get("party_id") or aliases.get(v["party"]))}"><p><strong>' + escape(display_name) + '</strong> <small>' + escape(v['party'])
-                    + f'</small></p><div class="track"><div style="width:{share:.4f}%"></div></div><p class="votes"><b>{share:.1f}%</b> <span>{v["votes"]:,} votes</span></p></div>')
-    return content + '<figcaption>Share of valid candidate votes.</figcaption></figure>' + note + '</section>'
+    return content + candidate_result_bars(ranked, display_names, source_id) + '<div class="module-foot">' + note + '</div></section>'
 
 
 def night_result(row, envs, built):
@@ -154,40 +153,40 @@ def night_result(row, envs, built):
 
 def local_hero(row, envs):
     from .snapshot_views import result, winner_name
-    from .home_graphics import pc, SHORT
+    from .home_graphics import SHORT
     held = result(row, envs)
-    if not held:
-        return ''
-    party = SHORT.get(held['party_id'], held['party'])
-    close = 'Decided by fewer than 1,000 votes.' if held['margin'] < 1000 else ''
-    if row['mapping_status'] != 'unchanged':
-        # A redrawn seat has no holder; say who won the named predecessor, never "held by".
-        return (f'<div class="local-hero" style="--party:{pc(held["party_id"])}"><p class="kicker">Electorate</p>'
-                f'<p class="held">New boundaries for 2026</p>'
-                f'<p class="by">The predecessor seat, {escape(held["baseline_name"])}, was won by {escape(winner_name(row, held))} '
-                f'({escape(party)}) by <b>{held["margin"]:,}</b> votes in 2023.</p></div>')
-    changed = ''
-    ink = ';--chip-ink:var(--ink)' if held['party_id'] == 'act' else ''
-    return (f'<div class="local-hero" style="--party:{pc(held["party_id"])}{ink}"><p class="kicker">Electorate</p>'
-            f'<p class="held"><span class="chip">{escape(party)}</span> held by {escape(winner_name(row, held))}</p>'
-            f'<p class="by"><b>{held["margin"]:,}</b> vote margin in 2023{changed}.</p>'
-            + (f'<p class="close">{close}</p>' if close else '') + '</div>')
+    answer = ''
+    if held:
+        party = SHORT.get(held['party_id'], held['party'])
+        winner = escape(winner_name(row, held))
+        if row['mapping_status'] != 'unchanged':
+            answer = (f'New boundaries for 2026: {winner} ({escape(party)}) won the predecessor seat, '
+                      f'{escape(held["baseline_name"])}, by <b>{held["margin"]:,}</b> votes in 2023.')
+        else:
+            answer = f'{winner} ({escape(party)}) won by <b>{held["margin"]:,}</b> votes in 2023.'
+    kicker = 'Māori electorate' if row['kind'] == 'maori' else 'General electorate'
+    return (f'<header class="local-hero"><p class="kicker">{kicker}</p><h1 id="electorate-title">{escape(row["name"])}</h1>'
+            + (f'<p class="by">{answer}</p>' if answer else '') + '</header>')
 
 
 def detail(row, envs, built=None):
-    from .snapshot_views import footnote
-    from .electorate_locator import locator
-    content = '<div class="electorate-page">' + local_hero(row, envs) + night_result(row, envs, built)
-    content += '<div class="electorate-columns"><div>' + candidate_cards(row)
-    content += policy_link(row) + '</div><aside>'
-    content += ('<figure class="locator-card" aria-describedby="source-boundaries-2025">' + locator(row)
-                + '<figcaption>2025 locator, not a legal boundary. Stats NZ, CC BY 4.0.</figcaption></figure>'
-                '<p class="enrolled-electorate">' + link('https://vote.nz/', 'Check your enrolled electorate at vote.nz') + '</p></aside></div>')
-    # Both descriptions share one visible note and retain their existing source anchors.
-    content += '<div id="source-boundaries-2025">' + footnote('candidates-2026', '20 October 2026') + '</div>'
+    from .snapshot_views import load, result
+    from .home_graphics import hex_map
+    from .build import config
+    rows = {r['slug']: r for r in config('electorates')}
+    graphic, _ = hex_map(envs, load('hexmap'), rows, lambda r: result(r, envs), selected=row['slug'])
+    content = '<div class="electorate-page">' + night_result(row, envs, built)
+    content += '<div class="electorate-intro">' + local_hero(row, envs)
+    content += ('<figure id="electorate-map" class="locator-card" aria-describedby="source-electorates">' + graphic
+                + '<figcaption>Highlighted seat</figcaption></figure>')
+    content += '</div>' + candidate_cards(row)
+    content += '<div class="electorate-actions source-note"><p class="source-actions enrolled-electorate">'
+    content += link('https://vote.nz/', 'Check your enrolled electorate at vote.nz')
+    content += '</p><p class="source-actions">' + '<a href="#electorate-map">Boundary map (schematic)</a>' + '</p>' + policy_link(row) + '</div>'
+    content += ('<div class="source-note" id="source-electorates"><p class="source-actions">'
+                f'Schematic, not a legal boundary. Stats NZ 2025 boundaries, CC BY 4.0. <a href="{PREFIX}methods/#home-map">Map sources</a></p></div>')
     content += previous_result(row, envs, built)
-    # Preserve inbound provenance fragments without displaying empty modules.
-    for stem in ['electorates', 'candidates', 'baseline-2023', 'enrolment', 'electorate-polls']:
+    for stem in ['boundaries-2025', 'candidates-2026', 'candidates', 'baseline-2023', 'enrolment', 'electorate-polls']:
         if f'id="source-{stem}"' not in content:
             content += f'<span id="source-{stem}"></span>'
     return content + '</div>'

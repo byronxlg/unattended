@@ -351,6 +351,26 @@ def extra_images(browser, site, origin, out, og_only=False):
         results.append(dict(state='home-' + mode, path=name, source_note_bottom=bottom))
         context.close()
     if not og_only:
+        for slug in ('nelson', 'te-tai-tonga', 'wellington-north'):
+            sizes = [(390, 844, 'light'), (1280, 900, 'light')]
+            if slug == 'nelson':
+                sizes.append((390, 844, 'dark'))
+            for width, height, mode in sizes:
+                context = browser.new_context(viewport=dict(width=width, height=height), color_scheme=mode, reduced_motion='reduce')
+                context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
+                page = context.new_page()
+                check_page(page, origin + PREFIX + 'nz-election/electorates/' + slug + '/', site, origin)
+                if width == 390:
+                    for selector in ('.race-cards li', '.enrolled-electorate', '.electorate-policy'):
+                        vote_answer_check(page.locator(selector).first, dict(width=width, height=height))
+                selected = page.locator('.electorate-locator a[aria-current="location"]')
+                selected.focus()
+                assert selected.evaluate('e=>e.matches(":focus-visible")'), 'LOCATOR_KEYBOARD_FOCUS'
+                name = f'electorate-review-{slug}-{width}x{height}-{mode}.png'
+                page.screenshot(path=str(out / name), full_page=True)
+                results.append(dict(state='electorate-review', route='electorates/' + slug + '/', path=name,
+                                    viewport=dict(width=width, height=height), mode=mode))
+                context.close()
         focus_context = browser.new_context(viewport=dict(width=390, height=844))
         focus_context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
         focus_page = focus_context.new_page()
@@ -631,7 +651,7 @@ def main():
                             vote_answer_check(page.locator('.race-cards'), dict(width=width, height=height))
                             vote_answer_check(page.locator('.enrolled-electorate'), dict(width=width, height=height))
                             if page.locator('.electorate-policy').count():
-                                assert page.locator('.electorate-policy').bounding_box()['y'] < 2 * height
+                                vote_answer_check(page.locator('.electorate-policy'), dict(width=width, height=height))
                     if path == 'electorates/wellington-north/':
                         if has_baseline:
                             assert 'Wellington Central (2023)' in page.locator('.original-results').inner_text()
@@ -664,7 +684,7 @@ def main():
                 assert len(captured) == len(set(captured)) == expected_count
                 assert set(captured) == {PREFIX + 'nz-election/' + r['path'] for r in routes}
         if not args.og_only and has_geography and has_baseline:
-            assert len(manifest) + len(additional) == 296 + len(ADVANCE_STATES) * len(ADVANCE_SIZES) + 6 + len(NIGHT_STATES) * len(NIGHT_SIZES), 'IMAGE_INVENTORY'
+            assert len(manifest) + len(additional) == 303 + len(ADVANCE_STATES) * len(ADVANCE_SIZES) + 6 + len(NIGHT_STATES) * len(NIGHT_SIZES), 'IMAGE_INVENTORY'
         (args.out / 'manifest.json').write_text(json.dumps({'baseline': manifest, 'additional': additional}, indent=2) + '\n')
     finally:
         server.shutdown()
