@@ -46,8 +46,12 @@ the bar; the screenshot is.
    Vote keeps its first three answers compact, with a left-aligned hero and the shared
    timeline immediately afterwards. Countdown and timeline share the date credit at the
    timeline foot. Help labels sit above answers in the reading column, with one source credit
-   at the module foot and shared deadlines described once. On desktop the second and third
-   answers sit alongside the hero. The complete snapshot credit remains in `div.source-note`.
+   at the module foot. Exact deadline instants appear once: enrolment in its first answer
+   before the close, then in the help deadline summary; registration and the shared voting
+   close in that summary throughout. After voting, the deadline summary remains below results.
+   The vote timeline uses a date-only election label, and its countdown does not repeat the close.
+   Credits without retrieval metadata retain the source name and omit the retrieval sentence.
+   On desktop the second and third answers sit alongside the hero. The complete snapshot credit remains in `div.source-note`.
 5. Footer: grey, two lines.
 
 ## Components (`pipeline/home_graphics.py`)
@@ -64,7 +68,7 @@ the bar; the screenshot is.
 | Closest list | `closest_list(rows, held_for)` | name, holder, margin bar in party colour |
 | Threshold bars | `threshold_bars(rows)` | 0 to 10% bars with the 5% line drawn through every bar |
 | Market cards | `market_cards(entries)` | big percent, the question, a gauge |
-| Timeline | `timeline(records, today)` | key dates, past greyed, today flagged |
+| Timeline | `timeline(records, today, election_label=...)` | key dates, past greyed, today flagged |
 
 New graphics go in this module, take data and return markup, and carry a hidden data table
 (`hidden(table(...))`) so screen readers get the numbers.
