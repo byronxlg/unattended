@@ -68,8 +68,10 @@ def transition_proof(page, base, scenario, capture=lambda state: None):
         cell = page.locator(cases['selector'] + ' td:nth-child(2)')
         before_name = cases['old'] if scenario == 'leader-change' else cases['new']
         assert before_name in cell.inner_text()
-        before = page.locator('#night-snapshot').inner_html()
         capture('synthetic-' + scenario + '-before')
+        # Screenshot caret cleanup can leave style="" on the search input. Include
+        # that instrumentation in the baseline, not in the transport comparison.
+        before = page.locator('#night-snapshot').inner_html()
         page.evaluate('''() => {
           window.nightParsed = 0;
           const original = window.fetch;
