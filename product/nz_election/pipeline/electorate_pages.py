@@ -160,7 +160,13 @@ def local_hero(row, envs):
         return ''
     party = SHORT.get(held['party_id'], held['party'])
     close = 'Decided by fewer than 1,000 votes.' if held['margin'] < 1000 else ''
-    changed = '' if row['mapping_status'] == 'unchanged' else f' (as {escape(held["baseline_name"])}, before the 2025 boundary changes)'
+    if row['mapping_status'] != 'unchanged':
+        # A redrawn seat has no holder; say who won the named predecessor, never "held by".
+        return (f'<div class="local-hero" style="--party:{pc(held["party_id"])}"><p class="kicker">Electorate</p>'
+                f'<p class="held">New boundaries for 2026</p>'
+                f'<p class="by">The predecessor seat, {escape(held["baseline_name"])}, was won by {escape(winner_name(row, held))} '
+                f'({escape(party)}) by <b>{held["margin"]:,}</b> votes in 2023.</p></div>')
+    changed = ''
     ink = ';--chip-ink:var(--ink)' if held['party_id'] == 'act' else ''
     return (f'<div class="local-hero" style="--party:{pc(held["party_id"])}{ink}"><p class="kicker">Electorate</p>'
             f'<p class="held"><span class="chip">{escape(party)}</span> held by {escape(winner_name(row, held))}</p>'

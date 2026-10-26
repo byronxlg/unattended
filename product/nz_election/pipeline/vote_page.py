@@ -9,7 +9,8 @@ from .snapshots import load_voting
 
 def advance_open(records, today):
     start, end = records.get('advance-opens', {}).get('date'), records.get('election-day', {}).get('date')
-    return bool(start and end and date.fromisoformat(start) <= today < date.fromisoformat(end))
+    last = records.get('advance-closes', {}).get('date') or end
+    return bool(start and last and date.fromisoformat(start) <= today <= date.fromisoformat(last))
 
 
 def page(built, rows=None, envs=None):
@@ -41,11 +42,13 @@ def page(built, rows=None, envs=None):
     dates = key_dates(records, today)
     graphic = (f'<figure class="vote-dates" aria-describedby="source-vote">{countdown}{dates}</figure>') if dates or countdown else ''
     finder = action('find-where-to-vote', 'Find a voting place near you')
-    places = section('places', 'Where can I vote, and when?',
-                     '<p class="vote-lede">Advance voting is open every day until 6 November. You can vote at any voting place in the country.</p>'
-                     + (finder.replace('<a ', '<a class="button big" ', 1) if finder else '') + graphic
-                     if advance_open(records, today) else
-                     (finder.replace('<a ', '<a class="button big" ', 1) if finder else '') + graphic)
+    button = finder.replace('<a ', '<a class="button big" ', 1) if finder else ''
+    lede = ''
+    if advance_open(records, today):
+        until = records.get('advance-closes', {}).get('date')
+        lede = ('<p class="vote-lede">Advance voting is open' + (f' until {date.fromisoformat(until):%-d %B}' if until else '')
+                + '. You can vote at any voting place in the country.</p>')
+    places = section('places', 'Where can I vote, and when?', lede + button + graphic)
     bring = '<p>' + escape(records['what-to-bring']['summary']) + '</p>' if records.get('what-to-bring') else ''
     votes = '<p>' + escape(records['two-votes']['summary']) + '</p>' if records.get('two-votes') else ''
     guidance = action('two-votes', 'Official voting guidance') or action('what-to-bring', 'Official voting guidance')

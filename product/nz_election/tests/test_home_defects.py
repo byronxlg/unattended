@@ -61,3 +61,16 @@ def test_7_pollster_source_names_and_text_face(populated):
     # Pollster names are set in the text face; mono is for code-like strings only.
     css = (site / 'styles.css').read_text()
     assert not re.search(r'\.poll-table[^{]*\{[^}]*Mono', css)
+
+
+@pytest.mark.parametrize(('value', 'status'), [(499, 'Below 5%'), (500, 'Above 5%'), (620, 'Above 5%')])
+def test_threshold_exact_cutoff(value, status):
+    from product.nz_election.pipeline.home_graphics import threshold_bars
+    html = threshold_bars([dict(party_id='opp', value=value, scale=100, electorate_qualifies=False)])
+    assert re.search(r'<small class="[a-z]+">' + status, html)
+
+
+def test_home_page_weight(populated):
+    # A loose stability guard for phones, not a design measure: home HTML plus the shared stylesheet.
+    _, site = populated
+    assert len((site / 'index.html').read_bytes()) + (site / 'styles.css').stat().st_size < 300_000

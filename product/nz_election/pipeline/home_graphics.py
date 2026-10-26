@@ -236,9 +236,9 @@ def party_cards(averages, result, leaders, *, prefix=PREFIX):
         before = share(month.get(p)) if month else None
         change = ''
         if before is not None:
-            delta = value - before
-            word = 'up' if delta >= Decimal('0.05') else 'down' if delta <= Decimal('-0.05') else 'level'
-            change = (f'<span class="change {word}">{"+" if delta > 0 else ""}{delta:.1f}</span>' if word != 'level'
+            delta = (value - before).quantize(Decimal('0.1'), rounding='ROUND_HALF_UP')
+            word = 'up' if delta > 0 else 'down' if delta < 0 else 'level'
+            change = (f'<span class="change {word}">{"+" if delta > 0 else ""}{delta}</span>' if word != 'level'
                       else '<span class="change level">no change</span>')
         leader = people.get(p)
         photo = ''
@@ -323,17 +323,6 @@ def threshold_bars(rows):
                  f'<span class="bar"><i style="width:{min(Decimal(100), v * 100 / scale_max):.1f}%"></i></span>'
                  f'<b>{display(r["value"], r["scale"])}</b><small class="{tone}">{status}</small></li>')
     return f'<div class="thresholds"><span class="five" style="--at:50%">5%</span><ul>{body}</ul></div>'
-
-
-# Markets
-
-def market_cards(entries):
-    cards = ''
-    for question, price, closed in entries:
-        pct = int((Decimal(price) * 100).to_integral_value())
-        cards += (f'<li><span class="price">{pct}<small>%</small></span><span class="question">{escape(question)}{" (closed)" if closed else ""}</span>'
-                  f'<span class="gauge"><i style="width:{pct}%"></i></span></li>')
-    return f'<ul class="markets">{cards}</ul>'
 
 
 # Key dates
