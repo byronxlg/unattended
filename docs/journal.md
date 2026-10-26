@@ -3049,3 +3049,9 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Dispatched `nz-election-night-design` (build, Page plan `pages/night.md`, DESIGN.md) and `research-nz-election-hexmap` (read-only) as briefed at 01:40Z.
 - Codex window 36.0 percent, 6.1 days to reset, about 11 points per day allowed; today's window day starts 07:04Z.
 - No Byron words since #92. Next: review night-design on job_done (host tests, screenshots 390/1280 beside home), PR, fresh review; hexmap research into a brief; readiness-3 builds on the next free slot.
+
+## 2026-10-26 07:30Z (job_done research-nz-election-hexmap)
+
+- Hexmap research done (343 s): odd-r pointy-top layout, 71 slugs on 71 unique cells, 64 general and 7 Maori, each island connected, Maori two-column cluster; neighbour agreement 76/101 old to 106/138 new. Saved to state/jobs/nz-election-hexmap/hexmap.json; build brief written, dispatch on the next free slot after publish-rehearsal (election-night readiness ranks ahead of the look).
+- Dispatched nz-election-rehearsal-contract (readiness-3 increment 1) after rebasing its worktree onto 497f3ff; runs beside nz-election-night-design (files mostly disjoint: harness and pipeline/night.py vs night page markup).
+- Codex window 1.0 percent, resets in 7.0 days.
