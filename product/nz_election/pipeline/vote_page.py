@@ -17,7 +17,16 @@ def page(built, rows=None, envs=None):
     from .build import PREFIX, link, compact_time, local_time
     rows = load_voting() if rows is None else rows
     records = {row['id']: row for row in rows}
-    today = datetime.fromisoformat(built.replace('Z', '+00:00')).astimezone(ZoneInfo('Pacific/Auckland')).date()
+    now = datetime.fromisoformat(built.replace('Z', '+00:00')).astimezone(ZoneInfo('Pacific/Auckland'))
+    today = now.date()
+    close = records.get('enrolment-closes', {})
+    enrolment_closed = (now >= datetime.fromisoformat(close['at']) if close.get('at') else
+                        bool(close.get('date') and today > date.fromisoformat(close['date'])))
+
+    def summary(key):
+        if key == 'enrolment-closes' and enrolment_closed:
+            return 'The enrolment close has passed.'
+        return records[key]['summary']
 
     def action(key, label):
         row = records.get(key, {})
@@ -25,14 +34,18 @@ def page(built, rows=None, envs=None):
 
     def sentence(key):
         row = records.get(key, {})
-        return '<p>' + escape(row['summary']) + '</p>' if row.get('date') else ''
+        return '<p>' + escape(summary(key)) + '</p>' if row.get('date') else ''
 
     def section(identity, title, body):
         from .home import section as module
         return module(identity, title, '', body, 'Electoral Commission', '', prose=True, source='')
 
-    enrol = section('enrol', 'Am I enrolled, and is it too late?',
-                    sentence('enrolment-closes') + action('check-or-update-enrolment', 'Check or update your enrolment'))
+    if enrolment_closed:
+        enrol_action = (link(close['source_url'], 'Electoral Commission enrolment information')
+                        if close.get('source_url') else '')
+    else:
+        enrol_action = action('check-or-update-enrolment', 'Check or update your enrolment')
+    enrol = section('enrol', 'Am I enrolled, and is it too late?', sentence('enrolment-closes') + enrol_action)
     from .home_graphics import timeline as key_dates
     election = records.get('election-day', {})
     countdown = ''
@@ -71,7 +84,7 @@ def page(built, rows=None, envs=None):
         for identity in records[key].get('deadline_ids', []):
             row = records.get(identity, {})
             if row.get('date') and row.get('at'):
-                deadlines += '<p>' + escape(row['summary']) + ' Deadline: ' + escape(local_time(datetime.fromisoformat(row['at']).astimezone(timezone.utc).isoformat().replace('+00:00', 'Z'))) + ' (New Zealand time).</p>'
+                deadlines += '<p>' + escape(summary(identity)) + ' Deadline: ' + escape(local_time(datetime.fromisoformat(row['at']).astimezone(timezone.utc).isoformat().replace('+00:00', 'Z'))) + ' (New Zealand time).</p>'
         help_body += '<div class="vote-help"><h3>' + anchor + '</h3><p>' + escape(records[key]['summary']) + '</p>' + deadlines + '</div>'
     help_section = section('help', 'Overseas or need help voting?', sentence('overseas-opens') + ('<div class="help-grid">' + help_body + '</div>' if help_body else ''))
     compare = section('compare', 'Where can I compare candidates and policies?',
