@@ -438,10 +438,17 @@ def ribbon(built, envs):
             f'<p><a href="{PREFIX}vote/">How and where to vote</a></p></section>')
 
 
-def section(name, heading, dek, graphic, publisher, date, more=None):
+def section(name, heading, dek, graphic, publisher, date, more=None, *, prose=False, source=None):
     if not graphic:
         return ''
     link_html = f'<a class="more" href="{PREFIX}{more[0]}">{more[1]}</a>' if more else ''
+    if prose:
+        # Action guides use the same module anatomy without presenting prose as a figure.
+        note = footnote(name, publisher, date) if source is None else source
+        foot = f'<div class="module-foot">{note}{link_html}</div>' if note or link_html else ''
+        intro = f'<p class="dek">{dek}</p>' if dek else ''
+        return (f'<section id="{name}"><div class="module"><h2>{heading}</h2>'
+                f'{intro}<div class="module-body">{graphic}</div>{foot}</div></section>')
     return (f'<section id="{name}" class="module"><header class="module-head"><h2>{heading}</h2>'
             f'<p class="dek">{dek}</p></header>'
             f'<figure id="home-{name}" aria-describedby="source-{name}">{graphic}</figure>'

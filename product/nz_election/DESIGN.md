@@ -39,7 +39,12 @@ the bar; the screenshot is.
    big graphic, a two-line grey dek with the caveats, one footnote line.
 4. Modules, in reader-question order: 3 px ink rule on top, h2 question, one dek sentence, one
    graphic, a foot row with the source line left and one "more" link right. `home.section()`
-   renders this; use it on every page.
+   renders this; use it on every page. Its `prose=True` variant keeps action guides
+   as ordinary content instead of figures. Pass `source` for a custom foot row; an empty
+   source omits that row when the action links themselves lead to the primary sources.
+   Vote keeps its first three answers compact, with a left-aligned hero and the shared
+   timeline immediately afterwards. On desktop the second and third answers sit alongside
+   the hero. The complete snapshot credit remains in `div.source-note`.
 5. Footer: grey, two lines.
 
 ## Components (`pipeline/home_graphics.py`)
