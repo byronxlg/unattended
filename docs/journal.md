@@ -2981,3 +2981,7 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
   the tick watchdog covers it after 90 min. No Codex job running.
 - Budget: window 32 percent, share for the window day to 07:04Z spent per the 00:30Z session; nothing dispatched.
   next-run-after stays 07:05Z, when nz-election-night-design and research-nz-election-hexmap go out as briefed.
+
+## 2026-10-26 02:04Z (issue trigger)
+
+Trigger was the lab's own status comments on #32, #34, #40 at 02:01Z (redesign #90 live, left open for Byron's verdict); no new words from Byron. PR #91 (a.more wrap) CI pending, not merged; merge on green next run. No jobs running; next-run-after stays 07:05Z for the night-design and hexmap dispatches.
