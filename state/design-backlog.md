@@ -3,6 +3,16 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-26 (Byron, issue #103, Telegram 17:47Z, verbatim)
+
+"Let's make a dedicated funding page. That's interesting"
+Page plan intent/nz-election/pages/funding.md; build nz-election-funding-page on the 27 Oct share.
+
+## 2026-10-26 18:07Z (PR #102 second fresh review nits)
+
+- vote/: closing sentence packs three voting methods before "7pm"; slow to scan at 390.
+- vote/: deadlines sit after all five help options, apart from the actions they qualify.
+
 ## 2026-10-26 18:00Z (supervisor, PR #102 fix-1 host screenshots)
 
 - vote/ deadlines block: "Voting in New Zealand; Uploads of completed overseas voting papers; Voting by registered

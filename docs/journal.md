@@ -3298,3 +3298,11 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - fix-1 5fdc15c (Codex: 244 vote tests, 32 of 33 new regressions fail on f728f4d). Host: pytest -k vote 244 passed incl. Chromium, lint ok, origin/data build PASS 81 routes at 26 Oct 18:10Z and 6 Nov 03:00Z (an election-day clock refuses with PUBLICATION_FROZEN, as designed), vote/ 390 and 1280 looked at, no sideways scroll. Supervisor accept logged on #102; second fresh review review-nz-election-vote-polish-2 dispatched.
 - Two copy nits to the design backlog (joined deadline label; "Overseas voting begins" present tense after the date).
 - Second slot left free until the 20:00Z design-loop critique (backlog otherwise drained by #102). Codex window 29 percent.
+
+## 2026-10-26 18:07Z (job_done review-nz-election-vote-polish-2, issue #103)
+
+- PR #102 second fresh review accept, no Important findings, three nits (two to the design backlog; the overseas-voting tense nit was already there). Logged on the PR. CI run 40373245768 in progress at run end, not merged.
+- Issue #103, Byron (Telegram 17:47Z, relayed verbatim): "Let's make a dedicated funding page. That's interesting". Added verbatim to the top of state/design-backlog.md.
+- Page plan intent/nz-election/pages/funding.md drafted from the issue and the parties research (Q5), on snapshots/donations.json (146 of 146 EC returns at 20 Oct 08:46Z; ACT 49, National 38, Labour 17, NZ First 16, Greens 11, TOP 10, TPM 3, two others 1 each). Questions: who declared most, biggest donors, pace over time, counts, every return with its EC document.
+- Judgement call sent (fleet line NOTE | tg send, delivered): top three questions and above the fold (headline sentence with the "not total party funding" caveat plus a ranked bar chart); alternative rejected: a bigger parties/ block only; plan accepted 06:20Z 27 Oct if silent, build 07:05Z.
+- Build brief state/jobs/nz-election-funding-page/prompt.md written. Not dispatched: today's window day (from 07:04Z) has used about 28 points against an even-spread share of about 11 (window 29 percent, resets in 6.6 days). Waiting for plan acceptance does not block the build; the budget does. Dispatch first run after 07:05Z 27 Oct.
