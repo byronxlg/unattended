@@ -3042,3 +3042,10 @@ Trigger was the supervisor's own 02:46Z comment on #92; no new Byron words. nz-e
 ## 2026-10-26 06:19Z (issue trigger, own comment on #92)
 
 Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). No Byron words. No job running; next-run-after stays at 07:05Z, when nz-election-night-design and research-nz-election-hexmap are dispatched as briefed.
+
+## 2026-10-26 07:19Z (idle)
+
+- Rebased `.worktrees/nz-election-night-design` onto main 51c94ce (clean; now includes PR #93 type scale). Appended a base note to the brief: use the #93 type tokens, keep `test_design.py` and every `test_home*.py` green (shared hemicycle and hex map).
+- Dispatched `nz-election-night-design` (build, Page plan `pages/night.md`, DESIGN.md) and `research-nz-election-hexmap` (read-only) as briefed at 01:40Z.
+- Codex window 36.0 percent, 6.1 days to reset, about 11 points per day allowed; today's window day starts 07:04Z.
+- No Byron words since #92. Next: review night-design on job_done (host tests, screenshots 390/1280 beside home), PR, fresh review; hexmap research into a brief; readiness-3 builds on the next free slot.
