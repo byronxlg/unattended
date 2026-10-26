@@ -497,11 +497,14 @@ svg.trend.narrow{display:none}
 .vote-first .countdown{display:flex;align-items:baseline;gap:8px;margin-top:8px;color:var(--soft)}
 .vote-first .countdown strong{font-size:var(--fs-figure-hero);font-weight:800;line-height:1;letter-spacing:-.03em;color:var(--ink)}
 .vote-dates{margin:40px 0 0;padding:24px 0;border-top:1px solid var(--hair)}
-.help-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px 40px;margin-top:24px}
+.vote-dates figure{margin:0}
+.help-grid{display:grid;gap:24px;margin-top:24px}
 .vote-help h3{margin:0 0 6px;font-size:var(--fs-h3)}
-.vote-help p{margin:6px 0;color:var(--soft)}
+.vote-help p{margin:6px 0}
+.vote-help .dek{margin:6px 0}
 .vote-page>.source-note{margin-top:40px}
 @media(min-width:900px){
+.vote-help{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:40px;align-items:start}
 .vote-first{max-width:none;display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);column-gap:64px;align-items:start}
 .vote-first>section:first-child{grid-row:span 2}
 .vote-first>section:first-child .module-body{max-width:44ch}

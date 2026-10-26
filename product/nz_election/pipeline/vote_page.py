@@ -36,9 +36,15 @@ def page(built, rows=None, envs=None):
         row = records.get(key, {})
         return '<p>' + escape(summary(key)) + '</p>' if row.get('date') else ''
 
-    def section(identity, title, body):
+    def section(identity, title, body, source=''):
         from .home import section as module
-        return module(identity, title, '', body, 'Electoral Commission', '', prose=True, source='')
+        return module(identity, title, '', body, 'Electoral Commission', '', prose=True, source=source)
+
+    def date_source(identity, keys):
+        urls = dict.fromkeys(records[key]['source_url'] for key in keys
+                             if records.get(key, {}).get('date') and records[key].get('source_url'))
+        return (f'<p class="home-footnote" id="{identity}">Source: '
+                + ' '.join(link(url, 'Electoral Commission') for url in urls) + '.</p>') if urls else ''
 
     if enrolment_closed:
         enrol_action = (link(close['source_url'], 'Electoral Commission enrolment information')
@@ -51,10 +57,13 @@ def page(built, rows=None, envs=None):
     countdown = ''
     if election.get('date'):
         days = (date.fromisoformat(election['date']) - today).days
-        countdown = (f'<p class="countdown" aria-describedby="source-vote"><strong>{days}</strong> {"day" if days == 1 else "days"} to election day</p>' if days > 0
-                     else '<p class="countdown" aria-describedby="source-vote"><strong>Today</strong> is election day. Voting closes at 7pm.</p>' if days == 0 else '')
+        countdown = (f'<p class="countdown" aria-describedby="source-countdown"><strong>{days}</strong> {"day" if days == 1 else "days"} to election day</p>' if days > 0
+                     else '<p class="countdown" aria-describedby="source-countdown"><strong>Today</strong> is election day. Voting closes at 7pm.</p>' if days == 0 else '')
     dates = key_dates(records, today)
-    graphic = (f'<figure class="vote-dates" aria-describedby="source-vote">{dates}</figure>') if dates else ''
+    timeline_source = date_source('source-timeline', ('overseas-opens', 'enrolment-closes', 'advance-opens',
+                                                    'advance-closes', 'election-day'))
+    graphic = (f'<div class="vote-dates"><figure aria-describedby="source-timeline">{dates}</figure>'
+               f'<div class="module-foot">{timeline_source}</div></div>') if dates else ''
     finder = action('find-where-to-vote', 'Find a voting place near you')
     button = finder.replace('<a ', '<a class="button big" ', 1) if finder else ''
     lede = ''
@@ -66,7 +75,8 @@ def page(built, rows=None, envs=None):
     if not places_body and graphic:
         # A date-only answer still belongs under the where-and-when question.
         places_body, graphic = graphic, ''
-    places = section('places', 'Where can I vote, and when?', places_body)
+    places = section('places', 'Where can I vote, and when?', places_body,
+                     date_source('source-countdown', ('election-day',)) if countdown else '')
     bring = '<p>' + escape(records['what-to-bring']['summary']) + '</p>' if records.get('what-to-bring') else ''
     votes = '<p>' + escape(records['two-votes']['summary']) + '</p>' if records.get('two-votes') else ''
     guidance = action('two-votes', 'Official voting guidance') or action('what-to-bring', 'Official voting guidance')
@@ -84,8 +94,8 @@ def page(built, rows=None, envs=None):
         for identity in records[key].get('deadline_ids', []):
             row = records.get(identity, {})
             if row.get('date') and row.get('at'):
-                deadlines += '<p>' + escape(summary(identity)) + ' Deadline: ' + escape(local_time(datetime.fromisoformat(row['at']).astimezone(timezone.utc).isoformat().replace('+00:00', 'Z'))) + ' (New Zealand time).</p>'
-        help_body += '<div class="vote-help"><h3>' + anchor + '</h3><p>' + escape(records[key]['summary']) + '</p>' + deadlines + '</div>'
+                deadlines += '<p class="dek">' + escape(summary(identity)) + ' Deadline: ' + escape(local_time(datetime.fromisoformat(row['at']).astimezone(timezone.utc).isoformat().replace('+00:00', 'Z'))) + ' (New Zealand time).</p>'
+        help_body += '<div class="vote-help"><h3>' + anchor + '</h3><div><p>' + escape(records[key]['summary']) + '</p>' + deadlines + '</div></div>'
     help_section = section('help', 'Overseas or need help voting?', sentence('overseas-opens') + ('<div class="help-grid">' + help_body + '</div>' if help_body else ''))
     compare = section('compare', 'Where can I compare candidates and policies?',
                       f'<p><a href="{PREFIX}electorates/">Find your electorate and candidates</a></p>'
