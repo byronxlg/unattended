@@ -13,6 +13,12 @@ LAW = 'https://www.legislation.govt.nz/act/public/1993/0087/latest/DLM310065.htm
 FREEZE_NOTICE = 'No publication between 00:00 and 19:00 NZDT on election day, under Electoral Act s197.'
 
 
+
+def reader_update(clock):
+    stamp = datetime.fromisoformat(clock)
+    return f'{stamp.day} {stamp:%B %Y} at {stamp:%H:%M}'
+
+
 def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=None):
     source = 'source-' + identity
     parties = sorted(row['party_results'].items(), key=lambda p: (-p[1]['votes'], p[0]))
@@ -28,10 +34,10 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
         elif 'reported_house' not in row:
             context.append('Seats are published only in the final archive.')
         elif archive_updated:
-            context.append(f'Final archive updated {archive_updated[11:16]} on {archive_updated[:10]} (source local time; timezone unverified).')
+            context.append('Final archive updated ' + reader_update(archive_updated) + '.')
     elif row.get('source_updated_local'):
         clock = row['source_updated_local']
-        context.append(f'Source updated {clock[11:16]} on {clock[:10]} (source local time; timezone unverified).')
+        context.append('Results last updated ' + reader_update(clock) + '.')
     context_html = '<p class="night-frame-context">' + escape(' '.join(context)) + '</p>' if context else ''
     if row['mode'] == 'Packaged 2026 preliminary snapshot':
         context_html += '<p>This dated packaged snapshot is not a live connection. Electorates without a captured detail file have not yet reported here.</p>'
@@ -71,6 +77,8 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
         content += g.seat_legend(result) + '</figure>'
         content += f'<p class="hero-dek night-house">House {house}; <strong>{majority} for a majority</strong>. Grouped by the 2023 coalition; government formation is separate.</p>'
         content += f'<p class="home-footnote"><a href="{PREFIX}data/{path}">Electoral Commission snapshot</a></p></section>'
+        if 'leaders' in row:
+            content += f'<p class="night-find"><a href="#night-search-{identity}">Find your electorate</a></p>'
         content += context_html
         winners = [group for size in range(1, len(seats)+1) for group in combinations(seats, size)
                    if sum(n for _, n in group) >= majority and all(sum(n for _, n in group)-n < majority for _, n in group)]
@@ -94,7 +102,7 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
     else:
         content += comparison_view(row.get('preliminary_baseline'), row.get('official_result'), source)
     clock = row.get('source_updated_local')
-    provenance = ('Source local timestamp ' + clock + ' (timezone unverified).' if clock else
+    provenance = ('Results last updated ' + reader_update(clock) + '. Time shown as published by the Electoral Commission; no timezone was supplied.' if clock else
                   'Illustrative elapsed time ' + str(row['elapsed_seconds']) + ' seconds; scaled final party votes, not observed election-night counts.')
     if row.get('packaging_label'):
         provenance += ' Packaged by the site at ' + row['retrieved_at'] + '.'
@@ -119,7 +127,7 @@ def page(envs, built):
     from .night_live import CLOSE, stamp
     sequences = envs.get('night/index', {}).get('data', [])
     pre_close = datetime.fromisoformat(built.replace('Z', '+00:00')) < datetime.fromisoformat('2026-11-07T19:00:00+13:00')
-    before = f'<section class="ribbon night-countdown"><p class="countdown">{escape(election_countdown(built))}</p><p><a href="{PREFIX}vote/">How to vote</a></p></section>'
+    before = f'<section class="countdown"><div class="ribbon night-countdown"><p>{escape(election_countdown(built))}</p><p><a href="{PREFIX}vote/">How to vote</a></p></div></section>'
     from .snapshots import load_voting
     dates = ('<section class="night-timeline" aria-label="Voting dates">' + g.timeline({r['id']: r for r in load_voting()}, g.nz_today(built)) + '</section>') if pre_close else ''
     absent_source = (f'<div class="source-note" id="source-night"><p>{FREEZE_NOTICE}</p>'

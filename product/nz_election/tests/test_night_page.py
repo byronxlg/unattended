@@ -145,7 +145,9 @@ def test_replay_frames_explain_coverage_without_inventing_data(night_envs):
         else:
             basis = night_envs['night/illustrative-2023/step-2']['data'][0]['derivation']['basis']
             updated = night_envs[basis[:-5]]['data'][0]['source_updated_local']
-            assert f'Final archive updated {updated[11:16]} on {updated[:10]}' in context.text
+            from datetime import datetime
+            stamp = datetime.fromisoformat(updated)
+            assert f'Final archive updated {stamp.day} {stamp:%B %Y} at {stamp:%H:%M}' in context.text
             assert 'House 122' in frame.text and '2,851,211' in frame.text
 
 

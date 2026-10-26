@@ -25,3 +25,5 @@
 .night-page .night-step>div{height:22px;background:var(--wash)}.night-page .night-step i{display:block;min-width:1px;height:22px;background:var(--soft)}
 .night-page .night-map-key[hidden]{display:none}
 @media(max-width:599px){.night-combinations{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.night-combination{padding:12px}.night-party{overflow-wrap:anywhere}}
+.night-find a{font-weight:700}.night-find{margin:8px 0}.night-more-combinations li{margin:8px 0}
+.night-page .night-frame-context{font-size:var(--fs-caption);color:var(--grey)}

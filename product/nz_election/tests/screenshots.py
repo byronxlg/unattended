@@ -46,7 +46,10 @@ def contrast(a, b):
 CONTRAST = '''() => [...document.querySelectorAll('body *')].filter(el =>
   [...el.childNodes].some(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim()) &&
   el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden').map(el => {
-    const parse = color => (color.match(/[\\d.]+/g)||[]).map(Number);
+    const parse = color => {
+      const channels = (color.slice(color.indexOf('(') + 1).match(/[-+]?(?:[0-9]*[.])?[0-9]+(?:e[-+]?[0-9]+)?/gi)||[]).map(Number);
+      return color.startsWith('color(srgb ') ? channels.map((v,i)=>i<3?v*255:v) : channels;
+    };
     let p=el, bg;
     while(p) {bg=parse(getComputedStyle(p).backgroundColor); if(bg.length===3 || bg[3]===1) break; p=p.parentElement;}
     return {text:el.textContent.slice(0,80),fg:parse(getComputedStyle(el).color),bg:p?bg:[255,255,255]};
