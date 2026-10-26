@@ -49,7 +49,11 @@ def page(built, rows=None, envs=None):
         until = records.get('advance-closes', {}).get('date')
         lede = ('<p class="vote-lede">Advance voting is open' + (f' until {date.fromisoformat(until):%-d %B}' if until else '')
                 + '. You can vote at any voting place in the country.</p>')
-    places = section('places', 'Where can I vote, and when?', lede + button + countdown)
+    places_body = lede + button + countdown
+    if not places_body and graphic:
+        # A date-only answer still belongs under the where-and-when question.
+        places_body, graphic = graphic, ''
+    places = section('places', 'Where can I vote, and when?', places_body)
     bring = '<p>' + escape(records['what-to-bring']['summary']) + '</p>' if records.get('what-to-bring') else ''
     votes = '<p>' + escape(records['two-votes']['summary']) + '</p>' if records.get('two-votes') else ''
     guidance = action('two-votes', 'Official voting guidance') or action('what-to-bring', 'Official voting guidance')
@@ -87,7 +91,10 @@ def page(built, rows=None, envs=None):
               'no open licence stated. Independent summaries. Retrieved ' +
               escape(compact_time(max(r['retrieved_at'] for r in rows))) + '.</p><p class="source-actions">' +
               link('https://vote.nz/', 'vote.nz') + f'<a href="{PREFIX}methods/#vote-sources">All {len(sources)} pages used</a>' + '</p></div>') if rows else ''
-    return '<div class="vote-page"><div class="vote-first">' + first.replace('<h2>', '<h1>', 1).replace('</h2>', '</h1>', 1).replace('class="module"', 'class="hero vote-hero"', 1) + basics + '</div>' + graphic + help_section + compare + source + '</div>'
+    content = '<div class="vote-first">' + first + basics + '</div>' + graphic + help_section + compare
+    # With sparse records, the first answer can be guidance, help or comparison.
+    content = content.replace('<h2>', '<h1>', 1).replace('</h2>', '</h1>', 1).replace('class="module"', 'class="hero vote-hero"', 1)
+    return '<div class="vote-page">' + content + source + '</div>'
 
 
 def sources_section(rows=None):
