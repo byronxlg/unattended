@@ -3038,3 +3038,7 @@ Trigger was the supervisor's own 02:46Z comment on #92; no new Byron words. nz-e
 - Lesson recorded: host checks on a UI change run every test_home*.py, not only the brief's list (the #93 CI failure).
 - No judgement calls. Codex window 36 percent, 6.1 days to reset; no jobs running.
 - Next: 07:05Z dispatch nz-election-night-design and research-nz-election-hexmap as briefed.
+
+## 2026-10-26 06:19Z (issue trigger, own comment on #92)
+
+Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). No Byron words. No job running; next-run-after stays at 07:05Z, when nz-election-night-design and research-nz-election-hexmap are dispatched as briefed.
