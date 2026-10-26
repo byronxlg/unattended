@@ -37,7 +37,7 @@ def test_map_equivalent_on_every_electorate(populated):
         assert html.count('<tr>') == 72
         check_sources((site / 'electorates' / row['slug'] / 'index.html').read_text())
     port = (site / 'electorates/port-waikato/index.html').read_text()
-    assert '2025 locator, not a legal boundary. Stats NZ, CC BY 4.0.' in port
+    assert 'Schematic, not a legal boundary. Stats NZ 2025 boundaries, CC BY 4.0.' in port
     assert 'class="result-bars"' in port and 'by-election' in port
     assert 'Nineteen electorates are unchanged' not in port
     method = sources(envs).split('<section id="home-leaders">')[0]

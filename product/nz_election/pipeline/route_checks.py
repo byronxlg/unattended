@@ -46,14 +46,18 @@ def check_site(site, envs):
         if path.startswith('electorates/') and path != 'electorates/':
             row = next(r for r in envs.get('electorates', {}).get('data', config('electorates')) if path == 'electorates/' + r['slug'] + '/')
             from .electorate_pages import candidate_cards
-            from .electorate_locator import locator, LOCATOR_BYTE_CAP
+            from .home_graphics import hex_map
+            from .snapshot_views import load, result
+            from .electorate_locator import LOCATOR_BYTE_CAP
             require(candidate_cards(row) in html, 'reconciled candidates and explicit incumbent flags')
             require('class="electorate-page"' in html, 'electorate overview')
-            graphic = locator(row)
+            graphic, _ = hex_map(envs, load('hexmap'), {r['slug']: r for r in config('electorates')},
+                                 lambda r: result(r, envs), selected=row['slug'])
             require(graphic in html and len(graphic.encode()) < LOCATOR_BYTE_CAP,
-                    '2025 boundary locator within byte cap')
+                    'shared hex locator within byte cap')
             require('id="source-boundaries-2025"' in html and 'CC BY 4.0' in html, 'locator provenance')
-            require(html.index('class="race-cards"') < html.index('class="enrolled-electorate"'), 'candidate-first order')
+            require(html.index('Check your enrolled electorate at vote.nz') < html.index('class="race-cards"'), 'first-screen enrolment action')
+            require('aria-current="location"' in graphic and f'data-electorate="{row["slug"]}"' in graphic, 'selected electorate')
             require('class="tile-map"' not in html and 'Local polls' not in html and '<h2>Enrolment' not in html,
                     'only accepted page answers')
             require('id="source-baseline-2023"' in html, 'baseline fragment preserved')

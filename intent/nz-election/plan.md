@@ -310,3 +310,13 @@ engineer's branch base (e64f262) predates this file on `main`, so Codex read the
 4. Deferred from the third fresh review of PR #9: a decimal vote string over Python's 4,300-digit
    conversion limit raises a non-INVALID_INPUT error while JS accepts it. Not a reachable pipeline
    input; both allocators get one shared length limit in M4 hardening.
+
+
+## Electorate design system refresh (27 October 2026)
+
+- [x] Reuse the shared hex-native map with a focused current-seat highlight; preserve candidate identities, original-boundary results and night promotion.
+- [x] Put enrolment and Policy.nz actions directly under the hero, before the candidate cards, to prioritise the brief's first-screen actions at 390 px.
+- [x] Use existing type and colour tokens, licensed snapshot portraits and directly labelled result bars with a hidden data table.
+- [ ] Inspect Nelson, Te Tai Tonga and Wellington North at 390x844 and 1280x900, plus dark mode. Chromium launch is denied by the local sandbox.
+
+The reviewed registry supplies electorate kind but no region. The general-seat kicker therefore says "General electorate"; Māori seats say "Māori electorate". No unsourced region mapping is introduced.

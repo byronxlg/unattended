@@ -39,7 +39,8 @@ the bar; the screenshot is.
    big graphic, a two-line grey dek with the caveats, one footnote line.
 4. Modules, in reader-question order: 3 px ink rule on top, h2 question, one dek sentence, one
    graphic, a foot row with the source line left and one "more" link right. `home.section()`
-   renders this; use it on every page.
+   renders this; use it on every page. Its optional `source_note`, `source_id` and `css` arguments
+   let a page reuse its existing provenance and module identity.
 5. Footer: grey, two lines.
 
 ## Components (`pipeline/home_graphics.py`)
@@ -50,7 +51,8 @@ the bar; the screenshot is.
 | Trend chart | `trend(averages, polls, election, wide=)` | all parties, polls as faint dots, 30-day average as thick lines (4 px over 15%), end labels with values, 5% line, shaded run-up to election day. Render `wide` and `narrow`; CSS shows one |
 | Poll table | `poll_table(polls, average, names, count, reports=)` | heat-tinted cells (`--c`, `--a`), average row outlined first |
 | Party cards | `party_cards(averages, result, leaders)` | leader photo ringed in party colour, share big, month change, bar, seats |
-| Hex map | `hex_map(envs, cells, rows, held_for)`, `map_key` | electorates as hexes coloured by holder, three margin tones, each links to its page |
+| Hex map | `hex_map(envs, cells, rows, held_for, selected=None)`, `map_key` | electorates as hexes coloured by holder, three margin tones, each links to its page; selected-seat mode uses the same layout with neutral neighbours and one focusable highlighted seat, with HTML captions at card size |
+| Candidate result bars | `candidate_result_bars(ranked, names, source_id)` | thick horizontal bars with candidate, party, share and vote labels; hidden data table; the caller supplies the original-boundary margin and source note |
 | Closest list | `closest_list(rows, held_for)` | name, holder, margin bar in party colour |
 | Threshold bars | `threshold_bars(rows)` | 0 to 10% bars with the 5% line drawn through every bar |
 | Market cards | `market_cards(entries)` | big percent, the question, a gauge |

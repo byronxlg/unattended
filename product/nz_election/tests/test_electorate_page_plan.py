@@ -4,7 +4,6 @@ from html import escape
 import pytest
 from product.nz_election.pipeline.build import config
 from product.nz_election.pipeline.electorate_pages import detail, previous_result
-from product.nz_election.pipeline.electorate_locator import locator, LOCATOR_BYTE_CAP
 from product.nz_election.pipeline import snapshot_views, snapshots
 from product.nz_election.tests.design_checks import provenance
 
@@ -16,12 +15,15 @@ def seat(slug='wellington-north'):
 def test_first_screen_order_and_all_locators():
     for row in config('electorates'):
         html = detail(row, {})
-        # Candidates first; the locator and the enrolment check sit beside them.
-        assert html.index('class="race-cards"') < html.index('class="electorate-locator"') < html.index('Check your enrolled electorate at vote.nz')
-        graphic = locator(row)
-        assert graphic in html and len(graphic.encode()) < LOCATOR_BYTE_CAP == 24000
+        from product.nz_election.pipeline.home_graphics import hex_map
+        rows = {r['slug']: r for r in config('electorates')}
+        graphic, _ = hex_map({}, snapshot_views.load('hexmap'), rows, lambda r: snapshot_views.result(r, {}), selected=row['slug'])
+        assert html.index('Check your enrolled electorate at vote.nz') < html.index('class="race-cards"')
+        assert graphic in html
         assert f'data-electorate="{row["slug"]}"' in graphic
-        assert '2025 locator, not a legal boundary. Stats NZ, CC BY 4.0.' in html
+        assert 'aria-current="location"' in graphic and 'href="#candidates-title"' in graphic
+        assert graphic.count('<polygon ') == 71 and graphic.count('<a ') == 1
+        assert 'Schematic, not a legal boundary.' in html
         assert all(x not in html for x in ('Local polls', '<h2>Enrolment', 'class="tile-map"'))
         provenance(html)
 
@@ -53,7 +55,7 @@ def test_policy_link_only_when_present(monkeypatch):
     assert 'electorate-policy' not in detail(seat(), {})
     monkeypatch.setattr(snapshot_views, 'load', lambda n: [{'electorate_slug': 'wellington-north', 'url': 'https://policy.nz/2026/electorate-vote/wellington-north'}] if n == 'policy-links' else original(n))
     html = detail(seat(), {})
-    assert html.index('class="race-candidates"') < html.index('class="electorate-policy"') < html.index('class="locator-card"')
+    assert html.index('class="locator-card"') < html.index('class="electorate-policy"') < html.index('class="race-candidates module"')
     assert 'https://policy.nz/2026/electorate-vote/wellington-north' in html
     assert 'electorate-policy' not in detail(seat('te-tai-tonga'), {})
 
@@ -149,7 +151,7 @@ def test_no_repeated_adjacent_electorate_provenance():
 def test_methods_describe_current_detail_graphic_and_names():
     html = snapshot_views.sources({})
     assert 'squares on detail pages' not in html
-    assert 'Electorate detail pages use the simplified Stats NZ 2025 boundary locators' in html
+    assert 'Electorate detail pages use the same schematic hex layout' in html
     assert 'candidate cards display the reconciled snapshot names' in html
     assert 'href="#home-boundaries-2025"' in html
 

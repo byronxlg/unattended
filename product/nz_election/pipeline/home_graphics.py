@@ -260,7 +260,7 @@ def party_cards(averages, result, leaders, *, prefix=PREFIX):
 
 # Electorate map
 
-def hex_map(envs, cells, rows, held_for):
+def hex_map(envs, cells, rows, held_for, *, selected=None):
     size = 17
     w = Decimal(size) * Decimal(3).sqrt()
     marks, records = '', []
@@ -281,17 +281,30 @@ def hex_map(envs, cells, rows, held_for):
         fill = pc(held['party_id']) if held else 'var(--rule)'
         description = (f'{held["party"]} by {held["margin"]:,} votes in 2023' if held else 'no comparable 2023 result')
         title = escape(f'{row["name"]}: {description}')
-        marks += (f'<a href="{PREFIX}electorates/{row["slug"]}/" aria-label="{title}"><title>{title}</title>'
+        mark = (f'<a href="{PREFIX}electorates/{row["slug"]}/" aria-label="{title}"><title>{title}</title>'
                   f'<polygon points="{points}" class="hex {tone}" style="fill:{fill}"/></a>')
+        if selected:
+            polygon = f'<polygon points="{points}" class="hex" style="fill:var(--rule)"/>'
+            if row['slug'] == selected:
+                polygon = (f'<a href="#candidates-title" aria-label="{escape(row["name"])} candidates" aria-current="location">'
+                           f'<title>{escape(row["name"])}</title><polygon data-electorate="{selected}" points="{points}" '
+                           f'class="hex selected" style="fill:{pc(held["party_id"]) if held else "var(--ink)"}"/></a>')
+            mark = polygon
+        marks += mark
         records.append([escape(row['name']), escape(held['party']) if held else '', f'{held["margin"]:,}' if held else ''])
     width, height = cx_max + w / 2 + 1, cy_max + size + 6
-    if maori:
+    if maori and not selected:
         # Keep both label lines inside the map and above the first Maori hex.
         mx = width - 4
         my = min(c['y'] for c in maori) * size * Decimal('1.5') - 26
         marks += f'<text x="{mx:.1f}" y="{my:.1f}" text-anchor="end" class="map-label">Māori</text><text x="{mx:.1f}" y="{my + 22:.1f}" text-anchor="end" class="map-label">electorates</text>'
     svg = (f'<svg class="hex-map" viewBox="0 0 {width:.0f} {height:.0f}" role="group" aria-describedby="source-electorates" '
            f'aria-label="Electorates coloured by 2023 winning party; darker means a larger margin">{marks}</svg>')
+    if selected:
+        svg = svg.replace('class="hex-map"', 'class="hex-map electorate-locator"').replace(
+            'Electorates coloured by 2023 winning party; darker means a larger margin',
+            escape(rows[selected]['name']) + ' highlighted on the schematic electorate map')
+        return svg, ''
     return svg, hidden(table('2023 holders on original boundaries', ['Electorate', 'Party', 'Margin'], records, source='source-electorates'))
 
 
@@ -341,3 +354,23 @@ def timeline(records, today):
         out += (f'<li class="{state}{" big" if key == "election-day" else ""}"><time datetime="{day}">{day:%a} {day.day} {day:%b}</time>'
                 f'<span>{escape(text)}</span>' + ('<em>Today</em>' if state == 'today' else '') + '</li>')
     return f'<ol class="timeline">{out}</ol>'
+
+
+def candidate_result_bars(ranked, names, source_id):
+    """Original candidate votes, directly labelled with an accessible data table."""
+    aliases = {'National Party': 'nat', 'Labour Party': 'lab', 'Green Party': 'grn',
+               'ACT New Zealand': 'act', 'Te Pāti Māori': 'tpm', 'New Zealand First Party': 'nzf',
+               'Opportunity Party': 'opp'}
+    total = sum(v['votes'] for v in ranked)
+    content = f'<figure class="result-bars" aria-describedby="{source_id}">'
+    records = []
+    for v, name in zip(ranked, names):
+        share = Decimal(v['votes']) * 100 / total
+        colour = pc(v.get('party_id') or aliases.get(v['party']))
+        content += (f'<div class="result-bar" style="--party:{colour}"><p><strong>{escape(name)}</strong>'
+                    f' <small>{escape(v["party"])}</small></p><div class="track" aria-hidden="true">'
+                    f'<div style="width:{share:.4f}%"></div></div><p class="votes"><b>{share:.1f}%</b>'
+                    f' <span>{v["votes"]:,} votes</span></p></div>')
+        records.append([escape(name), escape(v['party']), f'{v["votes"]:,}', f'{share:.1f}%'])
+    return (content + '<figcaption>Share of valid candidate votes.</figcaption></figure>'
+            + hidden(table('2023 candidate votes', ['Candidate', 'Party', 'Votes', 'Share'], records, source=source_id)))
