@@ -3187,3 +3187,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Second slot not filled: the next UI item is the vote/ nits, which touch the files of the #99/#100 stack; the 20:00Z design-loop critique picks the next disjoint one.
 - Codex window 25 percent, 6.7 days to reset.
 - Incident (supervisor): `gh pr merge 98 --squash --auto` merged #98 immediately as af5a1ef at 14:34:44Z while CI run 40338915300 was still in progress (auto-merge is disabled on the repo, and gh merges at once when no required checks block). Not reverted: three fresh reviews and the host suite (140 passed incl. Chromium) cover the branch; next run reads 40338915300 and main's CI, a fix job if red. Link to Byron waits for green. Lesson: never `--auto` here; merge by hand on green. #99 was not merged (same command errored). Worktree removed.
+
+## 2026-10-26 14:47Z run (job_done review-nz-election-vote-enrolment)
+
+- PR #100 fresh review review-nz-election-vote-enrolment: request changes, one Important: product/nz_election/pipeline/vote_page.py:43 raises KeyError 'source_url' at and after the enrolment close when the record lacks source_url (snapshot validation rejects such input, but the sparse-field contract covers it). Probes in the review confirmed the before/at/after copy switch otherwise. Logged on the PR.
+- Dispatched nz-election-vote-enrolment-fix-1 on build thread 01a17897-bc34-73d3-8600-439bb07f47ae (guard, omit the link when absent, regression test failing on the current head; main's tests untouched).
+- #98 post-merge CI run 40338915300 and #99 CI (run 40339051781) still in progress; nothing merged this run.
+- Codex window 25.0 percent, resets in 6.7 days; disk 21.0 GiB.
