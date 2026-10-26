@@ -37,3 +37,6 @@ without changing what the live client does.
 - Screenshots at 1280x900 and 390x844 of `/night/` in the replay state and the live demo state
   (`uv run --with playwright python product/nz_election/tests/screenshots.py --site site --out artifacts/nz-election/screenshots`),
   paths listed in last.md. No horizontal scroll at 390.
+- Base is main at 51c94ce, which includes PR #93 (type tokens with a 16 px reading floor, SVG labels at
+  least 12 px at 360): use those type tokens, no new font sizes; `test_design.py` and every
+  `test_home*.py` must stay green (the hemicycle and hex map are shared with home).
