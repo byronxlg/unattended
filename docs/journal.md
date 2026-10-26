@@ -3290,3 +3290,11 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 
 - PR #102 fresh review request changes on f728f4d: exact enrolment deadline lost after the close (vote_page.py:86); dedup covers help only, election-day 7pm stated more than once (vote_page.py:108); missing retrieved_at raises KeyError (vote_page.py:126, pre-existing in the parent's credits). All three accepted, logged on the PR; fix-1 nz-election-vote-polish-fix-1 dispatched on the build thread (invariant: each deadline's date and time stated once in visible text per phase; protected tests are those at 76b5126).
 - PR #101 CI run 40365736010 still in progress at 35 min; not merged. Window 28 percent.
+
+## 2026-10-26 17:54Z (job_done nz-election-vote-polish-fix-1)
+
+- PR #101 vote-nits squash merged as 6aa4468 (CI run 40365736010 green, second fresh review accept); worktree and branch removed; link line sent to Byron (tg send).
+- PR #102 retargeted to main. Merging origin/main into change/nz-election-vote-polish conflicted in vote_page.py, test_vote_page_credits.py, styles.css; origin/change/nz-election-vote-nits was an ancestor of the branch and its product tree equalled main's, so all three resolved to the branch side (89c46e3).
+- fix-1 5fdc15c (Codex: 244 vote tests, 32 of 33 new regressions fail on f728f4d). Host: pytest -k vote 244 passed incl. Chromium, lint ok, origin/data build PASS 81 routes at 26 Oct 18:10Z and 6 Nov 03:00Z (an election-day clock refuses with PUBLICATION_FROZEN, as designed), vote/ 390 and 1280 looked at, no sideways scroll. Supervisor accept logged on #102; second fresh review review-nz-election-vote-polish-2 dispatched.
+- Two copy nits to the design backlog (joined deadline label; "Overseas voting begins" present tense after the date).
+- Second slot left free until the 20:00Z design-loop critique (backlog otherwise drained by #102). Codex window 29 percent.

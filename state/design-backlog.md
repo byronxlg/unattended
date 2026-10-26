@@ -3,6 +3,12 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-26 18:00Z (supervisor, PR #102 fix-1 host screenshots)
+
+- vote/ deadlines block: "Voting in New Zealand; Uploads of completed overseas voting papers; Voting by registered
+  telephone-dictation voters: 7pm NZ time, 7 November" reads as one joined label; give it a plain sentence.
+- vote/ help section: "Overseas voting begins on 21 October" stays present tense after the date (phase copy).
+
 ## 2026-10-26 (PR #101 fresh review nits)
 
 - vote/: deadline paragraphs repetitive and dominate the phone help section; label column leaves whitespace beside
