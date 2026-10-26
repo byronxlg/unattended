@@ -3004,3 +3004,9 @@ Trigger was the supervisor's own 02:46Z comment on #92; no new Byron words. nz-e
 - Supervisor host: origin/data build PASS build: 81 routes; home, polls, parties, vote, electorates/wellington-bays at 390 and 1280 looked at, no horizontal scroll; 13 px left only on source lines, credits and chart notes. Host browser tests for the 13 sandbox failures started (/tmp/type-scale-browser.log).
 - PR #93 opened, supervisor accept logged with three nits (headline total shows cents; parties threshold sentence at caption size; polls '30 days' header wraps), fresh review review-nz-election-type-scale dispatched.
 - Second slot held to 07:05Z (share). No judgement calls. Codex window 34 percent, 6.2 days to reset.
+
+## 2026-10-26 03:31Z (job_done review-nz-election-type-scale)
+
+- PR #93 fresh review: request changes, one Important (SVG text below the 12 px DESIGN.md minimum at 360: map 11.26 px, narrow trend 10.93 px, styles.css:425 and :387; the trend case predates the diff). Funding provenance passed for seven parties.
+- Host browser tests on 679e2fc (/tmp/type-scale-browser.log): 196 passed, 2 errors, both test_night_page setup on HEADER_TARGET_BOUNDS (screenshots.py:161): the larger type pushes a header link out of bounds or under 44 px. Supervisor accept from 03:17Z withdrawn; I had judged 390 and 1280 by eye and not run the browser suite before accepting.
+- Logged on PR #93; fix-1 nz-election-type-scale-fix-1 dispatched on the build thread (followup-1.md: header targets at 360, SVG labels at least 12 px with a measuring test that fails on 679e2fc). A fix to work in flight, not a new build; window 35 percent.
