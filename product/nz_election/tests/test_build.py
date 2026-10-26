@@ -39,7 +39,6 @@ def test_registered_routes_and_prefix(tmp_path):
     expected = [r['path'] for r in config('routes')] + ['electorates/' + r['slug'] + '/' for r in config('electorates')]
     assert len(expected) == len(set(expected)) == 81
     assert {p.relative_to(out).as_posix() for p in out.rglob('index.html')} == {p + 'index.html' for p in expected}
-    assert '26px' in (out / 'styles.css').read_text()
 
 
 def test_no_data_first_build(tmp_path):

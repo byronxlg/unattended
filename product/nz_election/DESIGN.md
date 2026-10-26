@@ -23,6 +23,9 @@ the bar; the screenshot is.
 - Blocs: `--left` (government blue) and `--right` (opposition red), only on bloc numbers.
 - Type: Libre Franklin 400, 600, 700, 800 (self-hosted, Latin Extended-A for macrons). Headlines
   800 with negative tracking; numbers tabular. Mono only for code-like strings, nowhere on home.
+- Type scale: `--fs-caption` 13 px, `--fs-body` 16 px, `--fs-lead` 18 px, `--fs-h3` 22 px.
+  `--fs-h2` 24-32 px, `--fs-h1` 32-48 px, `--fs-figure` 32-48 px, `--fs-figure-hero` 44-68 px (fluid).
+  Reading text uses body or larger; caption is for credits, captions and dense labels. SVG coordinate tokens `--fs-chart-label` 24 px and `--fs-chart-figure` 54 px keep hemicycle text readable after scaling.
 - Widths: page `--wide` 1120 px, reading column `--text` 680 px. Gutters 16 px on phone.
 
 ## Page anatomy
