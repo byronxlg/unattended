@@ -1,0 +1,94 @@
+name: NZ election night publication rehearsal
+
+on:
+  workflow_dispatch:
+    inputs:
+      generation:
+        description: Initial run (0) or bounded successor (1)
+        type: choice
+        options: ['0', '1']
+        default: '0'
+      code_sha:
+        description: Pinned checkout for successor (empty for initial run)
+        type: string
+        default: ''
+      parent_run:
+        description: Parent run artifact for successor
+        type: string
+        default: ''
+
+permissions: {}
+
+concurrency:
+  group: nz-election-night-rehearsal
+  cancel-in-progress: false
+
+jobs:
+  rehearse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: write
+    env:
+      REHEARSAL_CODE_SHA: ${{ inputs.code_sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.code_sha || github.sha }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - name: Record production ref before rehearsal
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/heads/data" > "$RUNNER_TEMP/production-before.json"
+      - uses: actions/download-artifact@v4
+        if: inputs.generation == '1'
+        with:
+          name: night-publication
+          path: artifacts/night-publication
+          run-id: ${{ inputs.parent_run }}
+          github-token: ${{ github.token }}
+      - name: Exercise publication or verify bounded successor
+        timeout-minutes: 12
+        env:
+          GENERATION: ${{ inputs.generation }}
+        run: uv run product/nz_election/pipeline/night_rehearsal.py --generation "$GENERATION"
+      - name: Verify served artifact manifest over loopback HTTP
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory artifacts/night-publication/served > "$RUNNER_TEMP/rehearsal-http.log" 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          curl --fail --silent --show-error --retry 10 --retry-connrefused --retry-delay 1 \
+            http://127.0.0.1:8765/build-manifest.json > "$RUNNER_TEMP/served-manifest.json"
+          python3 - <<'PYTHON'
+          import json
+          import os
+          from pathlib import Path
+          manifest = json.loads((Path(os.environ['RUNNER_TEMP']) / 'served-manifest.json').read_text())
+          report = json.loads(Path('artifacts/night-publication/report.json').read_text())
+          assert manifest['code_sha'] == report['code_sha'] == os.environ['REHEARSAL_CODE_SHA']
+          assert manifest['data']['data_sha'] == report['data_sha']
+          print('PASS served artifact code/data SHA')
+          PYTHON
+      - name: Check production ref unchanged
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/heads/data" > "$RUNNER_TEMP/production-after.json"
+          mkdir -p artifacts/night-publication
+          cp "$RUNNER_TEMP"/production-*.json artifacts/night-publication/
+          diff "$RUNNER_TEMP/production-before.json" "$RUNNER_TEMP/production-after.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: night-publication
+          path: artifacts/night-publication/
+          if-no-files-found: error
+      - name: Chain exactly one successor before timeout
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GENERATION: ${{ inputs.generation }}
+        run: uv run product/nz_election/pipeline/night_rehearsal.py --generation "$GENERATION" --chain

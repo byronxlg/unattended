@@ -194,3 +194,25 @@ def test_status_published_after_handled_failure(tmp_path):
         assert published['error_code'] == 'parse_drift'
         for name, raw in before.items():
             assert git(remote, 'show', 'data:' + str(DATA / name)).stdout.encode() == raw
+
+
+def test_night_publication_rehearsal_isolated_dispatch_only():
+    doc = workflow('nz-election-night-rehearsal.yml')
+    assert set(doc[True]) == {'workflow_dispatch'}
+    assert doc['permissions'] == {}
+    assert doc['concurrency'] == {'group': 'nz-election-night-rehearsal', 'cancel-in-progress': False}
+    job = doc['jobs']['rehearse']
+    assert job['permissions'] == {'contents': 'read', 'actions': 'write'}
+    assert job['timeout-minutes'] == 20
+    steps = job['steps']
+    assert steps[0]['with'] == {'ref': '${{ inputs.code_sha || github.sha }}', 'persist-credentials': False}
+    upload = next(i for i, s in enumerate(steps) if s.get('uses') == 'actions/upload-artifact@v4')
+    chain = next(i for i, s in enumerate(steps) if '--chain' in s.get('run', ''))
+    assert upload < chain
+    download = next(s for s in steps if s.get('uses') == 'actions/download-artifact@v4')
+    assert download['with']['run-id'] == '${{ inputs.parent_run }}'
+    text = (ROOT / '.github/workflows/nz-election-night-rehearsal.yml').read_text()
+    assert 'secrets.' not in text and 'pages: write' not in text and 'deploy-pages' not in text
+    assert 'production-before.json' in text and 'production-after.json' in text
+    assert 'diff ' in text
+    assert '--bind 127.0.0.1' in text and 'PASS served artifact code/data SHA' in text

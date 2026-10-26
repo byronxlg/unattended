@@ -805,3 +805,65 @@ def test_recovery_rechecks_stop_before_deployment(monkeypatch):
     monkeypatch.setattr(night_live.subprocess, 'run', lambda *a, **k: pytest.fail('late recovery deployment'))
     with pytest.raises(ValueError, match='NIGHT_CLOSED'):
         night_live.Deployment(clock.now).ensure('a' * 40)
+
+
+def test_publication_rehearsal_end_to_end(tmp_path, monkeypatch):
+    from product.nz_election.pipeline import night_rehearsal
+    from product.nz_election.tests.test_pipeline import make_bundle
+    remote = tmp_path / 'remote.git'
+    remote.mkdir()
+    publish.git(remote, 'init', '--bare', '-q')
+    production = publish.publish(make_bundle(tmp_path), remote, now=lambda: '2026-10-26T00:00:00Z')['sha']
+    def forbidden(*args, **kwargs):
+        pytest.fail('rehearsal attempted network or production deployment')
+    monkeypatch.setattr(night_live.fetch, 'night_xml', forbidden)
+    monkeypatch.setattr(night_live.fetch, 'deployed_data_sha', forbidden)
+    monkeypatch.setattr(night_live.Deployment, 'deploy', forbidden, raising=False)
+    out = tmp_path / 'artifact'
+    report = night_rehearsal.rehearse(out, code_sha='c'*40, run_url='https://example.test/offline', remote=remote)
+    assert report['outcomes'] == ['retained', 'retained', 'recovered']
+    assert report['events'] == ['first-feed-failure', 'published', 'ready-to-chain']
+    assert report['simulated_seconds'] == 600
+    assert report['production_ref_before'] == report['production_ref_after'] == production
+    assert publish.git(remote, 'rev-parse', 'data').stdout.strip() == production
+    assert report['data_sha'] != production
+    row = json.loads((out / 'served/data/night/live/current.json').read_text())['data'][0]
+    assert row['rehearsal'] is True and row['mode'] == 'Recorded demo'
+    assert row['retrieved_at'] == '2026-11-07T05:05:00Z'
+    night_rehearsal.successor(out, 'c'*40)
+
+
+def test_publication_rehearsal_chain_is_pinned_and_bounded(monkeypatch):
+    commands = []
+    monkeypatch.setenv('GITHUB_SHA', 'c'*40)
+    monkeypatch.setenv('GITHUB_RUN_ID', '123')
+    monkeypatch.setattr(night_live.subprocess, 'run', lambda command, **kwargs: commands.append(command))
+    clock = Clock()
+    clock.origin -= timedelta(days=15)
+    assert night_live.chain(clock.now, rehearsal_generation=0)
+    assert commands == [['gh', 'workflow', 'run', 'nz-election-night-rehearsal.yml', '--ref', 'main', '-f', 'code_sha=' + 'c'*40,
+                         '-f', 'generation=1', '-f', 'parent_run=123']]
+    assert night_live.chain(clock.now, rehearsal_generation=1) is False
+    assert len(commands) == 1
+    for value in ('', '1', True, 1.5, -1, 2, 10**100, [], {}):
+        with pytest.raises(ValueError):
+            night_live.chain(clock.now, rehearsal_generation=value)
+    with pytest.raises(ValueError, match='NIGHT_NOT_OPEN'):
+        night_live.chain(clock.now)
+    assert len(commands) == 1
+
+
+def test_publication_rehearsal_cannot_target_github(tmp_path):
+    with pytest.raises(ValueError, match='LOCAL_BARE_REPOSITORY_REQUIRED'):
+        publish.publish(tmp_path, 'https://github.com/example/test.git', family='night', rehearsal=True)
+
+
+def test_publication_rehearsal_relative_artifact_path(tmp_path, monkeypatch):
+    from product.nz_election.pipeline import night_rehearsal
+    monkeypatch.chdir(tmp_path)
+    out = Path('artifacts/night-publication')
+    report = night_rehearsal.rehearse(out, code_sha='c'*40, run_url='https://example.test/offline')
+    assert report['outcomes'] == ['retained', 'retained', 'recovered']
+    assert (out / 'served/build-manifest.json').is_file()
+    assert not (out / 'repository.git').exists()
+    night_rehearsal.successor(out, 'c'*40)
