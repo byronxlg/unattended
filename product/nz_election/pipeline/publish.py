@@ -40,8 +40,9 @@ def success_order(envs, family='polls'):
     return (envs['polls'].get('fetched_at') or '', envs['averages']['generated_at'])
 
 
-def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly', claim=None, now=None, night_rollback=None, require_night_match=False):
-    require_publication_allowed(now() if now else None)
+def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly', claim=None, now=None, night_rollback=None, require_night_match=False, rehearsal=False):
+    if not rehearsal:
+        require_publication_allowed(now() if now else None)
     if night_rollback is not None and (family != 'night' or not isinstance(night_rollback, str) or not re.fullmatch(r'[0-9a-f]{40}', night_rollback)):
         raise ValueError('NIGHT_DATA_SHA')
     if require_night_match and family != 'night':
@@ -52,8 +53,11 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
         raise ValueError('INVALID_FAMILY')
     datasets = ['polls'] if family == 'hourly' else ['social'] if family == 'social' else ['night'] if family == 'night' else [f for f in export.FAMILIES if f not in {'polls', 'social'}]
     bundle = Path(bundle).absolute()
-    incoming = export.validate_bundle(bundle)
     remote = str(repository)
+    if rehearsal and (remote.startswith('https://github.com/') or family != 'night'):
+        raise ValueError('LOCAL_BARE_REPOSITORY_REQUIRED')
+    incoming = export.validate_bundle(bundle)
+    ref = 'refs/heads/rehearsal-data' if rehearsal else 'refs/heads/data'
     if not remote.startswith('https://github.com/'):
         repository = Path(repository).resolve()
         if not repository.is_dir() or git(repository, 'rev-parse', '--is-bare-repository').stdout.strip() != 'true':
@@ -74,7 +78,7 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
         git(checkout, 'config', 'user.name', 'NZ election publication')
         git(checkout, 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com')
         for attempt in range(attempts):
-            refs = git(checkout, 'ls-remote', remote, 'refs/heads/data').stdout.split()
+            refs = git(checkout, 'ls-remote', remote, ref).stdout.split()
             fetched_sha = refs[0] if refs else ''
             if night_rollback is not None and fetched_sha != night_rollback:
                 raise ValueError('NIGHT_ROLLBACK_CONFLICT')
@@ -216,13 +220,14 @@ def publish(bundle, repository, *, before_push=None, attempts=3, family='hourly'
                 from product.nz_election.pipeline.refresh import utc_now
                 if frozen(utc_now()):
                     return dict(outcome='frozen', attempts=attempt + 1, sha=fetched_sha)
-            require_publication_allowed(now() if now else None)
-            pushed = git(checkout, 'push', '--porcelain', f'--force-with-lease=refs/heads/data:{fetched_sha}',
-                         remote, 'HEAD:refs/heads/data', check=False)
+            if not rehearsal:
+                require_publication_allowed(now() if now else None)
+            pushed = git(checkout, 'push', '--porcelain', f'--force-with-lease={ref}:{fetched_sha}',
+                         remote, 'HEAD:' + ref, check=False)
             if pushed.returncode == 0:
                 return dict(outcome='published', attempts=attempt + 1, sha=git(checkout, 'rev-parse', 'HEAD').stdout.strip())
             # Compare the leased ref itself, not platform-specific rejection prose.
-            remote_ref = git(checkout, 'ls-remote', remote, 'refs/heads/data').stdout.split()
+            remote_ref = git(checkout, 'ls-remote', remote, ref).stdout.split()
             if not remote_ref or remote_ref[0] == fetched_sha:
                 raise RuntimeError('PUBLICATION_FAILED: ' + pushed.stderr)
         raise RuntimeError('PUBLICATION_RETRIES_EXHAUSTED')

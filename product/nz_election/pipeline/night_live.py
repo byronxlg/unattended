@@ -151,25 +151,40 @@ class Deployment:
         self.now = now
         self.confirmed_sha = None
 
-    def recover(self):
+    def guard(self):
         require_open(self.now)
+
+    def head(self):
         refs = json.loads(subprocess.check_output(['gh', 'api',
             'repos/' + os.environ['GITHUB_REPOSITORY'] + '/git/matching-refs/heads/data'], timeout=60))
         head = next((r['object']['sha'] for r in refs if r['ref'] == 'refs/heads/data'), None)
+        return head
+
+    def served(self):
+        return fetch.deployed_data_sha()
+
+    def recover(self):
+        self.guard()
+        head = self.head()
         return self.ensure(head) if head else False
 
     def ensure(self, sha, *, finishing=False):
         if not finishing:
-            require_open(self.now)
+            self.guard()
         if not isinstance(sha, str) or not re.fullmatch(r'[0-9a-f]{40}', sha):
             raise ValueError('NIGHT_DATA_SHA')
         if sha == self.confirmed_sha:
             return False
-        if fetch.deployed_data_sha() == sha:
+        if self.served() == sha:
             self.confirmed_sha = sha
             return False
         if not finishing:
-            require_open(self.now)
+            self.guard()
+        self.deploy(sha)
+        self.confirmed_sha = sha
+        return True
+
+    def deploy(self, sha):
         key = 'night-' + os.environ['GITHUB_RUN_ID'] + '-' + str(time.monotonic_ns())
         subprocess.run(['gh', 'workflow', 'run', 'pages.yml', '--ref', 'main',
                         '-f', 'data_sha=' + sha, '-f', 'night_cycle=' + key], check=True, timeout=120)
@@ -183,8 +198,7 @@ class Deployment:
             if run and run['status'] == 'completed':
                 if run['conclusion'] != 'success':
                     raise OSError('PAGES_DEPLOYMENT_FAILED')
-                self.confirmed_sha = sha
-                return True
+                return
             time.sleep(30)
 
 
@@ -249,37 +263,62 @@ def main(*, now=None):
     run_url = os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID']
     deployment = Deployment(now) if not args.rehearsal else None
     def commit(captured):
-        from product.nz_election.pipeline.daily_refresh import daily_refresh
-        with tempfile.TemporaryDirectory() as tmp:
-            bundle = Path(tmp) / 'data'
-            daily_refresh(bundle, loaders={'night': lambda: loaded(captured, rehearsal=args.rehearsal)}, now=captured['retrieved_at'],
-                          sha=os.environ['GITHUB_SHA'], run_url=run_url)
-            envs = export.validate_bundle(bundle)
-            if 'night/live/current' not in envs:
-                raise ValueError('NIGHT_CYCLE_INVALID')
-            if args.rehearsal:
-                import shutil
-                args.out.mkdir(parents=True, exist_ok=True)
-                shutil.copytree(bundle, args.out / captured['retrieved_at'].replace(':', ''), dirs_exist_ok=True)
-                return
+        def publication(bundle):
             require_open(now)
             result = subprocess.run([sys.executable, 'product/nz_election/pipeline/publish.py', '--family', 'night', '--bundle', str(bundle)], check=True, capture_output=True, text=True, timeout=120)
-            publication = json.loads(result.stdout)
-            deployment.ensure(publication['sha'], finishing=True)
+            return json.loads(result.stdout)
+        if args.rehearsal:
+            import shutil
+            def publication(bundle):
+                args.out.mkdir(parents=True, exist_ok=True)
+                shutil.copytree(bundle, args.out / captured['retrieved_at'].replace(':', ''), dirs_exist_ok=True)
+        publish_cycle(captured, rehearsal=args.rehearsal, publication=publication, deployment=deployment,
+                      code_sha=os.environ['GITHUB_SHA'], run_url=run_url)
     runner = Runner(acquire=lambda path: fetch.night_xml(root, path), now=now, monotonic=time.monotonic,
                     sleep=time.sleep, commit=commit, rehearsal=args.rehearsal,
                     recover=deployment.recover if deployment else None)
     deadline = time.monotonic() + (600 if args.rehearsal else 300 * 60)
-    while time.monotonic() < deadline:
-        if now() >= CLOSE:
-            return 0
-        print(runner.tick(), flush=True)
-    if not args.rehearsal:
-        chain(now)
+    run_until(runner, deadline, successor=(lambda: chain(now)) if not args.rehearsal else lambda: False)
     return 0
 
 
-def chain(now):
+def publish_cycle(captured, *, rehearsal, publication, deployment, code_sha, run_url):
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    with tempfile.TemporaryDirectory() as tmp:
+        bundle = Path(tmp) / 'data'
+        daily_refresh(bundle, loaders={'night': lambda: loaded(captured, rehearsal=rehearsal)},
+                      now=captured['retrieved_at'], sha=code_sha, run_url=run_url)
+        envs = export.validate_bundle(bundle)
+        if 'night/live/current' not in envs:
+            raise ValueError('NIGHT_CYCLE_INVALID')
+        result = publication(bundle)
+        if deployment:
+            deployment.ensure(result['sha'], finishing=True)
+
+
+def run_until(runner, deadline, *, successor):
+    outcomes = []
+    while runner.monotonic() < deadline:
+        if runner.now() >= CLOSE:
+            return outcomes
+        outcome = runner.tick()
+        outcomes.append(outcome)
+        runner.log(outcome, flush=True)
+    successor()
+    return outcomes
+
+
+def chain(now, *, rehearsal_generation=None):
+    if rehearsal_generation is not None:
+        if type(rehearsal_generation) is not int or rehearsal_generation not in (0, 1):
+            raise ValueError("Invalid rehearsal generation")
+        if rehearsal_generation == 1:
+            return False
+        subprocess.run(['gh', 'workflow', 'run', 'nz-election-night-rehearsal.yml',
+                        '--ref', 'main', '-f', 'code_sha=' + os.environ.get('REHEARSAL_CODE_SHA', os.environ['GITHUB_SHA']),
+                        '-f', 'generation=1',
+                        '-f', 'parent_run=' + os.environ['GITHUB_RUN_ID']], check=True, timeout=120)
+        return True
     instant = now()
     if instant >= CLOSE:
         return False

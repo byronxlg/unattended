@@ -71,6 +71,53 @@ The CLI prints `FAIL night: MISSING_NIGHT_FAMILY` and exits nonzero without a tr
 explicit night check receives an empty directory. Other validation errors use the same FAIL format.
 
 
+## Publication and recovery rehearsal
+
+After merging, dispatch the isolated artifact target:
+
+```sh
+gh workflow run nz-election-night-rehearsal.yml --ref main
+```
+
+This dispatch-only workflow has read-only repository permission and no Pages permission.
+It uses recorded demo XML (missing details are synthetic zeros), the production Runner,
+bundle validation, leased publisher, deployment reconciliation and bounded loop. Publication
+writes only `rehearsal-data` in a disposable local bare repository. The built site is uploaded
+as the `night-publication` artifact, never deployed to production Pages. No secrets are needed.
+The old `nz-election-night-live.yml` rehearsal input remains acquisition-only.
+
+The first feed request fails without publication. After a simulated five-minute retry, a complete
+cycle is committed; the first site build fails at artifact promotion. A fresh deployment adapter
+recovers that exact data SHA from the durable ref on the next cycle without reacquiring the feed.
+Acquisition/publication use a simulated pre-opening clock inside the freeze; rendering uses an
+explicit simulated 19:00 clock so the renderer's existing freeze guard remains unchanged. These
+are offline verification timestamps, not actual live acquisition evidence.
+
+The parent uploads its artifact before dispatching one successor pinned to the same code SHA.
+The successor downloads that parent artifact, checks its manifest, exercises the shared loop at
+`NIGHT_CLOSE`, and refuses another successor. Both jobs have a 20-minute timeout; chaining occurs
+immediately after the bounded three-cycle exercise and upload, not near the timeout.
+
+Verify both Actions runs complete. The parent logs `PASS publication rehearsal`; the successor
+logs `PASS successor: pinned code/data manifest and bounded stop`. Both runs serve the artifact
+on loopback HTTP and require `PASS served artifact code/data SHA`. Download `night-publication`:
+
+- `report.json`: outcomes must be `retained`, `retained`, `recovered`; deployment attempts must
+  be `injected-failure`, `promoted` with the same data SHA.
+- `served/build-manifest.json`: code SHA must equal the actual Actions checkout and both runs'
+  code SHA; data SHA must equal the report's published SHA. This is the artifact served root,
+  not evidence of a production Pages deployment. To inspect it locally, serve `served/` at
+  `/unattended/nz-election/` using an ordinary static server.
+- `production-before.json` and `production-after.json`: production `refs/heads/data` must be
+  identical. The workflow compares them and fails on any difference, including unrelated
+  concurrent production publication; rerun when production writers are quiet in that case.
+- Confirm there is exactly one successor and no rehearsal-triggered `pages.yml` run. Keep both
+  run URLs and artifacts as the publication/recovery proof, separate from browser fault tests.
+
+Production's freeze, opening and stop guards are unchanged. This target cannot publish demo
+results to the production data branch or production Pages site.
+
+
 ## Packaged page rehearsal
 
 Build with `uv run product/nz_election/pipeline/build.py --data <data> --out <site>/nz-election`.
