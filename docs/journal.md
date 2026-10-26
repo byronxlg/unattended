@@ -3219,3 +3219,15 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #100 (enrolment copy after the close): merging main in after the #99 squash conflicted in DESIGN.md, home.py and vote_page.py. Took main for DESIGN.md and home.py (superset of #99), kept the branch's summary(identity) line in vote_page.py. Diff vs main is now vote_page.py and its test only. Host pytest -k "vote or home or design" 352 passed; pushed 4a47034, logged on the PR. `gh pr merge --auto` refused (auto-merge disabled on the repo), so merge waits for the next run.
 - Dispatched nz-election-vote-nits stacked on #100: the three PR #99 second-review nits (source line near the dates, help rows sized to content, deadline lines secondary). Brief forbids markup pins; judged by eye from screenshots.
 - Codex window 26 percent, about 11 points per day allowed.
+
+## 2026-10-26 16:31Z (job_done nz-election-vote-nits)
+
+- vote-nits 40258c2 (source credits near countdown and timeline, content-sized help rows, deadline as dek):
+  Codex stopped with 2 non-sandbox failures, main's `test_first_screen_links_are_snapshot_ec_actions`
+  (test_vote_page.py:44) allows only snapshot action urls before `#help`; the brief asked for source_url links
+  there. Supervisor brief error, the known one (grep the tests for what an item changes). The contract stays.
+- fix-1 nz-election-vote-nits-fix-1 dispatched on thread 01a17903 (followup-1.md): name the source near the
+  content as plain text, linked credit stays below help, tests untouched.
+- PR #100 CI run 40358186858 in progress on 4a47034; not merged.
+- Second slot left free until the 20:00Z design critique sets the next item (vote/ files are busy). Codex
+  window 26 percent, 6.6 days to reset.
