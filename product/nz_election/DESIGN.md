@@ -44,8 +44,10 @@ the bar; the screenshot is.
    action guides as ordinary content instead of figures. Pass `source` for a custom foot row; an
    empty source omits that row when the action links themselves lead to the primary sources.
    Vote keeps its first three answers compact, with a left-aligned hero and the shared
-   timeline immediately afterwards. On desktop the second and third answers sit alongside
-   the hero. The complete snapshot credit remains in `div.source-note`.
+   timeline immediately afterwards. Countdown and timeline share the date credit at the
+   timeline foot. Help labels sit above answers in the reading column, with one source credit
+   at the module foot and shared deadlines described once. On desktop the second and third
+   answers sit alongside the hero. The complete snapshot credit remains in `div.source-note`.
 5. Footer: grey, two lines.
 
 ## Components (`pipeline/home_graphics.py`)

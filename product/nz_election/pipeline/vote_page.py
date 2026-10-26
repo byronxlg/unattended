@@ -57,8 +57,8 @@ def page(built, rows=None, envs=None):
     countdown = ''
     if election.get('date'):
         days = (date.fromisoformat(election['date']) - today).days
-        countdown = (f'<p class="countdown" aria-describedby="source-countdown"><strong>{days}</strong> {"day" if days == 1 else "days"} to election day</p>' if days > 0
-                     else '<p class="countdown" aria-describedby="source-countdown"><strong>Today</strong> is election day. Voting closes at 7pm.</p>' if days == 0 else '')
+        countdown = (f'<p class="countdown" aria-describedby="source-timeline"><strong>{days}</strong> {"day" if days == 1 else "days"} to election day</p>' if days > 0
+                     else '<p class="countdown" aria-describedby="source-timeline"><strong>Today</strong> is election day. Voting closes at 7pm.</p>' if days == 0 else '')
     dates = key_dates(records, today)
     timeline_source = date_source('source-timeline', ('overseas-opens', 'enrolment-closes', 'advance-opens',
                                                     'advance-closes', 'election-day'))
@@ -75,8 +75,7 @@ def page(built, rows=None, envs=None):
     if not places_body and graphic:
         # A date-only answer still belongs under the where-and-when question.
         places_body, graphic = graphic, ''
-    places = section('places', 'Where can I vote, and when?', places_body,
-                     date_source('source-countdown', ('election-day',)) if countdown else '')
+    places = section('places', 'Where can I vote, and when?', places_body)
     bring = '<p>' + escape(records['what-to-bring']['summary']) + '</p>' if records.get('what-to-bring') else ''
     votes = '<p>' + escape(records['two-votes']['summary']) + '</p>' if records.get('two-votes') else ''
     guidance = action('two-votes', 'Official voting guidance') or action('what-to-bring', 'Official voting guidance')
@@ -84,19 +83,52 @@ def page(built, rows=None, envs=None):
     advance = records.get('advance-opens', {}).get('date')
     first = places + enrol if advance and today >= date.fromisoformat(advance) else enrol + places
     help_body = ''
+    shown_deadlines = {'enrolment-closes'} if close.get('date') else set()
+    help_sources = ['overseas-opens'] if records.get('overseas-opens', {}).get('date') else []
+    deadline_phrases = {
+        'telephone-registration-closes': 'noon on election day',
+        'voting-closes': '7pm on election day',
+        'overseas-upload-closes': '7pm New Zealand time on election day',
+        'telephone-voting-closes': '7pm New Zealand time on election day',
+    }
     for key, label in [('overseas-voting', 'Vote overseas'), ('accessible-formats', 'Accessible formats'),
                        ('assisted-voting', 'Help marking your vote'), ('takeaway-voting', 'Someone can collect your papers'),
                        ('telephone-dictation', 'Telephone dictation')]:
         anchor = action(key, label)
         if not anchor:
             continue
+        help_sources.append(key)
         deadlines = ''
+        descriptions = ['source-help']
         for identity in records[key].get('deadline_ids', []):
             row = records.get(identity, {})
             if row.get('date') and row.get('at'):
-                deadlines += '<p class="dek">' + escape(summary(identity)) + ' Deadline: ' + escape(local_time(datetime.fromisoformat(row['at']).astimezone(timezone.utc).isoformat().replace('+00:00', 'Z'))) + ' (New Zealand time).</p>'
-        help_body += '<div class="vote-help"><h3>' + anchor + '</h3><div><p>' + escape(records[key]['summary']) + '</p>' + deadlines + '</div></div>'
-    help_section = section('help', 'Overseas or need help voting?', sentence('overseas-opens') + ('<div class="help-grid">' + help_body + '</div>' if help_body else ''))
+                help_sources.append(identity)
+                descriptions.append('enrol' if identity == 'enrolment-closes' else 'deadline-' + identity)
+                if identity in shown_deadlines:
+                    continue
+                shown_deadlines.add(identity)
+                when = local_time(datetime.fromisoformat(row['at']).astimezone(timezone.utc).isoformat().replace('+00:00', 'Z'))
+                wording = escape(summary(identity))
+                phrase = deadline_phrases.get(identity)
+                # Keep corrected source summaries intact if their wording changes.
+                if phrase and phrase in wording:
+                    instant = datetime.fromisoformat(row['at']).astimezone(ZoneInfo('Pacific/Auckland'))
+                    short = f'{instant.hour % 12 or 12}' + (f':{instant.minute:02d}' if instant.minute else '')
+                    short += 'am' if instant.hour < 12 else 'pm'
+                    if instant.hour == 12 and instant.minute == 0:
+                        short = 'noon'
+                    short += f' NZ time, {instant.day} {instant:%B}'
+                    wording = wording.replace(phrase, f'<time datetime="{escape(row["at"])}" aria-label="{escape(when)}">{short}</time>')
+                deadlines += f'<p class="dek" id="deadline-{identity}">' + wording + '</p>'
+        help_body += ('<div class="vote-help" aria-describedby="' + ' '.join(descriptions) + '"><h3>'
+                      + anchor + '</h3><div><p>' + escape(records[key]['summary']) + '</p>' + deadlines + '</div></div>')
+    help_dates = [records[key]['retrieved_at'] for key in help_sources]
+    help_credit = ('<p class="home-footnote" id="source-help">Source: Electoral Commission. Retrieved '
+                   + escape(compact_time(max(help_dates))) + '.</p>') if help_dates else ''
+    help_intro = sentence('overseas-opens').replace('<p>', '<p aria-describedby="source-help">', 1)
+    help_section = section('help', 'Overseas or need help voting?', help_intro +
+                           ('<div class="help-grid">' + help_body + '</div>' if help_body else ''), help_credit)
     compare = section('compare', 'Where can I compare candidates and policies?',
                       f'<p><a href="{PREFIX}electorates/">Find your electorate and candidates</a></p>'
                       '<p><a href="https://policy.nz/2026">Compare policies at Policy.nz</a></p>')
