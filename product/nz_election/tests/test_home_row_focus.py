@@ -21,7 +21,8 @@ class RowLinks(HTMLParser):
         attrs = dict(attrs)
         parent_hidden, parent_row = self.stack[-1][1:] if self.stack else (False, False)
         hidden = parent_hidden or 'hidden' in attrs or (tag == 'details' and 'open' not in attrs)
-        row = parent_row or bool({'watch-rows', 'home-directory'} & set(attrs.get('class', '').split()))
+        # map-side holds the closest-contest list and the electorate finder beside the hex map.
+        row = parent_row or bool({'watch-rows', 'home-directory', 'map-side'} & set(attrs.get('class', '').split()))
         if tag == 'a' and row and not hidden and 'href' in attrs and int(attrs.get('tabindex', '0')) >= 0:
             self.links.append(attrs['href'])
         if tag not in {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}:
@@ -36,7 +37,7 @@ class RowLinks(HTMLParser):
 
 def assert_home_row(site):
     links = RowLinks((site / 'index.html').read_text()).links
-    assert links, 'HOME_ROW_KEYBOARD_FOCUS: neither watch rows nor directory has a focusable link'
+    assert links, 'HOME_ROW_KEYBOARD_FOCUS: neither the map side, watch rows nor directory has a focusable link'
     for href in links:
         path = urlsplit(href).path
         assert path.startswith(PREFIX)

@@ -74,7 +74,7 @@ def test_phase_copy(now, expected):
     vote = vote_page.page(now)
     assert ('Who stood where I live?' in html) is after
     assert ('How to vote' in html) is not after
-    assert ('Use the official finder' in vote) is not after
+    assert ('Find a voting place' in vote) is not after
     assert ('Vote overseas' in vote) is not after
     assert ('Election results</a>' in vote) is after
     for path in ('', 'vote/', 'night/'):

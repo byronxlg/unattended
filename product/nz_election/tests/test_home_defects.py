@@ -33,72 +33,44 @@ def test_5_threshold_status_uses_share(populated):
 
 def test_6_latest_includes_qualifying_parties_in_trend_order(populated):
     envs, site = populated
-    html = (site / 'index.html').read_text()
-    latest = records(section(html, 'latest-polls'))
-    trend = records(section(html, 'trend').split('<div id="latest-polls"')[0])
-    selected = sorted(envs['polls']['data'], key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:3]
-    wins = envs['seats']['data']['assumptions']['electorate_wins']
-    expected = [p for p in ('nat', 'lab', 'grn', 'act', 'nzf', 'tpm', 'opp')
-                if wins.get(p, 0) or any(poll['shares'].get(p) is not None and
-                                        poll['shares'][p] >= 5 * poll['scale'] for poll in selected)]
-    assert latest[0][1:] == [escape(label(p)) for p in expected]
-    assert latest[0][1:] == [p for p in trend[0][1:] if p in latest[0][1:]]
+    from product.nz_election.pipeline.home_graphics import SHORT, PARTIES
     from product.nz_election.pipeline.average import display
-    for cells, poll in zip(latest[1:], selected):
-        assert cells[1:] == [display(poll['shares'].get(p), poll['scale']) for p in expected]
+    html = (site / 'index.html').read_text()
+    latest = records(section(html, 'polls'))
+    trend = records(section(html, 'trend'))
+    selected = sorted(envs['polls']['data'], key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:8]
+    # Every party any shown poll reports gets a column, in the trend table's party order.
+    expected = [p for p in PARTIES if any(poll['shares'].get(p) is not None for poll in selected)]
+    assert [re.sub(r'<[^>]+>', '', c) for c in latest[0][2:]] == [SHORT[p] for p in expected]
+    assert [escape(label(p)) for p in expected] == [c for c in trend[0][1:] if c in {escape(label(p)) for p in expected}]
+    average = envs['averages']['data'][-1]['descriptive']
+    assert latest[1][0] == 'Average'
+    assert latest[1][2:] == [display(average[p]['value'], average[p]['scale']) if average.get(p, {}).get('value') is not None else '' for p in expected]
+    assert len(latest) == len(selected) + 2
+    for cells, poll in zip(latest[2:], selected):
+        assert cells[2:] == [display(poll['shares'][p], poll['scale']) if poll['shares'].get(p) is not None else '' for p in expected]
 
 
 def test_7_pollster_source_names_and_text_face(populated):
     envs, site = populated
     from product.nz_election.pipeline.build import config
     names = {v: k for k, v in config('party-map')['pollsters'].items()}
-    polls = sorted(envs['polls']['data'], key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:3]
-    cells = records(section((site / 'index.html').read_text(), 'latest-polls'))[1:]
-    assert [r[0].split('<br>')[0] for r in cells] == [escape(names[p['pollster']]) for p in polls]
-    assert '.home-module td:first-child{font-family:inherit;font-size:16px}' in (site / 'styles.css').read_text()
-
-
-def test_8_electorate_baseline_and_text_links(populated):
-    _, site = populated
+    polls = sorted(envs['polls']['data'], key=lambda p: (p['fieldwork_end'], p['id']), reverse=True)[:8]
+    cells = records(section((site / 'index.html').read_text(), 'polls'))[2:]
+    assert [r[0] for r in cells] == [escape(names[p['pollster']]) for p in polls]
+    # Pollster names are set in the text face; mono is for code-like strings only.
     css = (site / 'styles.css').read_text()
-    assert '.home-module .watch-rows td{vertical-align:baseline}' in css
-    assert '.home-module td:first-child{font-family:inherit;font-size:16px}' in css
-    assert '.home-module .watch-rows a{text-decoration:none}' in css
-    assert '.home-module .watch-rows a:focus-visible{text-decoration:underline}' in css
-    assert 'min-height:44px' in css and 'outline:3px solid var(--focus)' in css
+    assert not re.search(r'\.poll-table[^{]*\{[^}]*Mono', css)
 
 
-def test_9_market_propositions_before_prices(populated):
-    envs, site = populated
-    html = section((site / 'methods/index.html').read_text(), 'markets')
-    assert html.count('data-market-id="') == 4
-    assert 'Leading market choices: price for Yes' in html
-    for row in re.findall(r'<tr data-market-id="([^"]+)">(.*?)</tr>', html):
-        market = next(m for m in envs['markets']['data'] if m['id'] == row[0])
-        cells = records('<tr>' + row[1] + '</tr>')[0]
-        assert cells[0].startswith('Will ') and '?' in cells[0]
-        if market['family'] == 'next-pm':
-            assert 'next Prime Minister?' in cells[0]
-        elif market['family'] == 'government-membership':
-            assert 'part of the next Government?' in cells[0]
-        else:
-            assert ' win ' in cells[0] and ' seats?' in cells[0]
-        assert cells[1].endswith('%')
+@pytest.mark.parametrize(('value', 'status'), [(499, 'Below 5%'), (500, 'Above 5%'), (620, 'Above 5%')])
+def test_threshold_exact_cutoff(value, status):
+    from product.nz_election.pipeline.home_graphics import threshold_bars
+    html = threshold_bars([dict(party_id='opp', value=value, scale=100, electorate_qualifies=False)])
+    assert re.search(r'<small class="[a-z]+">' + status, html)
 
 
-def test_11_seat_bar_has_explicit_column_bounds(populated):
+def test_home_page_weight(populated):
+    # A loose stability guard for phones, not a design measure: home HTML plus the shared stylesheet.
     _, site = populated
-    css = (site / 'styles.css').read_text()
-    assert '.home-hero{width:100%;min-width:0}' in css
-    assert '.home-hero figure,.home-hero .strip{width:100%;max-width:100%;min-width:0}' in css
-    assert '*{box-sizing:border-box}' in css
-
-
-@pytest.mark.parametrize(('value', 'status'), [(499, 'Needs 5%'), (500, 'At or above 5%'), (620, 'At or above 5%')])
-def test_threshold_exact_cutoff(populated, value, status):
-    envs, _ = populated
-    envs = deepcopy(envs)
-    envs['averages']['data'][-1]['descriptive']['opp'].update(value=value, scale=100)
-    from product.nz_election.pipeline.home import thresholds
-    rows = records(thresholds(envs))
-    assert next(row[2] for row in rows[1:] if row[0] == escape(label('opp'))) == status
+    assert len((site / 'index.html').read_bytes()) + (site / 'styles.css').stat().st_size < 300_000

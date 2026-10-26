@@ -75,11 +75,11 @@ def test_reader_copy_and_withheld_topline(tmp_path, state):
         assert not re.search(r'\bconfig\w*\b|\bsupplied\b', visible), path
         provenance(html)
         if state == 'earlier-coherent-window':
-            assert 'class="bloc-left">Government ' in html and 'class="bloc-right">Opposition ' in html
-            assert html.index('class="strip"') < html.index('id="source-seats"')
+            assert 'class="bloc government"><span class="n">' in html and 'class="bloc opposition"><span class="n">' in html
+            assert html.index('class="hemicycle"') < html.index('id="source-seats"')
             assert 'methods/#home-seats' in html
         else:
-            assert 'class="strip"' not in html and 'Seat totals are withheld' not in html
+            assert 'class="hemicycle"' not in html and 'Seat totals are withheld' not in html
             from product.nz_election.tools.check_visible_text import check_absent_text
             check_absent_text(html)
             assert 'Government parties:' not in html and 'Opposition parties:' not in html

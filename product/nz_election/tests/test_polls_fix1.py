@@ -17,15 +17,27 @@ PRODUCT = Path(__file__).resolve().parents[1]
 
 def test_labels_cannot_extend_average_lines(populated):
     envs, _ = populated
-    for html in (polls_page(envs, NOW), trend_graphic(envs)):
-        paths = [n.attrs for n in Tree(html).nodes if n.tag == 'path']
-        ticks = [a for a in paths if a.get('class') == 'trend-label-tick']
-        assert ticks, 'TREND_LABEL_TICKS_REQUIRED'
-        for tick in ticks:
-            assert re.fullmatch(r'M342 [\d.]+H350', tick['d'])
-            assert tick['stroke'] == 'var(--grey)'
-        assert not any(re.search(r'L350 ', a.get('d', '')) for a in paths), 'LABEL_LOOKS_LIKE_DATA'
-        assert any(a.get('stroke-width') == '3.5' for a in paths)
+    html = trend_graphic(envs)
+    paths = [n.attrs for n in Tree(html).nodes if n.tag == 'path']
+    ticks = [a for a in paths if a.get('class') == 'trend-label-tick']
+    assert ticks, 'TREND_LABEL_TICKS_REQUIRED'
+    for tick in ticks:
+        assert re.fullmatch(r'M342 [\d.]+H350', tick['d'])
+        assert tick['stroke'] == 'var(--grey)'
+    assert not any(re.search(r'L350 ', a.get('d', '')) for a in paths), 'LABEL_LOOKS_LIKE_DATA'
+    assert any(a.get('stroke-width') == '3.5' for a in paths)
+    # The redesigned trend on polls/: end labels sit in their own column right of every line.
+    page = polls_page(envs, NOW)
+    svgs = re.findall(r'<svg class="trend (?:wide|narrow)".*?</svg>', page)
+    assert len(svgs) == 2
+    for svg in svgs:
+        nodes = Tree(svg).nodes
+        lines = [n.attrs for n in nodes if n.tag == 'path' and 'trend-line' in n.attrs.get('class', '')]
+        labels = [Decimal(n.attrs['x']) for n in nodes if n.tag == 'text' and n.attrs.get('class') == 'end-label']
+        assert lines and labels, 'TREND_LABELS_REQUIRED'
+        assert any('major' in a['class'] for a in lines)
+        right = max(Decimal(x) for a in lines for x in re.findall(r'[ML]([\d.]+) ', a['d']))
+        assert min(labels) > right, 'LABEL_LOOKS_LIKE_DATA'
 
 
 @pytest.mark.parametrize('publisher', ['Wikipedia contributors', 'Wikipedia contributors.', 'Wikipedia contributors. '])
@@ -41,14 +53,16 @@ def test_leading_changes_precede_plot_with_since_date(populated):
     nodes = Tree(html).nodes
     summary = next((n for n in nodes if n.attrs.get('class') == 'poll-change-summary'), None)
     assert summary is not None, 'POLLS_CHANGE_SUMMARY_REQUIRED'
-    first, last = envs['averages']['data'][-29], envs['averages']['data'][-1]
+    # The change is against the average a month earlier, the same baseline as the bars.
+    averages = envs['averages']['data']
+    first, last = (averages[-31] if len(averages) > 30 else averages[0]), averages[-1]
     for party, name in [('nat', 'National'), ('lab', 'Labour')]:
         before, after = (a['descriptive'][party] for a in (first, last))
         delta = Decimal(after['value']) / after['scale'] - Decimal(before['value']) / before['scale']
         assert f'{name} {delta:+.1f} points' in summary.text
         assert any(n.attrs.get('data-change-party') == party for n in nodes)
     assert f'datetime="{first["date"]}"' in html
-    assert html.index('class="poll-change-summary"') < html.index('class="trend-layout"')
+    assert html.index('class="poll-change-summary"') < html.index('<svg class="trend')
 
 
 def serialized(node):

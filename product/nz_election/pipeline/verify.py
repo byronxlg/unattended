@@ -46,7 +46,7 @@ def verify_polls(envs, root):
     page = build(root / 'data', root / 'rendered') / 'polls/index.html'
     html = page.read_text()
     from product.nz_election.pipeline.scripts import validate_scripts
-    require('Has support changed?' in html and 'What did the latest polls find?' in html and validate_scripts(html), 'static poll history')
+    require('<section id="trend"' in html and '<section id="recent-polls"' in html and validate_scripts(html), 'static poll history')
     coherent = next(a for a in reversed(envs['averages']['data']) if a['coherent'])
     from product.nz_election.pipeline.build import strip
     seats = project(coherent)
@@ -205,7 +205,7 @@ def verify_electorates(envs, root):
     old['field_sources']['candidate_status'] = 'Missing candidate capture.'
     require('class="local-margin"' not in detail(central, missing), 'absent baseline omitted')
     row = next(r for r in config('electorates') if r['slug'] == 'te-tai-tonga')
-    require('Standing in 2026' in detail(row, {}) and 'Not available' not in detail(row, {}), 'snapshot candidates without pipeline data')
+    require('id="candidates-title"' in detail(row, {}) and 'Not available' not in detail(row, {}), 'snapshot candidates without pipeline data')
 
 
 

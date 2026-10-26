@@ -60,7 +60,7 @@ def assert_chart_text_sizes(samples, body_size):
 
 
 def chart_type_check(page):
-    samples = page.locator('.home-module svg text,.home-module .chart-label,.margin-row a,.market-summary .numeric').evaluate_all("""els=>els.map(e=>{
+    samples = page.locator('.home-module svg text,.module svg text,.hero svg text,.home-module .chart-label,.margin-row a,.market-summary .numeric').evaluate_all("""els=>els.map(e=>{
       const font=parseFloat(getComputedStyle(e).fontSize);
       const matrix=e instanceof SVGTextElement ? e.getScreenCTM() : null;
       return {text:e.textContent,pixels:font*(matrix ? Math.hypot(matrix.c,matrix.d) : 1)};
@@ -357,7 +357,7 @@ def extra_images(browser, site, origin, out, og_only=False):
         focus_page.keyboard.press('Enter')
         focus_page.screenshot(path=str(out / 'home-main-focus.png'))
         results.append(dict(state='main-focus', path='home-main-focus.png'))
-        row_selector = '.watch-rows a:focus' if focus_page.locator('.watch-rows a').count() else '.home-directory a:focus'
+        row_selector = next((f'{c} a:focus' for c in ('.map-side', '.watch-rows') if focus_page.locator(f'{c} a').count()), '.home-directory a:focus')
         for _ in range(300):
             focus_page.keyboard.press('Tab')
             if focus_page.locator(row_selector).count():
@@ -639,7 +639,7 @@ def main():
                         from product.nz_election.pipeline.electorate_pages import detail
                         row = next(r for r in registry if r['slug'] == 'te-tai-tonga')
                         page.locator('main').evaluate('(el,html)=>el.innerHTML=html', '<h1>Te Tai Tonga</h1><p>Controlled missing-data verification.</p>' + detail(row, {}))
-                        assert 'Standing in 2026' in page.locator('main').inner_text()
+                        assert page.locator('#candidates-title').count() == 1
                         assert page.locator('.local-margin').count() == 0
                         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
                         state_name = f'electorate-missing-data-{width}x{height}.png'

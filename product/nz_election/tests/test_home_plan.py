@@ -26,7 +26,9 @@ def test_night_handover_requires_time_and_published_2026_family(populated):
     assert 'id="night-summary"' in new and 'id="seats"' not in new
     assert 'of voting places reported' in new and 'Updated 2026-' in new
     assert 'Election night results' in new
-    assert [a['id'] for tag, a in Document(new).nodes if tag == 'section'] == ['dates', 'night-summary', 'polls', 'electorates']
+    # The night summary takes the top; the seat estimate and the voting-dates module leave.
+    assert [a['id'] for tag, a in Document(new).nodes if tag == 'section'] == [
+        'dates', 'night-summary', 'parties', 'trend', 'polls', 'electorates', 'thresholds']
     provenance(new)
     missing = {key: value for key, value in envs.items() if not key.startswith('night/')}
     html = page(missing, after, presentation)
@@ -39,8 +41,10 @@ def test_night_handover_requires_time_and_published_2026_family(populated):
 def test_removed_modules_keep_their_destination(populated):
     _, site = populated
     home = (site / 'index.html').read_text()
-    for identity in ('leaders', 'markets', 'more', 'thresholds'):
+    # Thresholds came back to home with the redesign; markets stay on methods only.
+    for identity in ('leaders', 'markets', 'more'):
         assert f'<section id="{identity}"' not in home
+    assert 'id="home-thresholds"' in (site / 'methods/index.html').read_text()
     assert 'social/poc/' not in home
     assert 'id="home-markets"' in (site / 'methods/index.html').read_text()
     assert 'id="markets"' in (site / 'methods/index.html').read_text()

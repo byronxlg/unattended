@@ -22,7 +22,7 @@ def test_registered_policy_links_on_populated_pages(populated, monkeypatch):
         policy = sections[candidates + 1]
         assert policy.attrs.get('class') == 'electorate-policy'
         assert any(n.tag == 'a' and n.attrs.get('href') == record['url'] for n in policy.children[0].children if not isinstance(n, str))
-        assert html.index('Check your enrolled electorate') < html.index('class="electorate-policy"')
+        assert html.index('class="race-candidates"') < html.index('class="electorate-policy"')
         if 'Who won last time?' in html:
             assert html.index('class="electorate-policy"') < html.index('Who won last time?')
     original = snapshot_views.load

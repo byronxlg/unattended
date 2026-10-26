@@ -37,7 +37,7 @@ def test_polls_only_build_electorate_empty_states(polls_only, tmp_path):
     assert len(list((site / 'electorates').glob('*/index.html'))) == 71
     for row in config('electorates'):
         html = (site / 'electorates' / row['slug'] / 'index.html').read_text()
-        assert 'Standing in 2026' in html
+        assert 'id="candidates-title"' in html
         from product.nz_election.tools.check_visible_text import check_absent_text
         check_absent_text(html)
         if row['slug'] != 'port-waikato':

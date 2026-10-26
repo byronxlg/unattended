@@ -108,7 +108,7 @@ def test_71_pages_and_missing_data(tmp_path):
     assert 'class="original-results"' not in html and 'party votes' not in html
     row = next(r for r in config('electorates') if r['slug'] == 'te-tai-tonga')
     html = detail(row, {})
-    assert 'Standing in 2026' in html and 'class="tile-map"' not in html
+    assert 'id="candidates-title"' in html and 'class="tile-map"' not in html
     check_absent_text(html)
 
 

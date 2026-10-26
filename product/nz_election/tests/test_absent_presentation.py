@@ -20,14 +20,16 @@ def test_populated_public_routes_and_map(populated):
     html = (site / 'index.html').read_text()
     assert html.count('<a href="/unattended/nz-election/electorates/') >= 71
     assert '2023 holders on original boundaries' in html
-    assert html.split('<svg class="tile-map"')[1].split('</svg>')[0].count('majority of') == 142
-    assert 'role="group" aria-label="2023 holders' in html
+    hexes = html.split('<svg class="hex-map"')[1].split('</svg>')[0]
+    # Every electorate states its 2023 holder and margin in its title and accessible name.
+    assert hexes.count(' votes in 2023') == 142 and hexes.count('<a href=') == 71
+    assert 'role="group"' in html.split('<svg class="hex-map"')[1].split('>')[0]
     nelson = (site / 'electorates/nelson/index.html').read_text()
     assert '<strong>Rachel Boyack</strong>' in nelson
     assert 'class="incumbent">Incumbent' in nelson
     assert 'class="result-bars"' in nelson and '2023 boundaries.' not in nelson
     assert 'BOYACK-MAYER, Rachel Elizabeth' in (site / 'methods/index.html').read_text()
-    assert 'stroke-width="3.5"' in html
+    assert '<svg class="trend wide"' in html
     assert 'home-leaders' not in html
     assert 'people/christopher-luxon.webp' in (site / 'parties/index.html').read_text()
     for c in load('leaders'):

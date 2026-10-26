@@ -30,15 +30,12 @@ while [ $# -gt 0 ]; do
 done
 [ -n "$ID" ] && [ -f "$PROMPT" ] || { echo "need --id and --prompt <file>" >&2; exit 2; }
 case "$SANDBOX" in read-only|workspace-write) ;; *) echo "sandbox must be read-only or workspace-write" >&2; exit 2;; esac
-# Reader-first gate (Byron, Telegram 2026-10-20 01:41Z: research and planning before the UI, start
-# from what the reader wants to see and work back). A new UI build names an accepted page plan;
-# intent/page-plan-template.md says what one is, bin/lint checks its sections.
+# Design gate (Byron, 2026-10-26 redesign): a UI build builds from the design system, so the brief
+# names it. Page plans (Byron, Telegram 2026-10-20 01:41Z) still say what a page answers; a brief
+# should cite one when it exists, but an unaccepted plan no longer blocks the build.
 if [ "$KIND" = "build" ] && [ -z "$RESUME" ] && grep -Eqi 'nz_election/web|screenshot|styles\.css|templates/' "$PROMPT"; then
-  PLAN=$(grep -Eo 'Page plan: `?intent/[A-Za-z0-9_./-]+/pages/[A-Za-z0-9_.-]+\.md' "$PROMPT" | head -1 | sed -E 's/^Page plan: `?//')
-  if [ -z "$PLAN" ] || [ ! -f "$ROOT/$PLAN" ]; then
-    echo "refused: a UI build brief needs a 'Page plan: intent/<slug>/pages/<page>.md' line naming a committed plan (intent/page-plan-template.md)" >&2; exit 3
-  fi
-  grep -Eq '^status: accepted ' "$ROOT/$PLAN" || { echo "refused: $PLAN is not 'status: accepted <UTC time>' yet" >&2; exit 3; }
+  grep -Eq 'product/nz_election/DESIGN\.md' "$PROMPT" || {
+    echo "refused: a UI build brief must name product/nz_election/DESIGN.md (tokens and components to build from)" >&2; exit 3; }
 fi
 JOB="$ROOT/state/jobs/$ID"; mkdir -p "$JOB"
 [ "$(cd "$(dirname "$PROMPT")" && pwd)/$(basename "$PROMPT")" = "$JOB/prompt.md" ] || cp "$PROMPT" "$JOB/prompt.md"
