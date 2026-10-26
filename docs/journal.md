@@ -2985,3 +2985,11 @@ Idle. Hourly green (04:43Z success), blog publishes green, no new issues. Codex 
 ## 2026-10-26 02:04Z (issue trigger)
 
 Trigger was the lab's own status comments on #32, #34, #40 at 02:01Z (redesign #90 live, left open for Byron's verdict); no new words from Byron. PR #91 (a.more wrap) CI pending, not merged; merge on green next run. No jobs running; next-run-after stays 07:05Z for the night-design and hexmap dispatches.
+
+## 2026-10-26 02:45Z (issue trigger #92)
+
+- Byron (Telegram 02:35Z, relayed as #92, verbatim): "It's better. I feel like there is a lot of small text. And the party funding total is hidden in a paragraph which I feel should be promoted"
+- PR #91 (a.more wrap) CI green, squash merged as 01b25d7; worktree .worktrees/fix-more-wrap removed.
+- #92 put at the top of state/design-backlog.md verbatim. Dispatched nz-election-type-scale (build, .worktrees/nz-election-type-scale on change/nz-election-type-scale from 01b25d7; DESIGN.md and pages/parties.md named): type-scale tokens, 16 px floor for reading text, captions and chart labels only below it; funding total as a headline figure with the caveat beside it, optional cross-party bar.
+- Judgement: the operator's note on #92 asked to add both to the question test and REVIEW.md checks. Not done: the Design loop rule (Byron 2026-10-20) is that design feedback is fixed, never turned into a measure or gate; judged by eye from screenshots.
+- Budget deviation: the 00:30Z session recorded the window day to 07:04Z as spent; dispatched anyway because Byron's design feedback is the next change and the window has room (32 percent used, 6.3 days left, 58 points to the 90 cap, about 9 per day; one build is 1 to 3 points). The 07:05Z dispatches (night-design, hexmap research) stand; night-design may need a rebase on styles.css after type-scale merges.
