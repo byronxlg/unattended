@@ -10,7 +10,7 @@ from product.nz_election.tests.test_home import populated
 
 def test_all_server_rendered_routes(populated):
     _, site = populated
-    assert check_site(site) == 81
+    assert check_site(site) == 82
     polls = (site / 'polls/index.html').read_text()
     names = [attrs['aria-label'] for _, attrs in Document(polls).nodes if attrs.get('role') == 'region']
     # Each scrolling table is a named region whose name matches its caption.

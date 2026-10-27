@@ -2,7 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = []
 # ///
-"""Render 81 offline pages, validating everything before replacing product output."""
+"""Render 82 offline pages, validating everything before replacing product output."""
 import argparse
 from datetime import datetime
 from decimal import Decimal
@@ -510,10 +510,10 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                          data_available='polls' in envs), [], run_url, sha)
         export.pair(stage, 'build-manifest', manifest)
         routes = config('routes')
-        if len(routes) != 10 or {r['path'] for r in routes} != {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
+        if len(routes) != 11 or {r['path'] for r in routes} != {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'funding/', 'campaign/', 'downloads/', 'methods/', 'social/poc/'}:
             raise ValueError('INVALID_ROUTES')
         from product.nz_election.pipeline.sunsets import post_election
-        primary_routes = [dict(r, label={'': 'Overview', 'polls/': 'Polls', 'night/': 'Night', 'vote/': 'Voting' if post_election(built) else 'Vote'}.get(r['path'], r['label'])) for r in routes if r['path'] in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'methods/'}]
+        primary_routes = [dict(r, label={'': 'Overview', 'polls/': 'Polls', 'night/': 'Night', 'vote/': 'Voting' if post_election(built) else 'Vote'}.get(r['path'], r['label'])) for r in routes if r['path'] in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'funding/'}]
         routes = routes + [dict(path='electorates/' + r['slug'] + '/', label=r['name']) for r in config('electorates')]
         from product.nz_election.pipeline.route_cards import route_key, summary, card, ORIGIN
         keys = [route_key(r["path"]) for r in routes]
@@ -536,6 +536,9 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                 body = page(envs, built, historical_advance)
                 from product.nz_election.pipeline.m3_checks import check_markup
                 check_markup(body, envs, historical_advance)
+            elif slug == 'funding/':
+                from product.nz_election.pipeline.funding_page import page
+                body = page()
             elif slug == 'parties/':
                 from product.nz_election.pipeline.parties_page import page
                 body = page(envs, built)
@@ -566,7 +569,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
                      'Proof of concept: what X says about the parties' if slug == 'social/poc/' else route['label'])
             if post_election(built):
                 title = title.replace('votes on', 'voted on')
-            heading = ('' if slug in {'', 'vote/', 'parties/', 'polls/', 'night/'} or (slug.startswith('electorates/') and slug != 'electorates/') else
+            heading = ('' if slug in {'', 'vote/', 'parties/', 'funding/', 'polls/', 'night/'} or (slug.startswith('electorates/') and slug != 'electorates/') else
                        '<h1>' + escape({'night/': 'Election night results', 'electorates/': 'Who is standing in your electorate?', 'methods/': 'How are these numbers calculated?', 'downloads/': 'Where does the data come from?', 'campaign/': 'What is happening in the campaign?', 'social/poc/': 'What are people posting about the parties?'}.get(slug, title)) + '</h1>')
             if post_election(built):
                 heading = heading.replace('Who is standing', 'Who stood')
@@ -624,7 +627,7 @@ def main():
     args = parser.parse_args()
     build(args.data, args.out, built=args.now, data_sha=args.data_sha or os.environ.get('NZ_DATA_SHA') or None,
           sha=os.environ.get('NZ_CODE_SHA'), historical_advance=args.historical_advance)
-    print('PASS build: 81 routes')
+    print('PASS build: 82 routes')
 
 
 if __name__ == '__main__':

@@ -60,7 +60,7 @@ def check_site(site, envs):
                     for item, (margin, _, r, text) in zip(items, watch_rows(envs))), 'watch joins')
     require('incumbent' not in home.lower(), 'no inferred incumbents')
     expected = {r['path'] + 'index.html' for r in config('routes')} | {'electorates/' + r['slug'] + '/index.html' for r in config('electorates')}
-    require(len(expected) == 81 and {p.relative_to(site).as_posix() for p in site.rglob('index.html')} == expected, '81 exact routes')
+    require(len(expected) == 82 and {p.relative_to(site).as_posix() for p in site.rglob('index.html')} == expected, '82 exact routes')
     for path in site.rglob('index.html'):
         html = path.read_text()
         nav = html.split('<header>')[1].split('</header>')[0]

@@ -37,7 +37,7 @@ def test_registered_routes_and_prefix(tmp_path):
         assert PREFIX in html and '<main ' in html and validate_scripts(html)
         assert 'Skip to content' in html
     expected = [r['path'] for r in config('routes')] + ['electorates/' + r['slug'] + '/' for r in config('electorates')]
-    assert len(expected) == len(set(expected)) == 81
+    assert len(expected) == len(set(expected)) == 82
     assert {p.relative_to(out).as_posix() for p in out.rglob('index.html')} == {p + 'index.html' for p in expected}
 
 

@@ -475,7 +475,8 @@ def page(envs, built, presentation):
     polls = envs.get('polls', {}).get('data', [])
     records = {r['id']: r for r in load_voting()}
     election = date.fromisoformat(records['election-day']['date']) if records.get('election-day', {}).get('date') else date(2026, 11, 7)
-    modules = ''
+    from .funding_page import feed
+    modules = feed()
     if averages:
         modules += section('parties', 'Where do the parties stand?',
                            'Party vote on the 30-day poll average, with the change over the past month and the seats it would give.',

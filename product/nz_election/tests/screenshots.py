@@ -394,7 +394,7 @@ def extra_images(browser, site, origin, out, og_only=False):
     from product.nz_election.pipeline.route_cards import route_key
     from product.nz_election.pipeline.build import config
     paths = [r['path'] for r in config('routes')] + ['electorates/' + r['slug'] + '/' for r in config('electorates')]
-    assert len(cards) == len({c['key'] for c in cards}) == 81, 'OG_INVENTORY'
+    assert len(cards) == len({c['key'] for c in cards}) == 82, 'OG_INVENTORY'
     assert {c['route'] for c in cards} == set(paths), 'OG_ROUTES'
     context = browser.new_context(viewport=dict(width=1200, height=630), color_scheme='light', reduced_motion='reduce')
     context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
@@ -541,7 +541,7 @@ def main():
     registry = json.loads((PRODUCT / 'config/electorates.json').read_text())
     expected_count = len(routes) + len(registry)
     routes += [dict(path='electorates/' + r['slug'] + '/') for r in registry]
-    assert len(routes) == expected_count == 81 and len({r['path'] for r in routes}) == expected_count
+    assert len(routes) == expected_count == 82 and len({r['path'] for r in routes}) == expected_count
     args.out.mkdir(parents=True, exist_ok=True)
     server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(site)))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -571,7 +571,7 @@ def main():
                 nojs.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
                 for route in routes:
                     path = route['path']
-                    if width == 360 and path not in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'campaign/', 'downloads/', 'methods/', 'electorates/wellington-north/', 'electorates/te-tai-tonga/', 'electorates/port-waikato/'}:
+                    if width == 360 and path not in {'', 'polls/', 'electorates/', 'night/', 'vote/', 'parties/', 'funding/', 'campaign/', 'downloads/', 'methods/', 'electorates/wellington-north/', 'electorates/te-tai-tonga/', 'electorates/port-waikato/'}:
                         continue
                     page = context.new_page()
                     url = origin + PREFIX + 'nz-election/' + path
