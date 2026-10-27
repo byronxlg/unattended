@@ -65,7 +65,7 @@ the bar; the screenshot is.
 | Majority cards | `majority_cards(groups, names, colours)` | three smallest winning combinations as cards, all combinations in an open list; party chips and seat totals from the night source |
 | Trend chart | `trend(averages, polls, election, wide=)` | all parties, polls as faint dots, 30-day average as thick lines (4 px over 15%), end labels with values, 5% line, shaded run-up to election day. Render `wide` and `narrow`; CSS shows one |
 | Poll table | `poll_table(polls, average, names, count, reports=)` | heat-tinted cells (`--c`, `--a`), average row outlined first |
-| Party cards | `party_cards(averages, result, leaders)` | leader photo ringed in party colour, share big, month change, bar, seats |
+| Party cards | `party_cards(averages, result, leaders)` | leader photo ringed in party colour, share big, month change, bar, seats; share and signed change stay unbroken and wrap as whole values onto separate rows when needed |
 | Hex map | `hex_map(envs, cells, rows, held_for, selected=None, night=False)`, `map_key` | electorates as hexes coloured by holder, three margin tones, each links to its page; selected-seat mode uses the same layout with neutral neighbours and one focusable highlighted seat linking to the always-present electorate heading, with HTML captions at card size; night variant uses the same geometry and tones with full-size selection links in its searchable table |
 | Candidate result bars | `candidate_result_bars(ranked, names, source_id)` | thick horizontal bars with candidate, party, share and vote labels; hidden data table; the caller supplies the original-boundary margin and source note |
 | Closest list | `closest_list(rows, held_for)` | name, holder, margin bar in party colour |
@@ -104,3 +104,9 @@ card identity; decorative portraits are reserved for wider layouts. Names, parti
 remain visible without a nested scroller or disclosure. The electorate heading, complete ballot,
 enrolment check and schematic boundary-map link precede the historical summary and locator.
 Source notes remain linked from the ballot. Desktop retains the larger cards and hero context.
+
+## Party portrait credits
+
+On parties/, each portrait retains its linked author and licence in a caption-size source note
+after the party answers. The portrait points to that note with `aria-describedby`. Processing
+notes remain in the snapshot and Methods record, outside the card. Poll shares stay on one line.

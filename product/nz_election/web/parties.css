@@ -15,7 +15,7 @@
 .party-credit{margin:4px 0 0;flex-basis:100%}
 .party-poll p{font-size:var(--fs-body);margin:0 0 8px;color:var(--soft)}
 .party-number{margin:0}
-.party-number strong{font-size:var(--fs-figure-hero);font-weight:800;letter-spacing:-.04em;line-height:1;margin-right:6px;color:var(--ink)}
+.party-number strong{white-space:nowrap;font-size:var(--fs-figure-hero);font-weight:800;letter-spacing:-.04em;line-height:1;margin-right:6px;color:var(--ink)}
 .party-poll figure{margin:12px 0 0}
 .party-poll svg{width:100%;display:block;font:var(--fs-caption) 'Libre Franklin',sans-serif;fill:var(--ink)}
 .party-poll .source-note p{font-size:var(--fs-caption);line-height:1.4}
@@ -31,7 +31,7 @@
 .party-donations strong{font-weight:800}
 .party-policy a{font-weight:700}
 @media(min-width:800px){.party-section{padding:32px}.party-intro{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:40px}.party-poll svg{max-width:520px}.party-answers{display:grid;grid-template-columns:1fr 1fr;column-gap:40px}.party-position,.party-policy{grid-column:1/-1}.party-candidates{grid-column:1}.party-donations{grid-column:2;grid-row:3}.party-donations h2,.party-donations h3,.party-candidates h2,.party-candidates h3{margin-top:8px}}
-.party-spark{position:relative;padding-right:52px;height:105px}.party-spark svg{height:105px}.spark-end,.spark-rule{position:absolute;font-size:var(--fs-caption);line-height:18px;font-weight:700}.spark-end{right:0}.spark-rule{left:0;color:var(--grey)}
+.party-spark{position:relative;padding-right:52px;height:105px}.party-spark svg{height:105px}.spark-end,.spark-rule{position:absolute;font-size:var(--fs-caption);line-height:18px;font-weight:700}.spark-end{right:0;white-space:nowrap}.spark-rule{left:0;color:var(--grey)}
 
 .party-donations{min-width:0}
 .party-donations .funding-total{font-size:var(--fs-figure);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.04em;line-height:1.1;margin:12px 0 8px;overflow-wrap:anywhere}

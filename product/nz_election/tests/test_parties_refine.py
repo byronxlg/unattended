@@ -52,4 +52,6 @@ def test_rendered_party_credits_join_only_visible_parts(empty_fields):
         photo = leader.get('photo')
         if photo:
             attribution = ' '.join(photo[k].rstrip('.') + '.' for k in ('author', 'licence') if photo[k])
-            assert text.strip() == ' '.join(part for part in (attribution, photo['changes']) if part)
+            assert text.strip() == attribution
+            if photo['changes']:
+                assert photo['changes'] not in text

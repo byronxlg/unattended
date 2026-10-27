@@ -90,6 +90,7 @@ def page(envs, built, facts=None):
         tag = 'h1' if index == 0 else 'h2'
         answer_tag = 'h2' if index == 0 else 'h3'
         content += f'<section class="party-section" id="{p}" style="--party:{colour(p)}"><{tag}>{escape(label(p))}</{tag}><div class="party-intro"><div class="party-leaders">'
+        credits = ''
         for i, leader in enumerate(rows('leaders')):
             photo = leader.get('photo')
             identity = f'photo-{p}-{i}'
@@ -97,17 +98,15 @@ def page(envs, built, facts=None):
             if photo:
                 content += f'<img src="{PREFIX}{photo["path"].removeprefix("web/")}" alt="" width="100" height="100" loading="lazy">'
             content += '<figcaption>' + escape(leader['name']) + '<small>' + escape(leader['role']) + '</small></figcaption></figure>'
-            content += f'<div class="source-note party-credit" id="{identity}"><p class="source-actions">'
+            credits += f'<div class="source-note party-credit" id="{identity}"><p class="source-actions">'
             if photo:
                 attribution = ' '.join(link(url, text.rstrip('.') + '.') for url, text in (
                     (photo['source_url'], photo['author']),
                     (photo['licence_url'], photo['licence'])) if text)
-                content += attribution
-                if photo['changes']:
-                    content += ' <span>' + escape(photo['changes']) + '</span>'
+                credits += attribution
             else:
-                content += link(leader['source_url'], 'Leader record')
-            content += '</p></div>'
+                credits += link(leader['source_url'], 'Leader record')
+            credits += '</p></div>'
         content += '</div>' + polling(p, averages) + '</div><div class="party-answers">'
         for row in rows('positions'):
             content += '<p class="party-position"><strong>Who could it govern with?</strong> ' + escape(row.get('context', row['quote'])) + ' ' + link(row['source_url'], row['speaker'] + ', ' + observation_label(row['date'])) + '.</p>'
@@ -142,7 +141,7 @@ def page(envs, built, facts=None):
             content += f'<div class="party-donations" data-total="{total:.2f}" data-count="{len(donations)}"><{answer_tag}>Who funds it?</{answer_tag}><p class="funding-total"><span>{built[:4]} returns over NZD 20,000</span><small>NZD </small>{total:,.2f}</p><p class="funding-caveat">Not total party funding.</p><p>{len(donations)} declared returns.</p><ul>'
             content += ''.join('<li>' + escape(name) + f': NZD {donor["amount"]:,.2f}, received ' + ', '.join(observation_label(day) for day in sorted(donor['dates'])) + '.</li>' for name, donor in top)
             content += '</ul><p class="source-actions">' + f'<a href="{PREFIX}funding/#{p}">Every declared return for {escape(label(p))}</a>' + ' ' + link(donations[0]['source_url'], 'EC returns') + '</p><p class="party-credit">As listed by the EC, including returns whose documents have not been independently checked. Largest donors grouped by exact EC name. Return totals may combine donations; not total party funding. Copyright Electoral Commission.</p></div>'
-        content += '</div></section>'
+        content += '</div>' + credits + '</section>'
     if any(env.get('run_url') == 'offline-verification' for env in envs.values()):
         content = content.replace('Poll inputs and method.</a>', 'Poll inputs and method.</a> <span>Offline verification, not live data.</span>')
     return content + '</div>'

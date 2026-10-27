@@ -34,7 +34,7 @@ def test_parties_source_text_has_no_orphan_punctuation(offline):
         env['run_url'] = 'offline-verification'
     html = page({'averages': env}, BUILT)
     texts = SourceText(html).text
-    assert any('Square crop' in text for text in texts)
+    assert not any('Square crop' in text for text in texts)
     assert any('5% qualifies' in text for text in texts)
     assert not [text for text in texts if text.startswith(('.', '/'))]
     assert ('Offline verification, not live data.' in texts) == offline
