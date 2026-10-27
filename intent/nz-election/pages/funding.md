@@ -1,6 +1,6 @@
 # funding: page plan
 
-status: draft
+status: accepted 2026-10-27T07:14Z (Byron silent since the 26 Oct 18:07Z NOTE)
 route: `/unattended/nz-election/funding/`
 research job: `state/jobs/research-nz-election-page-questions-2/last.md` (parties Q5); Byron's ask in issue #103
 

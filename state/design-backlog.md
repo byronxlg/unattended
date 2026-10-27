@@ -3,6 +3,40 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-27 09:45Z (PR #109 fix-1 host look)
+
+- funding/ pace chart end labels read `$2,394,410.40` (cents and `$`), while the rest of the page uses whole NZD.
+
+## 2026-10-27 09:22Z (PR #108 and #109 fresh review nits)
+
+- Header nav at 360/390: Electorates clipped on first view reads unfinished; trailing chevron always points right (styles.css:312); phone voting ribbon about 122 px between nav and answer.
+- test_design.py:237 matches literal <header>/<footer> tags; parse landmarks structurally.
+- funding_page.ranking() duplicates home_graphics.funding_bars() with different rounding; consolidate.
+
+## 2026-10-27 09:10Z (supervisor, PR #109 host screenshots)
+
+- funding/ at 390 is about 21,000 px: every return listed in one column; group by party behind jump links or a per-party disclosure (data stays on the page).
+
+## 2026-10-27 08:30Z (PR #105 fresh review 2 nits)
+
+- funding/ at 1280: the timeline (pace of arrival) begins below the first screen (styles.css:533).
+- funding/ at 390: tables scroll sideways to compare donor, amount and date (styles.css:529-530).
+- funding/ at 390: the party ranking fills the first screen; the biggest-donor answer gets little invitation.
+
+## 2026-10-27 08:20Z (supervisor, PR #105 fix-1 host screenshots)
+
+- Home "Where do the parties stand?" cards at 390: share wraps ("28.5" then "%"), change wraps ("-0." then "4").
+  In nz-election-parties-credit with backlog item 2.
+- funding/: "Te Tai Tokerau" appears as a party row; check what the return is.
+
+## 2026-10-27 07:55Z (PR #104 fresh review nits, PR #105 supervisor look)
+
+- night/ at 390: intro spacing pushes the seat answer low; majority threshold stated in answer, graphic and caption;
+  electorate navigation below the first phone screen (night_page.py:78, :85, :88).
+- Sitewide 390 nav still two rows after funding/ (Overview Polls Parties Funding / Electorates Vote Night); item 1
+  below stays open.
+- funding/: party totals shown with cents in the top line; whole dollars read better.
+
 ## 2026-10-26 20:15Z (supervisor, design-loop critique, deployed site 1280 and 390)
 
 1. Sitewide at 390: the masthead nav wraps to two rows (Night and Methods alone on the second), so the header

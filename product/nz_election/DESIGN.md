@@ -36,8 +36,8 @@ the bar; the screenshot is.
    trailing chevron and native scrollbar. Text stays 16 px and targets at least 44 px. Keyboard
    focus scrolls each link into view: 50% inline scroll padding makes the centre of the nav
    its focus-scroll region, so Chromium cannot leave a link partly visible at an edge. This
-   works without JavaScript; the focus ring stays inset to avoid clipping. Secondary
-   routes, including Methods and sources, stay linked in the footer on every route.
+   works without JavaScript; the focus ring stays inset to avoid clipping. Funding takes
+   the former Methods tab; secondary routes, including Methods and sources, stay linked in the footer on every route.
 2. Ribbon (home): the election phase today, a countdown, the one action ("How and where to vote").
 3. Hero: kicker (one or three words), one question as the h1, the answer in one sentence, one
    big graphic, a two-line grey dek with the caveats, one footnote line.

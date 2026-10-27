@@ -397,8 +397,8 @@ def seat_hero(envs, built, presentation):
     stamp = observation_label(averages[-1]['date']) if averages else ''
     names = lambda key: ', '.join(g.SHORT[p] for p in groups[key]['parties'])
     remainder = result['assumed_house'] - gov - opp
-    blocs = (f'<div class="blocs"><p class="bloc opposition"><span class="n">{opp}</span><span class="who">Opposition</span><small>{escape(names("opposition"))}</small></p>'
-             f'<p class="bloc government"><span class="n">{gov}</span><span class="who">Government</span><small>{escape(names("government"))}</small></p></div>')
+    blocs = (f'<div class="blocs"><p class="bloc opposition"><span class="n">{opp}</span><span class="who">{g.BLOC_NAMES["opposition"]}</span><small>{escape(names("opposition"))}</small></p>'
+             f'<p class="bloc government"><span class="n">{gov}</span><span class="who">{g.BLOC_NAMES["government"]}</span><small>{escape(names("government"))}</small></p></div>')
     dek = (f'Seats on the {stamp} poll average, if every party polled what it polls now. {result["assumed_house"]} seats including '
            f'{result["overhang"]} overhang; 2023 electorate winners assumed. Grouped by the 2023 coalition, not a forecast.')
     if remainder:
