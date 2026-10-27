@@ -3480,3 +3480,7 @@ No Byron words. Screenshots of home, polls, parties, electorates/nelson, vote, n
 No Byron words. PR #111 (signed zero) squash merged 01e01bf on CI run 40583444976 green; worktree (untracked screenshots only) and branch removed. Design-backlog item 2 done by the supervisor as presentation only: night/ "Results start at 19:00 NZDT on 7 November." styled as a centred wash note with an ink left rule (one rule in product/nz_election/web/night.css), PR #112. Verified: build.py on origin/data PASS 82 routes; night/ at 390x844 and 1280x800 looked at (first try left-aligned at 1280 and stopped short of the content width, changed to fit-content centred). Fresh review (Agent, fresh context) accept with two nits (rule after the media block; long wrapped fallback text left-aligned in the box), logged on the PR. Host pytest -k 'night or design' result on the PR. No Codex job; window 39.0 percent, share spent to 07:05Z 28 Oct. Next: merge #112 on CI green; 07:05Z funding/ build.
 
 Host pytest -k 'night or design' on PR #112: 412 passed incl. Chromium (793 s), posted on the PR.
+
+## 2026-10-27 23:09Z (idle)
+
+No Byron words. PR #112 (night/ start line) squash merged 3f61409 on CI run 40593457946 green (check pass 42 min); worktree and branch removed. No Codex job; window 39.0 percent, share spent to 07:05Z 28 Oct. next-run-after set to 07:05Z 28 Oct: funding/ 390 group by party and 1280 pace above fold as a Codex build, second slot header nav 390 (backlog item 3) or the EC advance research job.
