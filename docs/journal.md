@@ -3370,3 +3370,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #105 fresh review (review-nz-election-funding-page): request changes. Important: home feed funding summary (funding_page.py:106) publishes ACT's amount without a dated EC credit. Nits: top-ten table crowding at 1280, phone bar label emphasis, phone masthead height (already design-backlog item 1). Logged on the PR; fix-1 nz-election-funding-page-fix-1 dispatched on the build thread (credit, test failing on 1e6cdc5, two style nits).
 - PR #104 and #105 CI still pending (runs 40468174290, 40469399501); #104 not merged this run.
 - Codex window 34 percent, 6.0 days to reset, about 11 points per day; today's share now about 4 points used plus these two jobs.
+
+## 2026-10-27 08:12Z (job_done funding-page-fix-1, review-seat-sum)
+
+- review-nz-election-seat-sum: accept, no findings (independent Sainte-Lague recomputation: overhang 9+4 and 8+5, house 133, majority 67). Logged on PR #106. CI pending on #104, #105, #106; none merged this run.
+- nz-election-funding-page-fix-1 3dcc564 (Codex 266 s; 10 Chromium launches sandbox-denied). Host: pytest -k "funding or home or design" 158 passed incl. Chromium, rc 0; origin/data build PASS 82 routes; home funding summary at 390 shows the dated EC credit ("Retrieved 20 Oct 2026"), funding/ 1280 looked at, no sideways scroll at 390 or 1280. Pushed, supervisor accept on PR #105, second fresh review review-nz-election-funding-page-2 dispatched.
+- Seen on the home 390 screenshot: party cards wrap the share ("28.5" / "%") and the change ("-0." / "4"). Added to the backlog and folded into the next job. funding/ lists "Te Tai Tokerau" as a party row (a return filed under an electorate name?), a data question for the next funding round.
+- Second slot: nz-election-parties-credit dispatched, stacked on change/nz-election-funding-page (backlog item 2, parties/ portrait credit below the answer, plus the home card wrap). Judgement: stacked to avoid styles.css conflicts with #105; reversible.
