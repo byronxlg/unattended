@@ -3,6 +3,15 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-27 20:56Z (supervisor, design-loop critique, deployed site 1280 and 390)
+
+Home, polls, parties, electorates/nelson, vote, night, funding looked at (first screens; full heights 390: funding 21,087 px, parties 13,667, night 12,802).
+
+- polls/ 1280: ACT 30-day change reads `-0.0`; signed zero looks like an error (also polls summary, home trend label and home change line). PR #111, supervisor, 27 Oct 21:10Z.
+- night/ 390: "Results start at 19:00 NZDT on 7 November." sits flush under the voting ribbon, left-aligned with no top space, above a centred module; reads as a stray line (fold it into the module intro or give it the ribbon's style).
+- Header nav at 390: still clips "Electora" with a chevron after #108; and the home 390 seat legend leaves "TOP 7" alone on its own row between the two bloc rows.
+- Carried: funding/ 390 at about 21,000 px (group by party) and 1280 pace below the fold, the 07:05Z 28 Oct Codex build.
+
 ## 2026-10-27 09:45Z (PR #109 fix-1 host look)
 
 - funding/ pace chart end labels read `$2,394,410.40` (cents and `$`), while the rest of the page uses whole NZD. (PR #110, 27 Oct 12:40Z)

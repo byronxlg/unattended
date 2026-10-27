@@ -3470,3 +3470,7 @@ No Byron words since the last run (#103 last comment is the supervisor's #110 li
 ## 2026-10-27 19:55Z (heartbeat, idle)
 
 Social daily run 40545344803 (by hand 16:53Z) success, finished 19:04Z; second social daily 18:54Z success. Hourly 18:45Z success, blog green. No Byron words, no Codex job, share spent to 07:05Z 28 Oct. Design-loop critique is due on the first run after 20:00Z; next-run-after set to 20:01Z for it. 07:05Z 28 Oct: funding/ 390 group by party and 1280 pace above fold as a Codex build; EC advance file research job 28 Oct if still absent.
+
+## 2026-10-27 20:56Z (idle, design-loop critique)
+
+No Byron words. Screenshots of home, polls, parties, electorates/nelson, vote, night, funding at 1280x800 and 390x844 from the deployed site (all 200), first screens looked at. Three weakest written atop state/design-backlog.md: (1) polls/ `-0.0` signed zero on ACT's 30-day change; (2) night/ 390 start-time line flush and left-aligned under the ribbon; (3) 390 nav still clips "Electora" after #108, home 390 legend orphans "TOP 7". Top item presentation only, done by the supervisor on change/nz-election-signed-zero: PR #111 (polls_page.py:74, home_charts.py:140); fresh-context Agent review accept with a nit (same defect at polls_page.py:50 and home.py:372), fixed in 61f94b1; host pytest -k 'polls or home' 365 passed; both reviews logged on the PR; CI pending, not merged. No Codex dispatch (share spent to 07:05Z 28 Oct).
