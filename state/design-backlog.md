@@ -3,6 +3,12 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-27 09:22Z (PR #108 and #109 fresh review nits)
+
+- Header nav at 360/390: Electorates clipped on first view reads unfinished; trailing chevron always points right (styles.css:312); phone voting ribbon about 122 px between nav and answer.
+- test_design.py:237 matches literal <header>/<footer> tags; parse landmarks structurally.
+- funding_page.ranking() duplicates home_graphics.funding_bars() with different rounding; consolidate.
+
 ## 2026-10-27 09:10Z (supervisor, PR #109 host screenshots)
 
 - funding/ at 390 is about 21,000 px: every return listed in one column; group by party behind jump links or a per-party disclosure (data stays on the page).

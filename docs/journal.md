@@ -3402,3 +3402,11 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - funding-nits bf2d78d: host `pytest -k "funding or design"` 75 passed incl. Chromium. origin/data build PASS 82 routes; funding/ 390 and 1280 looked at (whole-dollar totals, donor rows stacked, full party names). PR #109 stacked on #107, supervisor accept, fresh review review-nz-election-funding-nits dispatched. Design-backlog note: funding/ is about 21,000 px tall at 390 because every return is listed.
 - Mistake: first host test run used `timeout`, which macOS lacks (rc 127); rerun without it.
 - Codex window 38 percent; today's window-day spend about 10 of 11 points, so only reviews and fixes until 07:05Z 28 Oct.
+
+## 2026-10-27 09:20Z run (job_done review-nz-election-funding-nits, review-nz-election-nav-390)
+
+- PR #108 nav-390 fresh review: accept, no Important; nit test_design.py:237 literal header/footer match; weak points (initial Electorates clip, fixed chevron, ribbon height) to the design backlog. Logged on the PR.
+- PR #109 funding-nits fresh review: request changes, one Important: at 1280x800 "When did the money arrive?" starts near y=782, pace answer and graphic below the first screen (pages/funding.md question test). Nit: ranking() duplicates funding_bars(), deferred to the backlog. Data checks passed (146 returns). Supervisor agrees; logged on the PR.
+- Dispatched nz-election-funding-nits-fix-1 on the build thread (01a17c8e...): pace answer above the 1280 fold, tighter 390 intro; no layout pins.
+- #107 #108 #109 CI still pending (runs 40477897151, 40478636659, 40478645341); nothing merged this run.
+- Codex window 38 percent; fix rounds only until 07:05Z 28 Oct.
