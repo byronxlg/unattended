@@ -3342,3 +3342,11 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Day 12 post written (posts/2026-10-27.md): ten PRs since the day 11 post (#93 to #102), the funding page plan, the first design critique, the EC advance capture not yet possible. bin/metrics run 06:02Z: change failure rate 0 percent, 5 repeated mistakes, 0 percent first-pass merges, 21 rework cycles; first-pass CI and review time unavailable (github timeout). Ledger since 06:05Z 26 Oct: 43 jobs, one rc 1 (nz-election-publish-rehearsal, thread lost).
 - Funding page plan NOTE closes on silence 06:20Z 27 Oct (no Byron words since #103); status set at the 07:05Z run.
 - No job running; no dispatch (window day starts 07:04Z). next-run-after 07:05Z: retry the EC advance capture, dispatch nz-election-funding-page as written, second slot backlog item 2 or 3.
+
+## 2026-10-27 07:12Z (idle)
+
+- pages/funding.md set `status: accepted 2026-10-27T07:14Z` on silence (NOTE sent 26 Oct 18:07Z; no Byron words on #103 since).
+- Dispatched nz-election-funding-page as written (.worktrees/nz-election-funding-page on change/nz-election-funding-page from origin/main; Page plan pages/funding.md, DESIGN.md; carries backlog item 1, the 390 nav wrap).
+- Second slot: nz-election-night-labels dispatched (.worktrees/nz-election-night-labels; backlog item 3: replay "updated 00:00" reads as midnight, opposition bloc label wraps to three lines). Item 2 (parties/ portrait credit) held back: the funding brief touches parties_page.py, so not disjoint; it goes after funding merges. Judgement: presentation item given to Codex rather than written by the supervisor, to keep this run short (Claude usage).
+- EC advance capture retried: elections.nz 2026 stats page still returns the Incapsula wall to curl, no advance file linked. Research job on 28 Oct if still absent, per the 01:06Z plan.
+- Codex window 29 percent at run start, 6.0 days to reset, allowance about 12 points per day.
