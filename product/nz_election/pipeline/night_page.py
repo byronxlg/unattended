@@ -46,7 +46,13 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
     if stats:
         percent = stats['percent_voting_places_counted']
         clock = row.get('source_updated_local')
-        updated = ', updated ' + clock[11:16] if clock else ''
+        updated = ''
+        if row['mode'] == 'Final snapshot' or 'elapsed_seconds' in row:
+            updated = f"; {refs['id']} final count"
+            if 'elapsed_seconds' in row:
+                updated += f', frame {frame} of {frame_count}'
+        elif clock and row['mode'] == 'Live preliminary results':
+            updated = ', updated ' + clock[11:16]
         reporting = (f'<p class="night-reporting">Results cover <strong>{percent} percent</strong> of voting places{updated}.</p>'
                     f'<progress aria-label="Voting places reported" max="100" value="{percent}">{percent}%</progress>')
     combinations_html = ''
@@ -73,8 +79,8 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
                    '<h1>Who is winning?</h1>' + f'<p class="answer">{answer}</p>')
         content += reporting
         content += f'<figure aria-describedby="{source}">' + g.hemicycle(result).replace('source-seats', source)
-        content += (f'<div class="blocs"><p class="bloc opposition"><span class="n">{bloc["opposition"]}</span><span class="who">Labour, Green<br>and Māori</span></p>'
-                    f'<p class="bloc government"><span class="n">{gov}</span><span class="who">National, ACT<br>and NZ First</span></p></div>')
+        content += (f'<div class="blocs"><p class="bloc opposition"><span class="n">{bloc["opposition"]}</span><span class="who">{g.BLOC_NAMES["opposition"]}</span></p>'
+                    f'<p class="bloc government"><span class="n">{gov}</span><span class="who">{g.BLOC_NAMES["government"]}</span></p></div>')
         content += g.seat_legend(result) + '</figure>'
         content += f'<p class="hero-dek night-house">House {house}; <strong>{majority} for a majority</strong>. Grouped by the 2023 coalition; government formation is separate.</p>'
         content += f'<p class="home-footnote"><a href="{PREFIX}data/{path}">Electoral Commission snapshot</a></p></section>'
