@@ -38,3 +38,4 @@
 .night-page .night-electorates td:first-child{min-width:0}
 .night-party-cell{overflow-wrap:anywhere}
 }
+.night-page #night-live-status{width:fit-content;max-width:100%;box-sizing:border-box;margin:16px auto 8px;padding:8px 12px;border-left:3px solid var(--ink);background:var(--wash);font-size:var(--fs-body)}
