@@ -581,6 +581,10 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
             page_html = render('base', title=escape(title), description=escape(description, quote=True),
                                image=ORIGIN + PREFIX + cards[-1]['png'], heading=heading, prefix=PREFIX, nav=nav, body=body,
                                directory=directory_links(envs) if slug == '' else '',
+                               footer_nav=' '.join(f'<a href="{PREFIX + r["path"]}"' +
+                                                   (' aria-current="page"' if r['path'] == slug else '') +
+                                                   f'>{escape("Methods and sources" if r["path"] == "methods/" else r["label"])}</a>'
+                                                   for r in config('routes') if r['path'] not in {v['path'] for v in visible_routes}),
                                built='Page built ' + escape(local_time(built)) + '. Age labels are checked at build time.')
             if slug in {'', 'polls/', 'methods/'}:
                 page_html = page_html.replace('</head>', f'<link rel="stylesheet" href="{PREFIX}party-links.css"></head>')

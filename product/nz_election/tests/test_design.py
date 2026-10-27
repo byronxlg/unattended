@@ -225,3 +225,15 @@ def test_phone_rendered_type_and_targets(built_design, tmp_path, chart):
                             capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
     assert 'PASS ' + chart in result.stdout
+
+
+def test_header_footer_link_every_registered_route(built_design):
+    from product.nz_election.pipeline.build import PREFIX
+    from product.nz_election.tests.design_checks import Document
+    _, site = built_design
+    expected = {PREFIX + route['path'] for route in config('routes')}
+    for path in site.rglob('index.html'):
+        html = path.read_text()
+        shared = ''.join(re.findall(r'<(?:header|footer)>(.*?)</(?:header|footer)>', html, re.S))
+        links = {attrs['href'] for tag, attrs in Document(shared).nodes if tag == 'a'}
+        assert expected <= links, (path, expected - links)

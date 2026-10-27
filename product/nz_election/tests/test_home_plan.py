@@ -45,7 +45,8 @@ def test_removed_modules_keep_their_destination(populated):
     for identity in ('leaders', 'markets', 'more'):
         assert f'<section id="{identity}"' not in home
     assert 'id="home-thresholds"' in (site / 'methods/index.html').read_text()
-    assert 'social/poc/' not in home
+    assert 'social/poc/' not in home.split('<main', 1)[1].split('</main>', 1)[0]
+    assert home.split('<footer>', 1)[1].count('href="/unattended/nz-election/social/poc/"') == 1
     assert 'id="home-markets"' in (site / 'methods/index.html').read_text()
     assert 'id="markets"' in (site / 'methods/index.html').read_text()
     assert 'Christopher Luxon' in (site / 'parties/index.html').read_text()

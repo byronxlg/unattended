@@ -13,7 +13,8 @@ import threading
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from product.nz_election.tests.night_browser import launch_chromium
-from product.nz_election.tests.screenshots import Handler
+from product.nz_election.tests.screenshots import Handler, header_check
+from product.nz_election.pipeline.build import config, PREFIX
 
 
 def measure(page, selector):
@@ -53,19 +54,36 @@ def main():
     origin = f'http://127.0.0.1:{server.server_port}'
     try:
         with sync_playwright() as pw, launch_chromium(pw) as browser:
-            page = browser.new_page(viewport=dict(width=360, height=844), reduced_motion='reduce')
+            page = browser.new_page(viewport=dict(width=360, height=844), reduced_motion='reduce',
+                                    java_script_enabled=args.chart != 'header')
             page.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
             route = 'polls/' if args.chart == 'trend' else ''
             page.goto(origin + '/unattended/nz-election/' + route, wait_until='networkidle')
             page.evaluate('document.fonts.ready')
             if args.chart == 'header':
-                links = page.locator('body>header a')
-                assert links.count() >= 2
-                assert links.evaluate_all('''els=>els.every(e=>{
-                    const r=e.getBoundingClientRect();
-                    return r.left>=0 && r.right<=innerWidth && r.height>=44;
-                })'''), 'HEADER_TARGET_BOUNDS'
-                print('PASS header: all links in viewport with 44px targets at 360')
+                expected = {PREFIX + r['path'] for r in config('routes')}
+                for width, height in ((360, 844), (390, 844), (1280, 800)):
+                    page.set_viewport_size(dict(width=width, height=height))
+                    for path in sorted(args.site.joinpath('nz-election').rglob('index.html')):
+                        route = path.parent.relative_to(args.site / 'nz-election').as_posix()
+                        route = '' if route == '.' else route + '/'
+                        page.goto(origin + PREFIX + route, wait_until='load')
+                        page.evaluate('document.fonts.ready')
+                        header_check(page)
+                        linked = set(page.locator('header a, footer a').evaluate_all('els=>els.map(e=>e.getAttribute("href"))'))
+                        assert expected <= linked, ('HEADER_ROUTES', route, expected - linked)
+                        assert page.locator('footer a').evaluate_all('''els=>els.every(e=>{
+                            const r=e.getBoundingClientRect();
+                            return r.height>=44 && r.width>=44 && parseFloat(getComputedStyle(e).fontSize)>=16;
+                        })'''), 'FOOTER_ROUTE_TARGETS'
+                        current = page.locator('header nav a[aria-current="page"], footer a[aria-current="page"]')
+                        assert current.count() == int(route in {r['path'] for r in config('routes')})
+                        if current.count():
+                            assert current.get_attribute('href') == PREFIX + route
+                        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'PAGE_OVERFLOW'
+                        name = route.strip('/').replace('/', '--') or 'home'
+                        page.screenshot(path=str(args.out / f'{name}-{width}x{height}.png'))
+                print('PASS header: one row below 100px at 360 and 390; all routes linked; keyboard-accessible 44px targets and 16px type')
             else:
                 check_labels(page, args.chart)
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'PAGE_OVERFLOW'
