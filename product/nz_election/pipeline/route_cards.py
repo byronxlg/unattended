@@ -36,6 +36,7 @@ def summary(route, envs, home, built):
         'polls/': 'No published polling averages available.',
         'electorates/': 'Find your candidates and the 2025 electorate boundaries. No electorate forecast.',
         'night/': election_countdown(built) + '. Results appear here from 7 pm on 7 November. No results feed is published yet.',
+        'funding/': 'Declared returns over NZD 20,000 by party, donor and received date, with every EC document.',
         'parties/': 'Party polling, leaders, policies, coalition positions, list candidates and declared donations.',
         'vote/': 'How and when to enrol, find a voting place and cast your two votes.',
         'campaign/': 'Official voting information and sourced national advance-voting observations.',

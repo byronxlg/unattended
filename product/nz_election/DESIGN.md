@@ -33,7 +33,8 @@ the bar; the screenshot is.
 ## Page anatomy
 
 1. Masthead: dark band, brand mark, route tabs wrap on phones so every link stays inside the
-   viewport, with 16 px text and targets at least 44 px tall.
+   viewport, with 16 px text and targets at least 44 px tall. Funding takes the former Methods
+   tab; Methods and sources remains a footer link on every route.
 2. Ribbon (home): the election phase today, a countdown, the one action ("How and where to vote").
 3. Hero: kicker (one or three words), one question as the h1, the answer in one sentence, one
    big graphic, a two-line grey dek with the caveats, one footnote line.
@@ -68,6 +69,8 @@ the bar; the screenshot is.
 | Closest list | `closest_list(rows, held_for)` | name, holder, margin bar in party colour |
 | Threshold bars | `threshold_bars(rows)` | 0 to 10% bars with the 5% line drawn through every bar |
 | Market cards | `market_cards(entries)` | big percent, the question, a gauge |
+| Funding totals | `funding_bars(ranked)` | ranked party-colour bars with exact NZD totals and return counts, plus a text table |
+| Funding over time | `funding_steps(ranked)` | cumulative steps by received date for parties with three or more returns, separate end-label lane and a full cumulative text table |
 | Timeline | `timeline(records, today, election_label=...)` | key dates, past greyed, today flagged |
 
 New graphics go in this module, take data and return markup, and carry a hidden data table

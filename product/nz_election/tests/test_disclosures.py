@@ -7,7 +7,7 @@ from product.nz_election.tests.test_home import populated
 
 def test_non_home_disclosures_hold_tables(populated):
     _, site = populated
-    assert check_site(site) == 80
+    assert check_site(site) == 81
 
 
 @pytest.mark.parametrize('body', [

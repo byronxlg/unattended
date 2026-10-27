@@ -406,3 +406,58 @@ def candidate_result_bars(ranked, names, source_id):
         records.append([escape(name), escape(v['party']), f'{v["votes"]:,}', f'{share:.1f}%'])
     return (content + '<figcaption>Share of valid candidate votes.</figcaption></figure>'
             + hidden(table('2023 candidate votes', ['Candidate', 'Party', 'Votes', 'Share'], records, source=source_id)))
+
+
+# Funding
+
+def funding_bars(ranked):
+    from .funding_page import money, name, total, return_count
+    maximum = max(total(rs) for _, rs in ranked)
+    bars = ''
+    for party, rows in ranked:
+        width = Decimal(total(rows)) * 358 / maximum
+        bars += ('<div class="funding-bar"><div class="funding-bar-label"><strong>' + escape(name(party, rows))
+                 + '</strong><span>' + money(total(rows)) + f' <span>({return_count(rows)})</span></span></div>'
+                 f'<svg viewBox="0 0 358 12" role="img" aria-describedby="source-funding" aria-label="{escape(name(party, rows))}: {money(total(rows))}, {return_count(rows)}">'
+                 f'<rect width="{width:.4f}" height="12" style="fill:{pc(party)}"/></svg></div>')
+    return '<div class="funding-bars">' + bars + '</div>' + hidden(table(
+        'Declared totals by party', ['Party', 'Declared NZD', 'Returns'],
+        [[escape(name(p, rs)), money(total(rs)), str(len(rs))] for p, rs in ranked], source='source-funding'))
+
+
+def funding_steps(ranked):
+    from .donations import amount_cents
+    from .funding_page import money, name, total
+    dates = [date.fromisoformat(r['received']) for _, rs in ranked for r in rs if r.get('received')]
+    start, end = min(dates), max(dates)
+    days = max(1, (end - start).days)
+    maximum = max(total(rs) for _, rs in ranked)
+    marks, equivalents = '', []
+    # Reserve a separate label lane so small totals remain distinguishable.
+    labels = []
+    for party, rows in ranked:
+        cumulative, path = 0, 'M0 280'
+        for r in sorted((r for r in rows if r.get('received')), key=lambda r: (r['received'], r['id'])):
+            x = Decimal((date.fromisoformat(r['received']) - start).days) * 210 / days
+            cumulative += amount_cents(r['amount_nzd'])
+            y = 280 - Decimal(cumulative) * 250 / maximum
+            path += f'H{x:.2f}V{y:.2f}'
+            equivalents.append([escape(name(party, rows)), observation_date(r['received']), money(cumulative)])
+        path += 'H210'
+        labels.append((party, rows, y, cumulative))
+        marks += f'<path d="{path}" fill="none" style="stroke:{pc(party)}" stroke-width="3"/>'
+    previous = -20
+    for party, rows, y, cumulative in labels:
+        ly = max(y, previous + 34)
+        previous = ly
+        marks += (f'<path d="M210 {y:.2f}L230 {ly:.2f}" fill="none" style="stroke:{pc(party)}"/>'
+                  f'<text x="234" y="{ly:.2f}">{escape(name(party, rows))}</text>'
+                  f'<text x="234" y="{ly + 15:.2f}">{money(cumulative).replace("NZD ", "$")}</text>')
+    height = max(320, previous + 30)
+    marks += f'<text x="0" y="{height - 3}">{start.strftime("%d %b")}</text><text x="210" y="{height - 3}" text-anchor="end">{end.strftime("%d %b %Y")}</text>'
+    return (f'<svg class="funding-steps" viewBox="0 0 358 {height:.0f}" role="img" aria-describedby="source-funding-time" aria-label="Cumulative declared donations by party and received date">{marks}</svg>'
+            + hidden(table('Cumulative declared totals at each received return', ['Party', 'Received', 'Cumulative NZD'], equivalents, source='source-funding-time')))
+
+
+def observation_date(value):
+    return date.fromisoformat(value).strftime('%d %b %Y').lstrip('0')

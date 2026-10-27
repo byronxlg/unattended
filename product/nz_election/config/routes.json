@@ -12,6 +12,10 @@
     "label": "Parties"
   },
   {
+    "path": "funding/",
+    "label": "Funding"
+  },
+  {
     "path": "electorates/",
     "label": "Electorates"
   },
