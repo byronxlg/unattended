@@ -107,3 +107,25 @@ def test_routes_link_to_resolving_funding_anchors(populated):
     assert targets
     assert all(t.split('#')[1] in ids for t in targets)
     assert PREFIX + 'funding/' in (site / 'index.html').read_text()
+
+
+def test_home_funding_credit_tracks_snapshot(monkeypatch):
+    from datetime import datetime, timedelta
+    from product.nz_election.pipeline.build import observation_label
+    from product.nz_election.pipeline.content_checks import Tree
+
+    original = donations.load_donations()
+    for days in (0, 7):
+        records = [dict(row) for row in original]
+        for row in records:
+            retrieved = datetime.fromisoformat(row['retrieved_at'].replace('Z', '+00:00'))
+            row['retrieved_at'] = (retrieved + timedelta(days=days)).isoformat().replace('+00:00', 'Z')
+            if days:
+                row['source_url'] += '#updated-returns'
+        monkeypatch.setattr(donations, 'load_donations', lambda: records)
+        html = funding.feed()
+        links = {attrs['href'] for tag, attrs in Document(html).nodes if tag == 'a'}
+        latest = max(records, key=lambda row: row['retrieved_at'])
+        assert latest['source_url'] in links
+        assert 'Retrieved ' + observation_label(latest['retrieved_at'][:10]) in Tree(html).root.text
+        assert donations.LICENCE in Tree(html).root.text

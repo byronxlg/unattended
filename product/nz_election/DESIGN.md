@@ -51,6 +51,8 @@ the bar; the screenshot is.
    before the close, then in the help deadline summary; registration and the shared voting
    close in that summary throughout. After voting, the deadline summary remains below results.
    The vote timeline uses a date-only election label, and its countdown does not repeat the close.
+   Funding summaries and the funding page share the same dated EC source note. In the desktop
+   top-ten table, the donor column takes the remaining width while party, amount and date stay on one line.
    Credits without retrieval metadata retain the source name and omit the retrieval sentence.
    On desktop the second and third answers sit alongside the hero. The complete snapshot credit remains in `div.source-note`.
 5. Footer: grey, two lines.
@@ -69,7 +71,7 @@ the bar; the screenshot is.
 | Closest list | `closest_list(rows, held_for)` | name, holder, margin bar in party colour |
 | Threshold bars | `threshold_bars(rows)` | 0 to 10% bars with the 5% line drawn through every bar |
 | Market cards | `market_cards(entries)` | big percent, the question, a gauge |
-| Funding totals | `funding_bars(ranked)` | ranked party-colour bars with exact NZD totals and return counts, plus a text table |
+| Funding totals | `funding_bars(ranked)` | ranked party-colour bars with exact NZD totals and return counts, plus a text table; on phones, amounts lead and counts use muted caption type |
 | Funding over time | `funding_steps(ranked)` | cumulative steps by received date for parties with three or more returns, separate end-label lane and a full cumulative text table |
 | Timeline | `timeline(records, today, election_label=...)` | key dates, past greyed, today flagged |
 

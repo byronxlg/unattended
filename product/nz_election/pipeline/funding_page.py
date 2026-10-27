@@ -54,6 +54,13 @@ def returns_table(records, caption, *, parties=False):
     return table(caption, headings, values, css='funding-table', source='source-funding')
 
 
+def credit(records):
+    latest = max(records, key=lambda row: row['retrieved_at'])
+    retrieved = observation_label(latest['retrieved_at'][:10])
+    return note('source-funding', donations.LICENCE + ' Retrieved ' + retrieved + '.',
+                link(latest['source_url'], 'Electoral Commission returns over NZD 20,000'))
+
+
 def page(records=None):
     records = donations.load_donations() if records is None else records
     if not records:
@@ -61,8 +68,7 @@ def page(records=None):
     ranked = groups(records)
     retrieved = max(r['retrieved_at'] for r in records)
     date_label = observation_label(retrieved[:10])
-    source = note('source-funding', donations.LICENCE + ' Retrieved ' + date_label + '.',
-                  link(donations.INDEX_URL, 'Electoral Commission returns over NZD 20,000'))
+    source = credit(records)
     content = ('<div class="funding-page"><header class="funding-intro"><h1>Who funds the parties?</h1>'
                '<p class="dek">' + escape(headline(records)) + '</p>'
                '<p>Declared returns over NZD 20,000, not total party funding. Retrieved '
@@ -105,4 +111,4 @@ def feed():
         return ''
     return ('<aside class="module"><h2>Who funds the parties?</h2><p>' + escape(headline(records))
             + '</p><p>Returns over NZD 20,000, not total party funding.</p><p>'
-            + f'<a href="{PREFIX}funding/">Compare funding and see every return</a>' + '</p></aside>')
+            + f'<a href="{PREFIX}funding/">Compare funding and see every return</a>' + '</p>' + credit(records) + '</aside>')
