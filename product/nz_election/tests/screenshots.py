@@ -162,6 +162,7 @@ def header_check(page):
             page.keyboard.press('Tab')
     nav.evaluate('e=>e.scrollLeft=0')
     page.locator(':focus').evaluate('e=>e.blur()')
+    page.evaluate("()=>{const b=document.body;b.tabIndex=-1;b.focus();b.blur();b.removeAttribute('tabindex')}")  # reset the Tab start point
     page.evaluate('scrollTo(0,0)')
 
 
