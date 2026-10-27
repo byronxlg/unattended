@@ -71,7 +71,7 @@ def page(envs, built, presentation):
         for party, d in rows:
             v = g.share(d)
             before = g.share(month['descriptive'].get(party))
-            delta = f'{v - before:+.1f}' if before is not None else ''
+            delta = f'{v - before:+.1f}'.replace('-0.0', '0.0').replace('+0.0', '0.0') if before is not None else ''
             bars += (f'<li style="--c:{g.pc(party)}"><span class="name">{escape(g.SHORT.get(party, label(party)))}</span>'
                      f'<span class="bar"><i style="width:{min(Decimal(100), v * Decimal("2.5")):.2f}%"></i></span>'
                      f'<b>{display(d["value"], d["scale"])}</b><small>{delta}</small></li>')
