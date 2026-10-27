@@ -3356,3 +3356,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - nz-election-night-labels 7933c98 (Codex 266 s; 6 browser cases sandbox-denied). Host: pytest -k night 364 passed incl. Chromium, lint ok, origin/data build PASS 81 routes; night/ at 390 and 1280 looked at: reporting line now "Results cover 100.0 percent of voting places; 2023 final count." (was "updated 00:00"), bloc labels "Opposition"/"Government" on one line from a shared `home_graphics.BLOC_NAMES`, parties named in the seat legend, no sideways scroll. Supervisor accept.
 - PR #104 opened; fresh review review-nz-election-night-labels dispatched read-only.
 - nz-election-funding-page still running. Codex window 30 percent, about 12 points per day.
+
+## 2026-10-27 07:48Z run (job_done nz-election-funding-page, review-nz-election-night-labels)
+
+- PR #104 fresh review (review-nz-election-night-labels): accept, no Important. Nits logged on the PR; three pre-existing night/ phone nits to state/design-backlog.md. CI run 40468174290 still pending at run end, not merged.
+- nz-election-funding-page 1e6cdc5 (Codex 1648 s; sandbox 3057 passed, 17 failed + 2 errors, all Chromium launches denied). Host: origin/data build PASS 82 routes; funding/ at 390 and 1280 looked at (answer first: ACT NZD 2,394,410.40 across 49 returns; party bars in party colours; ten largest donations with EC links; scrollWidth equals the viewport). Supervisor accept with two nits (cents in the top line; 390 nav still two rows, backlog item 1 open). PR #105 opened; fresh review review-nz-election-funding-page dispatched. Host Chromium subset running (/tmp/funding-host.log, rc line at the end).
+- Second slot: nz-election-seat-sum dispatched (.worktrees/nz-election-seat-sum from origin/main): home shows 59 + 67 + TOP 7 = 133 seats with 67 for a majority; the job reproduces the allocation from origin/data and either pins the invariant or fixes the defect with a failing-then-passing test. Judgement: election-night correctness ahead of backlog item 2 (parties/ credit, waits on #105 for file overlap).
+- Codex window 33 percent, 6.0 days to reset, about 11 points per day.
