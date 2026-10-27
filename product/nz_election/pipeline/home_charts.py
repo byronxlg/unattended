@@ -137,7 +137,7 @@ def trend_chart(averages, parties, *, maximum=None, polls=(), previous=None):
         after = averages[-1]['descriptive'].get(party, {})
         if before.get('value') is not None and after.get('value') is not None:
             change = Decimal(after['value'])/after['scale'] - Decimal(before['value'])/before['scale']
-            delta = f'{change:+.1f} pp'
+            delta = f'{change:+.1f} pp'.replace('-0.0', '0.0').replace('+0.0', '0.0')
         labels += party_text(party, ' ' + value, '', f'top:{position-8:.1f}px')
         if delta:
             labels += text(delta, 'chart-status', f'top:{position+12:.1f}px')
