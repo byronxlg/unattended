@@ -1,6 +1,7 @@
 """Declared large returns, in reader question order, from the offline EC snapshot."""
 from collections import defaultdict
 from datetime import date, timedelta
+from decimal import Decimal
 from html import escape
 
 from . import donations, home_graphics as g
@@ -13,8 +14,33 @@ def money(cents):
     return f'NZD {whole:,}' + (f'.{fraction:02d}' if fraction else '')
 
 
+def whole_money(cents):
+    """Round only the displayed total, half up, after summing exact cents."""
+    return f'NZD {(cents + 50) // 100:,}'
+
+
+def ranking(ranked):
+    maximum = max(total(rows) for _, rows in ranked)
+    bars = ''
+    equivalents = []
+    for party, rows in ranked:
+        label = escape(name(party, rows))
+        amount = whole_money(total(rows))
+        count = return_count(rows)
+        width = Decimal(total(rows)) * 358 / maximum
+        bars += ('<div class="funding-bar"><div class="funding-bar-label"><strong>' + label
+                 + '</strong><span>' + amount + f' <span>({count})</span></span></div>'
+                 f'<svg viewBox="0 0 358 12" role="img" aria-describedby="source-funding" '
+                 f'aria-label="{label}: {amount}, {count}">'
+                 f'<rect width="{width:.4f}" height="12" style="fill:{g.pc(party)}"/></svg></div>')
+        equivalents.append([label, amount, str(len(rows))])
+    return '<div class="funding-bars">' + bars + '</div>' + g.hidden(table(
+        'Declared totals by party, rounded to whole NZD', ['Party', 'Declared NZD', 'Returns'],
+        equivalents, source='source-funding'))
+
+
 def name(party, rows):
-    return g.SHORT.get(party, {'nzof': 'Outdoors & Freedom', 'tttp': 'Te Tai Tokerau'}.get(party, rows[0]['party']))
+    return g.SHORT.get(party, {'nzof': 'Outdoors & Freedom', 'tttp': 'Te Tai Tokerau Party'}.get(party, rows[0]['party']))
 
 
 def groups(records):
@@ -39,7 +65,7 @@ def headline(records):
     years = {r['received'][:4] for r in records if r.get('received')}
     period = ' in ' + next(iter(years)) if len(years) == 1 else ''
     count = return_count(rows)
-    return f'{name(party, rows)} has declared {money(total(rows))} across {count}, the most of any party{period}.'
+    return f'{name(party, rows)} has declared {whole_money(total(rows))} across {count}, the most of any party{period}.'
 
 
 def returns_table(records, caption, *, parties=False):
@@ -51,7 +77,15 @@ def returns_table(records, caption, *, parties=False):
                  + escape(name(r['party_id'], [r])) + '</span>')
         values.append([donor] + ([party] if parties else []) + [money(donations.amount_cents(r['amount_nzd'])),
                       observation_label(r['received']) if r.get('received') else ''])
-    return table(caption, headings, values, css='funding-table', source='source-funding')
+    html = table(caption, headings, values, css='funding-table', source='source-funding')
+    # Preserve table semantics in browsers that drop them when rows become CSS grids.
+    for tag, role in [('table', 'table'), ('thead', 'rowgroup'), ('tbody', 'rowgroup'),
+                      ('tr', 'row'), ('th', 'columnheader'), ('td', 'cell')]:
+        if tag in {'table', 'th'}:
+            html = html.replace('<' + tag + ' ', f'<{tag} role="{role}" ')
+        else:
+            html = html.replace('<' + tag + '>', f'<{tag} role="{role}">')
+    return html
 
 
 def credit(records):
@@ -72,8 +106,10 @@ def page(records=None):
     content = ('<div class="funding-page"><header class="funding-intro"><h1>Who funds the parties?</h1>'
                '<p class="dek">' + escape(headline(records)) + '</p>'
                '<p>Declared returns over NZD 20,000, not total party funding. Retrieved '
-               + link(donations.INDEX_URL, date_label) + '.</p></header><figure aria-describedby="source-funding">'
-               + g.funding_bars(ranked) + '</figure>')
+               + link(donations.INDEX_URL, date_label) + '.</p>'
+               '<p><a href="#largest-returns">See the ten biggest donations and who gave them</a></p>'
+               '</header><figure aria-describedby="source-funding">'
+               + ranking(ranked) + '</figure>')
     top = sorted(records, key=lambda r: (-donations.amount_cents(r['amount_nzd']), r['id']))[:10]
     biggest = top[0]
     answer = (money(donations.amount_cents(biggest['amount_nzd'])) + ' from ' + biggest['donor']
