@@ -369,7 +369,7 @@ def poll_change(envs):
         old = previous['descriptive'].get(party, {})
         if old.get('value') is not None:
             delta = Decimal(value['value'])/value['scale'] - Decimal(old['value'])/old['scale']
-            changes.append(label(party) + (f' {delta:+.1f} pp' if delta else ' unchanged'))
+            changes.append(label(party) + (f' {delta:+.1f} pp' if f'{delta:.1f}' not in ('0.0', '-0.0') else ' unchanged'))
     return ('; '.join(changes) + ' since ' + observation_label(previous['date']) + '. ' if changes else '') + 'Poll averages, not a forecast.'
 
 

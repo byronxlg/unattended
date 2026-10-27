@@ -47,7 +47,7 @@ def change_summary(first, latest):
         if party not in leaders or before.get('value') is None:
             continue
         delta = Decimal(after['value']) / after['scale'] - Decimal(before['value']) / before['scale']
-        changes.append(f'<span data-change-party="{party}">{escape(label(party))} {delta:+.1f} points</span>')
+        changes.append(f'<span data-change-party="{party}">{escape(label(party))} {str(f"{delta:+.1f}").replace('-0.0', '0.0').replace('+0.0', '0.0')} points</span>')
     if not changes:
         return ''
     return ('<p class="poll-change-summary" aria-describedby="source-trend">' + '; '.join(changes)
