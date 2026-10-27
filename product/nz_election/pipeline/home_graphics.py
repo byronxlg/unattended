@@ -454,7 +454,7 @@ def funding_steps(ranked):
         previous = ly
         marks += (f'<path d="M210 {y:.2f}L230 {ly:.2f}" fill="none" style="stroke:{pc(party)}"/>'
                   f'<text x="234" y="{ly:.2f}">{escape(name(party, rows))}</text>'
-                  f'<text x="234" y="{ly + 15:.2f}">{money(cumulative).replace("NZD ", "$")}</text>')
+                  f'<text x="234" y="{ly + 15:.2f}">${(cumulative + 50) // 100:,}</text>')
     height = max(320, previous + 30)
     marks += f'<text x="0" y="{height - 3}">{start.strftime("%d %b")}</text><text x="210" y="{height - 3}" text-anchor="end">{end.strftime("%d %b %Y")}</text>'
     return (f'<svg class="funding-steps" viewBox="0 0 358 {height:.0f}" role="img" aria-describedby="source-funding-time" aria-label="Cumulative declared donations by party and received date">{marks}</svg>'
