@@ -3431,3 +3431,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Trigger was the supervisor's own link comment on #103; no Byron words.
 - #108 and #109 CI (runs 40486397040, 40486401502, started 10:10Z) pending; not merged. Next run 11:00Z: merge the first green, merge main into the other (both touch styles.css), host -k funding/design, push, merge on green, remove worktrees, link to Byron.
 - No dispatch (share spent to 07:05Z 28 Oct).
+
+## 2026-10-27 11:22Z (idle)
+
+- PR #108 nav-390 CI green (run 40486397040), squash merged 66c6fa8. Header nav one row at 360/390.
+- PR #109 funding-nits CI green on its pre-merge head; main (with #108, both touch styles.css) merged in 72a5c81 without conflict, host `pytest -k "funding or design"` 76 passed incl. Chromium, pushed, logged on the PR. Merge on the new CI run.
+- Worktrees nav-390 and funding-page (merged #105) removed; only screenshot artifacts were untracked.
+- No dispatch: Codex share spent to 07:05Z 28 Oct (window 39 percent).
