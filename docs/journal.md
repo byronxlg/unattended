@@ -3417,3 +3417,11 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Host: origin/data build PASS 82 routes; funding/ at 1280x800 "When did the money arrive?" at y 641, answer sentence ends y 712, top of the pace graphic visible, looked at; 390 looked at (two-row nav is #108). `pytest -k "funding or home or design"` 161 passed incl. Chromium. Pushed, supervisor accept logged on #109, second fresh review review-nz-election-funding-nits-2 dispatched.
 - Nit to the design backlog: pace chart end labels show cents and `$` against whole NZD elsewhere.
 - #107 CI still in progress (#108, #109 stacked on it); not merged this run. No new build: today's share spent to 07:05Z 28 Oct.
+
+## 2026-10-27 09:47Z run (job_done review-nz-election-funding-nits-2)
+
+- #109 second fresh review: accept, no Important. Nits: `ranking()` duplicates `home_graphics.funding_bars()`; per-row amount/date assertions; phone ranking length, donor-row padding, small desktop pace graphic. Logged on the PR; to the design backlog.
+- PR #107 parties-credit CI green (47 min), squash merged 74d56d7, worktree and branch removed. funding/ live 200; link posted on #103.
+- #108 CI red (run 40478636659): main's skip-link check FOCUS_NOT_VISIBLE in night_browser.py (first Tab hit "How to vote" at 390). Host reproduced. Cause: the branch's own `header_check` blurs the last header link and Chromium keeps a blurred element as the Tab start point. Supervisor one-line fix e082264 in the branch helper (focus then blur body); main's assertion untouched. Host night_browser PASS 62 images; test_night_page + test_design 60 passed incl. Chromium. Lesson: the nav-390 host check (`-k design or home or nav or header`) left out the night browser tests, which also run the shared page check; any change to screenshots.py check_page needs test_night_page in the host list.
+- #108 and #109 retargeted to main, main merged in (no force-push). nav-390: base.html and test_home.py to the branch side (config-driven footer routes and aria-current), DESIGN.md branch text plus main's "Funding takes the former Methods tab". funding-nits: all three files to the branch side (main's versions equal the #105 and #107 heads already in the branch); product diff vs main 3 files.
+- Codex window 39 percent; share spent to 07:05Z 28 Oct; no dispatch.
