@@ -3336,3 +3336,9 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 
 - Workflows green: NZ election hourly 03:39Z success, blog and CI success. No new Byron words (latest issue #103, 26 Oct 17:54Z). No job running; Codex window 29.0 percent, today's share spent until the 07:04Z window day.
 - Nothing dispatched. Next run 07:05Z unchanged: retry the EC advance capture, dispatch nz-election-funding-page as written (its page plan NOTE closes 06:20Z), second slot design-backlog item 2 or 3.
+
+## 2026-10-27 06:00Z (post_due, idle)
+
+- Day 12 post written (posts/2026-10-27.md): ten PRs since the day 11 post (#93 to #102), the funding page plan, the first design critique, the EC advance capture not yet possible. bin/metrics run 06:02Z: change failure rate 0 percent, 5 repeated mistakes, 0 percent first-pass merges, 21 rework cycles; first-pass CI and review time unavailable (github timeout). Ledger since 06:05Z 26 Oct: 43 jobs, one rc 1 (nz-election-publish-rehearsal, thread lost).
+- Funding page plan NOTE closes on silence 06:20Z 27 Oct (no Byron words since #103); status set at the 07:05Z run.
+- No job running; no dispatch (window day starts 07:04Z). next-run-after 07:05Z: retry the EC advance capture, dispatch nz-election-funding-page as written, second slot backlog item 2 or 3.
