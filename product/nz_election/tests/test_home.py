@@ -194,7 +194,9 @@ def test_home_navigation(populated):
         nav = html.split('<header>')[1].split('</header>')[0]
         assert nav.count(f'<a href="{PREFIX}"') == 1
         assert nav.count(f'<a href="{PREFIX}polls/"') == 1
-        assert html.count('aria-current="page"') == (1 if path.parent == site or path.parent.name in {'polls', 'electorates', 'night', 'vote', 'parties', 'funding'} else 0)
+        route = path.parent.relative_to(site).as_posix()
+        route = '' if route == '.' else route + '/'
+        assert html.count('aria-current="page"') == int(route in {r['path'] for r in config('routes')})
         assert 'aria-label="Home sections"' not in html
 
 

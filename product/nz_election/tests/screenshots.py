@@ -137,6 +137,34 @@ def night_target_check(page):
             assert link['name'] and '/electorates/' in link['href'], ('NIGHT_SELECTION_DESTINATION', row)
 
 
+def header_check(page):
+    banner = page.get_by_role('banner')
+    nav = banner.get_by_role('navigation')
+    assert nav.count() == 1, 'HEADER_NAV_LANDMARK'
+    assert banner.evaluate('e=>e.scrollWidth<=e.clientWidth'), 'HEADER_OVERFLOW'
+    if page.viewport_size['width'] in (360, 390):
+        assert banner.bounding_box()['height'] < 100, 'HEADER_HEIGHT'
+    tops = nav.locator('a').evaluate_all('els=>els.map(e=>e.getBoundingClientRect().top)')
+    assert tops and max(tops) - min(tops) < 1, 'HEADER_SINGLE_ROW'
+    links = banner.locator('a')
+    page.keyboard.press('Tab')
+    links.first.focus()
+    for i in range(links.count()):
+        link = links.nth(i)
+        assert link.evaluate('e=>e===document.activeElement'), 'HEADER_TAB_ORDER'
+        assert link.evaluate("""e=>{
+            const r=e.getBoundingClientRect(), css=getComputedStyle(e);
+            const nav=e.closest('nav'), clip=nav ? nav.getBoundingClientRect() : {left:0,right:innerWidth};
+            return r.left>=clip.left-.5 && r.right<=clip.right+.5 && r.height>=44 && r.width>=44 &&
+                   parseFloat(css.fontSize)>=16 && css.outlineStyle!=='none';
+        }"""), 'HEADER_TARGET_BOUNDS'
+        if i + 1 < links.count():
+            page.keyboard.press('Tab')
+    nav.evaluate('e=>e.scrollLeft=0')
+    page.locator(':focus').evaluate('e=>e.blur()')
+    page.evaluate('scrollTo(0,0)')
+
+
 def check_page(page, url, site, origin):
     errors = []
     page.on('pageerror', lambda error: errors.append(str(error)))
@@ -160,9 +188,7 @@ def check_page(page, url, site, origin):
 
     assert max(map(len, page.locator('body').inner_text().split()), default=0) <= 200, 'VISIBLE_TEXT_RUN: ' + url
     if page.viewport_size['width'] in (360, 390):
-        banner = page.get_by_role('banner')
-        assert banner.evaluate('e=>e.scrollWidth<=e.clientWidth'), 'HEADER_OVERFLOW'
-        assert banner.locator('a').evaluate_all('els=>els.every(e=>{const r=e.getBoundingClientRect();return r.left>=0 && r.right<=innerWidth && r.height>=44})'), 'HEADER_TARGET_BOUNDS'
+        header_check(page)
     for href in page.locator('a[href],link[href]').evaluate_all('(els)=>els.map(e=>new URL(e.getAttribute("href"), document.baseURI).href)'):
         parsed = urlsplit(href)
         if not href.startswith(origin):

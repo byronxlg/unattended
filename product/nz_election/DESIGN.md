@@ -32,9 +32,10 @@ the bar; the screenshot is.
 
 ## Page anatomy
 
-1. Masthead: dark band, brand mark, route tabs wrap on phones so every link stays inside the
-   viewport, with 16 px text and targets at least 44 px tall. Funding takes the former Methods
-   tab; Methods and sources remains a footer link on every route.
+1. Masthead: dark band, brand mark, route tabs scroll horizontally in one row on phones, with a visible
+   trailing chevron and native scrollbar. Text stays 16 px and targets at least 44 px. Keyboard
+   focus scrolls each link into view, with its focus ring inset to avoid clipping. Secondary
+   routes, including Methods and sources, stay linked in the footer on every route.
 2. Ribbon (home): the election phase today, a countdown, the one action ("How and where to vote").
 3. Hero: kicker (one or three words), one question as the h1, the answer in one sentence, one
    big graphic, a two-line grey dek with the caveats, one footnote line.
