@@ -308,7 +308,8 @@ body>header .nav-cue{display:none}
 body>header a:focus-visible{outline-color:var(--accent)}
 .footer-routes{display:flex;flex-wrap:wrap;gap:0 20px}
 .footer-routes a{display:inline-flex;align-items:center;min-height:44px}
-@media(max-width:799px){body>header{padding-top:0;padding-bottom:0;gap:0}body>header .nav-strip{display:flex;width:100%;align-items:center}body>header .nav-cue{display:block;color:var(--mast-ink);font-size:var(--fs-h3);text-align:right;width:20px;flex:none}body>header nav{min-width:0;flex:1;margin:0;gap:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--accent) var(--mast)}body>header nav a{padding:8px 6px 7px;font-size:var(--fs-body);white-space:nowrap;min-height:44px;min-width:44px;flex:none}body>header nav a:focus-visible{outline-offset:-3px}body>header .brand{min-height:44px}}
+/* A central focus-scroll region makes partly clipped links scroll fully into view. */
+@media(max-width:799px){body>header{padding-top:0;padding-bottom:0;gap:0}body>header .nav-strip{display:flex;width:100%;align-items:center}body>header .nav-cue{display:block;color:var(--mast-ink);font-size:var(--fs-h3);text-align:right;width:20px;flex:none}body>header nav{min-width:0;flex:1;margin:0;gap:0;flex-wrap:nowrap;overflow-x:auto;scroll-padding-inline:50%;scrollbar-width:thin;scrollbar-color:var(--accent) var(--mast)}body>header nav a{padding:8px 6px 7px;font-size:var(--fs-body);white-space:nowrap;min-height:44px;min-width:44px;flex:none}body>header nav a:focus-visible{outline-offset:-3px}body>header .brand{min-height:44px}}
 
 /* Footer */
 footer a{font-size:var(--fs-body)}
