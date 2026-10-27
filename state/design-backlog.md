@@ -5,7 +5,7 @@ Newest first. The supervisor adds the three weakest things on the site once a da
 
 ## 2026-10-27 09:45Z (PR #109 fix-1 host look)
 
-- funding/ pace chart end labels read `$2,394,410.40` (cents and `$`), while the rest of the page uses whole NZD.
+- funding/ pace chart end labels read `$2,394,410.40` (cents and `$`), while the rest of the page uses whole NZD. (PR #110, 27 Oct 12:40Z)
 
 ## 2026-10-27 09:22Z (PR #108 and #109 fresh review nits)
 

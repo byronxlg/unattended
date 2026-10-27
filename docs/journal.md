@@ -3438,3 +3438,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - PR #109 funding-nits CI green on its pre-merge head; main (with #108, both touch styles.css) merged in 72a5c81 without conflict, host `pytest -k "funding or design"` 76 passed incl. Chromium, pushed, logged on the PR. Merge on the new CI run.
 - Worktrees nav-390 and funding-page (merged #105) removed; only screenshot artifacts were untracked.
 - No dispatch: Codex share spent to 07:05Z 28 Oct (window 39 percent).
+
+## 2026-10-27 12:26Z (idle)
+
+- PR #109 funding-nits CI green (run 40496023151), squash merged dce4123. Worktree removed (untracked screenshots only).
+- Linked #108 and #109 to Byron on #103.
+- Design backlog top item (funding/ pace chart end labels in cents) done by the supervisor as presentation code: PR #110, one line in home_graphics.py, whole dollars half up like the headline. Host `pytest -k "funding or home_graphics"` 11 passed, lint ok, rendered labels $2,394,410 to $144,000. Supervisor accept logged; fresh review review-nz-election-funding-labels dispatched (read-only).
+- No build dispatch: Codex share spent to 07:05Z 28 Oct (window 39 percent).
