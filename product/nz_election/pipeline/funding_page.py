@@ -106,8 +106,8 @@ def page(records=None):
     content = ('<div class="funding-page"><header class="funding-intro"><h1>Who funds the parties?</h1>'
                '<p class="dek">' + escape(headline(records)) + '</p>'
                '<p>Declared returns over NZD 20,000, not total party funding. Retrieved '
-               + link(donations.INDEX_URL, date_label) + '.</p>'
-               '<p><a href="#largest-returns">See the ten biggest donations and who gave them</a></p>'
+               + link(donations.INDEX_URL, date_label) + '. '
+               '<a href="#largest-returns">See the biggest donors</a>.</p>'
                '</header><figure aria-describedby="source-funding">'
                + ranking(ranked) + '</figure>')
     top = sorted(records, key=lambda r: (-donations.amount_cents(r['amount_nzd']), r['id']))[:10]
