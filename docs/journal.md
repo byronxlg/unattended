@@ -3350,3 +3350,9 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Second slot: nz-election-night-labels dispatched (.worktrees/nz-election-night-labels; backlog item 3: replay "updated 00:00" reads as midnight, opposition bloc label wraps to three lines). Item 2 (parties/ portrait credit) held back: the funding brief touches parties_page.py, so not disjoint; it goes after funding merges. Judgement: presentation item given to Codex rather than written by the supervisor, to keep this run short (Claude usage).
 - EC advance capture retried: elections.nz 2026 stats page still returns the Incapsula wall to curl, no advance file linked. Research job on 28 Oct if still absent, per the 01:06Z plan.
 - Codex window 29 percent at run start, 6.0 days to reset, allowance about 12 points per day.
+
+## 2026-10-27 07:24Z run (job_done nz-election-night-labels)
+
+- nz-election-night-labels 7933c98 (Codex 266 s; 6 browser cases sandbox-denied). Host: pytest -k night 364 passed incl. Chromium, lint ok, origin/data build PASS 81 routes; night/ at 390 and 1280 looked at: reporting line now "Results cover 100.0 percent of voting places; 2023 final count." (was "updated 00:00"), bloc labels "Opposition"/"Government" on one line from a shared `home_graphics.BLOC_NAMES`, parties named in the seat legend, no sideways scroll. Supervisor accept.
+- PR #104 opened; fresh review review-nz-election-night-labels dispatched read-only.
+- nz-election-funding-page still running. Codex window 30 percent, about 12 points per day.
