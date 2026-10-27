@@ -3410,3 +3410,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Dispatched nz-election-funding-nits-fix-1 on the build thread (01a17c8e...): pace answer above the 1280 fold, tighter 390 intro; no layout pins.
 - #107 #108 #109 CI still pending (runs 40477897151, 40478636659, 40478645341); nothing merged this run.
 - Codex window 38 percent; fix rounds only until 07:05Z 28 Oct.
+
+## 2026-10-27 09:31Z run (job_done nz-election-funding-nits-fix-1)
+
+- #109 fix-1 0125c17 (funding/ spacing above the pace answer, tighter biggest-donor link). Codex sandbox: 10 Chromium cases denied, could not measure.
+- Host: origin/data build PASS 82 routes; funding/ at 1280x800 "When did the money arrive?" at y 641, answer sentence ends y 712, top of the pace graphic visible, looked at; 390 looked at (two-row nav is #108). `pytest -k "funding or home or design"` 161 passed incl. Chromium. Pushed, supervisor accept logged on #109, second fresh review review-nz-election-funding-nits-2 dispatched.
+- Nit to the design backlog: pace chart end labels show cents and `$` against whole NZD elsewhere.
+- #107 CI still in progress (#108, #109 stacked on it); not merged this run. No new build: today's share spent to 07:05Z 28 Oct.

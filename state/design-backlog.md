@@ -3,6 +3,10 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-27 09:45Z (PR #109 fix-1 host look)
+
+- funding/ pace chart end labels read `$2,394,410.40` (cents and `$`), while the rest of the page uses whole NZD.
+
 ## 2026-10-27 09:22Z (PR #108 and #109 fresh review nits)
 
 - Header nav at 360/390: Electorates clipped on first view reads unfinished; trailing chevron always points right (styles.css:312); phone voting ribbon about 122 px between nav and answer.
