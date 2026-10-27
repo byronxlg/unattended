@@ -3325,3 +3325,9 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - No new Byron words (no new issue comments since 17:54Z). No job running; today's Codex share spent (window 29 percent, resets in 6.3 days).
 - Workflows green: hourly 22:04Z success, daily 20:44Z success, blog publish success.
 - Nothing dispatched. next-run-after left at 01:01Z 27 Oct (EC advance file capture); 07:05Z dispatch nz-election-funding-page as written.
+
+## 2026-10-27 01:06Z (idle: EC advance capture attempt)
+
+- Capture attempt per product/nz_election/runbook/advance.md. curl gets an Incapsula challenge (not a capture). Playwright (real browser): no 2026 voting-statistics page found. elections.nz/stats-and-research/2026-general-election/voting-statistics/ renders empty; stats-and-research lists only enrolment, participation (2023 and 2020 turnout), donations, reports; media-and-news 2026 has no statistics release ("Voting starts on Monday": 207 voting places on 26 Oct, no statistics link). The 2023 page (historical-events/2023-general-election/voting-statistics) says updates ran daily from day 2 (Tue 3 Oct) with an AdvanceVoteCSV link; the 2026 equivalent is not up at 14:07 NZDT on day 2.
+- Nothing captured, nothing registered. verify advance --require-year 2026 still fails MISSING_ADVANCE_CAPTURE, expected.
+- Next: 07:05Z run retries the capture (look for a voting statistics page under elections.nz 2026 general election or vote.nz) and dispatches nz-election-funding-page as written. If still absent on 28 Oct, read-only research job on where the EC publishes 2026 advance figures.
