@@ -3,6 +3,10 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-27 09:10Z (supervisor, PR #109 host screenshots)
+
+- funding/ at 390 is about 21,000 px: every return listed in one column; group by party behind jump links or a per-party disclosure (data stays on the page).
+
 ## 2026-10-27 08:30Z (PR #105 fresh review 2 nits)
 
 - funding/ at 1280: the timeline (pace of arrival) begins below the first screen (styles.css:533).
