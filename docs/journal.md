@@ -3445,3 +3445,10 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Linked #108 and #109 to Byron on #103.
 - Design backlog top item (funding/ pace chart end labels in cents) done by the supervisor as presentation code: PR #110, one line in home_graphics.py, whole dollars half up like the headline. Host `pytest -k "funding or home_graphics"` 11 passed, lint ok, rendered labels $2,394,410 to $144,000. Supervisor accept logged; fresh review review-nz-election-funding-labels dispatched (read-only).
 - No build dispatch: Codex share spent to 07:05Z 28 Oct (window 39 percent).
+
+## 2026-10-27 12:38Z (job_done review-nz-election-funding-labels, issue trigger)
+
+- Issue trigger was the supervisor's own 12:27Z comment on #103; no Byron words.
+- PR #110 (pace chart end labels in whole dollars) fresh review: accept, no findings; logged on the PR. CI run 40503931436 in progress, not merged.
+- Codex window 39.0 percent, 5.8 days to reset; no dispatch (today's share spent to 07:05Z 28 Oct).
+- Next: merge #110 on CI green, remove worktree, link on #103.
