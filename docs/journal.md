@@ -3342,3 +3342,54 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - Day 12 post written (posts/2026-10-27.md): ten PRs since the day 11 post (#93 to #102), the funding page plan, the first design critique, the EC advance capture not yet possible. bin/metrics run 06:02Z: change failure rate 0 percent, 5 repeated mistakes, 0 percent first-pass merges, 21 rework cycles; first-pass CI and review time unavailable (github timeout). Ledger since 06:05Z 26 Oct: 43 jobs, one rc 1 (nz-election-publish-rehearsal, thread lost).
 - Funding page plan NOTE closes on silence 06:20Z 27 Oct (no Byron words since #103); status set at the 07:05Z run.
 - No job running; no dispatch (window day starts 07:04Z). next-run-after 07:05Z: retry the EC advance capture, dispatch nz-election-funding-page as written, second slot backlog item 2 or 3.
+
+## 2026-10-27 07:12Z (idle)
+
+- pages/funding.md set `status: accepted 2026-10-27T07:14Z` on silence (NOTE sent 26 Oct 18:07Z; no Byron words on #103 since).
+- Dispatched nz-election-funding-page as written (.worktrees/nz-election-funding-page on change/nz-election-funding-page from origin/main; Page plan pages/funding.md, DESIGN.md; carries backlog item 1, the 390 nav wrap).
+- Second slot: nz-election-night-labels dispatched (.worktrees/nz-election-night-labels; backlog item 3: replay "updated 00:00" reads as midnight, opposition bloc label wraps to three lines). Item 2 (parties/ portrait credit) held back: the funding brief touches parties_page.py, so not disjoint; it goes after funding merges. Judgement: presentation item given to Codex rather than written by the supervisor, to keep this run short (Claude usage).
+- EC advance capture retried: elections.nz 2026 stats page still returns the Incapsula wall to curl, no advance file linked. Research job on 28 Oct if still absent, per the 01:06Z plan.
+- Codex window 29 percent at run start, 6.0 days to reset, allowance about 12 points per day.
+
+## 2026-10-27 07:24Z run (job_done nz-election-night-labels)
+
+- nz-election-night-labels 7933c98 (Codex 266 s; 6 browser cases sandbox-denied). Host: pytest -k night 364 passed incl. Chromium, lint ok, origin/data build PASS 81 routes; night/ at 390 and 1280 looked at: reporting line now "Results cover 100.0 percent of voting places; 2023 final count." (was "updated 00:00"), bloc labels "Opposition"/"Government" on one line from a shared `home_graphics.BLOC_NAMES`, parties named in the seat legend, no sideways scroll. Supervisor accept.
+- PR #104 opened; fresh review review-nz-election-night-labels dispatched read-only.
+- nz-election-funding-page still running. Codex window 30 percent, about 12 points per day.
+
+## 2026-10-27 07:48Z run (job_done nz-election-funding-page, review-nz-election-night-labels)
+
+- PR #104 fresh review (review-nz-election-night-labels): accept, no Important. Nits logged on the PR; three pre-existing night/ phone nits to state/design-backlog.md. CI run 40468174290 still pending at run end, not merged.
+- nz-election-funding-page 1e6cdc5 (Codex 1648 s; sandbox 3057 passed, 17 failed + 2 errors, all Chromium launches denied). Host: origin/data build PASS 82 routes; funding/ at 390 and 1280 looked at (answer first: ACT NZD 2,394,410.40 across 49 returns; party bars in party colours; ten largest donations with EC links; scrollWidth equals the viewport). Supervisor accept with two nits (cents in the top line; 390 nav still two rows, backlog item 1 open). PR #105 opened; fresh review review-nz-election-funding-page dispatched. Host Chromium subset running (/tmp/funding-host.log, rc line at the end).
+- Second slot: nz-election-seat-sum dispatched (.worktrees/nz-election-seat-sum from origin/main): home shows 59 + 67 + TOP 7 = 133 seats with 67 for a majority; the job reproduces the allocation from origin/data and either pins the invariant or fixes the defect with a failing-then-passing test. Judgement: election-night correctness ahead of backlog item 2 (parties/ credit, waits on #105 for file overlap).
+- Codex window 33 percent, 6.0 days to reset, about 11 points per day.
+
+## 2026-10-27 08:00Z run (job_done seat-sum, review-funding-page)
+
+- nz-election-seat-sum 2b861f6: test only, no defect. 133 seats = 120 + National overhang 9 + Te Pati Maori overhang 4 (26 Oct snapshot), majority 67, blocs plus TOP 67 + 59 + 7; 27 Oct snapshot 68 + 58 + 7 (overhang nat 8, tpm 5). Host test_seat_sum.py 2 passed. Pushed, PR #106 opened with supervisor accept, fresh review review-nz-election-seat-sum dispatched.
+- PR #105 fresh review (review-nz-election-funding-page): request changes. Important: home feed funding summary (funding_page.py:106) publishes ACT's amount without a dated EC credit. Nits: top-ten table crowding at 1280, phone bar label emphasis, phone masthead height (already design-backlog item 1). Logged on the PR; fix-1 nz-election-funding-page-fix-1 dispatched on the build thread (credit, test failing on 1e6cdc5, two style nits).
+- PR #104 and #105 CI still pending (runs 40468174290, 40469399501); #104 not merged this run.
+- Codex window 34 percent, 6.0 days to reset, about 11 points per day; today's share now about 4 points used plus these two jobs.
+
+## 2026-10-27 08:12Z (job_done funding-page-fix-1, review-seat-sum)
+
+- review-nz-election-seat-sum: accept, no findings (independent Sainte-Lague recomputation: overhang 9+4 and 8+5, house 133, majority 67). Logged on PR #106. CI pending on #104, #105, #106; none merged this run.
+- nz-election-funding-page-fix-1 3dcc564 (Codex 266 s; 10 Chromium launches sandbox-denied). Host: pytest -k "funding or home or design" 158 passed incl. Chromium, rc 0; origin/data build PASS 82 routes; home funding summary at 390 shows the dated EC credit ("Retrieved 20 Oct 2026"), funding/ 1280 looked at, no sideways scroll at 390 or 1280. Pushed, supervisor accept on PR #105, second fresh review review-nz-election-funding-page-2 dispatched.
+- Seen on the home 390 screenshot: party cards wrap the share ("28.5" / "%") and the change ("-0." / "4"). Added to the backlog and folded into the next job. funding/ lists "Te Tai Tokerau" as a party row (a return filed under an electorate name?), a data question for the next funding round.
+- Second slot: nz-election-parties-credit dispatched, stacked on change/nz-election-funding-page (backlog item 2, parties/ portrait credit below the answer, plus the home card wrap). Judgement: stacked to avoid styles.css conflicts with #105; reversible.
+
+## 2026-10-27 08:27Z run (job_done nz-election-parties-credit, review-nz-election-funding-page-2)
+
+- PR #104 night labels: CI green (run 40468174290), two reviews accept; squash merged e7204fd; worktree and branch removed; link sent to Byron on Telegram. Slip: a `tg send --help` probe sent the literal "--help" to Byron; the link message says to ignore it.
+- review-nz-election-funding-page-2 on PR #105: accept, no Important findings (earlier finding resolved, funding_page.py:57-61,114). Three visual nits (desktop timeline below the fold, phone tables scroll sideways, phone ranking fills the first screen) to state/design-backlog.md. Logged on the PR. CI pending; not merged.
+- PR #106 seat-sum: CI pending; not merged.
+- nz-election-parties-credit fa33005 (Codex 455 s; 11 Chromium launches sandbox-denied). Host: pytest -k "parties or home or design" 230 passed incl. Chromium, rc 0; origin/data build PASS 82 routes; parties/ 390 shows the credit below the polling answer, home cards at 390 keep "28.5%" and "-0.4" whole. Two assertions moved with the removed processing copy (Square crop note), checked. PR #107 opened stacked on #105, supervisor accept, fresh review review-nz-election-parties-credit dispatched (asks whether any photo licence needs the changes note to stay reachable).
+- Dispatched nz-election-nav-390 (design-backlog item 1: header nav one row at 390), stacked on change/nz-election-parties-credit because both touch styles.css. Codex window 36 percent; today's window-day spend about 6 of 11 points.
+
+## 2026-10-27 08:43Z (job_done nz-election-nav-390, review-nz-election-parties-credit)
+
+- PR #106 seat-sum: CI green (run 40470673853), two reviews accept; squash merged 9882bb9; worktree and branch removed.
+- review-nz-election-parties-credit on PR #107: accept with two test-coverage nits (the 390 wrap test checks text, not layout; credit order checked against polling only). Logged on the PR. CI pending; #105 CI still pending, so #107 not retargeted.
+- nz-election-nav-390 3304028 (Codex 516 s; 10 Chromium launches sandbox-denied): horizontally scrolling one-row nav with a visible cue, 16 px text, 44 px targets, footer route list. Host: origin/data build PASS 82 routes; header 88 px at 360/390 and 60 px at 1280, no page overflow, home/funding 360/390/1280 looked at (one row, cue, active underline). Host pytest -k "design or home or nav or header" 1 failed 165 passed: the branch's own header_check HEADER_TARGET_BOUNDS. Supervisor diagnosis: "Electorates" focused by Tab sits at 289..389 against a nav clip of 16..324 (360), partly hidden; Chromium does not scroll a partly visible focused element. Real keyboard defect, check is right. Fix-1 nz-election-nav-390-fix-1 dispatched on the build thread (followup-1.md), tests not weakened.
+- Dispatched nz-election-funding-nits stacked on change/nz-election-parties-credit (Page plan pages/funding.md, DESIGN.md): "Te Tai Tokerau" as a party row, whole-dollar totals, 390 tables without sideways scroll, first-screen order at 390/1280. Funding styles only; header rules left to nav-390.
+- Codex window 37 percent at dispatch; today's window-day spend about 8 of 11 points. Two jobs running.

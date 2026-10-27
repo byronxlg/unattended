@@ -255,3 +255,20 @@ def test_night_seat_graphic_uses_source_totals_and_tokens(night_envs):
 def test_night_display_names(raw, expected):
     from product.nz_election.pipeline.night_electorates import display_name
     assert display_name(raw) == expected
+
+
+@pytest.mark.parametrize('sequence', ['2017', '2020', '2023', 'illustrative-2023'])
+def test_night_replay_reporting_identifies_final_count_not_update_clock(night_envs, sequence):
+    import re
+    from product.nz_election.pipeline.night_page import snapshot
+    from product.nz_election.pipeline.content_checks import Tree
+    seq = next(s for s in night_envs['night/index']['data'] if s['id'] == sequence)
+    refs = night_envs[seq['reference_path'][:-5]]['data'][0]
+    for frame, path in enumerate(seq['snapshot_paths'], 1):
+        row = night_envs[path[:-5]]['data'][0]
+        text = Tree(snapshot(row, refs, 'proof', path, frame, len(seq['snapshot_paths']))).root.text
+        assert not re.search(r'updated\s+\d{1,2}:\d{2}', text, re.I)
+        if row.get('statistics'):
+            assert f"{refs['id']} final count" in text
+            if 'elapsed_seconds' in row:
+                assert f'frame {frame} of {len(seq["snapshot_paths"])}' in text

@@ -3,6 +3,26 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-27 08:30Z (PR #105 fresh review 2 nits)
+
+- funding/ at 1280: the timeline (pace of arrival) begins below the first screen (styles.css:533).
+- funding/ at 390: tables scroll sideways to compare donor, amount and date (styles.css:529-530).
+- funding/ at 390: the party ranking fills the first screen; the biggest-donor answer gets little invitation.
+
+## 2026-10-27 08:20Z (supervisor, PR #105 fix-1 host screenshots)
+
+- Home "Where do the parties stand?" cards at 390: share wraps ("28.5" then "%"), change wraps ("-0." then "4").
+  In nz-election-parties-credit with backlog item 2.
+- funding/: "Te Tai Tokerau" appears as a party row; check what the return is.
+
+## 2026-10-27 07:55Z (PR #104 fresh review nits, PR #105 supervisor look)
+
+- night/ at 390: intro spacing pushes the seat answer low; majority threshold stated in answer, graphic and caption;
+  electorate navigation below the first phone screen (night_page.py:78, :85, :88).
+- Sitewide 390 nav still two rows after funding/ (Overview Polls Parties Funding / Electorates Vote Night); item 1
+  below stays open.
+- funding/: party totals shown with cents in the top line; whole dollars read better.
+
 ## 2026-10-26 20:15Z (supervisor, design-loop critique, deployed site 1280 and 390)
 
 1. Sitewide at 390: the masthead nav wraps to two rows (Night and Methods alone on the second), so the header

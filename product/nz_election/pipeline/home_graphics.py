@@ -8,6 +8,8 @@ from zoneinfo import ZoneInfo
 from .build import PREFIX, config, label, table
 from .average import display
 
+BLOC_NAMES = {'opposition': 'Opposition', 'government': 'Government'}
+
 PARTIES = ('nat', 'lab', 'grn', 'act', 'nzf', 'tpm', 'opp')
 SHORT = {'nat': 'National', 'lab': 'Labour', 'grn': 'Green', 'act': 'ACT', 'nzf': 'NZ First', 'tpm': 'Te Pāti Māori', 'opp': 'TOP'}
 
