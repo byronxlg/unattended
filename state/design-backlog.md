@@ -8,7 +8,7 @@ Newest first. The supervisor adds the three weakest things on the site once a da
 Home, polls, parties, electorates/nelson, vote, night, funding looked at (first screens; full heights 390: funding 21,087 px, parties 13,667, night 12,802).
 
 - polls/ 1280: ACT 30-day change reads `-0.0`; signed zero looks like an error (also polls summary, home trend label and home change line). PR #111, supervisor, 27 Oct 21:10Z.
-- night/ 390: "Results start at 19:00 NZDT on 7 November." sits flush under the voting ribbon, left-aligned with no top space, above a centred module; reads as a stray line (fold it into the module intro or give it the ribbon's style).
+- night/ 390: "Results start at 19:00 NZDT on 7 November." sits flush under the voting ribbon, left-aligned with no top space, above a centred module; reads as a stray line (fold it into the module intro or give it the ribbon's style). PR #112, supervisor, 27 Oct 22:20Z (centred wash note); review nits: rule placed after the media block, a long wrapped fallback message stays left-aligned in the box.
 - Header nav at 390: still clips "Electora" with a chevron after #108; and the home 390 seat legend leaves "TOP 7" alone on its own row between the two bloc rows.
 - Carried: funding/ 390 at about 21,000 px (group by party) and 1280 pace below the fold, the 07:05Z 28 Oct Codex build.
 
