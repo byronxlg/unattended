@@ -1,6 +1,6 @@
 """Funding facts, complete provenance, absent data and accessible equivalents."""
 from collections import defaultdict
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from html import unescape
 from html.parser import HTMLParser
 
@@ -52,9 +52,10 @@ def test_totals_match_every_record_and_chart_equivalents():
         key = funding.name(r['party_id'], [r])
         totals[key] += Decimal(r['amount_nzd'])
         counts[key] += 1
-    assert {r[0]: value(r[1]) for r in tables[0][1:]} == dict(totals)
+    rounded = {p: v.quantize(Decimal('1'), rounding=ROUND_HALF_UP) for p, v in totals.items()}
+    assert {r[0]: value(r[1]) for r in tables[0][1:]} == rounded
     assert {r[0]: int(r[2]) for r in tables[0][1:]} == dict(counts)
-    assert [value(r[1]) for r in tables[0][1:]] == sorted(totals.values(), reverse=True)
+    assert [value(r[1]) for r in tables[0][1:]] == sorted(rounded.values(), reverse=True)
     assert len(tables[1][1:]) == 10
     assert [value(r[2]) for r in tables[1][1:]] == sorted((Decimal(r['amount_nzd']) for r in records), reverse=True)[:10]
     cumulative = {}
@@ -129,3 +130,31 @@ def test_home_funding_credit_tracks_snapshot(monkeypatch):
         assert latest['source_url'] in links
         assert 'Retrieved ' + observation_label(latest['retrieved_at'][:10]) in Tree(html).root.text
         assert donations.LICENCE in Tree(html).root.text
+
+
+def test_funding_ranking_names_parties_not_electorates():
+    records = donations.load_donations()
+    assert len(records) == 146
+    # EC's register lists Te Tai Tokerau Party from 5 August 2026.
+    # Its full name distinguishes this return from the electorate.
+    row = next(r for r in records if r['id'] == 'ec-2026-021')
+    assert row['party'] == 'Te Tai Tokerau Party'
+    assert row['donor'] == 'Stanley Howard Fund via Richard Allen'
+    html = funding.page(records)
+    ranked = {r[0]: r[1:] for r in Tables(html).tables[0][1:]}
+    assert 'Te Tai Tokerau' not in ranked
+    assert ranked['Te Tai Tokerau Party'] == ['NZD 50,000', '1']
+    assert row['document_url'] in unescape(html)
+
+
+def test_funding_headline_and_ranking_round_only_after_summing():
+    records = donations.load_donations()
+    assert 'NZD 2,394,410 across 49 returns' in funding.headline(records)
+    for amounts, expected in [(('20000.24', '20000.25'), 'NZD 40,000'),
+                              (('20000.25', '20000.25'), 'NZD 40,001'),
+                              (('20000.75', '20000.75'), 'NZD 40,002')]:
+        rows = [dict(records[0], amount_nzd=amount, id=str(i)) for i, amount in enumerate(amounts)]
+        html = funding.page(rows)
+        assert expected in funding.headline(rows)
+        assert Tables(html).tables[0][1][1] == expected
+        assert sorted(value(r[2]) for r in Tables(html).tables[1][1:]) == sorted(map(Decimal, amounts))
