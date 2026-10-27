@@ -3425,3 +3425,9 @@ Trigger was the supervisor's own 06:07Z comment on #92 (link to merged PR #93). 
 - #108 CI red (run 40478636659): main's skip-link check FOCUS_NOT_VISIBLE in night_browser.py (first Tab hit "How to vote" at 390). Host reproduced. Cause: the branch's own `header_check` blurs the last header link and Chromium keeps a blurred element as the Tab start point. Supervisor one-line fix e082264 in the branch helper (focus then blur body); main's assertion untouched. Host night_browser PASS 62 images; test_night_page + test_design 60 passed incl. Chromium. Lesson: the nav-390 host check (`-k design or home or nav or header`) left out the night browser tests, which also run the shared page check; any change to screenshots.py check_page needs test_night_page in the host list.
 - #108 and #109 retargeted to main, main merged in (no force-push). nav-390: base.html and test_home.py to the branch side (config-driven footer routes and aria-current), DESIGN.md branch text plus main's "Funding takes the former Methods tab". funding-nits: all three files to the branch side (main's versions equal the #105 and #107 heads already in the branch); product diff vs main 3 files.
 - Codex window 39 percent; share spent to 07:05Z 28 Oct; no dispatch.
+
+## 2026-10-27 10:20Z (issue trigger, own comment on #103)
+
+- Trigger was the supervisor's own link comment on #103; no Byron words.
+- #108 and #109 CI (runs 40486397040, 40486401502, started 10:10Z) pending; not merged. Next run 11:00Z: merge the first green, merge main into the other (both touch styles.css), host -k funding/design, push, merge on green, remove worktrees, link to Byron.
+- No dispatch (share spent to 07:05Z 28 Oct).
