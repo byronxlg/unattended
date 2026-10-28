@@ -118,9 +118,11 @@ def seat_legend(result):
     def chips(parties):
         return ''.join(f'<li><i style="background:{pc(p)}"></i>{escape(SHORT.get(p, label(p)))} <b>{result["seats"][p]}</b></li>'
                        for p in parties if result['seats'].get(p))
-    return (f'<div class="seat-legend"><ul>{chips(opposition)}</ul>'
-            + (f'<ul class="neutral">{chips(neutral)}</ul>' if any(result['seats'].get(p) for p in neutral) else '')
-            + f'<ul>{chips(list(reversed(government)))}</ul></div>')
+    return (f'<div class="seat-legend"><ul aria-label="Opposition">{chips(opposition)}</ul>'
+            + f'<ul aria-label="Government">{chips(list(reversed(government)))}</ul>'
+            + (f'<ul class="neutral" aria-label="Other parties"><li>Other parties:</li>{chips(neutral)}</ul>'
+               if any(result['seats'].get(p) for p in neutral) else '')
+            + '</div>')
 
 
 # Poll trend

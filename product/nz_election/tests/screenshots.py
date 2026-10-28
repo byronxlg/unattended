@@ -144,6 +144,19 @@ def header_check(page):
     assert banner.evaluate('e=>e.scrollWidth<=e.clientWidth'), 'HEADER_OVERFLOW'
     if page.viewport_size['width'] in (360, 390):
         assert banner.bounding_box()['height'] < 100, 'HEADER_HEIGHT'
+    if page.viewport_size['width'] in (360, 390):
+        clipped = nav.evaluate("""nav=>{
+            const clip=nav.getBoundingClientRect();
+            return [...nav.querySelectorAll('a')].flatMap(link=>{
+                const range=document.createRange();
+                range.selectNodeContents(link);
+                const r=range.getBoundingClientRect();
+                const visible=r.right>clip.left && r.left<clip.right;
+                return visible && (r.left<clip.left-.5 || r.right>clip.right+.5)
+                    ? [{label:link.textContent,left:r.left,right:r.right,clipLeft:clip.left,clipRight:clip.right}] : [];
+            });
+        }""")
+        assert not clipped, ('HEADER_LABEL_CLIPPED', clipped)
     tops = nav.locator('a').evaluate_all('els=>els.map(e=>e.getBoundingClientRect().top)')
     assert tops and max(tops) - min(tops) < 1, 'HEADER_SINGLE_ROW'
     links = banner.locator('a')

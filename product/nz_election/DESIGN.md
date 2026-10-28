@@ -33,7 +33,8 @@ the bar; the screenshot is.
 ## Page anatomy
 
 1. Masthead: dark band, brand mark, route tabs scroll horizontally in one row on phones, with a visible
-   trailing chevron and native scrollbar. Text stays 16 px and targets at least 44 px. Keyboard
+   trailing chevron and native scrollbar. Phone tabs each occupy half the scroll viewport,
+   so the first view shows two complete labels. Text stays 16 px and targets at least 44 px. Keyboard
    focus scrolls each link into view: 50% inline scroll padding makes the centre of the nav
    its focus-scroll region, so Chromium cannot leave a link partly visible at an edge. This
    works without JavaScript; the focus ring stays inset to avoid clipping. Funding takes
@@ -64,7 +65,7 @@ the bar; the screenshot is.
 
 | Component | Function | Use |
 |---|---|---|
-| Seat hemicycle | `hemicycle(result)`, `seat_legend(result)` | one dot per seat in contiguous party sectors, opposition left, government right, dashed radial with a paper-colour underlay at the majority, big bloc numbers under each end |
+| Seat hemicycle | `hemicycle(result)`, `seat_legend(result)` | one dot per seat in contiguous party sectors, opposition left, government right, dashed radial with a paper-colour underlay at the majority, big bloc numbers under each end; legend keeps each bloc together, followed by a labelled Other parties row for unaligned parties |
 | Majority cards | `majority_cards(groups, names, colours)` | three smallest winning combinations as cards, all combinations in an open list; party chips and seat totals from the night source |
 | Trend chart | `trend(averages, polls, election, wide=)` | all parties, polls as faint dots, 30-day average as thick lines (4 px over 15%), end labels with values, 5% line, shaded run-up to election day. Render `wide` and `narrow`; CSS shows one |
 | Poll table | `poll_table(polls, average, names, count, reports=)` | heat-tinted cells (`--c`, `--a`), average row outlined first |
