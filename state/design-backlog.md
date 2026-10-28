@@ -3,6 +3,14 @@
 Newest first. The supervisor adds the three weakest things on the site once a day ("Design loop" in
 `prompts/supervisor.md`) and Byron's design feedback verbatim; the top item is the next UI change.
 
+## 2026-10-28 20:20Z (supervisor, design-loop critique, deployed site 1280 and 390)
+
+Home, polls, parties, electorates/nelson, vote, night captured (/tmp/dl1028); home, night, Nelson looked at. The hourly had failed at 20:09Z (polls parse_drift, nz-election-polls-fix3), so home showed its failure state.
+
+- Home 1280 and 390 in a failed-update state: under the h1 the only content is "The 29 Oct, 09:09 NZDT update failed; showing previous data from 29 Oct, 07:22 NZDT." plus "Update details", then funding. No answer to "who is ahead" above the fold at either width; a failed hourly should be a small staleness note beside retained figures, not the hero. Check what the hero renders when the poll average is retained.
+- night/ 390 replay: "Results last updated 10 November 2024 at 00:00." under a 2023 replay that says "2023 final count"; the date is wrong for the replay (should be the 2023 official count date or omitted).
+- electorates/nelson 390: h1 "Nelson" sits flush on "Who is standing in 2026?" (no space); the 2023 result is stated twice ("General electorate ... won by 26 votes" and "Who won last time?"); the locator hexmap is all grey with one red cell and a caption "Highlighted seat" only.
+
 ## 2026-10-27 20:56Z (supervisor, design-loop critique, deployed site 1280 and 390)
 
 Home, polls, parties, electorates/nelson, vote, night, funding looked at (first screens; full heights 390: funding 21,087 px, parties 13,667, night 12,802).
