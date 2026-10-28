@@ -118,6 +118,29 @@ Production's freeze, opening and stop guards are unchanged. This target cannot p
 results to the production data branch or production Pages site.
 
 
+### Isolated boundary drill
+
+After merge, dispatch `gh workflow run nz-election-night-rehearsal.yml --ref main -f boundary_only=true`.
+Locally run `uv run product/nz_election/pipeline/night_boundary.py`. The boundary input takes
+precedence over `import_only` and runs only a read-only checkout and this harness: no credentials,
+upstream access, Pages deploy, artifact upload or successor. The harness denies sockets and
+non-Git subprocesses, strips inherited credentials and limits Git to temporary directories and
+file transport. Its Git adapter maps only the disposable data ref to `rehearsal-data`, keeping
+production freeze checks active. No production cutoff or guard is replaced.
+
+Require exit 0 and one `PASS <scenario>` line for each of these 29 scenarios:
+`startup`, `freeze-edges`, `queued-import-entry-freeze`, `queued-rollback-entry-freeze`,
+`queued-publish-before-freeze`, `queued-publish-at-freeze`, `queued-rollback-before-freeze`,
+`queued-rollback-at-freeze`, `inflight-wait`, `inflight-acquisition`, `inflight-publication`,
+`watchdog-cutoff`, `watchdog-queued-cutoff`, and all 16 combinations of
+`sunset-{hourly,night,daily,social}-{schedule,manual}-{before,at}`.
+The daily manual exception must remain allowed at its cutoff. Fixed expected UTC instants
+check both sides to the second. The publication stop case finishes a pinned local deployment;
+wait/acquisition cases retain the last complete state without new publication or succession.
+Any `FAIL <scenario> <code>` makes the command exit nonzero. This proves injected-clock behavior,
+not real cron delivery, queue timing, upstream availability or production deployment.
+
+
 ## Packaged page rehearsal
 
 Build with `uv run product/nz_election/pipeline/build.py --data <data> --out <site>/nz-election`.
@@ -206,25 +229,47 @@ family using the existing page renderer. Archives and explicit replay queries do
 
 Predeploy this code by 5 November. Two annual cron entries request starts at **7 November
 06:02 and 06:07 UTC**. Independently, `bin/tick` checks from 06:10 UTC and dispatches
-once if no night-live run has been created since 06:00 UTC and none is pending.
-A failed run counts as an attempt; the watchdog does not retry it. GitHub cron may drift.
+if no run is pending and the newest night-live run failed, was cancelled or timed out.
+A successful run without a successor gets ten minutes from its completion update for
+the successor to appear. If no run exists since opening, the initial fallback still starts
+at 06:10 UTC. Queued, pending, waiting and in-progress runs suppress dispatch. GitHub cron
+may drift. All starts and recoveries stop at 8 November 06:00 UTC, exclusive.
 The whole watchdog subprocess (including uv startup, eligibility and dispatch) has a 60-second
 wall-clock limit. On timeout its process group is killed, a line is logged and tick continues.
 A nonblocking OS lock at `state/night-start.lock` serializes check and dispatch across ticks.
 The worker inherits the locked file description, so killing the wrapper alone cannot admit
 another attempt while its worker remains alive. Timeout cleanup kills the worker group before
 the wrapper closes its lock; the lock releases when its last holder exits.
-Do not delete the lock file while ticks run.
-After a successful dispatch, `state/night-start-2026.dispatched` suppresses further watchdog
-attempts for the entire remaining 2026 live window, covering run-list visibility lag. The marker
-is intentionally retained; manual recovery uses the explicit dispatch command below.
-Failed or timed-out dispatches do not write a success marker; a later tick rechecks GitHub.
+Do not delete the lock file while ticks run. The starter refuses dispatch without shared
+state. Direct `night_start.py --dispatch --state state` calls acquire the same lock for
+the complete check/reserve/dispatch operation; wrapper workers reuse the inherited lock
+after verifying it names that state's lock file. Both paths require a ledger reservation.
+
+The success marker `state/night-start-2026.dispatched` now suppresses checks for ten minutes,
+not the entire window. A durable ledger, `state/night-recovery-2026.json`, reserves each
+dispatch before calling GitHub and enforces ten minutes between attempts, including failed
+or timed-out dispatches whose acceptance is uncertain. It allows **six watchdog attempts for
+the entire 2026 window**, including the initial fallback if needed. This permits several
+independent recoveries without an unbounded retry storm against broken code or GitHub.
+Do not remove the ledger to retry. Exhaustion, malformed history/state and query failures
+fail closed. Scheduled and normal successor runs do not consume this watchdog budget.
 The shared window guard is checked again immediately before invoking the dispatch command.
-For manual recovery during the live window:
+A successful dispatch prints `watchdog: no active night-live run, dispatched start/recovery`
+with a UTC timestamp in the tick log.
+
+If the tick scheduler is down, Claude runs the same locked, bounded recovery from the repo root:
+
+```sh
+python3 bin/night-watchdog state
+gh run list --workflow nz-election-night-live.yml
+```
+
+If the watchdog itself is broken or its budget exhausted, inspect the run list first.
+Only during the live window, with no pending/running run and after the ten-minute successor
+grace, use the explicit manual recovery command (outside the watchdog budget):
 
 ```sh
 gh workflow run nz-election-night-live.yml --ref main
-gh run list --workflow nz-election-night-live.yml
 ```
 
 The injected-clock guard rejects production before 7 November 06:00 UTC, including manual dispatch.
@@ -449,19 +494,21 @@ mapping, never a guessed join. The source timestamp must be on or after 27 Novem
 acquisition provenance, not the operator selection or a national XML flag.
 The configured official URL is an inference to confirm against the EC once published.
 
-The 27 November capture is a human step. This increment only imports manifest-checked fixtures,
-with no network capture. The input JSON contains `raw` (XML text by relative filename) and
-`retrieved_at` (UTC), and `acquisition_source` with `kind: "official"` and
-`url: "https://electionresults.govt.nz/electionresults_2026/xml/election.xml"`. Record these
-from the actual acquisition endpoint; never relabel a preliminary fetch. Every XML source URL
-in the package must match the declared root. Legacy captures without this field remain
-preliminary (or demo), never official. Register reviewed bytes and provenance in the existing fixture manifest
-before import. The following command exercises the committed **synthetic offline fixture**;
-it must never be published as an actual election result:
+On or after 27 November NZDT, use the operator capture command in the publication steps
+below. It acquires all 75 XML files serially from an explicit, confirmed official base URL
+and preflights them against the pinned settled bundle. The capture contains `raw` (XML text
+by relative filename), `retrieved_at` (UTC), `acquisition_source` with `kind: "official"`,
+and `files` with each file's URL, UTC retrieval time, sha256 and acquisition source.
+Never relabel a preliminary fetch. The output is unreviewed until its provenance and counts
+have been reviewed and registered. Legacy captures without acquisition source remain preliminary.
+
+The following commands exercise the committed **synthetic offline fixture**;
+they must never be published as an actual election result:
 
 ```sh
+uv run product/nz_election/tests/result_states_browser.py
 uv run product/nz_election/pipeline/result_states.py official \
-  --data artifacts/settled-data --out artifacts/official-data \
+  --data artifacts/result-states/settled-data --out artifacts/official-data \
   --capture result-states/2026-11-27-official.json --now 2026-11-27T11:00:00Z
 uv run product/nz_election/pipeline/verify.py night --data artifacts/official-data
 uv run product/nz_election/pipeline/build.py --data artifacts/official-data \
@@ -539,12 +586,66 @@ gh workflow run nz-election-result-import.yml --ref main \
   -f data_sha="$PRE_IMPORT_DATA_SHA"
 ```
 
-After settlement has published, the official import still requires the separately acquired,
-reviewed official capture described above. When ready to import it, record the current data SHA
-and confirm it names the intended settled baseline before dispatching:
+After settlement has published, confirm the actual official endpoint against the EC. The
+configured `https://electionresults.govt.nz/electionresults_2026/xml/` remains an inference:
+if it differs, stop for an explicit reviewed source-contract change. Do not guess a URL or
+relabel a preliminary endpoint. Record the current data SHA and confirm it is the intended
+settled baseline, then acquire into a new output directory:
 
 ```sh
 SETTLED_DATA_SHA=$(gh api repos/byronxlg/unattended/git/ref/heads/data --jq .object.sha)
+git fetch origin data
+git worktree add --detach artifacts/official-pin "$SETTLED_DATA_SHA"
+# Set this only after confirming the official base URL against the EC.
+OFFICIAL_BASE_URL=https://electionresults.govt.nz/electionresults_2026/xml/
+uv run product/nz_election/tools/official_capture.py \
+  --data artifacts/official-pin/product/nz_election/data \
+  --base-url "$OFFICIAL_BASE_URL" --out artifacts/official-capture
+```
+
+Expected line:
+
+```text
+PASS official capture: 75 files, 71 electorates; official state accepted; review required
+```
+
+The command uses the real UTC clock, refuses before 27 November NZDT, and does not change
+the preliminary sunset. It bounds responses and retries, refuses redirects, verifies every
+file checksum, requires identical reference bytes and 71 details, checks national/detail
+vote and voting-place totals, and runs the existing official-state preparation and bundle
+validation. PASS means those bytes are accepted by the official path against this baseline;
+it is not approval to register or publish. Output destinations must be new and outside both
+the pinned bundle and registered fixtures. Existing captures are never overwritten.
+
+Failures print named codes without source content: `OFFICIAL_NOT_DUE`, `OFFICIAL_SOURCE`,
+`OFFICIAL_INCOMPLETE`, `OFFICIAL_CHECKSUM`, `OFFICIAL_REFERENCE_DRIFT`, `OFFICIAL_TOTALS`,
+`OFFICIAL_CLOCK`, `OFFICIAL_BASELINE`, `OFFICIAL_PREFLIGHT_FAILED`, `OFFICIAL_OUTPUT`,
+`OFFICIAL_TOO_LARGE`, `OFFICIAL_HTTP_REJECTED`, `OFFICIAL_RETRIES_EXHAUSTED`, or
+`OFFICIAL_CAPTURE_FAILED`. Reference drift requires explicit approval of a separately
+reviewed mapping/contract change; there is no bypass or guessed join. A totals mismatch
+requires investigation or a new complete capture, never editing individual captured files.
+
+Review `artifacts/official-capture/result-import/2026-11-27-official.json` and
+`artifacts/official-capture/manifest-draft.json` before registering. Confirm the endpoint is
+real official EC acquisition, inspect all file hashes/times and counts, and check the draft's
+baseline manifest hash against the pinned bundle and recorded `SETTLED_DATA_SHA`. The helper
+never edits the registered manifest and supplies neither a reviewer nor real-capture approval.
+After review, copy the capture unchanged:
+
+```sh
+mkdir -p product/nz_election/fixtures/result-import
+cp -n artifacts/official-capture/result-import/2026-11-27-official.json \
+  product/nz_election/fixtures/result-import/2026-11-27-official.json
+```
+
+Verify the destination sha256 against the draft. Add the draft entry to
+`product/nz_election/fixtures/manifest.json`, retaining its relative path, URL, retrieval time,
+sha256, bytes and licence; record review notes, a nonempty `reviewer`, and change
+`capture_kind` to `human-reviewed-real` only after review. Commit and merge the reviewed
+capture PR using the same review process above. Never register synthetic fixture bytes as real.
+Use the same settled SHA used for preflight when dispatching:
+
+```sh
 gh workflow run nz-election-result-import.yml --ref main \
   -f state=official -f capture=result-import/2026-11-27-official.json \
   -f data_sha="$SETTLED_DATA_SHA"
