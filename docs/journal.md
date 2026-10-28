@@ -3777,3 +3777,10 @@ No Byron words.
 - #126 fix-2 4186cd0 (pre-election timeline removed at handover, ids unique): host Chromium test_home_handover.py test_night_page.py 64 passed rc 0, pushed, accept logged, second fresh review review-nz-election-home-stale-2 dispatched (prompt now says three-dot diff).
 - #125 second fresh review request changes on state files only: same two-dot diff artifact as before (three-dot diff is product files only); rejected with reasoning on the PR, fix accepted. CI run 40739227779 pending; merge after #127 turns main green.
 - Codex window 26 percent, 6.5 days to reset. Two review jobs running.
+
+## 2026-10-28 18:22Z run (job_done review-nz-election-boundary-watchdog, review-nz-election-home-stale-2)
+
+- #127 fresh review accept, no findings (drill creates the lock and passes temporary state into the real night_start.main; ledger unchanged at cutoff). Logged on the PR.
+- #126 second fresh review accept, no findings (timeline removed before results inserted; counts kept at cutoff). Logged on the PR.
+- CI pending on #125, #126, #127; nothing merged. No Codex job running: every next step (merge #127, boundary_only rehearsal on main, main into #125/#126) waits on #127's CI, so no dispatch this run. next-run-after set about 18:50Z.
+- Codex window 26 percent, 6.5 days to reset.
