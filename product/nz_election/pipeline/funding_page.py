@@ -1,7 +1,6 @@
 """Declared large returns, in reader question order, from the offline EC snapshot."""
 from collections import defaultdict
 from datetime import date, timedelta
-from decimal import Decimal
 from html import escape
 
 from . import donations, home_graphics as g
@@ -20,23 +19,17 @@ def whole_money(cents):
 
 
 def ranking(ranked):
-    maximum = max(total(rows) for _, rows in ranked)
-    bars = ''
-    equivalents = []
+    return g.funding_bars(ranked, caption='Declared totals by party, rounded to whole NZD')
+
+
+def funding_totals(ranked):
+    """Keep exact cents for bar widths and round summed totals once for display."""
+    result = []
     for party, rows in ranked:
-        label = escape(name(party, rows))
-        amount = whole_money(total(rows))
-        count = return_count(rows)
-        width = Decimal(total(rows)) * 358 / maximum
-        bars += ('<div class="funding-bar"><div class="funding-bar-label"><strong>' + label
-                 + '</strong><span>' + amount + f' <span>({count})</span></span></div>'
-                 f'<svg viewBox="0 0 358 12" role="img" aria-describedby="source-funding" '
-                 f'aria-label="{label}: {amount}, {count}">'
-                 f'<rect width="{width:.4f}" height="12" style="fill:{g.pc(party)}"/></svg></div>')
-        equivalents.append([label, amount, str(len(rows))])
-    return '<div class="funding-bars">' + bars + '</div>' + g.hidden(table(
-        'Declared totals by party, rounded to whole NZD', ['Party', 'Declared NZD', 'Returns'],
-        equivalents, source='source-funding'))
+        cents = total(rows)
+        result.append(dict(party=party, name=name(party, rows), cents=cents,
+                           amount=whole_money(cents), count=len(rows), returns=return_count(rows)))
+    return result
 
 
 def name(party, rows):

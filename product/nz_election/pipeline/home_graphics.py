@@ -414,19 +414,23 @@ def candidate_result_bars(ranked, names, source_id):
 
 # Funding
 
-def funding_bars(ranked):
-    from .funding_page import money, name, total, return_count
-    maximum = max(total(rs) for _, rs in ranked)
+def funding_bars(ranked, *, caption='Declared totals by party'):
+    from .funding_page import funding_totals
+    totals = funding_totals(ranked)
+    maximum = max(row['cents'] for row in totals)
     bars = ''
-    for party, rows in ranked:
-        width = Decimal(total(rows)) * 358 / maximum
-        bars += ('<div class="funding-bar"><div class="funding-bar-label"><strong>' + escape(name(party, rows))
-                 + '</strong><span>' + money(total(rows)) + f' <span>({return_count(rows)})</span></span></div>'
-                 f'<svg viewBox="0 0 358 12" role="img" aria-describedby="source-funding" aria-label="{escape(name(party, rows))}: {money(total(rows))}, {return_count(rows)}">'
-                 f'<rect width="{width:.4f}" height="12" style="fill:{pc(party)}"/></svg></div>')
+    for row in totals:
+        label = escape(row['name'])
+        amount, count = row['amount'], row['returns']
+        width = Decimal(row['cents']) * 358 / maximum
+        bars += ('<div class="funding-bar"><div class="funding-bar-label"><strong>' + label
+                 + '</strong><span>' + amount + f' <span>({count})</span></span></div>'
+                 f'<svg viewBox="0 0 358 12" role="img" aria-describedby="source-funding" '
+                 f'aria-label="{label}: {amount}, {count}">'
+                 f'<rect width="{width:.4f}" height="12" style="fill:{pc(row["party"])}"/></svg></div>')
     return '<div class="funding-bars">' + bars + '</div>' + hidden(table(
-        'Declared totals by party', ['Party', 'Declared NZD', 'Returns'],
-        [[escape(name(p, rs)), money(total(rs)), str(len(rs))] for p, rs in ranked], source='source-funding'))
+        caption, ['Party', 'Declared NZD', 'Returns'],
+        [[escape(row['name']), row['amount'], str(row['count'])] for row in totals], source='source-funding'))
 
 
 def funding_steps(ranked):
