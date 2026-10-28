@@ -552,6 +552,27 @@ If publication completed but Pages dispatch failed, rerun only Pages with the su
 gh workflow run pages.yml --ref main -f data_sha=PUBLISHED_DATA_SHA
 ```
 
+### Isolated import rehearsal
+
+After merge, dispatch `gh workflow run nz-election-night-rehearsal.yml --ref main -f import_only=true`.
+This selects only the offline import job: checkout is its only network access, with no secrets,
+production ref writes, Pages deployment or successor. It prepares a capture from an exact local
+SHA, registers it as synthetic, then uses the import orchestrator and leased publisher against
+an empty bare repository's `rehearsal-data` ref. Synthetic registrations must fail real import.
+The existing offline APIs receive the recorded 28 November scenario timestamp; no production
+clock, freeze, sunset or lease constant is changed. This checks orchestration, not wall-clock
+eligibility or real acquisition approval. The default publication rehearsal is unchanged.
+
+Read `PASS synthetic capture preparation and registration pinned_sha=<40-hex SHA>`, then
+`PASS settled served_sha=<40-hex SHA> result_state=settled`,
+`PASS official served_sha=<40-hex SHA> result_state=official`, and
+`PASS rollback served_sha=<40-hex SHA> result_state=preliminary`.
+Each step also requires `PASS night` and `PASS waterfall`. The served checks read the built
+local artifact's manifest and validated data, compare every night file with the pinned target,
+and require rollback to restore the original night bytes. The last line is
+`PASS isolated target: data ref absent; no Pages dispatch`. Reports, synthetic captures and
+served directories are local under `artifacts/import-rehearsal/`; they are not uploaded.
+
 ### Roll back an import
 
 Restore the night family from the recorded pre-import SHA, preserving other current families:

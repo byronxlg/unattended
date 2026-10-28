@@ -45,11 +45,11 @@ def capture_bytes(path, root):
     return captured, export.digest(raw)
 
 
-def pin(repository, sha, checkout):
+def pin(repository, sha, checkout, *, ref='refs/heads/data'):
     if not isinstance(sha, str) or not re.fullmatch(r'[0-9a-f]{40}', sha):
         raise ValueError('NIGHT_DATA_SHA')
     publish.git(checkout, 'init', '-q')
-    publish.git(checkout, 'fetch', str(repository), 'refs/heads/data')
+    publish.git(checkout, 'fetch', str(repository), ref)
     head = publish.git(checkout, 'rev-parse', 'FETCH_HEAD').stdout.strip()
     if publish.git(checkout, 'merge-base', '--is-ancestor', sha, head, check=False).returncode:
         raise ValueError('NIGHT_DATA_SHA')
@@ -76,15 +76,18 @@ def verify(data):
 
 
 def run(state, capture, data_sha, *, repository, now, run_url, rollback=False,
-        root=fixtures.ROOT, verifier=verify, deploy=None):
+        root=fixtures.ROOT, verifier=verify, deploy=None,
+        capture_reader=capture_bytes, pin_data=pin, publisher=None):
+    # Local rehearsal adapters are programmatic only; the Actions CLI keeps production defaults.
+    publisher = publisher or publish.publish
     require_publication_allowed(now())
     if not isinstance(state, str) or state not in result_states.MODES:
         raise ValueError('NIGHT_STATE')
-    captured, digest = capture_bytes(capture, root) if not rollback else (None, None)
+    captured, digest = capture_reader(capture, root) if not rollback else (None, None)
     with tempfile.TemporaryDirectory(prefix='nz-result-import-') as tmp:
         checkout = Path(tmp) / 'checkout'
         checkout.mkdir()
-        head = pin(repository, data_sha, checkout)
+        head = pin_data(repository, data_sha, checkout)
         data = checkout / publish.DATA
         envs = export.validate_bundle(data)
         if rollback:
@@ -101,7 +104,7 @@ def run(state, capture, data_sha, *, repository, now, run_url, rollback=False,
         lines = verifier(out)
         if lines != ['PASS night', 'PASS waterfall']:
             raise ValueError('NIGHT_VERIFY_FAILED')
-        result = publish.publish(out, repository, family='night', now=now,
+        result = publisher(out, repository, family='night', now=now,
                                  night_rollback=head if rollback else None, require_night_match=True)
         report = dict(input_data_sha=data_sha, capture=capture if not rollback else None,
                       capture_sha256=digest, published_data_sha=result['sha'], rollback=rollback, checks=lines)
