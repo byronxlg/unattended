@@ -226,3 +226,174 @@ def test_stale_pinned_capture_cannot_report_or_deploy(repo, tmp_path, monkeypatc
     current = json.loads(publish.git(remote, 'show', 'data:' + str(publish.DATA / 'night/live/current.json')).stdout)
     assert current['data'][0]['retrieved_at'] == raw['retrieved_at']
     assert 'result_state' not in current['data'][0]
+
+
+@pytest.fixture
+def preparation_bundle(tmp_path):
+    # Disposable simulated acquisition, never registered or published outside this test.
+    raw = capture('preliminary')
+    raw['raw'] = {k: v.replace('23:30:00', '23:31:00') for k, v in raw['raw'].items()}
+    data = tmp_path / 'preparation-data'
+    daily_refresh(data, loaders={'night': lambda: night_live.loaded(raw)}, now=raw['retrieved_at'])
+    return data, raw
+
+
+def test_prepare_cli_round_trip(preparation_bundle, tmp_path):
+    import subprocess
+    from product.nz_election.pipeline import settlement_capture
+    data, original = preparation_bundle
+    remote = tmp_path / 'prepared.git'
+    remote.mkdir()
+    publish.git(remote, 'init', '--bare', '-q')
+    pinned_sha = publish.publish(data, remote, family='night', now=lambda: NOW)['sha']
+    pinned = tmp_path / 'pinned-preparation'
+    pinned.mkdir()
+    result_import.pin(remote, pinned_sha, pinned)
+    data = pinned / publish.DATA
+    baseline = export.validate_bundle(data)['night/live/current']
+    before = {p.relative_to(data): p.read_bytes() for p in data.rglob('*') if p.is_file()}
+    root = tmp_path / 'review'
+    (root / 'result-import').mkdir(parents=True)
+    out = root / 'result-import/prepared.json'
+    result = subprocess.run(['python3', '-B', settlement_capture.__file__, '--data', str(data), '--out', str(out)],
+                            capture_output=True, text=True, check=True)
+    metadata = json.loads(result.stdout)
+    assert metadata == dict(path=str(out), sha256=export.digest(out.read_bytes()), bytes=out.stat().st_size,
+                            retrieved_at=original['retrieved_at'], source=original['acquisition_source'])
+    assert json.loads(out.read_bytes()) == {k: original[k] for k in ('raw', 'retrieved_at', 'acquisition_source')}
+    second = tmp_path / 'second.json'
+    settlement_capture.prepare(data, second)
+    assert second.read_bytes() == out.read_bytes()
+    assert before == {p.relative_to(data): p.read_bytes() for p in data.rglob('*') if p.is_file()}
+    entry = dict(metadata, path='result-import/prepared.json', capture_kind='human-reviewed-real', reviewer='Offline test')
+    (root / 'manifest.json').write_text(json.dumps(dict(entries=[entry])))
+    report = result_import.run('settled', entry['path'], pinned_sha, repository=remote, now=lambda: NOW,
+                               root=root, run_url='offline-verification')
+    final = tmp_path / 'final-preparation'
+    final.mkdir()
+    result_import.pin(remote, report['published_data_sha'], final)
+    settled = export.validate_bundle(final / publish.DATA)['night/live/current']
+    assert settled['data'][0]['preliminary_package'] == baseline
+    plain = {k: v for k, v in settled['data'][0].items() if k not in {'preliminary_package', 'result_state'}}
+    plain['mode'] = night_live.MODE
+    assert plain == baseline['data'][0]
+    assert settled['source'] == baseline['source']
+    assert settled['input_hashes'] == baseline['input_hashes']
+    for check in ('night', 'waterfall'):
+        verified = subprocess.run(['python3', '-B', 'product/nz_election/pipeline/verify.py', check,
+                                   '--data', str(final / publish.DATA)], capture_output=True, text=True, check=True)
+        assert 'PASS ' + check in verified.stdout.splitlines()
+        print(verified.stdout, end='')
+
+
+@pytest.mark.parametrize('label', ['synthetic', 'Recorded demo', 'replay', 'rehearsal'])
+def test_prepare_rejects_labels(preparation_bundle, tmp_path, label):
+    from product.nz_election.pipeline import settlement_capture
+    data, raw = preparation_bundle
+    daily_refresh(data, loaders={'night': lambda: night_live.loaded(raw)}, now=raw['retrieved_at'],
+                  run_url='https://example.test/' + label.replace(' ', '-'))
+    out = tmp_path / 'refused.json'
+    with pytest.raises(ValueError, match='NIGHT_CAPTURE_NOT_REAL'):
+        settlement_capture.prepare(data, out)
+    assert not out.exists()
+
+
+def test_prepare_rejects_known_synthetic(repo, tmp_path):
+    from product.nz_election.pipeline import settlement_capture
+    pinned = tmp_path / 'synthetic-pin'
+    pinned.mkdir()
+    result_import.pin(repo[0], repo[1], pinned)
+    out = tmp_path / 'refused.json'
+    with pytest.raises(ValueError, match='NIGHT_CAPTURE_NOT_REAL'):
+        settlement_capture.prepare(pinned / publish.DATA, out)
+    assert not out.exists()
+
+
+@pytest.mark.parametrize('fault', ['mismatch', 'partial', 'absent', 'settled', 'demo'])
+def test_prepare_rejects_bad_snapshot(preparation_bundle, tmp_path, monkeypatch, fault):
+    from product.nz_election.pipeline import settlement_capture
+    data, _ = preparation_bundle
+    envs = export.validate_bundle(data)
+    row = envs['night/live/current']['data'][0]
+    if fault == 'mismatch':
+        row['valid_party_votes'] += 1
+    elif fault == 'partial':
+        del row['raw_xml']['e71/e71.xml']
+    elif fault == 'absent':
+        del envs['night/live/current']
+    elif fault == 'settled':
+        row['result_state'] = 'settled'
+    else:
+        row['acquisition_source']['kind'] = 'demo'
+    # Exercise extraction's own guards independently of bundle validation.
+    monkeypatch.setattr(export, 'validate_bundle', lambda path: envs)
+    out = tmp_path / 'refused.json'
+    with pytest.raises(ValueError):
+        settlement_capture.prepare(data, out)
+    assert not out.exists()
+
+
+def test_prepared_capture_mismatched_import_rejected(preparation_bundle, tmp_path):
+    from product.nz_election.pipeline import settlement_capture
+    data, _ = preparation_bundle
+    remote = tmp_path / 'mismatch.git'
+    remote.mkdir()
+    publish.git(remote, 'init', '--bare', '-q')
+    sha = publish.publish(data, remote, family='night', now=lambda: NOW)['sha']
+    out = tmp_path / 'draft.json'
+    settlement_capture.prepare(data, out)
+    captured = json.loads(out.read_bytes())
+    captured['retrieved_at'] = '2026-11-07T10:36:00Z'
+    root = tmp_path / 'mismatch-captures'
+    path = register(root, captured)
+    with pytest.raises(ValueError, match='^NIGHT_BASELINE$'):
+        execute((remote, sha, root, path))
+    assert publish.git(remote, 'rev-parse', 'data').stdout.strip() == sha
+
+
+def test_prepare_output_is_exclusive(preparation_bundle, tmp_path):
+    from product.nz_election.pipeline import settlement_capture
+    data, _ = preparation_bundle
+    out = tmp_path / 'existing.json'
+    out.write_bytes(b'keep')
+    with pytest.raises(FileExistsError):
+        settlement_capture.prepare(data, out)
+    link = tmp_path / 'link.json'
+    link.symlink_to(out)
+    with pytest.raises(FileExistsError):
+        settlement_capture.prepare(data, link)
+    assert out.read_bytes() == b'keep'
+    with pytest.raises(ValueError, match='UNSAFE_CAPTURE_PATH'):
+        settlement_capture.prepare(data, data / 'capture.json')
+    assert not (data / 'capture.json').exists()
+
+
+def test_prepare_validates_manifest_before_extraction(preparation_bundle, tmp_path):
+    from product.nz_election.pipeline import settlement_capture
+    data, _ = preparation_bundle
+    (data / 'night/live/current.json').write_text('{}')
+    out = tmp_path / 'refused.json'
+    with pytest.raises(ValueError):
+        settlement_capture.prepare(data, out)
+    assert not out.exists()
+
+
+def test_prepare_accepts_democracy_party_content(tmp_path):
+    import re
+    from product.nz_election.pipeline import settlement_capture
+    # Simulate EC acquisition provenance; these test bytes never leave the temporary bundle.
+    captured = capture('preliminary')
+    captured['raw']['parties.xml'], replacements = re.subn(
+        r'<party_name>[^<]+</party_name>', '<party_name>DemocracyNZ</party_name>',
+        captured['raw']['parties.xml'], count=1)
+    assert replacements == 1
+    data = tmp_path / 'democracy-data'
+    daily_refresh(data, loaders={'night': lambda: night_live.loaded(captured)},
+                  now=captured['retrieved_at'], run_url='https://github.com/test/repo/actions/runs/123')
+    out = tmp_path / 'capture.json'
+    metadata = settlement_capture.prepare(data, out)
+    prepared = json.loads(out.read_bytes())
+    assert 'DemocracyNZ' in prepared['raw']['parties.xml']
+    assert prepared == {k: captured[k] for k in ('raw', 'retrieved_at', 'acquisition_source')}
+    assert metadata['source'] == captured['acquisition_source']
+    assert metadata['sha256'] == export.digest(out.read_bytes())

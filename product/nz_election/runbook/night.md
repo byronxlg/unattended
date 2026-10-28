@@ -466,23 +466,73 @@ The synthetic preliminary fixture is dated 7 November; neither fixture is a real
 
 Use `nz-election-result-import.yml` on main. It is dispatch-only, independent of the
 collection sunset, and uses the existing s197 guard and leased night-family publisher.
-Commit the reviewed real capture and manifest entry to main first. Use a filename under
-`fixtures/result-import/` (dispatch path `result-import/<name>.json`). The manifest entry
-must have `capture_kind: "human-reviewed-real"`, a nonempty `reviewer`, sha256, acquisition
-URL, retrieval time, licence and review notes. Never mark synthetic bytes as real.
-Test/rehearsal paths, including `result-states/`, are rejected. No real capture is bundled
-with this workflow. Settlement requires the reviewed capture to match the pinned live row.
+After 8 November 06:00 UTC, record the full pre-import data SHA and check out that exact
+commit separately. Prepare the settlement capture from its complete preliminary bundle:
 
-Record the full pre-import data SHA from `gh api repos/byronxlg/unattended/git/ref/heads/data --jq .object.sha`.
-Replace the capitalized values below with reviewed values; each transition needs one dispatch:
+```sh
+PRE_IMPORT_DATA_SHA=$(gh api repos/byronxlg/unattended/git/ref/heads/data --jq .object.sha)
+git fetch origin data
+git worktree add --detach artifacts/settlement-pin "$PRE_IMPORT_DATA_SHA"
+mkdir -p product/nz_election/fixtures/result-import
+uv run product/nz_election/pipeline/settlement_capture.py \
+  --data artifacts/settlement-pin/product/nz_election/data \
+  --out product/nz_election/fixtures/result-import/2026-11-07-preliminary-final.json
+```
+
+The command prints draft JSON metadata with this shape (values below are placeholders):
+
+```json
+{
+  "path": "product/nz_election/fixtures/result-import/2026-11-07-preliminary-final.json",
+  "sha256": "SHA256_OF_WRITTEN_BYTES",
+  "bytes": 123456,
+  "retrieved_at": "ORIGINAL_RETRIEVAL_TIME",
+  "source": {
+    "kind": "preliminary",
+    "url": "https://media.election.net.nz/xml/election.xml"
+  }
+}
+```
+
+It extracts `raw_xml` into `raw`, preserves retrieval time and acquisition source without
+normalization, and checks the reconstructed row against the pinned row exactly. It neither
+rebuilds result states nor fetches or publishes. It creates only the requested file, refuses
+an existing destination, and rejects incomplete, terminal, demo, replay or synthetic-labelled
+input, including XML matching known synthetic captures. A missing parent directory is an error.
+Preparation failures exit nonzero with `NIGHT_CAPTURE_PREP_FAILED`; upstream error text and
+untrusted bundle content are never printed.
+
+Before import, check that the recorded SHA is the intended last complete live bundle, the
+source is the actual preliminary EC acquisition endpoint, and retrieval and source count times
+match the pinned row. Review its counts, raw XML, producing run and provenance as real acquisition;
+absence of a synthetic label alone is not evidence of authenticity. Check the printed sha256 and
+byte count against the file. Do not edit the prepared capture or refresh its retrieval time.
+
+Add the reviewed metadata to `product/nz_election/fixtures/manifest.json`, using the relative
+path `result-import/2026-11-07-preliminary-final.json`; record the printed `source.url` as the
+acquisition `url`, and include `bytes`, `retrieved_at`, `sha256`, the EC licence, review notes,
+`capture_kind: "human-reviewed-real"` and a nonempty `reviewer`. The helper deliberately does
+not supply review approval or edit the manifest. Commit the reviewed real capture and manifest
+entry to main before dispatch. Never mark synthetic bytes as real. Test/rehearsal paths,
+including `result-states/`, are rejected. No real capture is bundled with this workflow.
+
+For settlement, use the same recorded SHA used for preparation:
 
 ```sh
 gh workflow run nz-election-result-import.yml --ref main \
   -f state=settled -f capture=result-import/2026-11-07-preliminary-final.json \
-  -f data_sha=PRE_IMPORT_DATA_SHA
+  -f data_sha="$PRE_IMPORT_DATA_SHA"
+```
+
+After settlement has published, the official import still requires the separately acquired,
+reviewed official capture described above. When ready to import it, record the current data SHA
+and confirm it names the intended settled baseline before dispatching:
+
+```sh
+SETTLED_DATA_SHA=$(gh api repos/byronxlg/unattended/git/ref/heads/data --jq .object.sha)
 gh workflow run nz-election-result-import.yml --ref main \
   -f state=official -f capture=result-import/2026-11-27-official.json \
-  -f data_sha=SETTLED_DATA_SHA
+  -f data_sha="$SETTLED_DATA_SHA"
 ```
 
 The script checks ancestry before checking out exactly the requested data commit. It validates
