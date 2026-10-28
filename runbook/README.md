@@ -8,7 +8,7 @@ reviewed: 2026-10-15
 
 # Runbook: unattended
 
-What: a twenty-day experiment, 2026-10-15 to 2026-11-04. Runs on Byron's Mac mini as the
+What: an experiment from 2026-10-15 to at least 2026-11-14 (twenty days at first, extended by Byron on 2026-10-16). Runs on Byron's Mac mini as the
 LaunchAgent `com.unattended.tick` (`infra/host/`), every 600 s, calling `bin/tick`. Healthy:
 `state/ticks.jsonl` gets a line every 10 min; `~/Library/Logs/unattended-tick.log` has no
 tracebacks; a post appears in `posts/` every NZ day; https://byronxlg.com/unattended/ shows it.

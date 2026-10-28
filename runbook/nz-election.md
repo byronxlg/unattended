@@ -60,8 +60,8 @@ uv run product/nz_election/tools/check_workflow_history.py --days 3
 
 Every directory under `evals/` must contain `check.sh`; a missing script fails
 with the eval name. The gate discovers and runs these scripts, then runs `verify.py all`, requiring
-one explicit PASS for every registered family, including night, waterfall and
-campaign, before the final `PASS all`. A polls-only bundle cannot satisfy Harden.
+one explicit PASS for every registered family before the final `PASS all`; night and waterfall
+are optional (SKIP) unless `--require night,waterfall` is given, which election-night acceptance uses. A polls-only bundle cannot satisfy Harden.
 It then runs the social, social fix-round and night-operation freeze tests.
 Checks continue after failures; the last line is `PASS harden` or
 `FAIL harden: <first failing step>`, with exit status 0 or 1 respectively.

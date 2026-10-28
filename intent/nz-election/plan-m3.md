@@ -10,7 +10,7 @@ below the decisions. Accepted by the supervisor 2026-10-20 00:50Z.
    AdvanceVoteCSV, donation index, pinned Wikipedia revisions) into the fixture manifest with every
    manifest field, as the snapshots job did (Byron, issue #40: use Codex to fetch data). The
    supervisor reviews hashes, licences and URLs in review. Live 2026 advance-voting captures from
-   26 October are the supervisor's daily task to 4 November, Byron's after (plan decision 2).
+   26 October are the supervisor's daily task to the end of advance voting (corrected 28 Oct: the lab runs to 14 November; plan decision 2 said 4 November, Byron's after).
 3. Whole-site s197 freeze stays; predeploy everything by 5 November (plan decision 3).
 4. HTTPS feed roots approved only after the documented probes; packaged fallback otherwise
    (plan decision 4).
