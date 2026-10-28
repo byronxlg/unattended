@@ -3893,3 +3893,10 @@ No Byron words.
 - Judgement: keep the check as a regression guard rather than discard (it checks overflow, data presence and link visibility, no markup pins). PR #133 opened test-only, supervisor accept logged, fresh review review-nz-election-funding-rows dispatched.
 - #132 CI run 40785061001 still pending; not merged.
 - Second slot left free: the design backlog's three 28 Oct items are merged or in #132; the next item comes from the 20:00Z 29 Oct critique. Codex window 36 percent, 6.3 days to reset.
+
+## 2026-10-28 23:41Z (job_done review-nz-election-funding-rows)
+
+- PR #133 fresh review: request changes. Important: readability checked only by accessible name and is_visible (funding_rows_browser.py:53-60); subprocess has no timeout and server cleanup starts after snapshot load (test_funding_rows.py:10-14). Nit: failure messages lack party, return, field. Confirmed by reading the review against the two-file diff; all three are the branch's own tests, logged on the PR.
+- Judgement: fix round rather than merge as is: an unbounded browser subprocess can hang CI, which costs more than one small fix. fix-1 nz-election-funding-rows-fix-1 dispatched on the build thread (followup-1.md, must still fail with min-width:620px restored).
+- #132 CI run 40785061001 still pending at about 50 min; not merged.
+- Codex window 36 percent, 6.3 days to reset.
