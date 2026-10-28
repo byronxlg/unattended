@@ -107,3 +107,21 @@ overall PASS. Newly added evals run by default; register any new network eval in
 `tools/harden.py` before using it offline. Save the date, code SHA, bundle/site
 identity, full command output and last line in the daily acceptance record.
 Offline fixture results demonstrate the checks, not live milestone acceptance.
+
+## Advance capture publication acceptance
+
+After each daily and its Pages build, run against the downloaded release bundle and
+built site (the site root or its parent containing `nz-election/`):
+
+```sh
+uv run product/nz_election/pipeline/verify.py advance --require advance --data <bundle> --site <site>
+```
+
+This compares the latest observation date and cumulative count with the newest registered
+2026 capture and checks the home and vote/ count sentences, including the site's copied
+bundle. Omit `--site` for bundle-only acceptance. `ADVANCE_NOT_PUBLISHED`, `ADVANCE_STALE`,
+and `ADVANCE_RENDER_MISMATCH` fail acceptance; malformed evidence reports
+`ADVANCE_INVALID_BUNDLE` or `ADVANCE_CAPTURE_INVALID`. `ADVANCE_GAP` also exits nonzero:
+the capture matches but a missing EC day prevents a cumulative count; both pages must hide
+that count. Do not fill the gap with zero. To include this requirement in the full gate,
+run `bin/nz-election-harden --data <bundle> --site <site> --require advance --history`.

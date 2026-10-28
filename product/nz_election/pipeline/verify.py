@@ -15,6 +15,7 @@ import threading
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from product.nz_election.pipeline import export, campaign_checks as campaign
+from product.nz_election.pipeline.advance_acceptance import AdvanceAcceptanceError, check as accept_advance
 from product.nz_election.pipeline.average import trend, threshold_watch, select_window
 from product.nz_election.pipeline.build import build, config
 from product.nz_election.pipeline.models import ParseDrift
@@ -447,6 +448,8 @@ def main(args=None):
     required = set(args.require.split(',')) if args.require is not None else set()
     if not required <= checks.keys():
         raise ValueError('INVALID_REQUIRED_CHECK')
+    if 'advance' in required:
+        accept_advance(args.data, args.site)
     # Missing required data must win over stale inventory or site validation errors.
     if {'night', 'waterfall'} & (required | {args.check}):
         for location in (args.data, site_data):
@@ -524,7 +527,9 @@ def cli(argv=None):
     try:
         main(args)
     except Exception as exc:
-        if isinstance(exc, MissingNightFamily):
+        if isinstance(exc, AdvanceAcceptanceError):
+            reason = str(exc)
+        elif isinstance(exc, MissingNightFamily):
             reason = 'MISSING_NIGHT_FAMILY'
         elif check in {'campaign', 'all'}:
             reason = exc.code if isinstance(exc, campaign.CampaignError) else campaign.DATA
