@@ -3748,3 +3748,10 @@ No Byron words.
 - Readiness-6 ranked two small gaps: (1) home results keep "Live preliminary results" on a failed refresh at 7 Nov 10:00Z, after the 8 Nov 06:01Z stop, and in fresh builds with an unsettled capture to 27 Nov (home-live.mjs:7, :25; home.py:205); (2) check_workflow_history.py:258 ignores the sunsets.py collection deadlines, so week-after acceptance demands hourly runs after collection ends. No operator decision needed.
 - Dispatched both from origin/main e853b84, files disjoint from #122 #123 #124: nz-election-home-stale (Page plan pages/home.md, DESIGN.md; home_handover_dom.mjs:65 authorised to move) and nz-election-history-sunsets (test_harden.py).
 - Codex window 23 percent, 6.6 days to reset.
+
+## 2026-10-28T17:11Z (job_done nz-election-history-sunsets, nz-election-home-stale)
+
+- history-sunsets 498932c: host `pytest test_harden.py test_workflow_history_sunsets.py` 274 passed; the 12 new cases fail with origin/main's check_workflow_history.py (12 failed); no existing tests edited. Pushed, PR #125, supervisor accept, fresh review review-nz-election-history-sunsets dispatched.
+- home-stale 3babf1e: host `pytest test_home_handover.py test_sunsets.py test_design.py` 119 passed incl. Chromium (9 were sandbox-denied in Codex); 5 new regressions fail on origin/main per last.md. Moved assertion (authorised in the brief): home_handover_dom.mjs populated-HTML equality after the cutoff replaced by retained seats, "Live updates ended", no "Live preliminary results". home-ended-390 screenshot looked at (synthetic fixture): ended status visible, seats kept; nit: raw ISO capture time in the status line, to the design backlog. Pushed, PR #126, supervisor accept, fresh review review-nz-election-home-stale dispatched.
+- #122 #123 #124 CI still pending (runs 40727120459, 40724819374, 40729528902); not merged.
+- Codex window 24 percent, 6.6 days to reset.

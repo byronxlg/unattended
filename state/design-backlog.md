@@ -109,3 +109,4 @@ reading floor, funding total as a headline figure on parties/. Not turned into a
 2. Parties, vote and night pages: same, page anatomy and components from DESIGN.md.
 3. Hex map shape: the square-tile snapshot drawn with offset rows looks ragged in the north; a
    hex-native layout (`snapshots/hexmap.json` with axial coordinates) would read as New Zealand.
+- 2026-10-28 (PR #126 nit): home results status after the stop prints the raw ISO capture time ('Last complete capture 2026-11-07T06:00:00Z'); show NZ local time like the rest of the page.
