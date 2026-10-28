@@ -3551,3 +3551,9 @@ No Byron words.
 - PR #115 (nav and legend): fresh review request changes, two Important: header_nav_browser.py never resizes one page across the breakpoint (390 to 844 to 1280 and back), and the keyboard check covers bounds but not opacity/visibility although links are hidden by opacity. Agreed, logged on the PR, fix-3 nz-election-nav-legend-fix-3 dispatched on thread 01a1816e (brief state/jobs/nz-election-nav-legend-fix-3/prompt.md).
 - Second slot not filled: the remaining backlog nits (funding_page.ranking duplicating home_graphics.funding_bars; test_design landmark parse) touch files the nav branch changes; next fill is the 20:00Z critique's top item or after #115 merges.
 - Codex window 5 percent used, 6.9 days to reset.
+
+## 2026-10-28 08:54Z (job_done nz-election-nav-legend-fix-3)
+- PR #115 fix-3 8bc1aae (resize 390/844/1280, keyboard-paint and manual-scroll checks; visible links opacity 1, current route priority on resize). Host pytest -k "design or home or header or nav" 163 passed incl. Chromium (Codex sandbox could not launch Chromium, 11 denials). With web/header-nav.js at fddc5df the new test_header_nav_browser fails HEADER_INTERMEDIATE_OPACITY (Overview, Vote, Night at opacity 0 and partly clipped), so the check proves the defect. Pushed, accept logged on the PR, second fresh review review-nz-election-nav-legend-2 dispatched.
+- PR #114 CI still pending, not merged.
+- Second slot left free: remaining backlog nits touch the nav branch's files.
+- Codex window 6 percent used, 6.9 days to reset.
