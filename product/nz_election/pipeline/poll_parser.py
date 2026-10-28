@@ -186,7 +186,7 @@ MONTHS = {m: i for i, m in enumerate(('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'), 1)}
 
 
-def dates(value, attrs):
+def dates(value, attrs, *, documented_exception=False):
     if not isinstance(value, str) or not isinstance(attrs, str):
         raise ParseDrift("invalid_dates")
     value = clean(value)
@@ -207,7 +207,8 @@ def dates(value, attrs):
                 raise ValueError
         except ValueError:
             raise ParseDrift('invalid_dates', value + ' / ' + sort) from None
-    if start > end or (sort is not None and not 0 <= (sort_date - end).days <= MAX_RELEASE_LAG_DAYS):
+    if start > end or (sort is not None and not documented_exception
+                       and not 0 <= (sort_date - end).days <= MAX_RELEASE_LAG_DAYS):
         raise ParseDrift("invalid_dates", value + ' / ' + (sort if sort else ''))
     return start.isoformat(), end.isoformat()
 
@@ -309,7 +310,6 @@ def _parse_polls(wikitext, revision, mapping, identities, position):
                 continue
             date_attrs = cells[0][0]
             sort = attributes(date_attrs).get('data-sort-value')
-            start, end = dates(cells[0][1], date_attrs)
             documented_exception = False
             for exception in mapping.get('date_exceptions', []):
                 if (exception['visible'] == visible
@@ -319,6 +319,8 @@ def _parse_polls(wikitext, revision, mapping, identities, position):
                     documented_exception = True
                     result.diagnostics.setdefault('date_exceptions', []).append(
                         dict(exception, locator=locator, kind='documented-exception'))
+            # Documented metadata disagreements waive lag bounds, never date validity.
+            start, end = dates(cells[0][1], date_attrs, documented_exception=documented_exception)
             if sort is not None and sort != end and not documented_exception:
                 result.diagnostics.setdefault('date_exceptions', []).append(dict(
                     locator=locator, kind='release-date', visible=visible, sort=sort, pollster=clean(cells[1][1]),
