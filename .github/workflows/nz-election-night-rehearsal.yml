@@ -3,6 +3,10 @@ name: NZ election night publication rehearsal
 on:
   workflow_dispatch:
     inputs:
+      boundary_only:
+        description: Run only the isolated offline time boundary drill
+        type: boolean
+        default: false
       import_only:
         description: Run only the synthetic local result import and rollback rehearsal
         type: boolean
@@ -28,7 +32,16 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  non-boundary:
+    if: inputs.boundary_only != true
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    permissions: {}
+    steps:
+      - run: 'true'
+
   rehearse:
+    needs: non-boundary
     if: inputs.import_only != true
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -99,6 +112,7 @@ jobs:
         run: uv run product/nz_election/pipeline/night_rehearsal.py --generation "$GENERATION" --chain
 
   import-rehearsal:
+    needs: non-boundary
     if: inputs.import_only == true
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -111,3 +125,17 @@ jobs:
           persist-credentials: false
       - name: Rehearse synthetic settlement, official import and rollback locally
         run: python3 product/nz_election/pipeline/import_rehearsal.py
+
+  boundary-rehearsal:
+    if: inputs.boundary_only == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Exercise isolated election time boundaries
+        run: python3 product/nz_election/pipeline/night_boundary.py
