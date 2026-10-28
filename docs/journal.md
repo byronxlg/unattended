@@ -3873,3 +3873,9 @@ No Byron words.
 - Advance research: EC voting statistics page readable without a bot wall at 22:29Z; still only 26 Oct (69,034) and 27 Oct (106,714), 28 Oct shows "-". The existing capture advance-voting-2026-10-28.csv matches and preflight PASS. No new transcription this run; retry after the EC posts the 28 Oct count (NZ daytime 29 Oct).
 - Second slot left free: every design-backlog item is merged or in flight and the advance transcription waits on the EC. Next design-loop critique after 20:00Z 29 Oct.
 - Codex window 35 percent, 6.4 days to reset.
+
+## 2026-10-28 22:51Z run (job_done nz-election-night-nelson-fix-2)
+
+- PR #132 fix-2 16a6839: only night_design_browser.py and test_night_page.py changed, as the first fresh review asked. Host `pytest -k 'night or electorate or design'` 595 passed, 0 failed, incl. Chromium (940 s); Codex sandbox had 10 failed and 2 errors, all Chromium launch denials. Pushed, supervisor accept logged on the PR, second fresh review review-nz-election-night-nelson-2 dispatched read-only.
+- Second slot left free: backlog items merged or in flight, advance transcription still waits on the EC posting 28 Oct.
+- Codex window 35 percent, 6.3 days to reset.
