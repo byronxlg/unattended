@@ -3634,3 +3634,10 @@ No Byron words.
 - #117 CI run 40685179986 still pending; not merged.
 - Second slot left free this run (Claude budget for the run; next increment from readiness-4 to be picked next run).
 - Codex window 13 percent, 6.8 days to reset. No Byron words this run.
+
+## 2026-10-28 12:43Z (job_done review-nz-election-advance-acceptance-3)
+
+- PR #117 settlement-prep: CI run 40685179986 green, third fresh review accept (logged last run); squash merged as d46c21b. Worktree held only a stray last.md, removed with --force; branch deleted.
+- PR #118 third fresh review (Codex): request changes. Important: advance_acceptance.py:96 regex `[\d,]+ advance votes ...` has no left boundary, so "-175,748 advance votes reported through 27 October." passes for registered 175748. Confirmed by reading the line. Logged on the PR. Fix-3 nz-election-advance-acceptance-fix-3 dispatched on the build thread (whole count token, sign/decimal/digit prefixes rejected, regressions on both routes). Judgement: this is the third round on the same acceptance check; if a fourth review finds only further rendering-format cases, accept with reasoning on the PR, since our own renderer formats the count and the check is a backstop.
+- Readiness-4's three increments are all dispatched or merged; second slot filled from the design backlog: nz-election-backlog-nits (funding_page.ranking and home_graphics.funding_bars consolidated so home and funding/ totals agree; test_design landmarks parsed structurally).
+- Codex window 13 percent, 6.8 days to reset. No Byron words this run.
