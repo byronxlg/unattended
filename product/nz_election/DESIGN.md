@@ -33,10 +33,14 @@ the bar; the screenshot is.
 ## Page anatomy
 
 1. Masthead: dark band, brand mark, route tabs scroll horizontally in one row on phones, with a visible
-   trailing chevron and native scrollbar. Phone tabs each occupy half the scroll viewport,
-   so the first view shows two complete labels. Text stays 16 px and targets at least 44 px. Keyboard
-   focus scrolls each link into view: 50% inline scroll padding makes the centre of the nav
-   its focus-scroll region, so Chromium cannot leave a link partly visible at an edge. This
+   trailing chevron and native scrollbar. Phone tabs use natural widths, with at least four
+   complete labels at 390 px. A discrete view-timeline opacity change hides an entire tab
+   while it crosses a scroll edge; this is a visibility switch, with no motion or fade,
+   including under reduced motion. `scroll-initial-target` reveals the current route on load.
+   These CSS features require supporting browsers; older browsers retain native scrolling.
+   Text stays 16 px and targets at least 44 px. Keyboard focus scrolls each link into view:
+   while the nav has focus, 50% inline scroll padding makes its centre the focus-scroll
+   region, so Chromium cannot leave a link partly visible at an edge. This
    works without JavaScript; the focus ring stays inset to avoid clipping. Funding takes
    the former Methods tab; secondary routes, including Methods and sources, stay linked in the footer on every route.
 2. Ribbon (home): the election phase today, a countdown, the one action ("How and where to vote").

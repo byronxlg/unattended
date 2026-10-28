@@ -145,18 +145,25 @@ def header_check(page):
     if page.viewport_size['width'] in (360, 390):
         assert banner.bounding_box()['height'] < 100, 'HEADER_HEIGHT'
     if page.viewport_size['width'] in (360, 390):
-        clipped = nav.evaluate("""nav=>{
+        page.evaluate("() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
+        labels = nav.evaluate("""nav=>{
             const clip=nav.getBoundingClientRect();
-            return [...nav.querySelectorAll('a')].flatMap(link=>{
+            return [...nav.querySelectorAll('a')].map(link=>{
                 const range=document.createRange();
                 range.selectNodeContents(link);
-                const r=range.getBoundingClientRect();
-                const visible=r.right>clip.left && r.left<clip.right;
-                return visible && (r.left<clip.left-.5 || r.right>clip.right+.5)
-                    ? [{label:link.textContent,left:r.left,right:r.right,clipLeft:clip.left,clipRight:clip.right}] : [];
+                const r=range.getBoundingClientRect(), css=getComputedStyle(link);
+                const painted=Number(css.opacity)>0 && css.visibility==='visible';
+                const intersects=r.right>clip.left && r.left<clip.right;
+                const whole=r.left>=clip.left-.5 && r.right<=clip.right+.5;
+                return {label:link.textContent,visible:painted && intersects,whole,
+                    current:link.getAttribute('aria-current')==='page',
+                    left:r.left,right:r.right,clipLeft:clip.left,clipRight:clip.right};
             });
         }""")
-        assert not clipped, ('HEADER_LABEL_CLIPPED', clipped)
+        assert not [r for r in labels if r['visible'] and not r['whole']], ('HEADER_LABEL_CLIPPED', labels)
+        if page.viewport_size['width'] == 390:
+            assert sum(r['visible'] and r['whole'] for r in labels) >= 4, ('HEADER_LABEL_COUNT', labels)
+        assert all(r['visible'] and r['whole'] for r in labels if r['current']), ('HEADER_CURRENT_HIDDEN', labels)
     tops = nav.locator('a').evaluate_all('els=>els.map(e=>e.getBoundingClientRect().top)')
     assert tops and max(tops) - min(tops) < 1, 'HEADER_SINGLE_ROW'
     links = banner.locator('a')
