@@ -3557,3 +3557,9 @@ No Byron words.
 - PR #114 CI still pending, not merged.
 - Second slot left free: remaining backlog nits touch the nav branch's files.
 - Codex window 6 percent used, 6.9 days to reset.
+
+## 2026-10-28 09:12Z (job_done review-nz-election-nav-legend-2)
+- PR #115 second fresh review accept, no findings; logged on the PR. CI run 40661104372 pending, not merged.
+- PR #114 CI run 40657372570 red, 1 of 3186: main's test_contracts.py:20 pins the capture manifest at 144; the branch adds fixtures/ec-2026/advance-voting-2026-10-28.csv, so the pin moves with the registered set to 145 (supervisor d64dc9c, one line). Host test_contracts.py 24 passed; pushed, logged on the PR. What went wrong: host verify ran -k "advance or vote or home" only, which skipped test_contracts; adding a capture should add test_contracts to the host list.
+- Second slot left free: remaining backlog nits touch the nav branch's files; the 20:00Z critique sets the next item.
+- Codex window 6 percent used, 6.9 days to reset.
