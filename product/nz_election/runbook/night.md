@@ -118,6 +118,29 @@ Production's freeze, opening and stop guards are unchanged. This target cannot p
 results to the production data branch or production Pages site.
 
 
+### Isolated boundary drill
+
+After merge, dispatch `gh workflow run nz-election-night-rehearsal.yml --ref main -f boundary_only=true`.
+Locally run `uv run product/nz_election/pipeline/night_boundary.py`. The boundary input takes
+precedence over `import_only` and runs only a read-only checkout and this harness: no credentials,
+upstream access, Pages deploy, artifact upload or successor. The harness denies sockets and
+non-Git subprocesses, strips inherited credentials and limits Git to temporary directories and
+file transport. Its Git adapter maps only the disposable data ref to `rehearsal-data`, keeping
+production freeze checks active. No production cutoff or guard is replaced.
+
+Require exit 0 and one `PASS <scenario>` line for each of these 29 scenarios:
+`startup`, `freeze-edges`, `queued-import-entry-freeze`, `queued-rollback-entry-freeze`,
+`queued-publish-before-freeze`, `queued-publish-at-freeze`, `queued-rollback-before-freeze`,
+`queued-rollback-at-freeze`, `inflight-wait`, `inflight-acquisition`, `inflight-publication`,
+`watchdog-cutoff`, `watchdog-queued-cutoff`, and all 16 combinations of
+`sunset-{hourly,night,daily,social}-{schedule,manual}-{before,at}`.
+The daily manual exception must remain allowed at its cutoff. Fixed expected UTC instants
+check both sides to the second. The publication stop case finishes a pinned local deployment;
+wait/acquisition cases retain the last complete state without new publication or succession.
+Any `FAIL <scenario> <code>` makes the command exit nonzero. This proves injected-clock behavior,
+not real cron delivery, queue timing, upstream availability or production deployment.
+
+
 ## Packaged page rehearsal
 
 Build with `uv run product/nz_election/pipeline/build.py --data <data> --out <site>/nz-election`.
