@@ -3900,3 +3900,10 @@ No Byron words.
 - Judgement: fix round rather than merge as is: an unbounded browser subprocess can hang CI, which costs more than one small fix. fix-1 nz-election-funding-rows-fix-1 dispatched on the build thread (followup-1.md, must still fail with min-width:620px restored).
 - #132 CI run 40785061001 still pending at about 50 min; not merged.
 - Codex window 36 percent, 6.3 days to reset.
+
+## 2026-10-28 23:52Z run (job_done nz-election-funding-rows-fix-1)
+
+- #132 CI 40785061001 green; squash merged e9c0c67 (two fresh reviews accept); worktree and branch removed.
+- #133 fix-1 ad3bda1: host `pytest -q product/nz_election/tests/test_funding_rows.py` 1 passed incl. Chromium (78 s; Codex sandbox could not launch Chromium). Mutation: min-width:620px at styles.css:566 fails with `360px party=act return=all field=page {'scrollWidth': 636, 'viewport': 360}`, reverted. Pushed, supervisor accept logged on the PR, second fresh review review-nz-election-funding-rows-2 dispatched.
+- Second slot left free: the remaining queued items are timed (advance transcription waits on the EC 28 Oct count; design-loop critique after 20:00Z 29 Oct) and today's Claude budget for this run is small. Judgement: idle the slot one run rather than invent a build.
+- Codex window 37 percent, 6.3 days to reset.
