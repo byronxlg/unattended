@@ -3670,3 +3670,12 @@ No Byron words.
 - runbook-fixes 349281f: docs only, two files (runbook.md, runbook/night.md, 47+/25-), lint ok; supervisor spot-checked night SIZES (390x844, 1280x900 at tests/night_browser.py:28) and the daily workflow_dispatch sunset exemption (pipeline/sunsets.py:34). Pushed, PR #120 opened, supervisor accept, fresh review review-nz-election-runbook-fixes dispatched.
 - Second slot: research-nz-election-night-exercised (read-only): which night and week-after steps have run for real on Actions, ranked gaps to close before 5 Nov.
 - Codex window 17 percent, 6.7 days to reset.
+
+## 2026-10-28 13:54Z run (job_done research-nz-election-night-exercised, review-nz-election-runbook-fixes)
+
+- PR #120 runbook fixes: fresh Codex review accept, no findings; logged on the PR with the supervisor accept. CI pending, not merged. #118 and #119 CI still pending (runs 40693203998, 40697129289).
+- Night-exercised research: production collection and Pages are exercised; never run in production: night-live start, live poll to publish, s197 freeze blocking branch, 8 Nov stop, settlement capture, result-import workflow (zero runs), official transition, sunsets, import rollback. Ranked gaps: (1) Actions rehearsal of settlement, import and rollback; (2) daily watchdog bypasses the daily sunset because workflow_dispatch is allowed past DAILY_CLOSE (probe at 14 Nov 11:00Z: watchdog dispatch True); (3) refresh the night rehearsal and deployed-browser evidence on the release candidate; (4) boundaries together on final code.
+- Gap 2 fixed by the supervisor in bin/tick (lab tooling, one guard): the daily and social watchdogs stop at epoch 1794654000 (14 Nov 11:00Z, sunsets.py DAILY_CLOSE); deliberate manual dispatch still works. bash -n ok.
+- Gap 1 dispatched: nz-election-import-rehearsal (build, .worktrees/nz-election-import-rehearsal from 5291390): workflow_dispatch-only isolated rehearsal of settled, official, rollback with served-SHA PASS lines, runbook section.
+- Gaps 3 and 4 held for the release candidate (after the last builds, by 5 Nov): rehearsal workflow dispatch, night_deployed.py --rehearse and --faults, check_workflow_history.py.
+- Codex window 18 percent, 6.7 days to reset.
