@@ -355,3 +355,22 @@ def test_night_replay_retains_source_date_from_election_year(night_envs):
     row['source_updated_local'] = '2023-11-03T14:00:00'
     refs = night_envs['night/references/2023']['data'][0]
     assert 'Results last updated 3 November 2023 at 14:00.' in snapshot(row, refs, '2023', 'night/2023/final.json')
+
+
+def test_night_replay_fallback_dates_capture_provenance():
+    from product.nz_election.pipeline.content_checks import Tree
+    from product.nz_election.pipeline.night import load
+    payloads, sources, _ = load()
+    captured = next(s['fetched_at'] for s in sources if s['id'] == 'ec-2023-xml/election.xml')
+    envs = {key: {'data': rows, 'source': sources + [dict(id='unrelated', fetched_at='2099-01-01T00:00:00Z')]}
+            for key, rows in payloads.items()}
+    tree = Tree(page(envs, '2026-10-28T00:00:00Z'))
+    for identity in ('night-snapshot', 'sequence-2023', 'sequence-illustrative-2023'):
+        content = next(n for n in tree.nodes if n.attrs.get('id') == identity).text
+        assert f'Source XML captured at {captured}.' in content
+        assert '2023 final count' in content
+        assert 'Official results' in content
+        assert '2099-01-01' not in content
+        assert 'Results last updated' not in content
+    fallback = next(n for n in tree.nodes if n.attrs.get('id') == 'night-snapshot').text
+    assert 'Final snapshot' in fallback

@@ -19,7 +19,7 @@ def reader_update(clock):
     return f'{stamp.day} {stamp:%B %Y} at {stamp:%H:%M}'
 
 
-def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=None):
+def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=None, *, source_captured_at=None):
     # Archive maintenance timestamps do not date the election count. Keep them in exports.
     if row['mode'] == 'Final snapshot' and not row.get('source_updated_local', '').startswith(refs['id'] + '-'):
         row = {key: value for key, value in row.items() if key != 'source_updated_local'}
@@ -118,6 +118,8 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
     provenance = ('Results last updated ' + reader_update(clock) + '. Time shown as published by the Electoral Commission; no timezone was supplied.' if clock else
                   'Illustrative elapsed time ' + str(row['elapsed_seconds']) + ' seconds; scaled final party votes, not observed election-night counts.' if 'elapsed_seconds' in row else
                   'Final archive. Original source metadata is retained in the snapshot exports.')
+    if source_captured_at:
+        provenance += ' Source XML captured at ' + source_captured_at + '.'
     if row.get('packaging_label'):
         provenance += ' Packaged by the site at ' + row['retrieved_at'] + '.'
     return (content + f'<div class="source-note" id="{source}"><p>Electoral Commission. {escape(provenance)} Copyright Electoral Commission; no open licence stated.</p><p>{FREEZE_NOTICE}</p>'
@@ -149,7 +151,10 @@ def page(envs, built):
             basis = row.get('derivation', {}).get('basis', '')
             archive = envs.get(basis.removesuffix('.json'), {}).get('data', [])
             archive_updated = archive[0].get('source_updated_local') if archive else None
-            frames.append(f'<div data-frame="{i}" data-elapsed="{elapsed}">' + snapshot(row, refs, identity, path, i + 1, len(rows), archive_updated) + '</div>')
+            captures = [entry['fetched_at'] for entry in envs[path[:-5]].get('source', [])
+                        if entry['id'] in row['source_ref']] if row['mode'] == 'Final snapshot' or 'elapsed_seconds' in row else []
+            source_captured_at = max(captures) if captures else None
+            frames.append(f'<div data-frame="{i}" data-elapsed="{elapsed}">' + snapshot(row, refs, identity, path, i + 1, len(rows), archive_updated, source_captured_at=source_captured_at) + '</div>')
         panels.append(f'<section data-sequence="{seq["id"]}">' + ''.join(frames) + f'<p class="night-mode">{escape(seq["mode"])}{(' (' + escape(seq["id"]) + ')') if seq['id'] != 'live' else ''}</p></section>')
     # Keep replay explicit before close; prefer the complete live cycle after close.
     default = next((s for s in sequences if s['id'] == ('2023' if pre_close else 'live')),
