@@ -31,7 +31,8 @@ def seat_chart(row, source):
         start = 0 if label in {'Proportional entitlement', 'Calculated occupied House'} else offset + min(0, n)
         content += f'<div class="night-step"><span>{label}: {n}</span><div><i style="margin-left:{start * 100 / 140:.2f}%;width:{abs(n) * 100 / 140:.2f}%"></i></div></div>'
         offset = n if start == 0 else offset + n
-    context = row['mode'] + ', ' + (row.get('source_updated_local') or str(row.get('elapsed_seconds', 0)) + ' seconds')
+    context = row['mode'] + (', ' + row['source_updated_local'] if row.get('source_updated_local') else
+                             ', ' + str(row['elapsed_seconds']) + ' seconds' if 'elapsed_seconds' in row else '')
     return content + '</figure>' + table('Calculated seats: ' + context, ['Component', 'Seats'], [[label, str(n)] for label, n in stages], source=source)
 
 
@@ -104,7 +105,8 @@ def electorate_view(row, refs, source, identity):
     content += '</div>'
     svg, _ = g.hex_map({}, cells, map_rows, lambda r: r['held'], source=source, night=True)
     content += f'<figure class="night-map" aria-describedby="{source}">' + svg + '<figcaption>Find an electorate in the searchable table below.</figcaption></figure>'
-    context = row['mode'] + ', ' + (row.get('source_updated_local') or str(row.get('elapsed_seconds', 0)) + ' seconds')
+    context = row['mode'] + (', ' + row['source_updated_local'] if row.get('source_updated_local') else
+                             ', ' + str(row['elapsed_seconds']) + ' seconds' if 'elapsed_seconds' in row else '')
     rendered = table('Electorate provisional leaders: ' + context, ['Electorate', 'Leader', 'Margin (votes)', 'Reporting status'], rows, css="poll-table", source=source)
     for e in refs['electorates']:
         rendered = rendered.replace('<tr><td>', f'<tr id="night-row-{identity}-{e}"><td>', 1)

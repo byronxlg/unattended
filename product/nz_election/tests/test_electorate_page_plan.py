@@ -372,3 +372,18 @@ def test_candidate_source_date_follows_snapshot_provenance(tmp_path, monkeypatch
     visible = text(Tree(candidate_cards(seat(), '2026-11-07T06:00:00Z')).root)
     assert 'Data to 22 October 2026.' in visible
     assert 'Data to 20 October 2026.' not in visible
+
+
+def test_electorate_result_appears_once_in_its_answer(populated):
+    envs, _ = populated
+    tree = Tree(detail(seat('nelson'), envs))
+    assert text(tree.root).count('won by') == 1
+    assert 'won by 26 votes' in text(answer_region(tree, 'Who won last time?'))
+
+
+def test_electorate_map_caption_names_the_seat():
+    for slug in ('nelson', 'wellington-north', 'te-tai-tonga'):
+        row = seat(slug)
+        tree = Tree(detail(row, {}))
+        assert any(n.tag == 'figcaption' and text(n) == row['name'] + ' on the electorate map'
+                   for n in tree.nodes)

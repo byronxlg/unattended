@@ -176,21 +176,9 @@ def night_result(row, envs, built):
 
 
 def local_hero(row, envs):
-    from .snapshot_views import result, winner_name
-    from .home_graphics import SHORT
-    held = result(row, envs)
-    answer = ''
-    if held:
-        party = SHORT.get(held['party_id'], held['party'])
-        winner = escape(winner_name(row, held))
-        if row['mapping_status'] != 'unchanged':
-            answer = (f'New boundaries for 2026: {winner} ({escape(party)}) won the predecessor seat, '
-                      f'{escape(held["baseline_name"])}, by <b>{held["margin"]:,}</b> votes in 2023.')
-        else:
-            answer = f'{winner} ({escape(party)}) won by <b>{held["margin"]:,}</b> votes in 2023.'
     kicker = 'Māori electorate' if row['kind'] == 'maori' else 'General electorate'
     return (f'<header class="local-hero"><p class="kicker">{kicker}</p><h1 id="electorate-title">{escape(row["name"])}</h1>'
-            + (f'<p class="by">{answer}</p>' if answer else '') + '</header>')
+            + '</header>')
 
 
 def detail(row, envs, built=None):
@@ -202,7 +190,7 @@ def detail(row, envs, built=None):
     content = '<div class="electorate-page">' + night_result(row, envs, built)
     content += '<div class="electorate-intro">' + local_hero(row, envs)
     content += ('<figure id="electorate-map" class="locator-card" aria-describedby="source-electorates">' + graphic
-                + '<figcaption>Highlighted seat</figcaption></figure>')
+                + f'<figcaption>{escape(row["name"])} on the electorate map</figcaption></figure>')
     content += '</div>' + candidate_cards(row, built)
     content += '<div class="electorate-actions source-note"><p class="source-actions enrolled-electorate">'
     content += link('https://vote.nz/', 'Check your enrolled electorate at vote.nz')

@@ -144,11 +144,7 @@ def test_replay_frames_explain_coverage_without_inventing_data(night_envs):
             assert 'voting-place coverage and seats are published only in the final archive' in context.text
             assert 'Results cover' not in frame.text and 'House 122' not in frame.text
         else:
-            basis = night_envs['night/illustrative-2023/step-2']['data'][0]['derivation']['basis']
-            updated = night_envs[basis[:-5]]['data'][0]['source_updated_local']
-            from datetime import datetime
-            stamp = datetime.fromisoformat(updated)
-            assert f'Final archive updated {stamp.day} {stamp:%B %Y} at {stamp:%H:%M}' in context.text
+            assert 'Final archive updated' not in context.text
             assert 'House 122' in frame.text and '2,851,211' in frame.text
 
 
@@ -324,3 +320,38 @@ const empty = new NightLive({loopEndsAt:STOP,now:()=>now,
 await empty.tick(); assert.equal(status, ENDED);
 '''.replace('MODULE', repr(module)).replace('STOP', json.dumps(stop)).replace('ENDED', json.dumps(ended))
     subprocess.run(['node', '--input-type=module', '-e', script], check=True)
+
+
+def test_night_replay_does_not_present_archive_maintenance_as_count_date(night_envs):
+    from product.nz_election.pipeline.content_checks import Tree
+    tree = Tree(page(night_envs, '2026-10-28T00:00:00Z'))
+    for sequence in ('2023', 'illustrative-2023'):
+        replay = next(n for n in tree.nodes if n.attrs.get('id') == 'sequence-' + sequence)
+        assert '2024' not in replay.text
+        assert 'Results last updated' not in replay.text
+        assert 'Final archive updated' not in replay.text
+    source = next(r for env in night_envs.values() for r in env['data']
+                  if r.get('mode') == 'Final snapshot' and 'ec-2023-xml/election.xml' in r.get('source_ref', []))
+    assert source['source_updated_local'] == '2024-11-10T00:00:00'
+
+
+def test_night_live_retains_real_update_time(night_envs):
+    from copy import deepcopy
+    from product.nz_election.pipeline.night_page import snapshot
+    row = deepcopy(next(r for env in night_envs.values() for r in env['data']
+                        if r.get('mode') == 'Final snapshot' and 'ec-2023-xml/election.xml' in r.get('source_ref', [])))
+    row.update(mode='Live preliminary results', source_updated_local='2026-11-07T20:30:00')
+    refs = night_envs['night/references/2023']['data'][0]
+    html = snapshot(row, refs, 'live', 'night/live/current.json')
+    assert 'Results last updated 7 November 2026 at 20:30.' in html
+    assert 'updated 20:30' in html
+
+
+def test_night_replay_retains_source_date_from_election_year(night_envs):
+    from copy import deepcopy
+    from product.nz_election.pipeline.night_page import snapshot
+    row = deepcopy(next(r for env in night_envs.values() for r in env['data']
+                        if r.get('mode') == 'Final snapshot' and 'ec-2023-xml/election.xml' in r.get('source_ref', [])))
+    row['source_updated_local'] = '2023-11-03T14:00:00'
+    refs = night_envs['night/references/2023']['data'][0]
+    assert 'Results last updated 3 November 2023 at 14:00.' in snapshot(row, refs, '2023', 'night/2023/final.json')

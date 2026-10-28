@@ -20,6 +20,11 @@ def reader_update(clock):
 
 
 def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=None):
+    # Archive maintenance timestamps do not date the election count. Keep them in exports.
+    if row['mode'] == 'Final snapshot' and not row.get('source_updated_local', '').startswith(refs['id'] + '-'):
+        row = {key: value for key, value in row.items() if key != 'source_updated_local'}
+    if archive_updated and not archive_updated.startswith(refs['id'] + '-'):
+        archive_updated = None
     source = 'source-' + identity
     parties = sorted(row['party_results'].items(), key=lambda p: (-p[1]['votes'], p[0]))
     names = {p: refs['parties'][p]['short_name'] for p, _ in parties}
@@ -101,7 +106,7 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
     from .night_electorates import electorate_view, seat_chart, comparison_view
     content += electorate_view(row, refs, source, identity) + combinations_html
     content += f'<p class="night-votes"><strong>{row["valid_party_votes"]:,}</strong> valid party votes</p>'
-    caption = 'Party results: ' + row['mode'] + ', ' + (row.get('source_updated_local') or str(row['elapsed_seconds']) + ' seconds')
+    caption = 'Party results: ' + row['mode'] + ', ' + (row.get('source_updated_local') or (str(row['elapsed_seconds']) + ' seconds' if 'elapsed_seconds' in row else refs['id'] + ' final count'))
     content += '<details><summary>Party votes and source-reported seats</summary>' + table(caption, ['Party', 'Valid party votes'] + (['Source-reported seats'] if 'reported_house' in row else []),
                      [[escape(names[p]), f'{r["votes"]:,}'] + ([str(r['total_seats'])] if 'reported_house' in row else []) for p, r in parties], source=source) + '</details>'
     content += seat_chart(row, source)
@@ -111,7 +116,8 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
         content += comparison_view(row.get('preliminary_baseline'), row.get('official_result'), source)
     clock = row.get('source_updated_local')
     provenance = ('Results last updated ' + reader_update(clock) + '. Time shown as published by the Electoral Commission; no timezone was supplied.' if clock else
-                  'Illustrative elapsed time ' + str(row['elapsed_seconds']) + ' seconds; scaled final party votes, not observed election-night counts.')
+                  'Illustrative elapsed time ' + str(row['elapsed_seconds']) + ' seconds; scaled final party votes, not observed election-night counts.' if 'elapsed_seconds' in row else
+                  'Final archive. Original source metadata is retained in the snapshot exports.')
     if row.get('packaging_label'):
         provenance += ' Packaged by the site at ' + row['retrieved_at'] + '.'
     return (content + f'<div class="source-note" id="{source}"><p>Electoral Commission. {escape(provenance)} Copyright Electoral Commission; no open licence stated.</p><p>{FREEZE_NOTICE}</p>'
