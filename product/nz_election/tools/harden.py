@@ -55,7 +55,7 @@ def main(argv=None, *, runner=subprocess.run, root=ROOT):
     parser.add_argument('--site', required=True, type=Path)
     parser.add_argument('--offline', action='store_true')
     parser.add_argument('--require', metavar='NAME[,NAME]',
-                        help='forward required checks to verify all; election-night acceptance uses night,waterfall')
+                        help='forward required checks to verify all; advance publication uses advance; election-night acceptance uses night,waterfall')
     parser.add_argument('--history', action='store_true', help='required for PASS; otherwise a clean run is PARTIAL (exit 1)')
     args = parser.parse_args(argv)
     first = None

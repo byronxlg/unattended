@@ -71,7 +71,9 @@ watchdog() { # workflow file, max age in seconds
   fi
 }
 watchdog nz-election-hourly.yml 5400
-for wf in nz-election-daily.yml nz-election-social-daily.yml; do watchdog "$wf" 93600; done
+# The daily sunset (sunsets.py DAILY_CLOSE, 14 Nov 11:00Z) lets workflow_dispatch through for deliberate
+# manual runs, so the watchdog itself stops dispatching the dailies there.
+[ "$(date +%s)" -lt 1794654000 ] && for wf in nz-election-daily.yml nz-election-social-daily.yml; do watchdog "$wf" 93600; done
 LAST_RUN=$(stat -f %m "$STATE/supervisor.last" 2>/dev/null || echo 0); NOW=$(date +%s)
 NEXT_AFTER=$(cat "$STATE/next-run-after" 2>/dev/null || echo 0)
 if [ "$RUNNING_JOBS" = "0" ] && [ $((NOW-LAST_RUN)) -ge 3600 ] && [ "$NOW" -ge "${NEXT_AFTER:-0}" ]; then REASONS+=("idle"); fi
