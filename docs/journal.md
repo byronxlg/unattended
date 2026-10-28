@@ -3627,3 +3627,10 @@ No Byron words.
 - PR #117 settlement-prep: third fresh review accept, no findings (CLI failures sanitized to NIGHT_CAPTURE_PREP_FAILED, runbook matches the import workflow). Logged on the PR. CI pending; merge next run on green.
 - PR #118 advance-acceptance: second fresh review request changes. advance_acceptance.py:28 accepts the count wrapped in the site's own `.chart-data` class (styles.css:376 clips to 1px); its probe gave PASS on both routes. Fix-1 covered inline hiding only; the fix-1 brief told Codex to check styles.css for hiding classes and it missed this one (brief named the risk but gave no drift guard). Fix-2 nz-election-advance-acceptance-fix-2 dispatched on the build thread: every hiding class in styles.css, regressions on both routes, a test that fails when styles.css gains a hiding rule the checker does not know.
 - Codex window 12 percent, 6.8 days to reset. No Byron words this run.
+
+## 2026-10-28T12:29Z run (job_done nz-election-advance-acceptance-fix-2)
+
+- #118 fix-2 20b6792: advance_acceptance.py excludes all 21 hiding/clipping classes from styles.css; both-route regressions and a stylesheet drift test. Host: `pytest -q product/nz_election/tests/test_advance*.py` 255 passed; with advance_acceptance.py at 65fbef1 the acceptance file fails 43; lint ok. Pushed, supervisor accept logged on the PR, third fresh review review-nz-election-advance-acceptance-3 dispatched.
+- #117 CI run 40685179986 still pending; not merged.
+- Second slot left free this run (Claude budget for the run; next increment from readiness-4 to be picked next run).
+- Codex window 13 percent, 6.8 days to reset. No Byron words this run.
