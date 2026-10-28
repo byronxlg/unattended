@@ -158,14 +158,14 @@ def test_port_waikato_bars_use_snapshot_even_without_baseline():
 def live_env():
     return {'night/index': {'data': [{'id': 'live', 'reference_path': 'night/references/current.json', 'snapshot_paths': ['night/live/current.json']}]},
             'night/references/current': {'data': [{'electorates': {'59': {'electorate_name': 'Wellington North'}}, 'candidates': {'1': {'candidate_name': 'Test leader'}, '2': {'candidate_name': 'Test runner'}}}]},
-            'night/live/current': {'data': [{'leaders': {'59': {'leader': '1', 'margin': 123, 'status': 'provisional', 'statistics': {'total_voting_places_counted': 4, 'total_voting_places': 12}}}, 'source_updated_local': '2026-11-07T20:00:00'}]}}
+            'night/live/current': {'data': [{'leaders': {'59': {'leader': '1', 'margin': 123, 'status': 'provisional', 'statistics': {'total_voting_places_counted': 4, 'total_voting_places': 12}}}, 'retrieved_at': '2026-11-07T07:00:00Z', 'source_updated_local': '2026-11-07T20:00:00'}]}}
 
 
 def test_current_night_answer_promotes_above_candidates():
     envs = live_env()
     html = detail(seat(), envs, '2026-11-07T07:00:00Z')
     tree = Tree(html)
-    assert tree.nodes.index(heading(tree, 'Who is leading here now?')) < tree.nodes.index(heading(tree, 'Who is standing in 2026?'))
+    assert tree.nodes.index(heading(tree, 'Who is leading here now?')) < tree.nodes.index(heading(tree, 'Who stood in 2026?'))
     assert 'Test leader' in html and 'Margin: 123 votes' in html
     assert '4 of 12 voting places counted' in html and 'Provisional leader' in html
     provenance(html)
@@ -182,7 +182,7 @@ def test_night_absent_and_tied_counts():
     item.update(status='not yet reported', leader=None, margin=None)
     assert 'Who is leading here now?' not in detail(seat(), envs)
     item.update(status='final', tied_candidates=['1', '2'], margin=0)
-    html = detail(seat(), envs)
+    html = detail(seat(), envs, '2026-11-07T07:00:00Z')
     assert 'Tied: Test leader, Test runner' in html and 'Margin: 0 votes' in html
     assert 'Final source count; leader provisional' in html
 
@@ -307,3 +307,68 @@ def test_electorate_phone_browser(populated, tmp_path, case):
                             capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
     assert 'PASS electorate ' + case in result.stdout
+
+
+@pytest.mark.parametrize('built,state,expected', [
+    ('2026-11-07T05:59:59Z', 'live', 'Who is standing in 2026?'),
+    ('2026-11-07T10:00:00Z', 'stale', 'Stale: last complete cycle retrieved'),
+    ('2026-11-08T06:01:00Z', 'live', 'live updates ended'),
+    ('2026-11-14T00:00:00Z', 'settled', 'Last complete count'),
+    ('2026-11-28T00:00:00Z', 'official', 'Official result for this electorate'),
+])
+def test_local_result_states_at_five_clocks(tmp_path, built, state, expected):
+    from product.nz_election.tests.test_sunsets import copy_state
+    envs = copy_state(tmp_path, 'live' if state == 'stale' else state)
+    result = envs['night/live/current']['data'][0]
+    if state == 'stale':
+        # Keep the observation before the requested stale clock.
+        result['retrieved_at'] = '2026-11-07T07:00:00Z'
+        result['source_updated_local'] = '2026-11-07T20:00:00'
+    refs = envs['night/references/live']['data'][0]
+    identity = next(k for k, v in result['leaders'].items() if v.get('leader'))
+    row = next(r for r in config('electorates') if r['name'] == refs['electorates'][identity]['electorate_name'])
+    html = detail(row, envs, built)
+    visible = text(Tree(html).root)
+    assert expected in visible
+    assert 'Who is leading here now?' not in visible
+    assert 'leader provisional' not in visible
+    if built != '2026-11-07T05:59:59Z':
+        assert 'Who stood in 2026?' in visible
+        assert 'Candidates who stood for your electorate vote.' in visible
+        assert 'Candidates for your electorate vote.' not in visible
+        assert 'Who is standing in 2026?' not in visible
+        assert 'Captured ' + result['retrieved_at'] in visible
+        assert refs['candidates'][result['leaders'][identity]['leader']]['candidate_name'] in visible
+        local = result['leaders'][identity]
+        assert f'Margin: {local["margin"]:,} votes' in visible
+        coverage = local['statistics']
+        assert f'{coverage["total_voting_places_counted"]} of {coverage["total_voting_places"]} voting places counted' in visible
+        assert ('Official result for this electorate' in visible) == (state == 'official')
+    else:
+        assert 'Captured ' not in visible
+    provenance(html)
+
+
+def test_post_close_candidates_without_result_capture():
+    visible = text(Tree(detail(seat(), {}, '2026-11-07T06:00:00Z')).root)
+    assert 'Who stood in 2026?' in visible
+    assert 'Candidates who stood for your electorate vote.' in visible
+    assert 'Who is standing in 2026?' not in visible
+    assert 'Candidates for your electorate vote.' not in visible
+    for claim in ('result', 'leader', 'margin', 'captur'):
+        assert claim not in visible.lower()
+
+
+def test_candidate_source_date_follows_snapshot_provenance(tmp_path, monkeypatch):
+    import json
+    document = json.loads((snapshots.SNAPSHOTS / 'candidates-2026.json').read_text())
+    document['retrieved_at'] = '2026-10-22T07:23:08Z'
+    (tmp_path / 'candidates-2026.json').write_text(json.dumps(document))
+    reconciliation = snapshots.SNAPSHOTS / 'candidate-reconciliation-2026.json'
+    (tmp_path / reconciliation.name).write_text(reconciliation.read_text())
+    monkeypatch.setattr(snapshots, 'SNAPSHOTS', tmp_path)
+    monkeypatch.setattr(snapshot_views, 'load', snapshots.load)
+    from product.nz_election.pipeline.electorate_pages import candidate_cards
+    visible = text(Tree(candidate_cards(seat(), '2026-11-07T06:00:00Z')).root)
+    assert 'Data to 22 October 2026.' in visible
+    assert 'Data to 20 October 2026.' not in visible

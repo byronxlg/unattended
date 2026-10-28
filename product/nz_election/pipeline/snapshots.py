@@ -188,6 +188,17 @@ def _reconciliation(row, electorate):
                              'Unresolved list rank correction')
 
 
+def retrieval_date(name):
+    """Read the snapshot envelope's capture date for source captions."""
+    _require(isinstance(name, str) and name in NAMES, 'Unknown snapshot name')
+    path = SNAPSHOTS / (name + '.json')
+    _require(not path.is_symlink(), 'Snapshot must not be a symlink')
+    value = json.loads(path.read_text(encoding='utf-8')).get('retrieved_at')
+    _timestamp(value)
+    clock = datetime.fromisoformat(value.replace('Z', '+00:00'))
+    return f'{clock.day} {clock:%B %Y}'
+
+
 def load(name):
     """Return validated record dictionaries for one allowlisted snapshot stem.
 

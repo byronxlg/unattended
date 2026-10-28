@@ -1,9 +1,11 @@
 """Electorate answers in the accepted page order; absent facts omit their blocks."""
 from .presentation import overdue
-from datetime import datetime, timezone
 from html import escape
 from urllib.parse import urlsplit
 from .build import PREFIX, link, table, compact_time
+from .sunsets import NIGHT_CLOSE, instant, post_election
+from .result_states import sentence
+from .night_page import live_status
 
 
 def publisher(source):
@@ -58,7 +60,7 @@ def source(envs, stem, built=None, *, full=False):
     return result + '</div></div>'
 
 
-def candidate_cards(row):
+def candidate_cards(row, built=None):
     from .snapshot_views import load
     from .home_graphics import pc
     reconciliation = next(r for r in load('candidate-reconciliation-2026') if r['electorate_id'] == row['id'])
@@ -80,9 +82,13 @@ def candidate_cards(row):
     from .snapshot_views import footnote
     if not cards:
         return ''
-    return section('candidates-title', 'Who is standing in 2026?', 'Candidates for your electorate vote.',
+    from .snapshots import retrieval_date
+    after_close = built and post_election(built)
+    title = 'Who stood in 2026?' if after_close else 'Who is standing in 2026?'
+    subtitle = 'Candidates who stood for your electorate vote.' if after_close else 'Candidates for your electorate vote.'
+    return section('candidates-title', title, subtitle,
                    '<ul class="race-cards" aria-describedby="source-candidates-2026">' + cards + '</ul>', '', '',
-                   source_note=footnote('candidates-2026', '20 October 2026'),
+                   source_note=footnote('candidates-2026', retrieval_date('candidates-2026')),
                    source_id='source-candidates-2026', css='race-candidates module')
 
 
@@ -122,7 +128,7 @@ def previous_result(row, envs, built):
 
 def night_result(row, envs, built):
     # Only the current live family can answer "now", never an archive or replay.
-    if built and datetime.fromisoformat(built) < datetime(2026, 11, 7, 6, tzinfo=timezone.utc):
+    if built and not post_election(built):
         return ''
     seq = next((s for s in envs.get('night/index', {}).get('data', []) if s['id'] == 'live'), None)
     if not seq:
@@ -138,14 +144,32 @@ def night_result(row, envs, built):
     if not leader and not tied:
         return ''
     name = leader['candidate_name'] if leader else 'Tied: ' + ', '.join(refs['candidates'][c]['candidate_name'] for c in tied)
-    status = 'Final source count; leader provisional' if item['status'] == 'final' else 'Provisional leader'
+    clock = instant(built)
+    state = result.get('result_state')
+    freshness = live_status(clock.isoformat(), result.get('retrieved_at'))
+    if state:
+        notice = escape(sentence(result, built))
+    elif clock >= NIGHT_CLOSE:
+        notice = 'Preliminary results; live updates ended. Retained count.'
+    else:
+        notice = freshness
+    current = not state and clock < NIGHT_CLOSE and freshness.startswith('Preliminary results.')
+    title = ('Official result for this electorate' if state == 'official' else
+             'Who is leading here now?' if current else 'Latest count for this electorate')
+    status = ('Official result' if state == 'official' else
+              ('Final source count; leader provisional' if item['status'] == 'final' else 'Provisional leader')
+              if current else 'Retained preliminary count')
     stats = item.get('statistics')
     if stats:
         status += f'; {stats["total_voting_places_counted"]} of {stats["total_voting_places"]} voting places counted'
-    content = '<section class="electorate-night"><h2>Who is leading here now?</h2><p><strong>' + escape(name) + '</strong></p>'
+    content = '<section class="electorate-night"><h2>' + title + '</h2><p class="state">' + notice + '</p><p><strong>' + escape(name) + '</strong></p>'
     if item.get('margin') is not None:
         content += f'<p>Margin: {item["margin"]:,} votes</p>'
     content += '<p>' + escape(status) + '</p>'
+    if result.get('retrieved_at'):
+        content += '<p class="home-footnote">Captured ' + escape(result['retrieved_at']) + '.</p>'
+    if envs[seq['snapshot_paths'][-1][:-5]].get('run_url') == 'offline-verification':
+        content += '<p class="home-footnote">Offline verification: synthetic data.</p>'
     if result.get('source_updated_local'):
         content += '<p>Source updated ' + escape(result['source_updated_local']) + ' (source local time).</p>'
     return content + f'<div class="source-note" id="source-electorate-night"><p class="source-actions"><a href="{PREFIX}methods/#records-electorate-night">Sources and method</a></p></div></section>'
@@ -179,7 +203,7 @@ def detail(row, envs, built=None):
     content += '<div class="electorate-intro">' + local_hero(row, envs)
     content += ('<figure id="electorate-map" class="locator-card" aria-describedby="source-electorates">' + graphic
                 + '<figcaption>Highlighted seat</figcaption></figure>')
-    content += '</div>' + candidate_cards(row)
+    content += '</div>' + candidate_cards(row, built)
     content += '<div class="electorate-actions source-note"><p class="source-actions enrolled-electorate">'
     content += link('https://vote.nz/', 'Check your enrolled electorate at vote.nz')
     content += '</p><p class="source-actions">' + '<a href="#electorate-map">Boundary map (schematic)</a>' + '</p>' + policy_link(row) + '</div>'
