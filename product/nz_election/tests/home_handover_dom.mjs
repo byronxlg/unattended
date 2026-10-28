@@ -7,12 +7,15 @@ Date.now = () => now;
 const intervals = [], listeners = {}, requests = [];
 const waiting = '<section id="night-summary">Polls have closed and counting is under way.</section>';
 const settled = '<section id="night-summary">New Zealand voted on 7 November. Live updates ended.</section>';
-const late = scenario.endsWith('after-stop');
+const seeded = scenario.startsWith('populated-');
+const late = scenario.endsWith('after-stop') && !seeded;
+if (seeded) now = Date.parse('2026-11-07T10:00:00Z');
 if (late) now = stop + 60000;
+const notice = {textContent:'Live preliminary results.', dataset:{retrievedAt:new Date(open).toISOString(), mode:'Live preliminary results'}};
 const target = {
   dataset: {loopEndsAt:new Date(stop).toISOString(), waiting, settled},
-  innerHTML:scenario === 'waiting-after-stop' ? waiting : 'poll hero',
-  querySelector: selector => selector === '#home-night' ? (target.innerHTML === home ? {} : null) : target.innerHTML.includes('night-summary') ? {} : null
+  innerHTML:seeded ? '<section id="night-summary">House: 120 seats.</section>' : scenario === 'waiting-after-stop' ? waiting : 'poll hero',
+  querySelector: selector => selector === '#home-live-status' ? (seeded || target.innerHTML === home ? notice : null) : selector === '#home-night' ? (seeded || target.innerHTML === home ? {} : null) : target.innerHTML.includes('night-summary') ? {} : null
 };
 const dates = {innerHTML:'Enrolment closed on 25 October; advance voting from 26 October; election day 7 November.'};
 globalThis.location = {href:'https://example.test/unattended/nz-election/'};
@@ -26,6 +29,7 @@ const home = '<section id="night-summary">' + (scenario === 'complete' ? 'House:
 globalThis.fetch = async url => {
   assert.equal(new URL(url).pathname.endsWith('/night-live.json'), true);
   requests.push(now);
+  if (seeded) throw Error('offline');
   if (scenario === 'recovery' && requests.length === 1) throw Error('offline');
   return {ok:true, json:async()=>({available:scenario !== 'absent',
     loop_ended:false, loop_ends_at:new Date(stop).toISOString(),
@@ -35,6 +39,20 @@ globalThis.fetch = async url => {
 await import(process.argv[3] || '../web/home-live.mjs');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 await flush();
+if (seeded) {
+  assert.match(notice.textContent, /Stale: last complete cycle retrieved 2026-11-07T06:00:00.000Z/);
+  assert.doesNotMatch(notice.textContent, /Live preliminary results/);
+  assert.match(target.innerHTML, /House: 120 seats/);
+  for (const clock of ['2026-11-08T06:01:00Z', '2026-11-14T00:00:00Z', '2026-11-27T00:00:00Z']) {
+    now = Date.parse(clock); intervals.forEach(fn => fn()); await flush();
+    assert.match(notice.textContent, /Live updates ended/);
+    assert.doesNotMatch(notice.textContent, /Live preliminary results/);
+    assert.match(target.innerHTML, /House: 120 seats/);
+  }
+  assert.equal(requests.length, 1);
+  console.log('PASS populated stale and ended clocks');
+  process.exit(0);
+}
 if (late) {
   assert.equal(target.innerHTML, settled);
   intervals.forEach(fn => fn()); await flush();
@@ -62,6 +80,11 @@ intervals.forEach(fn => fn()); await flush();
 listeners.visibilitychange(); await flush();
 now += 120000; intervals.forEach(fn => fn()); await flush();
 assert.equal(requests.length, count);
-assert.equal(target.innerHTML, scenario === 'absent' ? settled : home);
+if (scenario === 'absent') assert.equal(target.innerHTML, settled);
+else {
+  assert.match(target.innerHTML, /House: 120 seats|0 national seats reported/);
+  assert.match(notice.textContent, /Live updates ended/);
+  assert.doesNotMatch(notice.textContent, /Live preliminary results/);
+}
 assert.ok(requests.every(t => t >= open && t < stop));
 console.log('PASS DOM handover: ' + scenario);

@@ -52,7 +52,7 @@ def run(case):
                         if r.request.url.endswith('/night-live.json'):
                             requests.append(page.evaluate('Date.now()'))
                             body = dict(available=False, loop_ended=False, loop_ends_at='2026-11-08T06:00:00Z') if case == 'absent' else pack
-                            r.fulfill(status=503 if case == 'recovery' and len(requests) == 1 else 200,
+                            r.fulfill(status=503 if (case == 'recovery' and len(requests) == 1) or (case == 'complete' and requests[-1] >= datetime.fromisoformat('2026-11-07T10:00:00Z').timestamp()*1000) else 200,
                                       content_type='application/json', body=json.dumps(body))
                         elif r.request.url.startswith(origin + '/'):
                             r.continue_()
@@ -91,10 +91,22 @@ def run(case):
                         page.clock.run_for(55000)
                         assert page.locator('#dates').inner_text() == 'Voting closed on 7 November at 7pm.'
                         page.screenshot(path=f'artifacts/home-0601-{width}.png')
+                    if case == 'complete':
+                        page.clock.pause_at(datetime.fromisoformat('2026-11-07T10:00:00Z'))
+                        page.clock.run_for(1000)
+                        text = page.locator('#night-summary').inner_text()
+                        assert 'Stale: last complete cycle retrieved' in text
+                        assert 'Live preliminary results' not in text and 'House: 120 seats' in text
+                        page.screenshot(path=f'artifacts/home-stale-{width}.png')
                     page.clock.pause_at(datetime.fromisoformat('2026-11-08T06:00:00+00:00'))
                     count = len(requests)
                     page.clock.run_for(120000)
                     assert len(requests) == count
+                    if case == 'complete':
+                        text = page.locator('#night-summary').inner_text()
+                        assert 'Live updates ended.' in text
+                        assert 'Live preliminary results' not in text and 'House: 120 seats' in text
+                        page.screenshot(path=f'artifacts/home-ended-{width}.png')
                     if case == 'absent':
                         assert page.locator('#home-live').inner_html() == settled
                     assert all(datetime.fromisoformat('2026-11-07T06:00:00+00:00').timestamp()*1000 <= t < datetime.fromisoformat('2026-11-08T06:00:00+00:00').timestamp()*1000 for t in requests)

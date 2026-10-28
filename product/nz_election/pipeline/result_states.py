@@ -27,6 +27,22 @@ def comparison(row, status):
                 date=row['source_updated_local'], seats={p: r['total_seats'] for p, r in row['party_results'].items()})
 
 
+def live_status(built, retrieval):
+    now = datetime.fromisoformat(built.replace('Z', '+00:00'))
+    opening = datetime.fromisoformat('2026-11-07T06:00:00+00:00')
+    if now < opening:
+        return 'Results start at 19:00 NZDT on 7 November.'
+    if now >= NIGHT_CLOSE:
+        return ('Preliminary; ' + official_results_notice(built).replace('Official', 'official', 1)
+                + ' Live updates ended.' + (' Last complete capture ' + retrieval + '.' if retrieval else ' Check official results.'))
+    if not retrieval or datetime.fromisoformat(retrieval.replace('Z', '+00:00')) < opening:
+        return 'Showing the dated packaged snapshot; check official results.'
+    age = (now - datetime.fromisoformat(retrieval.replace('Z', '+00:00'))).total_seconds()
+    if age >= 900:
+        return f'Stale: last complete cycle retrieved {retrieval}. Check official results.'
+    return f'Preliminary results. Packaged by the site at {retrieval}.'
+
+
 def sentence(row, built=None):
     if row.get('result_state') == 'official':
         clock = datetime.fromisoformat(row['source_updated_local'])

@@ -5,7 +5,7 @@ from itertools import combinations
 from .build import PREFIX, table, render, config
 from . import home_graphics as g
 from .presentation import election_countdown
-from .result_states import sentence, comparison
+from .result_states import sentence, comparison, live_status
 from .result_sources import official_results_at, official_results_notice
 
 RESULTS = 'https://www.electionresults.govt.nz/'
@@ -118,18 +118,6 @@ def snapshot(row, refs, identity, path, frame=1, frame_count=1, archive_updated=
             f'<p class="source-actions"><a href="{PREFIX}data/{path}">{"Snapshot JSON (Packaged by the site)" if row.get("packaging_label") else "Snapshot JSON"}</a><a href="{PREFIX}data/{path[:-5]}.csv">{"CSV (Packaged by the site)" if row.get("packaging_label") else "CSV"}</a><a href="{RESULTS}">Official results</a><a href="{LAW}">Electoral Act s197</a></p></div>')
 
 
-def live_status(built, retrieval):
-    now = datetime.fromisoformat(built.replace('Z', '+00:00'))
-    opening = datetime.fromisoformat('2026-11-07T06:00:00+00:00')
-    if now < opening:
-        return 'Results start at 19:00 NZDT on 7 November.'
-    if not retrieval or datetime.fromisoformat(retrieval.replace('Z', '+00:00')) < opening:
-        return 'Showing the dated packaged snapshot; check official results.'
-    age = (now - datetime.fromisoformat(retrieval.replace('Z', '+00:00'))).total_seconds()
-    if age >= 900:
-        return f'Stale: last complete cycle retrieved {escape(retrieval)}. Check official results.'
-    return f'Preliminary results. Packaged by the site at {escape(retrieval)}.'
-
 
 def page(envs, built):
     from .night_live import CLOSE, stamp
@@ -169,7 +157,7 @@ def page(envs, built):
     if default['id'] == 'live':
         retrieval = envs[default['snapshot_paths'][0][:-5]]['data'][0]['retrieved_at']
     current = envs.get('night/live/current', {}).get('data', [{}])[0] if default['id'] == 'live' else {}
-    status = sentence(current, built) if current.get('result_state') else live_status(built, retrieval)
+    status = sentence(current, built) if current.get('result_state') else escape(live_status(built, retrieval))
     if current.get('result_state') and envs['night/live/current'].get('run_url') == 'offline-verification':
         status += ' Offline verification: synthetic data.'
     result_notice = official_results_notice(built, [current])
