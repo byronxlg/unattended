@@ -3511,3 +3511,55 @@ No Byron words (no issue updated since 23:00Z). Hourly green (03:53Z success), P
 No Byron words. funding-group dd3b4dd (funding/ returns grouped by party behind #<party_id> anchors, :target reveals, print shows all; jump list; 1280 grid tightened). Codex sandbox could not launch Chromium (5 cases). Host: pytest -k "funding or design" 78 passed incl. Chromium; origin/data build PASS 82 routes; funding/ 390 full page 4,430 px (was about 21,000), 1280x800 pace heading y 641 with its answer visible, jump to #act opens its returns, parties/ link to funding/#nat lands open; screenshots looked at. PR #113 opened, supervisor accept (nit: jump list repeats the group headings below it), fresh review review-nz-election-funding-group dispatched.
 Advance research: vote.nz voting statistics page reports 2026 informal daily counts, 69,034 (26 Oct) and 106,714 (27 Oct), 175,748 total, excluding overseas, subject to revision; CSV link exists. Host curl and headless Chromium (page and CSV) still return the Incapsula shell, so no bytes captured. Preflight rejects the header (no daily/cumulative wording). Decision: ship the figure as a transcribed capture with explicit provenance rather than wait for bytes; nz-election-advance-2026 dispatched (build, .worktrees/nz-election-advance-2026, Page plan pages/vote.md, DESIGN.md). Codex window 1 percent at dispatch.
 Next: merge #113 on accept and CI green, link on #103; advance-2026 host-verify, PR, fresh review, merge.
+
+## 2026-10-28 07:33Z (job_done nz-election-advance-2026, review-nz-election-funding-group)
+
+- PR #113 funding group: fresh review accept, no Important findings (nits: funding_browser.py:53 .first() on repeated donors; keyboard and print checks; jump list duplicates heading links; 1280 timing chart still mostly below 800 px). Logged on the PR. CI run 40649525376 pending; not merged.
+- nz-election-advance-2026 4ae0d41: transcribed EC capture (175,748 through 27 Oct, informal, excludes overseas) with provenance, preflight PASS, lint ok; 7 failed 470 passed: 6 Chromium sandbox denials, 1 contract conflict (test_advance.py:206 assumes no committed 2026 capture). Committing a real capture moves that contract; follow-up 1 authorizes that one assertion to run against an empty registered set, invariant unchanged. Dispatched nz-election-advance-2026-fix-1 on the build thread.
+- Second slot: nz-election-nav-legend dispatched (.worktrees/nz-election-nav-legend from origin/main; design-backlog: header nav clips "Electora" at 390, home legend orphans TOP between blocs; DESIGN.md, pages/home.md).
+- Codex window 2 percent at 07:30Z.
+
+## 2026-10-28 07:45Z (job_done nz-election-advance-2026-fix-1, nz-election-nav-legend)
+
+No Byron words.
+- advance-2026 fix-1 44b052f (absence assertion isolated, committed capture verified). Host: `pytest -k "advance or vote or home"` 478 passed incl. Chromium, rc 0; build on origin/data PASS 82 routes; vote/ 390 looked at (no count line yet: the advance-voting family is not on origin/data until the daily publishes it; rendering covered by test_advance_2026.py). PR #114 opened, supervisor accept, fresh review review-nz-election-advance-2026 dispatched.
+- nav-legend 789e2bd. Host: `pytest -k "design or home or header or nav"` 161 passed incl. Chromium, rc 0; build PASS 82 routes. Legend looked at 390: TOP alone under "Other parties", blocs together; accepted. Nav measured at 390: each label a half-row slot (Overview 16-185, Polls 185-354), only two of seven sections visible; judged worse than the clip it fixed. Sent back: fix-1 nz-election-nav-legend-fix-1 on the build thread (natural widths, whole or hidden, at least four at 390, current label in view; its own check moves, main's tests untouched).
+- PR #113 CI run 40649525376 still pending; not merged.
+- Codex window 3 percent at 07:44Z.
+
+## 2026-10-28 08:01Z run (job_done nz-election-nav-legend-fix-1, review-nz-election-advance-2026)
+
+No Byron words.
+- PR #113 funding/ grouped by party: CI green, fresh review accept (earlier run); squash merged a46661e, worktree and branch removed.
+- PR #114 advance 2026: fresh review request changes, one Important: `advance_line()` (vote_page.py:71) shows count, source, retrieval time and caveat but not that the figure was transcribed by hand. Confirmed by reading the review against the brief; logged on the PR. Fix-2 nz-election-advance-2026-fix-2 dispatched on the build thread (disclosure from the capture's provenance field, visible-text assertions on both pages).
+- nav-legend fix-1 17d5f7f: Codex 151 passed, 10 Chromium sandbox denials. Host origin/data build PASS 82 routes; header geometry in Playwright Chromium: 390 night/ current "Night" at 436..490 with the nav box ending at 354, "Electorates" shown cut as "Electora"; 360/390 electorates/ current link past the right edge; 1280 fine. The CSS leaned on scroll-initial-target and view-timeline, which the test browser does not honour. Not opened as a PR; fix-2 nz-election-nav-legend-fix-2 dispatched with three invariants (current link fully visible on load, no partial labels, no-JS still usable) and a geometry check that must fail on 17d5f7f. Host pytest run on 17d5f7f stopped when fix-2 began editing the worktree.
+- What went wrong: fix-1's brief named the outcome but not the browser it had to hold in; Codex could not launch Chromium in its sandbox, so nothing measured it before the host did.
+- Codex window 4 percent used, resets in 7.0 days.
+
+## 2026-10-28 08:23Z (job_done nz-election-advance-2026-fix-2, nz-election-nav-legend-fix-2)
+
+- Advance fix-2 10ea076 (244 s): "Transcribed from the EC page, not downloaded." shown beside the count on vote/ and home from provenance data; no provenance, no disclosure. Codex: 6 Chromium sandbox denials. Host: pytest -k "advance or vote or home" 478 passed incl. Chromium, rc 0. Build from origin/data PASS 82 routes, but origin/data has no 2026 advance family yet, so the line cannot be seen until merge and the daily publish; looked-at deferred to the deployed site. Pushed, supervisor accept on PR #114, second fresh review review-nz-election-advance-2026-2 dispatched.
+- Nav-legend fix-2 fddc5df (492 s): inline handler measures links, scrolls the current route into view, hides partially clipped edge labels. Codex: 11 Chromium sandbox denials. Host: pytest -k "design or home or header or nav" 163 passed incl. Chromium, rc 0; origin/data build PASS 82 routes; header geometry at 360/390/1280 on home, electorates/, night/: current link inside the nav box everywhere (390 night/ 300..354 of 16..354, was 436..490); 390 night/, 390 electorates/, 360 home looked at: labels whole, current underlined. PR #115 opened, supervisor accept, fresh review review-nz-election-nav-legend dispatched (asked to check script policy and JS-off behaviour).
+- Funding grouping (#113) linked to Byron on issue #103.
+- Codex window 5 percent used, 6.9 days to reset. Wrong turn: a stale server on port 8941 answered the first screenshot script; caught by the null nav error, rerun on 8957.
+- Next: merge #114 and #115 on accept and CI green; deployed vote/ and home after the daily; next design-backlog item.
+
+## 2026-10-28 08:42Z (job_done review-advance-2026-2, review-nav-legend)
+
+- Trigger issue:2026-10-28T08:31:39Z was the supervisor's own comment on #103; no Byron words.
+- PR #114 (2026 advance count): second fresh review accept, no findings (capture matches EC 69,034 / 106,714 / 175,748). Logged on the PR. CI pending; merge next run.
+- PR #115 (nav and legend): fresh review request changes, two Important: header_nav_browser.py never resizes one page across the breakpoint (390 to 844 to 1280 and back), and the keyboard check covers bounds but not opacity/visibility although links are hidden by opacity. Agreed, logged on the PR, fix-3 nz-election-nav-legend-fix-3 dispatched on thread 01a1816e (brief state/jobs/nz-election-nav-legend-fix-3/prompt.md).
+- Second slot not filled: the remaining backlog nits (funding_page.ranking duplicating home_graphics.funding_bars; test_design landmark parse) touch files the nav branch changes; next fill is the 20:00Z critique's top item or after #115 merges.
+- Codex window 5 percent used, 6.9 days to reset.
+
+## 2026-10-28 08:54Z (job_done nz-election-nav-legend-fix-3)
+- PR #115 fix-3 8bc1aae (resize 390/844/1280, keyboard-paint and manual-scroll checks; visible links opacity 1, current route priority on resize). Host pytest -k "design or home or header or nav" 163 passed incl. Chromium (Codex sandbox could not launch Chromium, 11 denials). With web/header-nav.js at fddc5df the new test_header_nav_browser fails HEADER_INTERMEDIATE_OPACITY (Overview, Vote, Night at opacity 0 and partly clipped), so the check proves the defect. Pushed, accept logged on the PR, second fresh review review-nz-election-nav-legend-2 dispatched.
+- PR #114 CI still pending, not merged.
+- Second slot left free: remaining backlog nits touch the nav branch's files.
+- Codex window 6 percent used, 6.9 days to reset.
+
+## 2026-10-28 09:12Z (job_done review-nz-election-nav-legend-2)
+- PR #115 second fresh review accept, no findings; logged on the PR. CI run 40661104372 pending, not merged.
+- PR #114 CI run 40657372570 red, 1 of 3186: main's test_contracts.py:20 pins the capture manifest at 144; the branch adds fixtures/ec-2026/advance-voting-2026-10-28.csv, so the pin moves with the registered set to 145 (supervisor d64dc9c, one line). Host test_contracts.py 24 passed; pushed, logged on the PR. What went wrong: host verify ran -k "advance or vote or home" only, which skipped test_contracts; adding a capture should add test_contracts to the host list.
+- Second slot left free: remaining backlog nits touch the nav branch's files; the 20:00Z critique sets the next item.
+- Codex window 6 percent used, 6.9 days to reset.

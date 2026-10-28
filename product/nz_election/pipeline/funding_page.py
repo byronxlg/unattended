@@ -133,11 +133,18 @@ def page(records=None):
                                f'{recent} of {len(records)} declared returns were received since {observation_label(cutoff.isoformat())}.',
                                g.funding_steps(eligible), '', '', source_id='source-funding-time',
                                source_note=note('source-funding-time', escape(caption), link(donations.INDEX_URL, 'EC returns')))
-    content += '<section class="module" id="all-returns"><h2>Every declared return</h2><p>Newest received first within each party. Donor links open the EC document. Includes returns whose documents have not been independently checked.</p>'
+    content += ('<section class="module" id="all-returns"><h2>Every declared return</h2>'
+                f'<p>{return_count(records)}. Choose a party to see its returns, newest received first. '
+                'Donor links open the EC document. Includes returns whose documents have not been independently checked.</p>'
+                '<ul class="funding-jumps" aria-label="Jump to a party">'
+                + ''.join(f'<li><a href="#{party}">{escape(name(party, rows))}</a></li>'
+                          for party, rows in ranked) + '</ul>')
     for party, rows in ranked:
-        content += f'<section id="{party}"><h3>{escape(name(party, rows))}: {return_count(rows)}</h3>'
+        content += (f'<section class="funding-group" id="{party}">'
+                    f'<h3><a href="#{party}">{escape(name(party, rows))}: {return_count(rows)}</a></h3>'
+                    '<div class="funding-returns"><p><a href="#all-returns">Close returns and choose a party</a></p>')
         content += returns_table(sorted(rows, key=lambda r: (r.get('received', ''), r['id']), reverse=True),
-                                 name(party, rows) + ' declared returns') + '</section>'
+                                 name(party, rows) + ' declared returns') + '</div></section>'
     return content + '</section>' + source + '</div>'
 
 

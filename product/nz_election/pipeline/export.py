@@ -141,7 +141,9 @@ def validate_envelope(env, stem):
             raise ValueError('INVALID_MARKET')
     validate_times(env, nullable_dates=env.get("method_version") in {"enrolment-v1", "electorate-polls-v1"})
     for source in env['source']:
-        if set(source) != SOURCE:
+        extra = {'caveat', 'provenance'} if source.get('id') == 'V:advance-voting' else set()
+        if (not SOURCE <= source.keys() or source.keys() - SOURCE not in (set(), extra) or
+                any(not isinstance(source[k], str) or not source[k].strip() for k in extra if k in source)):
             raise ValueError('INVALID_SOURCE')
         timestamp(source['fetched_at'], 'source.fetched_at')
     if env['fetched_at'] != max((s['fetched_at'] for s in env['source']), default=None):

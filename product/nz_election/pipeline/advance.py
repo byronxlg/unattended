@@ -157,6 +157,8 @@ def load(*, historical=False, year=None):
         previous_length = len(rows)
     source = dict(id='V:advance-voting', url=entry['url'], revision=entry['revision'], licence=entry['licence'],
                   fetched_at=entry['captured_at'], history_url=entry['archive_url'])
+    if 'caveat' in entry:
+        source.update(caveat=entry['caveat'], provenance=entry['notes'])
     for row in rows:
         row.update(id='advance-' + row['date'], observed_at=row['date'],
                    source_ref=[dict(source_id=source['id'], locator='date=' + row['date'],

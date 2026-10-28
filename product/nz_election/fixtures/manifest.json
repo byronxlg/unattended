@@ -1777,6 +1777,26 @@
    "notes": "Synthetic dated XML-family package derived from the 2026 media registry. National counts and Auckland Central leader votes are invented; no network capture. Official source URL is inferred pending EC confirmation.",
    "archive_url": null,
    "reviewer": "Codex offline fixture construction; synthetic counts"
+  },
+  {
+   "path": "ec-2026/advance-voting-2026-10-28.csv",
+   "url": "https://vote.nz/2026-general-election/about/overview/voting-statistics",
+   "archive_url": null,
+   "captured_at": "2026-10-28T07:08:00Z",
+   "sha256": "7137edea9688765e03ec4c780aad11a3db50371bbcc3424fa9938fb8d627849b",
+   "reviewer": "Codex transcription of supervisor-supplied research",
+   "revision": "EC table retrieved 2026-10-28T07:08:00Z",
+   "licence": "Copyright Electoral Commission. No open licence stated.",
+   "notes": "Transcribed from the EC page, not downloaded. Only the Date and 2026 General Election columns and reported 2026 rows are transcribed; historical comparison columns are omitted. The page identifies informal daily counts, updated daily. HTML and CSV downloads on the host were blocked by Incapsula.",
+   "caveat": "Informal count, subject to revision; excludes overseas votes.",
+   "bytes": 68,
+   "advance": {
+    "year": 2026,
+    "kind": "daily",
+    "start": "2026-10-26",
+    "date_column": "Date",
+    "count_column": "2026 General Election"
+   }
   }
  ]
 }
