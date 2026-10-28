@@ -3704,3 +3704,11 @@ No Byron words.
 - Dispatched research-nz-election-readiness-5 (read-only): which night and week-after steps are now exercised in Actions, ranked last increments before 5 Nov, runbook commands a Claude-only operator could not run.
 - 28 Oct daily not yet run (cron drifts to about 20:15Z); advance verify --require advance and the daily advance transcription wait for it.
 - Codex window 19 percent, 6.6 days to reset.
+
+## 2026-10-28 15:49Z (job_done research-nz-election-readiness-5)
+
+- Readiness-5 read. Its "#121 Actions rehearsal not evidenced" is stale: run 40717603251 (import_only) succeeded at 15:35Z with PASS settled/official/rollback; its increment 4 (release evidence) is done except the default rehearsal, which ran 26 Oct (40303064779, 40303120397).
+- Ranked build increments: (1) dead live-loop recovery (failed first run suppresses the watchdog, night_start.py:22; failed successor, night_live.py:307/326); (2) executable official capture and preflight (no command produces result-import/2026-11-27-official.json; fetch.night_xml refuses after 8 Nov); (3) isolated Actions boundary drill (startup, queued freeze refusal, in-flight stop, sunsets).
+- Dispatched (1) nz-election-night-recovery and (2) nz-election-official-capture as builds on worktrees from 1d1d9fa. Both touch runbook/night.md, so each brief limits it to its own section. (3) goes on the next free slot (last build 5 Nov).
+- Correction of the 13:27Z entry: the runbook dry-read claimed `harden.py --history` does not exist; it does (harden.py:59, required for PASS). My edit to plan-week-after.md line 43 was wrong and is reverted. The supervisor took a Codex claim without a grep; same lesson as the brief rule: check the code before writing a fix.
+- Codex window 19 percent, 6.6 days to reset.
