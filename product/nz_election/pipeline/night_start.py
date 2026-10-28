@@ -5,6 +5,8 @@
 """Fail-closed eligibility and dispatch under the outer watchdog deadline and lock."""
 from datetime import datetime, timedelta, timezone
 import argparse
+from contextlib import contextmanager
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -50,7 +52,7 @@ def should_start(now, runs):
 
 
 def reserve(state, instant):
-    """Called under the wrapper lock, before dispatch, including uncertain failures."""
+    """Called under the shared lock, before dispatch, including uncertain failures."""
     path = state / 'night-recovery-2026.json'
     attempts = json.loads(path.read_text()) if path.exists() else []
     if not isinstance(attempts, list):
@@ -68,7 +70,38 @@ def reserve(state, instant):
     return True
 
 
+@contextmanager
+def dispatch_lock(state):
+    inherited_state = os.environ.get('NIGHT_WATCHDOG_STATE')
+    state = Path(state) if state is not None else Path(inherited_state) if inherited_state else None
+    if state is None:
+        raise ValueError('Dispatch requires shared state')
+    path = state / 'night-start.lock'
+    inherited_fd = os.environ.get('NIGHT_WATCHDOG_LOCK_FD')
+    if inherited_fd is not None:
+        # Reuse the wrapper's open file description so its inherited lock survives SIGKILL.
+        lock = os.fdopen(os.dup(int(inherited_fd)), 'a')
+    else:
+        lock = path.open('a')
+    with lock:
+        actual, expected = os.fstat(lock.fileno()), path.stat()
+        if (actual.st_dev, actual.st_ino) != (expected.st_dev, expected.st_ino):
+            raise ValueError('Wrong watchdog lock')
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        yield state, lock.fileno()
+
+
 def main(now=lambda: datetime.now(timezone.utc), *, dispatch=False, state=None):
+    try:
+        if dispatch:
+            with dispatch_lock(state) as (locked_state, lock_fd):
+                return _check(now, dispatch=True, state=locked_state, lock_fd=lock_fd)
+        return _check(now)
+    except (ValueError, KeyError, TypeError, AttributeError, OSError, subprocess.SubprocessError):
+        return 1
+
+
+def _check(now, *, dispatch=False, state=None, lock_fd=None):
     try:
         if not should_start(now, []):
             return 1
@@ -81,11 +114,11 @@ def main(now=lambda: datetime.now(timezone.utc), *, dispatch=False, state=None):
             # Re-read the clock after the potentially slow run-list request, at dispatch.
             if not should_start(now, []):
                 return 1
-            if state is not None and not reserve(state, now()):
+            if not reserve(state, now()):
                 return 1
             require_open(now)
             subprocess.run(['gh', 'workflow', 'run', 'nz-election-night-live.yml', '--ref', 'main'],
-                           check=True, timeout=60)
+                           check=True, timeout=60, pass_fds=(lock_fd,))
         return 0
     except (ValueError, KeyError, TypeError, AttributeError, OSError, subprocess.SubprocessError):
         return 1

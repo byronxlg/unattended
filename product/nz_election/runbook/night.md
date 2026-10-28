@@ -217,7 +217,10 @@ A nonblocking OS lock at `state/night-start.lock` serializes check and dispatch 
 The worker inherits the locked file description, so killing the wrapper alone cannot admit
 another attempt while its worker remains alive. Timeout cleanup kills the worker group before
 the wrapper closes its lock; the lock releases when its last holder exits.
-Do not delete the lock file while ticks run.
+Do not delete the lock file while ticks run. The starter refuses dispatch without shared
+state. Direct `night_start.py --dispatch --state state` calls acquire the same lock for
+the complete check/reserve/dispatch operation; wrapper workers reuse the inherited lock
+after verifying it names that state's lock file. Both paths require a ledger reservation.
 
 The success marker `state/night-start-2026.dispatched` now suppresses checks for ten minutes,
 not the entire window. A durable ledger, `state/night-recovery-2026.json`, reserves each

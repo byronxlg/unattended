@@ -28,7 +28,10 @@ def watchdog(state, *, command=None, timeout=60, log=print):
         try:
             # Share the locked open file description: SIGKILL of this wrapper must not
             # admit another attempt while its detached worker can still dispatch.
-            child = subprocess.Popen(command, start_new_session=True, pass_fds=(lock.fileno(),))
+            environment = dict(os.environ, NIGHT_WATCHDOG_STATE=str(state.resolve()),
+                               NIGHT_WATCHDOG_LOCK_FD=str(lock.fileno()))
+            child = subprocess.Popen(command, start_new_session=True, pass_fds=(lock.fileno(),),
+                                     env=environment)
             result = child.wait(timeout=max(0, deadline - time.monotonic()))
             if result == 0:
                 marker.touch()
