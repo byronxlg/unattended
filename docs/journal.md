@@ -3792,3 +3792,10 @@ No Byron words.
 - #125 (run 40739227779) and #126 (run 40742752973) CI red on the same two cases only, test_night_boundary watchdog-cutoff and watchdog-queued-cutoff, main's defect fixed by #127. Main merged into both (af9b26d, 0670b2d), host test_night_boundary.py 46 passed on each, pushed, CI rerunning.
 - research-nz-election-readiness-7 dispatched read-only (round 6 brief, in-flight list extended).
 - Codex window 26 percent, 6.5 days to reset.
+
+## 2026-10-28 19:37Z run (job_done research-nz-election-readiness-7)
+
+- readiness-7 read: two small gaps, no operator decision. (1) electorate pages ignore post-close result states (electorate_pages.py:123 leader copy for stale/settled/official; :83 "Who is standing in 2026?" to 27 Nov). (2) night/ with no night family emits no live shell or client (night_page.py:144), so a reader on the fallback never sees the first capture.
+- Boundary rehearsal run 40754002151 (boundary_only, main after #127): success. Main green on the boundary drill.
+- #125 and #126 CI rerunning (runs 40754054439, 40754059751), pending at this run; not merged.
+- Dispatched nz-election-electorate-states (.worktrees/nz-election-electorate-states from origin/main, Page plan pages/electorate.md, DESIGN.md) and nz-election-night-empty (.worktrees/nz-election-night-empty stacked on change/nz-election-home-stale 0670b2d, because #126 edits night_page.py and result_states.py; retarget after #126 merges). Codex window 27 percent.
