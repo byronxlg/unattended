@@ -3578,3 +3578,10 @@ No Byron words.
 - Supervisor-only items from the audit kept for later runs: daily advance transcription (28 Oct capture not yet taken; after (1) merges), codex-notes inventory by 5 Nov, runbook Codex-only lines (updates.md:15, runbook/README.md:11, plan-m3.md:13, pages/night.md:37).
 - #115 CI run 40671874653 still pending; merge next run.
 - No judgement calls; no Byron words.
+
+## 2026-10-28 10:47Z run (job_done nz-election-advance-captures, nz-election-settlement-prep)
+
+- advance-captures a5cd0fa: test_contracts count pin (145) replaced by a registered-set invariant (entries unique, set equals files on disk, sha256 and bytes per entry; manifest gained `bytes`); original 2026 advance assertions exact. Host pytest test_advance_2026.py + test_contracts.py 40 passed; Codex 168 passed with a third capture registered on a throwaway copy, tests unchanged. PR #116, supervisor accept, fresh review review-nz-election-advance-captures dispatched.
+- settlement-prep ce85ff3: pipeline/settlement_capture.py, runbook/night.md, tests in test_result_import.py. Host pytest test_result_import.py + test_result_states.py 92 passed incl. Chromium (Codex sandbox failed only the Chromium launch). PR #117, supervisor accept, fresh review review-nz-election-settlement-prep dispatched.
+- #115 CI run 40671874653 still pending; not merged.
+- No judgement calls; no Byron words.
