@@ -9,7 +9,7 @@
       const box = link.getBoundingClientRect();
       const whole = box.left >= clip.left - 0.5 && box.right <= clip.right + 0.5;
       // Opacity preserves keyboard access and natural widths at the scroll edges.
-      link.style.opacity = whole ? '' : '0';
+      link.style.opacity = whole ? '1' : '0';
       link.style.pointerEvents = whole ? '' : 'none';
     }
   };
@@ -21,7 +21,8 @@
     }
     paint();
   };
-  const refresh = () => reveal(links.includes(document.activeElement) ? document.activeElement : current);
+  // Rotation must restore the route even when another tab retains keyboard focus.
+  const refresh = () => reveal(current || (links.includes(document.activeElement) ? document.activeElement : null));
   nav.addEventListener('scroll', paint, {passive: true});
   nav.addEventListener('focusin', event => reveal(event.target.closest('a')));
   // Font loading and viewport changes can alter which complete labels fit.

@@ -37,7 +37,9 @@ the bar; the screenshot is.
    complete labels at 390 px. A reviewed inline body-load handler measures the links and
    scrolls the current route fully into view. It hides whole edge tabs with opacity, leaving
    their natural widths and keyboard access intact. Scroll, focus, font loading and resize
-   update the measurements. No experimental CSS is required and nothing animates.
+   update the measurements. Visible links use opacity 1 and hidden links opacity 0.
+   Layout refreshes reveal the current route even if another link retains focus; keyboard
+   focus changes reveal the focused link. No experimental CSS is required and nothing animates.
    Text stays 16 px and targets at least 44 px. While the nav has focus, 50% inline scroll
    padding makes its centre the focus-scroll region; the focus ring stays inset.
    Without JavaScript, all links remain available through native scrolling and keyboard focus.
