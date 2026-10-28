@@ -158,3 +158,42 @@ def test_funding_headline_and_ranking_round_only_after_summing():
         assert expected in funding.headline(rows)
         assert Tables(html).tables[0][1][1] == expected
         assert sorted(value(r[2]) for r in Tables(html).tables[1][1:]) == sorted(map(Decimal, amounts))
+
+
+def test_party_return_groups_preserve_all_documents_and_navigation():
+    from collections import Counter
+    from product.nz_election.pipeline.content_checks import Tree, Node
+
+    def descendants(node):
+        yield node
+        for child in node.children:
+            if isinstance(child, Node):
+                yield from descendants(child)
+
+    records = donations.load_donations()
+    tree = Tree(funding.page(records))
+    ids = {n.attrs['id']: n for n in tree.nodes if 'id' in n.attrs}
+    complete = ids['all-returns']
+    assert f'{len(records)} returns' in complete.text
+    document_urls = {r['document_url'] for r in records}
+    links = [n.attrs.get('href') for n in descendants(complete) if n.tag == 'a']
+    assert Counter(url for url in links if url in document_urls) == Counter(r['document_url'] for r in records)
+    for party, rows in funding.groups(records):
+        group = ids[party]
+        urls = [n.attrs.get('href') for n in descendants(group) if n.tag == 'a']
+        assert Counter(url for url in urls if url in document_urls) == Counter(r['document_url'] for r in rows)
+        assert funding.return_count(rows) in group.text
+        assert '#' + party in links
+        assert any(n.tag == 'a' and n.attrs.get('href') == '#' + party
+                   for n in tree.nodes[:tree.nodes.index(group)])
+
+
+def test_funding_party_fragments_without_javascript(populated, tmp_path):
+    import subprocess
+    from pathlib import Path
+
+    _, site = populated
+    result = subprocess.run(['uv', 'run', str(Path(__file__).with_name('funding_browser.py')),
+                             '--site', str(site.parent), '--out', str(tmp_path)],
+                            capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
