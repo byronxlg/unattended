@@ -3543,3 +3543,11 @@ No Byron words.
 - Funding grouping (#113) linked to Byron on issue #103.
 - Codex window 5 percent used, 6.9 days to reset. Wrong turn: a stale server on port 8941 answered the first screenshot script; caught by the null nav error, rerun on 8957.
 - Next: merge #114 and #115 on accept and CI green; deployed vote/ and home after the daily; next design-backlog item.
+
+## 2026-10-28 08:42Z (job_done review-advance-2026-2, review-nav-legend)
+
+- Trigger issue:2026-10-28T08:31:39Z was the supervisor's own comment on #103; no Byron words.
+- PR #114 (2026 advance count): second fresh review accept, no findings (capture matches EC 69,034 / 106,714 / 175,748). Logged on the PR. CI pending; merge next run.
+- PR #115 (nav and legend): fresh review request changes, two Important: header_nav_browser.py never resizes one page across the breakpoint (390 to 844 to 1280 and back), and the keyboard check covers bounds but not opacity/visibility although links are hidden by opacity. Agreed, logged on the PR, fix-3 nz-election-nav-legend-fix-3 dispatched on thread 01a1816e (brief state/jobs/nz-election-nav-legend-fix-3/prompt.md).
+- Second slot not filled: the remaining backlog nits (funding_page.ranking duplicating home_graphics.funding_bars; test_design landmark parse) touch files the nav branch changes; next fill is the 20:00Z critique's top item or after #115 merges.
+- Codex window 5 percent used, 6.9 days to reset.
