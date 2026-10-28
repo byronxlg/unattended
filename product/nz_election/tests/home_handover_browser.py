@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import partial
 from http.server import ThreadingHTTPServer
 import json
+import re
 from pathlib import Path
 import sys
 import tempfile
@@ -30,11 +31,36 @@ def run(case):
         captured = night_live.cycle(acquire=captures().__getitem__, now=clock.now)
         night.prepare(root / 'live', night_live.loaded(captured), 'offline-verification', 'a'*40, captured['retrieved_at'])
         envs = {p.relative_to(root / 'live').as_posix()[:-5]: json.loads(p.read_text()) for p in (root / 'live').rglob('*.json')}
+        row = envs['night/live/current']['data'][0]
+        refs = envs['night/references/live']['data'][0]
         if case == 'complete':
             # Synthetic seat totals exercise the populated home answer, not real results.
-            row = envs['night/live/current']['data'][0]
             row['reported_house'] = 120
             next(iter(row['party_results'].values()))['total_seats'] = 120
+        expected_counts = dict(
+            parties={refs['parties'][party]['short_name']: result['total_seats']
+                     for party, result in row['party_results'].items() if result['total_seats']},
+            house=row['reported_house'], percent=row['statistics']['percent_voting_places_counted'])
+        def visible_counts(page):
+            text = page.locator('#home-night').inner_text()
+            parties = {}
+            for party in expected_counts['parties']:
+                match = re.search(re.escape(party) + r' (\d+)\b', text)
+                assert match, 'visible seats missing for ' + party
+                parties[party] = int(match[1])
+            if not expected_counts['house']:
+                assert '0 national seats reported.' in text
+            house = re.search(r'House: (\d+) seats', text)
+            percent = re.search(r'([\d.]+)% of voting places reported', text)
+            assert house and percent, 'visible House total or reporting percentage missing'
+            actual = dict(parties=parties, house=int(house[1]), percent=percent[1])
+            assert actual == expected_counts
+            return actual
+        def retained_counts(page, before):
+            assert visible_counts(page) == before
+            status = page.locator('#home-live-status').inner_text()
+            assert 'Live updates ended.' in status
+            assert 'Live preliminary results' not in status
         pack = live_package(envs, now=clock.now())
         server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(root / 'site')))
         threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -98,10 +124,16 @@ def run(case):
                         assert 'Stale: last complete cycle retrieved' in text
                         assert 'Live preliminary results' not in text and 'House: 120 seats' in text
                         page.screenshot(path=f'artifacts/home-stale-{width}.png')
+                    before = visible_counts(page) if case != 'absent' else None
                     page.clock.pause_at(datetime.fromisoformat('2026-11-08T06:00:00+00:00'))
+                    page.clock.run_for(1000)
+                    if before is not None:
+                        retained_counts(page, before)
                     count = len(requests)
                     page.clock.run_for(120000)
                     assert len(requests) == count
+                    if before is not None:
+                        retained_counts(page, before)
                     if case == 'complete':
                         text = page.locator('#night-summary').inner_text()
                         assert 'Live updates ended.' in text
