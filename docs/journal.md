@@ -3585,3 +3585,11 @@ No Byron words.
 - settlement-prep ce85ff3: pipeline/settlement_capture.py, runbook/night.md, tests in test_result_import.py. Host pytest test_result_import.py + test_result_states.py 92 passed incl. Chromium (Codex sandbox failed only the Chromium launch). PR #117, supervisor accept, fresh review review-nz-election-settlement-prep dispatched.
 - #115 CI run 40671874653 still pending; not merged.
 - No judgement calls; no Byron words.
+
+## 2026-10-28 11:03Z (job_done review-nz-election-advance-captures, review-nz-election-settlement-prep)
+
+- PR #116 advance-captures: fresh review accept, no actionable defects (145 captures checked for coverage, bytes and hashes). Logged on the PR. CI run 40675112843 pending; not merged.
+- PR #117 settlement-prep: fresh review request changes, one P2: `settlement_capture.py:35-36` runs the unanchored `demo|synthetic|...` pattern over the whole row including `raw_xml`; genuine EC XML names DemocracyNZ (`fixtures/ec-2023-xml/parties.xml`), so a real 2026 capture would raise NIGHT_CAPTURE_NOT_REAL. Confirmed by reading the code and the fixture. Logged on the PR; fix-1 `nz-election-settlement-prep-fix-1` dispatched on the build thread (guard judges provenance only; regression with DemocracyNZ in genuine XML).
+- #115 CI run 40671874653 still pending.
+- Second slot left free: the daily advance transcription waits on #116's merge.
+- No judgement calls; no Byron words. Codex window 8 percent.
