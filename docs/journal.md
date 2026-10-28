@@ -3662,3 +3662,11 @@ No Byron words.
 - #118 CI run 40693203998 still pending; not merged.
 - Runbook dry-read (read-only Codex): 14 findings, one blocking election night: plan-week-after.md cited `harden.py --history`, which does not exist (harden.py takes --data and --site). Supervisor fixed the lab docs directly: plan-week-after.md harden command, runbook/updates.md (`bin/tick --dry` still dispatches watchdogs; rollback keeps current data and the freeze blocks deploys), runbook/nz-election.md (daily owns night and advance captures; hourly retention drill before 7 Nov 06:00Z only; optional-family SKIP exception). Product runbook items (screenshot sizes and counts, night default, live path, social --now, daily sunset vs watchdog, capture via PR) dispatched as nz-election-runbook-fixes (docs-only build, .worktrees/nz-election-runbook-fixes). The bin/codex-run UI gate refused the first dispatch (the brief mentions screenshots); the brief now says DESIGN.md is untouched, which is true for a docs-only job. plan-week-after.md historical findings (line 24-52) left as written; they are the plan's record.
 - Codex window 16 percent, 6.7 days to reset.
+
+## 2026-10-28 13:42Z run (job_done nz-election-runbook-fixes, review-nz-election-backlog-nits-2)
+
+- #119 second fresh review (review-nz-election-backlog-nits-2): accept, no findings; home headline consumes funding_totals(), feed and funding page unchanged on the real snapshot. Logged on the PR. CI run 40697129289 pending, not merged.
+- #118 CI run 40693203998 still pending, not merged.
+- runbook-fixes 349281f: docs only, two files (runbook.md, runbook/night.md, 47+/25-), lint ok; supervisor spot-checked night SIZES (390x844, 1280x900 at tests/night_browser.py:28) and the daily workflow_dispatch sunset exemption (pipeline/sunsets.py:34). Pushed, PR #120 opened, supervisor accept, fresh review review-nz-election-runbook-fixes dispatched.
+- Second slot: research-nz-election-night-exercised (read-only): which night and week-after steps have run for real on Actions, ranked gaps to close before 5 Nov.
+- Codex window 17 percent, 6.7 days to reset.
