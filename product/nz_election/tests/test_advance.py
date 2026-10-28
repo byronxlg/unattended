@@ -203,8 +203,10 @@ def test_2026_shorter_replacement_rejected(tmp_path, monkeypatch):
 
 def test_require_year_missing_and_registered_invalid(tmp_path, monkeypatch):
     from product.nz_election.pipeline import verify
-    with pytest.raises(SystemExit, match='FAIL advance: MISSING_ADVANCE_CAPTURE'):
-        verify.cli(['advance', '--require-year', '2026'])
+    with monkeypatch.context() as empty_registry:
+        register_2026(tmp_path, empty_registry, [])
+        with pytest.raises(SystemExit, match='FAIL advance: MISSING_ADVANCE_CAPTURE'):
+            verify.cli(['advance', '--require-year', '2026'])
     register_2026(tmp_path, monkeypatch, ['daily.csv', 'shorter.csv'])
     with pytest.raises(SystemExit, match='FAIL advance: SHORTER_ADVANCE_CAPTURE'):
         verify.cli(['advance', '--require-year', '2026'])

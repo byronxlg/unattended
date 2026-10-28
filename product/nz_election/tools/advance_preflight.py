@@ -20,7 +20,7 @@ START = '2026-10-26'
 MISSING_EVIDENCE = advance.ERROR + ': missing daily or cumulative evidence in count header'
 
 
-def inspect(raw, *, url, archive_url=None):
+def inspect(raw, *, url, archive_url=None, kind=None):
     """Return a review draft; acquisition time cannot be recovered from CSV bytes."""
     try:
         for index, value in enumerate((url, archive_url)):
@@ -31,6 +31,9 @@ def inspect(raw, *, url, archive_url=None):
             parsed = urlsplit(value)
             if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password:
                 raise ValueError(advance.ERROR)
+        if kind is not None and kind not in ('daily', 'cumulative'):
+            raise ValueError(advance.ERROR)
+        declared = kind
         headers, records = advance.read_csv(raw)
         dates = [h for h in headers if h.strip().lower() in ('date', 'day', 'voting date')]
         counts = [h for h in headers if h not in dates and (
@@ -43,10 +46,13 @@ def inspect(raw, *, url, archive_url=None):
         cumulative = bool(re.search(r'\b(cumulative|running total|to date)\b', column, re.I))
         if daily and cumulative:
             raise ValueError(advance.ERROR)
-        kind = 'cumulative' if cumulative else 'daily'
+        inferred = 'cumulative' if cumulative else 'daily' if daily else None
+        if declared is not None and inferred is not None and declared != inferred:
+            raise ValueError(advance.ERROR)
+        kind = declared or inferred or 'daily'
         settings = dict(year=2026, kind=kind, start=START, date_column=dates[0], count_column=column)
         rows = advance.parse_records(records, **{k: settings[k] for k in ('kind', 'start', 'date_column', 'count_column')})
-        if not (daily or cumulative):
+        if not (declared or daily or cumulative):
             raise ValueError(MISSING_EVIDENCE)
         observed = {r['date'] for r in rows}
         day, last = date.fromisoformat(START), date.fromisoformat(rows[-1]['date'])
@@ -64,7 +70,8 @@ def inspect(raw, *, url, archive_url=None):
                            'set actual captured_at, reviewer, revision and source notes before registration.',
                      bytes=len(raw), advance=settings)
         return dict(headers=headers, date_column=dates[0], count_column=column, kind=kind,
-                    kind_inference=f'Inferred from explicit {kind} wording in count header {column!r}.',
+                    kind_inference=(f'Declared {kind} from source page semantics.' if declared else
+                                    f'Inferred from explicit {kind} wording in count header {column!r}.'),
                     row_count=len(records), observation_count=len(rows), first_date=rows[0]['date'],
                     last_date=rows[-1]['date'], gaps=gaps, sha256=digest, manifest_entry=entry)
     except ValueError as exc:
@@ -80,12 +87,15 @@ def cli(argv=None):
     parser.add_argument('csv', type=Path)
     parser.add_argument('--url', required=True)
     parser.add_argument('--archive-url')
+    parser.add_argument('--kind', choices=('daily', 'cumulative'), help='Explicit source-page semantics')
     args = parser.parse_args(argv)
     try:
         with args.csv.open('rb') as stream:
             raw = stream.read(1000001)
-        result = inspect(raw, url=args.url, archive_url=args.archive_url)
-        print(json.dumps(result, indent=2))
+        result = inspect(raw, url=args.url, archive_url=args.archive_url, kind=args.kind)
+        report = json.dumps(result, indent=2)
+        print(report)
+        print("PASS advance preflight", file=sys.stderr)
     except Exception as exc:
         reason = MISSING_EVIDENCE if type(exc) is ValueError and exc.args == (MISSING_EVIDENCE,) else advance.ERROR
         raise SystemExit(reason) from None
