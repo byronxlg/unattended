@@ -34,15 +34,14 @@ the bar; the screenshot is.
 
 1. Masthead: dark band, brand mark, route tabs scroll horizontally in one row on phones, with a visible
    trailing chevron and native scrollbar. Phone tabs use natural widths, with at least four
-   complete labels at 390 px. A discrete view-timeline opacity change hides an entire tab
-   while it crosses a scroll edge; this is a visibility switch, with no motion or fade,
-   including under reduced motion. `scroll-initial-target` reveals the current route on load.
-   These CSS features require supporting browsers; older browsers retain native scrolling.
-   Text stays 16 px and targets at least 44 px. Keyboard focus scrolls each link into view:
-   while the nav has focus, 50% inline scroll padding makes its centre the focus-scroll
-   region, so Chromium cannot leave a link partly visible at an edge. This
-   works without JavaScript; the focus ring stays inset to avoid clipping. Funding takes
-   the former Methods tab; secondary routes, including Methods and sources, stay linked in the footer on every route.
+   complete labels at 390 px. A reviewed inline body-load handler measures the links and
+   scrolls the current route fully into view. It hides whole edge tabs with opacity, leaving
+   their natural widths and keyboard access intact. Scroll, focus, font loading and resize
+   update the measurements. No experimental CSS is required and nothing animates.
+   Text stays 16 px and targets at least 44 px. While the nav has focus, 50% inline scroll
+   padding makes its centre the focus-scroll region; the focus ring stays inset.
+   Without JavaScript, all links remain available through native scrolling and keyboard focus.
+   Funding takes the former Methods tab; secondary routes, including Methods and sources, stay linked in the footer on every route.
 2. Ribbon (home): the election phase today, a countdown, the one action ("How and where to vote").
 3. Hero: kicker (one or three words), one question as the h1, the answer in one sentence, one
    big graphic, a two-line grey dek with the caveats, one footnote line.

@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from product.nz_election.pipeline import export, coalitions
-from product.nz_election.pipeline.scripts import validate_scripts, home_client
+from product.nz_election.pipeline.scripts import validate_scripts, home_client, HEADER_INIT
 from product.nz_election.pipeline.allocator import allocate
 from product.nz_election.pipeline.average import display, threshold_watch, derive_others
 from product.nz_election.pipeline.fixtures import golden, GOLDEN_PATHS
@@ -578,7 +578,7 @@ def build(data, out, *, built=None, data_sha=None, sha=None, run_url=None, histo
             key = route_key(slug)
             cards.append(dict(route=slug, key=key, title=title, description=description, html='og/' + key + '.html', png='og/' + key + '.png'))
             (stage / cards[-1]['html']).write_text(card(route, envs, home, built))
-            page_html = render('base', title=escape(title), description=escape(description, quote=True),
+            page_html = render('base', header_init=escape(HEADER_INIT, quote=True), title=escape(title), description=escape(description, quote=True),
                                image=ORIGIN + PREFIX + cards[-1]['png'], heading=heading, prefix=PREFIX, nav=nav, body=body,
                                directory=directory_links(envs) if slug == '' else '',
                                footer_nav=' '.join(f'<a href="{PREFIX + r["path"]}"' +

@@ -137,6 +137,31 @@ def night_target_check(page):
             assert link['name'] and '/electorates/' in link['href'], ('NIGHT_SELECTION_DESTINATION', row)
 
 
+def header_nav_check(page):
+    """At rest, enhanced navigation shows whole labels and the current route."""
+    nav = page.get_by_role('banner').get_by_role('navigation')
+    page.evaluate("() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
+    labels = nav.evaluate("""nav=>{
+        const clip=nav.getBoundingClientRect();
+        return [...nav.querySelectorAll('a')].map(link=>{
+            const range=document.createRange();
+            range.selectNodeContents(link);
+            const r=range.getBoundingClientRect(), box=link.getBoundingClientRect(), css=getComputedStyle(link);
+            const painted=Number(css.opacity)>0 && css.visibility==='visible';
+            const intersects=r.right>clip.left && r.left<clip.right;
+            const whole=r.left>=clip.left-.5 && r.right<=clip.right+.5;
+            return {label:link.textContent,visible:painted && intersects,whole,
+                targetWhole:box.left>=clip.left-.5 && box.right<=clip.right+.5 && box.top>=clip.top-.5 && box.bottom<=clip.bottom+.5,
+                current:link.getAttribute('aria-current')==='page',
+                left:r.left,right:r.right,clipLeft:clip.left,clipRight:clip.right};
+        });
+    }""")
+    assert not [r for r in labels if r['visible'] and not r['whole']], ('HEADER_LABEL_CLIPPED', labels)
+    if page.viewport_size['width'] == 390:
+        assert sum(r['visible'] and r['whole'] for r in labels) >= 4, ('HEADER_LABEL_COUNT', labels)
+    assert all(r['visible'] and r['targetWhole'] for r in labels if r['current']), ('HEADER_CURRENT_HIDDEN', labels)
+
+
 def header_check(page):
     banner = page.get_by_role('banner')
     nav = banner.get_by_role('navigation')
@@ -144,26 +169,6 @@ def header_check(page):
     assert banner.evaluate('e=>e.scrollWidth<=e.clientWidth'), 'HEADER_OVERFLOW'
     if page.viewport_size['width'] in (360, 390):
         assert banner.bounding_box()['height'] < 100, 'HEADER_HEIGHT'
-    if page.viewport_size['width'] in (360, 390):
-        page.evaluate("() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
-        labels = nav.evaluate("""nav=>{
-            const clip=nav.getBoundingClientRect();
-            return [...nav.querySelectorAll('a')].map(link=>{
-                const range=document.createRange();
-                range.selectNodeContents(link);
-                const r=range.getBoundingClientRect(), css=getComputedStyle(link);
-                const painted=Number(css.opacity)>0 && css.visibility==='visible';
-                const intersects=r.right>clip.left && r.left<clip.right;
-                const whole=r.left>=clip.left-.5 && r.right<=clip.right+.5;
-                return {label:link.textContent,visible:painted && intersects,whole,
-                    current:link.getAttribute('aria-current')==='page',
-                    left:r.left,right:r.right,clipLeft:clip.left,clipRight:clip.right};
-            });
-        }""")
-        assert not [r for r in labels if r['visible'] and not r['whole']], ('HEADER_LABEL_CLIPPED', labels)
-        if page.viewport_size['width'] == 390:
-            assert sum(r['visible'] and r['whole'] for r in labels) >= 4, ('HEADER_LABEL_COUNT', labels)
-        assert all(r['visible'] and r['whole'] for r in labels if r['current']), ('HEADER_CURRENT_HIDDEN', labels)
     tops = nav.locator('a').evaluate_all('els=>els.map(e=>e.getBoundingClientRect().top)')
     assert tops and max(tops) - min(tops) < 1, 'HEADER_SINGLE_ROW'
     links = banner.locator('a')

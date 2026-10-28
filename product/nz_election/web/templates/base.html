@@ -17,7 +17,7 @@
 <link rel="manifest" href="{{prefix}}manifest.webmanifest">
 <link rel="stylesheet" href="{{prefix}}styles.css">
 </head>
-<body>
+<body onload="{{header_init}}">
 <a class="skip" href="#main">Skip to content</a>
 <header><a class="brand" href="{{prefix}}">NZ election 2026</a><div class="nav-strip"><nav class="desktop-nav" aria-label="Main navigation">{{nav}}</nav><span class="nav-cue" aria-hidden="true">›</span></div></header>
 <main id="main" tabindex="-1">{{heading}}{{body}}</main>
