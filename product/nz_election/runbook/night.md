@@ -128,14 +128,22 @@ button focus and the selected speed. The mode label stays visible in every frame
 has 2,851,211 valid party votes and House 122. These are source-reported seats, not an allocation.
 
 `?sequence=mediademo` selects the recorded demo. `?sequence=2017`, `2020`, and `2023` select
-single final snapshots, without playback controls. Without a query or JavaScript, the page
-renders the 2023 final snapshot table. Unknown queries keep that labelled static default.
-Every frame is packaged into inert HTML templates at build time. Playback makes no requests;
-source downloads are explicit links. Static HTML keeps the usable final table if scripts fail.
+single final snapshots, without playback controls, when those archives are packaged.
+`?sequence=2023` explicitly selects the 2023 archive with JavaScript enabled. Without a
+query, the initial table depends on build time and packaged data (`pipeline/night_page.py`):
+before 19:00 NZDT on 7 November it prefers `2023`; from then it prefers `live`. If the
+preferred sequence is absent, it uses `2026-media`, then the first packaged sequence.
+With no sequences, it shows the availability view and official results link. Without
+JavaScript, this build-time view remains; unknown queries also keep it (`web/night.mjs`).
+The no-query view can update from same-origin `night-live.json` during the live window.
+Every replay frame is packaged into inert HTML templates at build time. Playback makes
+no requests; source downloads are explicit links.
 
 Run `uv run product/nz_election/tests/night_browser.py` for browser XML parity, replay controls,
-request assertions and the exact 62-image night registry. The full screenshot harness adds the
-same 31 states at 390x844 and 1280x800. It requires a host that permits Chromium to launch.
+request assertions and the 62-image night registry defined by its `STATES` and `SIZES`. The full
+screenshot harness imports those images at 390x844 and 1280x900. `tests/night_deployed.py`
+also imports those sizes. These generated night images are separate from the required
+390x844 and 1280x800 acceptance evidence. Chromium must be allowed to launch.
 
 The replay includes provisional electorate leaders and margins from the captured 2023 candidate
 results, with a leader-coloured map and searchable table. Intermediate illustrative snapshots contain no
@@ -185,8 +193,9 @@ preliminary/official captures are supplied, so production has no change comparis
 component. Labelled synthetic pairs exercise that optional view in the proof harness.
 
 Run `PYTHONPATH=. uv run python product/nz_election/pipeline/verify.py waterfall` and the full
-night browser harness before release. The latter registers 30 states at both 390x844 and
-1280x800, including map, table, selected leader, seat calculation and comparison cases.
+night browser harness before release. Its `STATES` combines `REPLAY_STATES` with
+`tests/night_live_browser.py`'s `STATES`, rendered at each `SIZES` viewport (390x844 and
+1280x900), including map, table, selected leader, seat calculation and comparison cases.
 
 ## Live operation through Actions (increment 5)
 
@@ -293,8 +302,9 @@ and the two recorded demo national observations. Only six 2026 details were capt
 details in the test transport are **synthetic unreported zeros** built from each reference set.
 They are not added to the capture manifest or represented as official captures. Browser proof
 images use labelled 2023 final counts to exercise populated seat answers, separately from zero-state
-parser proofs. Run `tests/night_live_browser.py` with `PYTHONPATH=.` for the 16 added screenshots,
-or the full screenshot harness for the exact expanded state registry.
+parser proofs. Run `tests/night_live_browser.py` with `PYTHONPATH=.` for one screenshot
+per `STATES` entry per `SIZES` viewport; its PASS line reports the image count. The full
+screenshot harness imports this registry through `tests/night_browser.py`.
 
 ### Stop, diagnose and roll back
 
@@ -317,7 +327,9 @@ or the full screenshot harness for the exact expanded state registry.
 
 A failed renderer/browser launch is an acceptance gap, not permission to skip screenshots.
 The supervisor must inspect fresh, selected, hidden/resumed, stale, fallback, changed-reference,
-pre-close and post-close images at 390x844 and 1280x800 before release.
+pre-close and post-close generated images at 390x844 and 1280x900 before release.
+Also capture and inspect the required 1280x800 desktop acceptance evidence; the generated
+900-pixel-high night images do not replace it.
 
 
 ## Deployed acceptance
@@ -512,8 +524,11 @@ Add the reviewed metadata to `product/nz_election/fixtures/manifest.json`, using
 path `result-import/2026-11-07-preliminary-final.json`; record the printed `source.url` as the
 acquisition `url`, and include `bytes`, `retrieved_at`, `sha256`, the EC licence, review notes,
 `capture_kind: "human-reviewed-real"` and a nonempty `reviewer`. The helper deliberately does
-not supply review approval or edit the manifest. Commit the reviewed real capture and manifest
-entry to main before dispatch. Never mark synthetic bytes as real. Test/rehearsal paths,
+not supply review approval or edit the manifest. Commit the real capture and manifest
+entry on a `change/*` branch and merge the reviewed capture PR before dispatching the
+import. Follow repository-root `runbook/updates.md`: green CI, supervisor review and
+fresh review (after the 7 November Codex cut, an `Agent` run reading only the PR diff
+and `REVIEW.md`, logged in the PR), then squash merge. Never mark synthetic bytes as real. Test/rehearsal paths,
 including `result-states/`, are rejected. No real capture is bundled with this workflow.
 
 For settlement, use the same recorded SHA used for preparation:
@@ -544,7 +559,7 @@ that the complete night family matches the verified bytes, including on lease re
 no import commit or Pages dispatch occurs. Review the current capture and data SHA before retrying.
 On success, check the dispatched `pages.yml` run
 (`gh run list --workflow pages.yml`) completes, its build manifest names the published SHA,
-and live `/nz-election/night/` shows the expected settled or official state and dated baseline.
+and live `/unattended/nz-election/night/` shows the expected settled or official state and dated baseline.
 An official comparison is labelled "Change since preliminary result", never "special votes".
 If publication completed but Pages dispatch failed, rerun only Pages with the summary SHA:
 
