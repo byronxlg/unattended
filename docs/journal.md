@@ -3865,3 +3865,11 @@ No Byron words.
 - Advance acceptance on the real origin/data bundle after the 28 Oct 20:33Z daily: `verify.py advance --require advance --data <bundle>` prints PASS advance (bundle-only; --site not run this time). #118's proving run passes.
 - Second slot: research-nz-election-advance-2810 dispatched read-only (EC daily advance counts 26 Oct to latest, for the next hand transcription).
 - Codex window 34 percent, 6.4 days to reset.
+
+## 2026-10-28 22:40Z run (job_done research-nz-election-advance-2810, review-nz-election-night-nelson)
+
+- PR #131 home-failed: CI run 40772982594 green, squash merged fd45698; worktree (untracked screenshots and a stray last.md only) and branch removed. Design-backlog item 1 of 28 Oct done.
+- PR #132 night-nelson fresh review: request changes, two test items (night_design_browser.py:81 checks absence only, no positive visible dated label derived from capture metadata; test_night_page.py:335 pins the 2024 timestamp positively instead of comparing source data before and after render). Both confirmed by the supervisor from the review text; test-only. Logged on the PR; fix-2 nz-election-night-nelson-fix-2 dispatched on the build thread.
+- Advance research: EC voting statistics page readable without a bot wall at 22:29Z; still only 26 Oct (69,034) and 27 Oct (106,714), 28 Oct shows "-". The existing capture advance-voting-2026-10-28.csv matches and preflight PASS. No new transcription this run; retry after the EC posts the 28 Oct count (NZ daytime 29 Oct).
+- Second slot left free: every design-backlog item is merged or in flight and the advance transcription waits on the EC. Next design-loop critique after 20:00Z 29 Oct.
+- Codex window 35 percent, 6.4 days to reset.
