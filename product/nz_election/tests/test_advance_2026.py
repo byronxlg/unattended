@@ -9,6 +9,12 @@ from product.nz_election.tools.advance_preflight import inspect
 NOW = '2026-10-28T07:08:00Z'
 
 
+def test_advance_require_year_committed_capture(capsys):
+    from product.nz_election.pipeline import verify
+    verify.cli(['advance', '--require-year', '2026'])
+    assert capsys.readouterr().out == 'PASS advance\n'
+
+
 class Text(HTMLParser):
     def __init__(self, html):
         super().__init__()
