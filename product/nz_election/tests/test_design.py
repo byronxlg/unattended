@@ -227,13 +227,61 @@ def test_phone_rendered_type_and_targets(built_design, tmp_path, chart):
     assert 'PASS ' + chart in result.stdout
 
 
+def landmark_links(html):
+    from product.nz_election.pipeline.content_checks import Tree, Node
+
+    landmarks = {'banner': [], 'contentinfo': []}
+    sectioning = {'article', 'aside', 'main', 'nav', 'section'}
+
+    def visit(node, scoped=False):
+        role = node.attrs.get('role')
+        implicit = {'header': 'banner', 'footer': 'contentinfo'}.get(node.tag)
+        if role in landmarks:
+            landmarks[role].append(node)
+        elif role is None and implicit and not scoped:
+            landmarks[implicit].append(node)
+        for child in node.children:
+            if isinstance(child, Node):
+                visit(child, scoped or node.tag in sectioning)
+
+    visit(Tree(html).root)
+    assert len(landmarks['banner']) == 1, 'Expected exactly one banner header'
+    assert len(landmarks['contentinfo']) == 1, 'Expected exactly one contentinfo footer'
+
+    def links(node):
+        found = {node.attrs['href']} if node.tag == 'a' and 'href' in node.attrs else set()
+        for child in node.children:
+            if isinstance(child, Node):
+                found.update(links(child))
+        return found
+
+    return links(landmarks['banner'][0]) | links(landmarks['contentinfo'][0])
+
+
+@pytest.mark.parametrize('attrs', ['', ' class="masthead" id="top"', ' role="banner"'])
+def test_design_landmarks_allow_attributes_and_ignore_section_headers(attrs):
+    html = (f'<header{attrs}><nav><a href="/home/">Home</a></nav></header>'
+            '<main><header><a href="/local/">Local</a></header>'
+            '<article><footer>Article credit</footer></article></main>'
+            '<footer class="footer" role="contentinfo"><a href="/methods/">Methods</a></footer>')
+    assert landmark_links(html) == {'/home/', '/methods/'}
+
+
+@pytest.mark.parametrize('html,message', [
+    ('<main><header>Local</header></main><footer></footer>', 'banner'),
+    ('<header></header><footer></footer><footer class="extra"></footer>', 'contentinfo'),
+    ('<header></header><header id="extra"></header><footer></footer>', 'banner'),
+    ('<header></header><main><footer>Local</footer></main>', 'contentinfo'),
+])
+def test_design_landmarks_reject_missing_or_duplicate(html, message):
+    with pytest.raises(AssertionError, match=message):
+        landmark_links(html)
+
+
 def test_header_footer_link_every_registered_route(built_design):
     from product.nz_election.pipeline.build import PREFIX
-    from product.nz_election.tests.design_checks import Document
     _, site = built_design
     expected = {PREFIX + route['path'] for route in config('routes')}
     for path in site.rglob('index.html'):
-        html = path.read_text()
-        shared = ''.join(re.findall(r'<(?:header|footer)>(.*?)</(?:header|footer)>', html, re.S))
-        links = {attrs['href'] for tag, attrs in Document(shared).nodes if tag == 'a'}
+        links = landmark_links(path.read_text())
         assert expected <= links, (path, expected - links)
