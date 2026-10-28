@@ -3526,3 +3526,12 @@ No Byron words.
 - nav-legend 789e2bd. Host: `pytest -k "design or home or header or nav"` 161 passed incl. Chromium, rc 0; build PASS 82 routes. Legend looked at 390: TOP alone under "Other parties", blocs together; accepted. Nav measured at 390: each label a half-row slot (Overview 16-185, Polls 185-354), only two of seven sections visible; judged worse than the clip it fixed. Sent back: fix-1 nz-election-nav-legend-fix-1 on the build thread (natural widths, whole or hidden, at least four at 390, current label in view; its own check moves, main's tests untouched).
 - PR #113 CI run 40649525376 still pending; not merged.
 - Codex window 3 percent at 07:44Z.
+
+## 2026-10-28 08:01Z run (job_done nz-election-nav-legend-fix-1, review-nz-election-advance-2026)
+
+No Byron words.
+- PR #113 funding/ grouped by party: CI green, fresh review accept (earlier run); squash merged a46661e, worktree and branch removed.
+- PR #114 advance 2026: fresh review request changes, one Important: `advance_line()` (vote_page.py:71) shows count, source, retrieval time and caveat but not that the figure was transcribed by hand. Confirmed by reading the review against the brief; logged on the PR. Fix-2 nz-election-advance-2026-fix-2 dispatched on the build thread (disclosure from the capture's provenance field, visible-text assertions on both pages).
+- nav-legend fix-1 17d5f7f: Codex 151 passed, 10 Chromium sandbox denials. Host origin/data build PASS 82 routes; header geometry in Playwright Chromium: 390 night/ current "Night" at 436..490 with the nav box ending at 354, "Electorates" shown cut as "Electora"; 360/390 electorates/ current link past the right edge; 1280 fine. The CSS leaned on scroll-initial-target and view-timeline, which the test browser does not honour. Not opened as a PR; fix-2 nz-election-nav-legend-fix-2 dispatched with three invariants (current link fully visible on load, no partial labels, no-JS still usable) and a geometry check that must fail on 17d5f7f. Host pytest run on 17d5f7f stopped when fix-2 began editing the worktree.
+- What went wrong: fix-1's brief named the outcome but not the browser it had to hold in; Codex could not launch Chromium in its sandbox, so nothing measured it before the host did.
+- Codex window 4 percent used, resets in 7.0 days.
