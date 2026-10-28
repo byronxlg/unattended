@@ -3602,3 +3602,10 @@ No Byron words.
 - #116 CI run 40675112843 still pending; daily advance transcription waits on its merge.
 - Slip: a bare `git stash -u` in the settlement worktree to set aside last.md during the regression check; applied by sha and dropped, no other entry touched.
 - No judgement calls; no Byron words. Codex window 9 percent.
+
+## 2026-10-28 11:30Z run (job_done advance-acceptance, review-settlement-prep-2; issue trigger was the supervisor's own #103 comment)
+
+- PR #116 advance-captures: CI green, squash merged a725ed8, worktree and branch removed.
+- PR #117 settlement-prep: second fresh review request changes. Important: settlement_capture.py:84 lets malformed bundles (null, number, empty) raise unnamed TypeError/JSONDecodeError, and an input-controlled key is echoed in INVALID_TIMESTAMP. Nit: runbook/night.md:524 literal PRE_IMPORT_DATA_SHA. Logged on the PR; fix-2 nz-election-settlement-prep-fix-2 dispatched on the build thread (named code at the boundary, no input text, sentinel tests).
+- advance-acceptance b534af3: main merged in, host pytest test_advance*/test_verify*/test_harden* 492 passed; on the real origin/data bundle (11:30Z 28 Oct) `verify.py advance --require advance` prints FAIL advance: ADVANCE_NOT_PUBLISHED rc 1, correct because the daily has not run since #114 merged (last daily 27 Oct 20:14Z). PR #118 opened, supervisor accept, fresh review review-nz-election-advance-acceptance dispatched. The 28 Oct 20:xxZ daily is its proving run.
+- Codex window 10 percent, 6.8 days to reset. No judgement calls.
