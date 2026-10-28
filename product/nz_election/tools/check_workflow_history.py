@@ -15,10 +15,11 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(ROOT))
 from product.nz_election.pipeline.deployment_guard import START, END
 from product.nz_election.pipeline.night_live import CLOSE
+from product.nz_election.pipeline.sunsets import HOURLY_CLOSE, DAILY_CLOSE, SOCIAL_CLOSE
 
 POLICY = (
     'Cron is evaluated in UTC and reported by NZ calendar day; inactive days require no runs. '
-    'Declared publication and night-operation guards bound the active window. '
+    'Declared publication, night-operation and collection sunset guards bound the active window. '
     'Hourly: gaps between consecutive successful runs are measured across midnight and must be at most 3 hours. '
     'Use the last success before each day and first success after it within the window; '
     'use window start/end only when no such success exists. '
@@ -254,9 +255,20 @@ def workflow_commands(source):
                 yield invocation
 
 
+def collection_sunset(commands):
+    deadlines = {'hourly': HOURLY_CLOSE, 'daily': DAILY_CLOSE, 'social': SOCIAL_CLOSE}
+    # Overrides and unknown arguments are not evidence of the shared deadline.
+    return min((deadlines[words[1]] for words in commands
+                if words[0].removeprefix('./') == 'product/nz_election/pipeline/sunsets.py'
+                and len(words) == 2 and words[1] in deadlines), default=None)
+
+
 def active_intervals(source, start, end):
     commands = list(workflow_commands(source))
     scripts = {words[0].removeprefix('./') for words in commands}
+    sunset = collection_sunset(commands)
+    if sunset is not None:
+        end = min(end, sunset)
     if 'product/nz_election/pipeline/night_live.py' in scripts:
         start, end = max(start, END), min(end, CLOSE)
     intervals = [(start, end)] if start < end else []
@@ -353,6 +365,7 @@ def check_history(days, *, runner=subprocess.run, now=None, root=ROOT):
     for filename, name in scheduled_workflows(root):
         source = (root / '.github/workflows' / filename).read_text()
         schedules = workflow_schedule(source)
+        sunset = collection_sunset(workflow_commands(source))
         daily_runs = []
         for day in dates:
             start = datetime.combine(day, time.min, NZ).astimezone(timezone.utc)
@@ -386,7 +399,9 @@ def check_history(days, *, runner=subprocess.run, now=None, root=ROOT):
                     if run['event'] in {'schedule', 'workflow_dispatch'}:
                         if start <= stamp < end:
                             selected.append((stamp, run))
-                        elif hourly and end <= stamp <= query_end and run['status'] == 'completed' and run['conclusion'] == 'success':
+                        elif (hourly and end <= stamp <= query_end
+                              and (sunset is None or stamp < sunset)
+                              and run['status'] == 'completed' and run['conclusion'] == 'success'):
                             later_successes.append(stamp)
                 daily_runs.append((day, start, end, selected, later_successes, hourly))
         # Collect the whole window before reporting so midnight cannot split a real gap.

@@ -3784,3 +3784,42 @@ No Byron words.
 - #126 second fresh review accept, no findings (timeline removed before results inserted; counts kept at cutoff). Logged on the PR.
 - CI pending on #125, #126, #127; nothing merged. No Codex job running: every next step (merge #127, boundary_only rehearsal on main, main into #125/#126) waits on #127's CI, so no dispatch this run. next-run-after set about 18:50Z.
 - Codex window 26 percent, 6.5 days to reset.
+
+## 2026-10-28 19:23Z (idle)
+
+- PR #127 boundary-watchdog squash merged as d94c191 (CI green, fresh review accept); worktree and branch removed.
+- Boundary-only rehearsal dispatched on main: run 40754002151.
+- #125 (run 40739227779) and #126 (run 40742752973) CI red on the same two cases only, test_night_boundary watchdog-cutoff and watchdog-queued-cutoff, main's defect fixed by #127. Main merged into both (af9b26d, 0670b2d), host test_night_boundary.py 46 passed on each, pushed, CI rerunning.
+- research-nz-election-readiness-7 dispatched read-only (round 6 brief, in-flight list extended).
+- Codex window 26 percent, 6.5 days to reset.
+
+## 2026-10-28 19:37Z run (job_done research-nz-election-readiness-7)
+
+- readiness-7 read: two small gaps, no operator decision. (1) electorate pages ignore post-close result states (electorate_pages.py:123 leader copy for stale/settled/official; :83 "Who is standing in 2026?" to 27 Nov). (2) night/ with no night family emits no live shell or client (night_page.py:144), so a reader on the fallback never sees the first capture.
+- Boundary rehearsal run 40754002151 (boundary_only, main after #127): success. Main green on the boundary drill.
+- #125 and #126 CI rerunning (runs 40754054439, 40754059751), pending at this run; not merged.
+- Dispatched nz-election-electorate-states (.worktrees/nz-election-electorate-states from origin/main, Page plan pages/electorate.md, DESIGN.md) and nz-election-night-empty (.worktrees/nz-election-night-empty stacked on change/nz-election-home-stale 0670b2d, because #126 edits night_page.py and result_states.py; retarget after #126 merges). Codex window 27 percent.
+
+## 2026-10-28 19:48Z run (job_done electorate-states, night-empty)
+
+- nz-election-electorate-states 752b8e8: host (Chromium unsandboxed) electorate_page_plan, sunsets, design 126 passed; diff two files (three-dot). Pushed, PR #128 opened, supervisor accept logged, fresh review review-nz-election-electorate-states dispatched read-only.
+- nz-election-night-empty 3db3adc: host same list with test_night_page 1 failed 140 passed: the branch's own night_empty_browser.py waits 30 s for an electorate search textbox that never renders. Sent back: fix-1 nz-election-night-empty-fix-1 on the build thread (followup-1.md: decide page or harness is wrong, say why; main's tests untouched).
+- #125 and #126 CI (runs 40754054439, 40754059751) still pending at 19:58Z; not merged.
+- Design-loop critique (first run after 20:00Z) not done this run; next run.
+
+## 2026-10-28 20:09Z (supervisor run; job_done nz-election-night-empty-fix-1, review-nz-election-electorate-states)
+
+- PR #125 history-sunsets squash merged 1c495f3 (CI green, review-2 accept); PR #126 home-stale merged a7de073 (CI green, review-2 accept); worktrees and branches removed. #129 retargeted to main before #126's branch was deleted.
+- night-empty fix-1 80abd95: the branch's own harness used role textbox; the input is a searchbox. Host `pytest test_night_page.py test_sunsets.py test_design.py` with Chromium: 141 passed (555 s). PR #129 opened, supervisor accept, fresh review review-nz-election-night-empty dispatched.
+- PR #128 electorate-states fresh review: request changes. Important: subtitle "Candidates for your electorate vote." unchanged after close (electorate_pages.py:86); no after-close case without a capture; settled/official tests assert labels not values; plus literal source date '20 October 2026' (:88). Supervisor confirmed at the lines. Fix-1 dispatched on the build thread; logged on the PR.
+- Incident: NZ election hourly run 40760666619 (20:09Z) failed, `parse_drift invalid_dates table:15/row:2`; the live home shows "update failed; showing previous data from 07:22 NZDT". Cause: Wikipedia revision 1382442932 added RNZ-Reid Research 20-26 Oct 2026 with data-sort-value 2026-10-01. `poll_parser.dates()` rejects a sort before fieldwork end and runs before the documented-exception loop, so the existing exception mechanism cannot rescue the row (the 17 Oct exception never needed it: its sort was one day after). Reproduced on the host with refresh.py. Judgement: keep the strict check for undocumented rows (main's tests pin it) and make documented exceptions cover this shape, then document this row; alternative rejected: accept any sort disagreement on visible dates, which would weaken a pinned check. nz-election-polls-fix3 dispatched with an eval evals/polls-exception-sort-before-end. Polls stay stale until it merges.
+- Design-loop critique (first run after 20:00Z): six pages captured from the deployed site at 1280 and 390; home, night, Nelson looked at. Three weakest at the top of state/design-backlog.md. Top item not dispatched this run: three Codex jobs already running.
+- Codex window 29 percent, resets in 6.5 days.
+
+## 2026-10-28 20:33Z run (job_done electorate-states-fix-1, polls-fix3, review-night-empty)
+
+- Incident fix nz-election-polls-fix3 f4e3c33: host pytest test_poll_parser, test_release_date_sort, test_date_exception_revision, test_exception_sort_before_end 116 passed; eval evals/polls-exception-sort-before-end PASS on HEAD, FAIL `parse_drift invalid_dates` on origin/main. Pushed, PR #130 opened, supervisor accept, fresh review review-nz-election-polls-fix3 dispatched. Hourly stays red until it merges; proving run is a by-hand hourly after merge.
+- PR #128 fix-1 11fba70: host pytest test_electorate_page_plan, test_electorates, test_electorate_policy_links 41 passed incl. Chromium (the two sandbox-denied browser cases pass on the host). Pushed, accept logged, second fresh review review-nz-election-electorate-states-2 dispatched.
+- PR #129 fresh review: request changes (night_empty_browser.py:57 never asserts absence of figures in waiting, empty or ended states; status role unchecked; nit raw markup in test_night_page.py:13). Confirmed, logged; fix-2 nz-election-night-empty-fix-2 dispatched on the build thread (absence checks shown failing against an injected figure).
+- Design-backlog top item not dispatched: three jobs running.
+- Codex window 30 percent, resets in 6.4 days.
