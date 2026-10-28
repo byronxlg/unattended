@@ -3879,3 +3879,10 @@ No Byron words.
 - PR #132 fix-2 16a6839: only night_design_browser.py and test_night_page.py changed, as the first fresh review asked. Host `pytest -k 'night or electorate or design'` 595 passed, 0 failed, incl. Chromium (940 s); Codex sandbox had 10 failed and 2 errors, all Chromium launch denials. Pushed, supervisor accept logged on the PR, second fresh review review-nz-election-night-nelson-2 dispatched read-only.
 - Second slot left free: backlog items merged or in flight, advance transcription still waits on the EC posting 28 Oct.
 - Codex window 35 percent, 6.3 days to reset.
+
+## 2026-10-28 23:18Z (job_done review-nz-election-night-nelson-2)
+
+- #132 second fresh review (Codex read-only, 16a6839): accept, no findings; four focused night_page tests PASS; logged on the PR. CI run 40785061001 pending at run end, not merged.
+- EC advance research (2810) re-read: 28 Oct count still "-" on vote.nz at 22:29Z; no new transcription. Next capture when the EC publishes.
+- Free slot: nz-election-funding-rows dispatched (.worktrees/nz-election-funding-rows from origin/main): funding/ returns readable at 360/390 without sideways scroll (styles.css:541 min-width 620px; backlog 27 Oct 08:30Z), Page plan pages/funding.md, DESIGN.md, new scrollWidth check failing on main.
+- Codex window 36 percent, 6.3 days to reset.
