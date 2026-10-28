@@ -466,6 +466,7 @@ def page(envs, built, presentation):
     from .snapshot_views import load as snapshot, result as held_result
     night = night_summary(envs, built)
     state, _ = seat_module(envs, built, presentation)
+    state = state.replace('class="state"', 'class="source-note"')
     if 'polls' not in envs:
         state = ''
     if envs.get('seats', {}).get('data', {}).get('unresolved_ties'):
@@ -516,7 +517,14 @@ def page(envs, built, presentation):
     if not post_election(built):
         modules += section('night', 'When can I vote?', 'Key dates from the Electoral Commission.',
                            g.timeline(records, g.nz_today(built)), 'Electoral Commission', 'Checked ' + compact_time(built), ('vote/', 'How to vote'))
-    top = night or seat_hero(envs, built, presentation)
+    hero_presentation = presentation
+    failed = any(s['dataset'] == 'polls' and s.get('error_code')
+                 for s in envs.get('status', {}).get('data', []))
+    if failed and presentation['selected'] and envs.get('seats', {}).get('data', {}).get('available'):
+        # A failed refresh retains valid inputs; freshness belongs in the dated note.
+        from .build import default_scenario
+        hero_presentation = dict(presentation, result=default_scenario(envs))
+    top = night or seat_hero(envs, built, hero_presentation)
     if not top:
         top = '<h1>New Zealand voted on 7 November</h1>' if post_election(built) else '<h1>New Zealand votes on 7 November</h1>'
     from .sunsets import NIGHT_CLOSE, instant
