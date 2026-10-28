@@ -69,7 +69,10 @@ def advance_line(envs):
     day = date.fromisoformat(row['date'])
     sentence = f"{row['cumulative']:,} advance votes reported through {day.day} {day:%B}."
     caveat = ' ' + escape(source['caveat']) if source.get('caveat') else ''
-    return ('<p>' + sentence + caveat + ' ' + link(source['url'], 'Electoral Commission')
+    # The opening provenance sentence discloses acquisition; later sentences are audit detail.
+    provenance = source.get('provenance', '').split('. ', 1)[0].strip()
+    disclosure = ' ' + escape(provenance.rstrip('.')) + '.' if provenance else ''
+    return ('<p>' + sentence + caveat + disclosure + ' ' + link(source['url'], 'Electoral Commission')
             + '. Retrieved ' + escape(compact_time(source['fetched_at'])) + '.</p>')
 
 

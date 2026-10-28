@@ -4,6 +4,7 @@ from html.parser import HTMLParser
 import json
 import pytest
 from product.nz_election.pipeline import advance, export, home, vote_page
+from product.nz_election.pipeline.build import home_presentation
 from product.nz_election.tools.advance_preflight import inspect
 
 NOW = '2026-10-28T07:08:00Z'
@@ -65,7 +66,7 @@ def test_advance_declared_kind_cannot_contradict_header():
 
 
 @pytest.mark.parametrize('render', [lambda env: vote_page.page(NOW, envs=env),
-                                   lambda env: home.ribbon(NOW, env)])
+                                   lambda env: home.page(env, NOW, home_presentation(env, NOW))])
 def test_advance_vote_and_home_text(render):
     envs = captured()
     rendered = Text(render(envs))
@@ -74,6 +75,16 @@ def test_advance_vote_and_home_text(render):
     assert envs['advance-voting']['source'][0]['caveat'] in text
     assert envs['advance-voting']['source'][0]['url'] in rendered.links
     assert 'Retrieved 28 Oct, 20:08 NZDT' in text
+    disclosure = 'Transcribed from the EC page, not downloaded.'
+    assert disclosure in text
+    changed_provenance = deepcopy(envs)
+    changed_provenance['advance-voting']['source'][0]['provenance'] = 'Manually recorded & checked against the EC table.'
+    changed_text = ' '.join(Text(render(changed_provenance)).parts)
+    assert 'Manually recorded & checked against the EC table.' in changed_text
+    assert disclosure not in changed_text
+    del changed_provenance['advance-voting']['source'][0]['provenance']
+    without_provenance = ' '.join(Text(render(changed_provenance)).parts)
+    assert without_provenance.split() == text.replace(disclosure, '').split()
     assert 'advance votes reported' not in ' '.join(Text(render({})).parts)
     historical, sources, _ = advance.load(historical=True)
     assert 'advance votes reported' not in ' '.join(Text(render({'advance-voting': {
