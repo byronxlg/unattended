@@ -32,7 +32,12 @@ def reject_labelled(env, row):
     # Shared archive sources are expected; only the live capture's provenance applies.
     provenance = {k: v for k, v in env.items() if k not in {'data', 'source', 'input_hashes'}}
     provenance['source'] = [s for s in env['source'] if s['id'].startswith('actions-xml/')]
-    if labelled([row, provenance]):
+    # Election names can contain label substrings (for example DemocracyNZ).
+    row_provenance = {k: row[k] for k in (
+        'id', 'source_ref', 'mode', 'packaging_label', 'retrieved_at',
+        'rehearsal', 'acquisition_source',
+    ) if k in row}
+    if labelled([row_provenance, provenance]):
         raise ValueError('NIGHT_CAPTURE_NOT_REAL')
     entries = json.loads((fixtures.ROOT / 'manifest.json').read_text())['entries']
     paths = {e['path'] for e in entries if e['path'].endswith('.json') and LABEL.search(json.dumps(e))}

@@ -376,3 +376,24 @@ def test_prepare_validates_manifest_before_extraction(preparation_bundle, tmp_pa
     with pytest.raises(ValueError):
         settlement_capture.prepare(data, out)
     assert not out.exists()
+
+
+def test_prepare_accepts_democracy_party_content(tmp_path):
+    import re
+    from product.nz_election.pipeline import settlement_capture
+    # Simulate EC acquisition provenance; these test bytes never leave the temporary bundle.
+    captured = capture('preliminary')
+    captured['raw']['parties.xml'], replacements = re.subn(
+        r'<party_name>[^<]+</party_name>', '<party_name>DemocracyNZ</party_name>',
+        captured['raw']['parties.xml'], count=1)
+    assert replacements == 1
+    data = tmp_path / 'democracy-data'
+    daily_refresh(data, loaders={'night': lambda: night_live.loaded(captured)},
+                  now=captured['retrieved_at'], run_url='https://github.com/test/repo/actions/runs/123')
+    out = tmp_path / 'capture.json'
+    metadata = settlement_capture.prepare(data, out)
+    prepared = json.loads(out.read_bytes())
+    assert 'DemocracyNZ' in prepared['raw']['parties.xml']
+    assert prepared == {k: captured[k] for k in ('raw', 'retrieved_at', 'acquisition_source')}
+    assert metadata['source'] == captured['acquisition_source']
+    assert metadata['sha256'] == export.digest(out.read_bytes())
