@@ -3593,3 +3593,12 @@ No Byron words.
 - #115 CI run 40671874653 still pending.
 - Second slot left free: the daily advance transcription waits on #116's merge.
 - No judgement calls; no Byron words. Codex window 8 percent.
+
+## 2026-10-28 11:14Z run (job_done nz-election-settlement-prep-fix-1)
+
+- PR #115 nav-legend squash merged as 25dabcc (CI run 40671874653 green, two fresh reviews accept); worktree and branch removed.
+- PR #117 fix-1 a971810 (label guard scans provenance only, regression with DemocracyNZ in genuine XML): host `pytest product/nz_election/tests/test_result_import.py` 50 passed in 201.77s; `-k democracy` fails with settlement_capture.py at ce85ff3. Pushed, accept logged on the PR, second fresh review review-nz-election-settlement-prep-2 dispatched.
+- Readiness-4 increment 3 dispatched as nz-election-advance-acceptance (verify.py/harden acceptance that the newest registered 2026 advance capture is the one published and rendered on home and vote/; missing EC day reported as its own state). Files disjoint from #116 and #117.
+- #116 CI run 40675112843 still pending; daily advance transcription waits on its merge.
+- Slip: a bare `git stash -u` in the settlement worktree to set aside last.md during the regression check; applied by sha and dropped, no other entry touched.
+- No judgement calls; no Byron words. Codex window 9 percent.

@@ -11,7 +11,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": "1380524613",
    "licence": "CC BY-SA 4.0 (Wikipedia contributors)",
-   "notes": "MediaWiki API response for the pinned revision; page history https://en.wikipedia.org/w/index.php?title=Opinion_polling_for_the_2026_New_Zealand_general_election&action=history; permalink https://en.wikipedia.org/w/index.php?oldid=1380524613; revision timestamp 2026-10-16T07:01:22Z"
+   "notes": "MediaWiki API response for the pinned revision; page history https://en.wikipedia.org/w/index.php?title=Opinion_polling_for_the_2026_New_Zealand_general_election&action=history; permalink https://en.wikipedia.org/w/index.php?oldid=1380524613; revision timestamp 2026-10-16T07:01:22Z",
+   "bytes": 143637
   },
   {
    "path": "wikipedia/polls-2026.wikitext",
@@ -22,7 +23,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": "1380524613",
    "licence": "CC BY-SA 4.0 (Wikipedia contributors)",
-   "notes": "Main-slot content extracted verbatim from polls-2026.api.json (json.load, slots.main.content, written as UTF-8); no other edits"
+   "notes": "Main-slot content extracted verbatim from polls-2026.api.json (json.load, slots.main.content, written as UTF-8); no other edits",
+   "bytes": 137888
   },
   {
    "path": "ec-2023/party-quotients.csv",
@@ -33,7 +35,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Origin returns HTTP 403 (Cloudflare) to every non-browser client and to headless Chromium; raw bytes taken from the Wayback Machine id_ endpoint (no rewriting). UTF-8 BOM and banner rows before the header preserved as served."
+   "notes": "Origin returns HTTP 403 (Cloudflare) to every non-browser client and to headless Chromium; raw bytes taken from the Wayback Machine id_ endpoint (no rewriting). UTF-8 BOM and banner rows before the header preserved as served.",
+   "bytes": 4308
   },
   {
    "path": "ec-2023/party-votes.csv",
@@ -44,7 +47,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Origin returns HTTP 403 (Cloudflare) to every non-browser client and to headless Chromium; raw bytes taken from the Wayback Machine id_ endpoint (no rewriting). UTF-8 BOM and banner rows before the header preserved as served."
+   "notes": "Origin returns HTTP 403 (Cloudflare) to every non-browser client and to headless Chromium; raw bytes taken from the Wayback Machine id_ endpoint (no rewriting). UTF-8 BOM and banner rows before the header preserved as served.",
+   "bytes": 7801
   },
   {
    "path": "ec-2023/lists-successful.csv",
@@ -55,7 +59,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Origin returns HTTP 403 (Cloudflare) to every non-browser client and to headless Chromium; raw bytes taken from the Wayback Machine id_ endpoint (no rewriting). UTF-8 BOM and banner rows before the header preserved as served."
+   "notes": "Origin returns HTTP 403 (Cloudflare) to every non-browser client and to headless Chromium; raw bytes taken from the Wayback Machine id_ endpoint (no rewriting). UTF-8 BOM and banner rows before the header preserved as served.",
+   "bytes": 11404
   },
   {
    "path": "ec-2023/lists-unsuccessful.csv",
@@ -66,7 +71,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Origin returns HTTP 403 (Cloudflare) to every non-browser client and to headless Chromium; raw bytes taken from the Wayback Machine id_ endpoint (no rewriting). UTF-8 BOM and banner rows before the header preserved as served."
+   "notes": "Origin returns HTTP 403 (Cloudflare) to every non-browser client and to headless Chromium; raw bytes taken from the Wayback Machine id_ endpoint (no rewriting). UTF-8 BOM and banner rows before the header preserved as served.",
+   "bytes": 3844
   },
   {
    "path": "ec-2023/winners.csv",
@@ -77,7 +83,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Origin returns HTTP 403 (Cloudflare) to every non-browser client and to headless Chromium; raw bytes taken from the Wayback Machine id_ endpoint (no rewriting). UTF-8 BOM and banner rows before the header preserved as served."
+   "notes": "Origin returns HTTP 403 (Cloudflare) to every non-browser client and to headless Chromium; raw bytes taken from the Wayback Machine id_ endpoint (no rewriting). UTF-8 BOM and banner rows before the header preserved as served.",
+   "bytes": 5326
   },
   {
    "path": "ec-2023-xml/election.xml",
@@ -88,7 +95,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Live exempt XML feed, 200 to curl; national party votes and seats (final, updated 2024-11-10). Cross-check: votes sum 2851211, seats 122."
+   "notes": "Live exempt XML feed, 200 to curl; national party votes and seats (final, updated 2024-11-10). Cross-check: votes sum 2851211, seats 122.",
+   "bytes": 5066
   },
   {
    "path": "ec-2023-xml/parties.xml",
@@ -99,7 +107,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "p_no to abbrev, short_name, party_name, registered"
+   "notes": "p_no to abbrev, short_name, party_name, registered",
+   "bytes": 12972
   },
   {
    "path": "ec-2023-xml/candidates.xml",
@@ -110,7 +119,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "567 candidates: c_no, candidate_name, electorate (0 = list only), party p_no, list_no (0 = not on list); covers all party lists including unsuccessful parties"
+   "notes": "567 candidates: c_no, candidate_name, electorate (0 = list only), party p_no, list_no (0 = not on list); covers all party lists including unsuccessful parties",
+   "bytes": 109133
   },
   {
    "path": "ec-2023-xml/electorates.xml",
@@ -121,7 +131,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "e_no to electorate name, 72 electorates (2023 boundaries)"
+   "notes": "e_no to electorate name, 72 electorates (2023 boundaries)",
+   "bytes": 7222
   },
   {
    "path": "stats-nz/general-2025.geojson",
@@ -132,7 +143,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": "GED2025_V1_00",
    "licence": "CC BY 4.0 (Stats NZ)",
-   "notes": "Simplified at maxAllowableOffset 0.001 for the index map; 64 features, properties GED2025_V1_00, GED2025_V1_00_NAME, LAND_AREA_SQ_KM. Full-detail response (21,262,703 bytes, sha256 a5b839781a96e3bfe21d350e77861079f1a9d20efea304389e37c69244a4434c) kept outside the repo for the reference companion, per plan-m2 decision."
+   "notes": "Simplified at maxAllowableOffset 0.001 for the index map; 64 features, properties GED2025_V1_00, GED2025_V1_00_NAME, LAND_AREA_SQ_KM. Full-detail response (21,262,703 bytes, sha256 a5b839781a96e3bfe21d350e77861079f1a9d20efea304389e37c69244a4434c) kept outside the repo for the reference companion, per plan-m2 decision.",
+   "bytes": 362724
   },
   {
    "path": "stats-nz/maori-2025.geojson",
@@ -143,7 +155,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": "MED2025_V1_00",
    "licence": "CC BY 4.0 (Stats NZ)",
-   "notes": "Simplified at maxAllowableOffset 0.001 for the index map; 7 features, properties MED2025_V1_00, MED2025_V1_00_NAME, LAND_AREA_SQ_KM. Full-detail response (4,628,042 bytes, sha256 a983af39699338002b0613bb7d2f3f1338c566477f7a2fb111aedab92fbe14dc) kept outside the repo for the reference companion."
+   "notes": "Simplified at maxAllowableOffset 0.001 for the index map; 7 features, properties MED2025_V1_00, MED2025_V1_00_NAME, LAND_AREA_SQ_KM. Full-detail response (4,628,042 bytes, sha256 a983af39699338002b0613bb7d2f3f1338c566477f7a2fb111aedab92fbe14dc) kept outside the repo for the reference companion.",
+   "bytes": 110196
   },
   {
    "path": "representation-commission/report-2025.html",
@@ -154,7 +167,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": "wayback 20260127033832",
    "licence": "Crown copyright; elections.nz states CC BY 4.0 unless otherwise noted; no per-document notice checked",
-   "notes": "Report of the Representation Commission 2025 landing page. Origin returned an Incapsula bot-wall shell to curl and headless Chromium, so the raw Wayback id_ snapshot was captured. Links the report PDF and Schedules A to F."
+   "notes": "Report of the Representation Commission 2025 landing page. Origin returned an Incapsula bot-wall shell to curl and headless Chromium, so the raw Wayback id_ snapshot was captured. Links the report PDF and Schedules A to F.",
+   "bytes": 72071
   },
   {
    "path": "representation-commission/schedule-b.pdf",
@@ -165,7 +179,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": "wayback 20251006110341",
    "licence": "Crown copyright; elections.nz states CC BY 4.0 unless otherwise noted; no per-document notice checked",
-   "notes": "Schedule B, list of unchanged and changed electorates (one page): 15 unchanged and 49 changed or reconfigured general electorates, 4 unchanged and 3 changed Maori electorates. Primary evidence for config/electorate-correspondence.json. Captured via Wayback id_ because the origin bot-wall blocks non-browser clients."
+   "notes": "Schedule B, list of unchanged and changed electorates (one page): 15 unchanged and 49 changed or reconfigured general electorates, 4 unchanged and 3 changed Maori electorates. Primary evidence for config/electorate-correspondence.json. Captured via Wayback id_ because the origin bot-wall blocks non-browser clients.",
+   "bytes": 106335
   },
   {
    "path": "representation-commission/report-2025.pdf",
@@ -176,7 +191,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": "wayback 20250808085612",
    "licence": "Crown copyright; elections.nz states CC BY 4.0 unless otherwise noted; no per-document notice checked",
-   "notes": "Full report of the Representation Commission 2025 (web PDF). Supporting evidence for the 2020-to-2025 relationships (new, abolished and renamed electorates) behind config/electorate-correspondence.json. Captured via Wayback id_."
+   "notes": "Full report of the Representation Commission 2025 (web PDF). Supporting evidence for the 2020-to-2025 relationships (new, abolished and renamed electorates) behind config/electorate-correspondence.json. Captured via Wayback id_.",
+   "bytes": 1570791
   },
   {
    "path": "party-identity/nat.html",
@@ -187,7 +203,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "All rights reserved (the party); captured as colour evidence only, never served or redistributed",
-   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied."
+   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied.",
+   "bytes": 175343
   },
   {
    "path": "party-identity/lab.html",
@@ -198,7 +215,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "All rights reserved (the party); captured as colour evidence only, never served or redistributed",
-   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied."
+   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied.",
+   "bytes": 549303
   },
   {
    "path": "party-identity/grn.html",
@@ -209,7 +227,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "All rights reserved (the party); captured as colour evidence only, never served or redistributed",
-   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied."
+   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied.",
+   "bytes": 235911
   },
   {
    "path": "party-identity/act.html",
@@ -220,7 +239,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "All rights reserved (the party); captured as colour evidence only, never served or redistributed",
-   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied."
+   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied.",
+   "bytes": 498288
   },
   {
    "path": "party-identity/nzf.html",
@@ -231,7 +251,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "All rights reserved (the party); captured as colour evidence only, never served or redistributed",
-   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied."
+   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied.",
+   "bytes": 48802
   },
   {
    "path": "party-identity/tpm.html",
@@ -242,7 +263,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "All rights reserved (the party); captured as colour evidence only, never served or redistributed",
-   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied."
+   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied.",
+   "bytes": 157427
   },
   {
    "path": "party-identity/opp.html",
@@ -253,7 +275,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "All rights reserved (the party); captured as colour evidence only, never served or redistributed",
-   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied."
+   "notes": "Party home page HTML as served to the host at capture time (HTTP 200). Redirects were not recorded at capture. Evidence for config/party-colours.json sampling; logos are not copied.",
+   "bytes": 196481
   },
   {
    "path": "party-identity/nat-chunk-2f9wyvxctmtoc.css",
@@ -264,7 +287,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "All rights reserved (the party); captured as colour evidence only, never served or redistributed",
-   "notes": "Stylesheet linked from party-identity/nat.html (second rel=stylesheet link). Captured because the HTML carries no literal primary colour (plan-m2 decision 3). HTTP 200, no redirect. Declares :root --primary and --blue-dark."
+   "notes": "Stylesheet linked from party-identity/nat.html (second rel=stylesheet link). Captured because the HTML carries no literal primary colour (plan-m2 decision 3). HTTP 200, no redirect. Declares :root --primary and --blue-dark.",
+   "bytes": 147109
   },
   {
    "path": "party-identity/nzf-theme.scss",
@@ -275,7 +299,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "All rights reserved (the party); captured as colour evidence only, never served or redistributed",
-   "notes": "Compiled theme stylesheet linked from party-identity/nzf.html. Captured because the HTML carries no literal party colour (plan-m2 decision 3). HTTP 200, no redirect. Navy #001f50 and gold #f4c430 are the recurring brand values."
+   "notes": "Compiled theme stylesheet linked from party-identity/nzf.html. Captured because the HTML carries no literal party colour (plan-m2 decision 3). HTTP 200, no redirect. Navy #001f50 and gold #f4c430 are the recurring brand values.",
+   "bytes": 270585
   },
   {
    "path": "stats-nz/general-2025.reference.json",
@@ -286,7 +311,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": "GED2025_V1_00",
    "licence": "CC BY 4.0 (Stats NZ)",
-   "notes": "Compact reference generated on the host by pipeline/geo_reference.py from the full-detail FeatureCollection held outside the repository; committed by the supervisor in 64a5db0. Input sha256: a5b839781a96e3bfe21d350e77861079f1a9d20efea304389e37c69244a4434c. Projection and derivation are recorded in the companion and tool. Acquisition time inherited from the source capture batch, not the generation time. Companion bytes unchanged."
+   "notes": "Compact reference generated on the host by pipeline/geo_reference.py from the full-detail FeatureCollection held outside the repository; committed by the supervisor in 64a5db0. Input sha256: a5b839781a96e3bfe21d350e77861079f1a9d20efea304389e37c69244a4434c. Projection and derivation are recorded in the companion and tool. Acquisition time inherited from the source capture batch, not the generation time. Companion bytes unchanged.",
+   "bytes": 22274
   },
   {
    "path": "stats-nz/maori-2025.reference.json",
@@ -297,7 +323,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": "MED2025_V1_00",
    "licence": "CC BY 4.0 (Stats NZ)",
-   "notes": "Compact reference generated on the host by pipeline/geo_reference.py from the full-detail FeatureCollection held outside the repository; committed by the supervisor in 64a5db0. Input sha256: a983af39699338002b0613bb7d2f3f1338c566477f7a2fb111aedab92fbe14dc. Projection and derivation are recorded in the companion and tool. Acquisition time inherited from the source capture batch, not the generation time. Companion bytes unchanged."
+   "notes": "Compact reference generated on the host by pipeline/geo_reference.py from the full-detail FeatureCollection held outside the repository; committed by the supervisor in 64a5db0. Input sha256: a983af39699338002b0613bb7d2f3f1338c566477f7a2fb111aedab92fbe14dc. Projection and derivation are recorded in the companion and tool. Acquisition time inherited from the source capture batch, not the generation time. Companion bytes unchanged.",
+   "bytes": 2819
   },
   {
    "path": "ec-2023/candidate-votes-by-voting-place-1.csv",
@@ -1490,7 +1517,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats).",
+   "bytes": 7111
   },
   {
    "path": "ec-2017-xml/parties.xml",
@@ -1501,7 +1529,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats).",
+   "bytes": 7108
   },
   {
    "path": "ec-2017-xml/candidates.xml",
@@ -1512,7 +1541,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats).",
+   "bytes": 102660
   },
   {
    "path": "ec-2017-xml/election.xml",
@@ -1523,7 +1553,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+   "notes": "Final 2017 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats).",
+   "bytes": 4778
   },
   {
    "path": "ec-2020-xml/electorates.xml",
@@ -1534,7 +1565,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats).",
+   "bytes": 7222
   },
   {
    "path": "ec-2020-xml/parties.xml",
@@ -1545,7 +1577,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats).",
+   "bytes": 9895
   },
   {
    "path": "ec-2020-xml/candidates.xml",
@@ -1556,7 +1589,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats).",
+   "bytes": 130145
   },
   {
    "path": "ec-2020-xml/election.xml",
@@ -1567,7 +1601,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats)."
+   "notes": "Final 2020 results XML archive, 200 to curl, for the M3 night parser (archive registry, not 2026 seats).",
+   "bytes": 5044
   },
   {
    "path": "ec-mediademo-xml/electorates.xml",
@@ -1578,7 +1613,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC media demo feed reference file (simulated results, not an election). Captured once alongside the election.xml sequence."
+   "notes": "EC media demo feed reference file (simulated results, not an election). Captured once alongside the election.xml sequence.",
+   "bytes": 7222
   },
   {
    "path": "ec-mediademo-xml/parties.xml",
@@ -1589,7 +1625,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC media demo feed reference file (simulated results, not an election). Captured once alongside the election.xml sequence."
+   "notes": "EC media demo feed reference file (simulated results, not an election). Captured once alongside the election.xml sequence.",
+   "bytes": 12972
   },
   {
    "path": "ec-mediademo-xml/candidates.xml",
@@ -1600,7 +1637,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC media demo feed reference file (simulated results, not an election). Captured once alongside the election.xml sequence."
+   "notes": "EC media demo feed reference file (simulated results, not an election). Captured once alongside the election.xml sequence.",
+   "bytes": 109133
   },
   {
    "path": "ec-mediademo-xml/election-obs1.xml",
@@ -1611,7 +1649,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC media demo feed, simulated changing count (not an election), observation 1 of a short sequence; feed updated=\"2026-10-20T14:22:32\" (NZ local, no offset). Electorate detail file paths not yet observed in the demo feed."
+   "notes": "EC media demo feed, simulated changing count (not an election), observation 1 of a short sequence; feed updated=\"2026-10-20T14:22:32\" (NZ local, no offset). Electorate detail file paths not yet observed in the demo feed.",
+   "bytes": 5065
   },
   {
    "path": "ec-mediademo-xml/election-obs2.xml",
@@ -1622,7 +1661,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC media demo feed, simulated changing count (not an election), observation 2 of a short sequence; feed updated=\"2026-10-20T14:23:02\" (NZ local, no offset). Electorate detail file paths not yet observed in the demo feed."
+   "notes": "EC media demo feed, simulated changing count (not an election), observation 2 of a short sequence; feed updated=\"2026-10-20T14:23:02\" (NZ local, no offset). Electorate detail file paths not yet observed in the demo feed.",
+   "bytes": 5065
   },
   {
    "path": "ec-2026-media-xml/election.xml",
@@ -1633,7 +1673,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 4921
   },
   {
    "path": "ec-2026-media-xml/electorates.xml",
@@ -1644,7 +1685,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 7127
   },
   {
    "path": "ec-2026-media-xml/parties.xml",
@@ -1655,7 +1697,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 7588
   },
   {
    "path": "ec-2026-media-xml/candidates.xml",
@@ -1666,7 +1709,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 101870
   },
   {
    "path": "ec-2026-media-xml/statistics.xml",
@@ -1677,7 +1721,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 455
   },
   {
    "path": "ec-2026-media-xml/e01/e01.xml",
@@ -1688,7 +1733,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 2468
   },
   {
    "path": "ec-2026-media-xml/e02/e02.xml",
@@ -1699,7 +1745,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 2628
   },
   {
    "path": "ec-2026-media-xml/e33/e33.xml",
@@ -1710,7 +1757,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 2793
   },
   {
    "path": "ec-2026-media-xml/e64/e64.xml",
@@ -1721,7 +1769,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 2550
   },
   {
    "path": "ec-2026-media-xml/e65/e65.xml",
@@ -1732,7 +1781,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 2227
   },
   {
    "path": "ec-2026-media-xml/e71/e71.xml",
@@ -1743,7 +1793,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 2307
   },
   {
    "path": "ec-2026-media-xml/e01/votingplaces/01-01001.xml",
@@ -1754,7 +1805,8 @@
    "reviewer": "supervisor (Claude), unattended lab",
    "revision": null,
    "licence": "Source: Electoral Commission. Copyright Electoral Commission. No open licence stated.",
-   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted."
+   "notes": "EC 2026 preliminary results feed (media kit p.11 names http://media.election.net.nz/xml/; HTTPS returns 200, directory listing public). Pre-election zero state, election.xml updated 2026-10-22T15:19:30 NZDT. No Access-Control-Allow-Origin header seen with an Origin request. Detail path rule observed in the listing: eNN/eNN.xml, voting places eNN/votingplaces/NN-NNNNN.xml. Zero-state detail files carry final=\"true\" with 0 places counted.",
+   "bytes": 2186
   },
   {
    "path": "result-states/2026-11-07-preliminary-final.json",
@@ -1765,7 +1817,8 @@
    "licence": "Copyright Electoral Commission; no open licence stated. Synthetic offline verification fixture.",
    "notes": "Synthetic dated XML-family package derived from the 2026 media registry. National counts and Auckland Central leader votes are invented; no network capture. Official source URL is inferred pending EC confirmation.",
    "archive_url": null,
-   "reviewer": "Codex offline fixture construction; synthetic counts"
+   "reviewer": "Codex offline fixture construction; synthetic counts",
+   "bytes": 306918
   },
   {
    "path": "result-states/2026-11-27-official.json",
@@ -1776,7 +1829,8 @@
    "licence": "Copyright Electoral Commission; no open licence stated. Synthetic offline verification fixture.",
    "notes": "Synthetic dated XML-family package derived from the 2026 media registry. National counts and Auckland Central leader votes are invented; no network capture. Official source URL is inferred pending EC confirmation.",
    "archive_url": null,
-   "reviewer": "Codex offline fixture construction; synthetic counts"
+   "reviewer": "Codex offline fixture construction; synthetic counts",
+   "bytes": 306938
   },
   {
    "path": "ec-2026/advance-voting-2026-10-28.csv",
