@@ -3687,3 +3687,9 @@ No Byron words.
 - #120 runbook fixes: CI still pending, not merged.
 - Second slot left free: the remaining readiness items (release-candidate evidence: rehearsal workflow, night_deployed --rehearse/--faults, check_workflow_history --days 3) wait for #121 to merge so they run on the candidate.
 - Codex window 19 percent, 6.7 days to reset.
+
+## 2026-10-28 14:33Z run (job_done review-nz-election-import-rehearsal)
+
+- PR #121 import rehearsal: fresh review accept, no findings (its pytest blocked by the read-only sandbox; host 121 passed earlier). Logged on the PR. CI pending, not merged.
+- PR #120 runbook fixes: CI run 40698968013 red, 1 of 3215: main's test_night_review.py:95 pins the phrase '62-image night registry' in runbook/night.md; the Codex docs edit reworded it. Neither the brief nor the review caught the pinned phrase. Supervisor one-line docs fix 3cba265 restores the phrase, host test passes, pushed, logged on the PR, CI rerunning.
+- No dispatch: the next work (Actions import rehearsal, release-candidate evidence) waits on #121 merging. Codex window 19 percent.
