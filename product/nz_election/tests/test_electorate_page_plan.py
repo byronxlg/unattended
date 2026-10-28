@@ -334,12 +334,41 @@ def test_local_result_states_at_five_clocks(tmp_path, built, state, expected):
     assert 'leader provisional' not in visible
     if built != '2026-11-07T05:59:59Z':
         assert 'Who stood in 2026?' in visible
+        assert 'Candidates who stood for your electorate vote.' in visible
+        assert 'Candidates for your electorate vote.' not in visible
         assert 'Who is standing in 2026?' not in visible
         assert 'Captured ' + result['retrieved_at'] in visible
         assert refs['candidates'][result['leaders'][identity]['leader']]['candidate_name'] in visible
-        assert 'Margin:' in visible
-        assert 'voting places counted' in visible
+        local = result['leaders'][identity]
+        assert f'Margin: {local["margin"]:,} votes' in visible
+        coverage = local['statistics']
+        assert f'{coverage["total_voting_places_counted"]} of {coverage["total_voting_places"]} voting places counted' in visible
         assert ('Official result for this electorate' in visible) == (state == 'official')
     else:
         assert 'Captured ' not in visible
     provenance(html)
+
+
+def test_post_close_candidates_without_result_capture():
+    visible = text(Tree(detail(seat(), {}, '2026-11-07T06:00:00Z')).root)
+    assert 'Who stood in 2026?' in visible
+    assert 'Candidates who stood for your electorate vote.' in visible
+    assert 'Who is standing in 2026?' not in visible
+    assert 'Candidates for your electorate vote.' not in visible
+    for claim in ('result', 'leader', 'margin', 'captur'):
+        assert claim not in visible.lower()
+
+
+def test_candidate_source_date_follows_snapshot_provenance(tmp_path, monkeypatch):
+    import json
+    document = json.loads((snapshots.SNAPSHOTS / 'candidates-2026.json').read_text())
+    document['retrieved_at'] = '2026-10-22T07:23:08Z'
+    (tmp_path / 'candidates-2026.json').write_text(json.dumps(document))
+    reconciliation = snapshots.SNAPSHOTS / 'candidate-reconciliation-2026.json'
+    (tmp_path / reconciliation.name).write_text(reconciliation.read_text())
+    monkeypatch.setattr(snapshots, 'SNAPSHOTS', tmp_path)
+    monkeypatch.setattr(snapshot_views, 'load', snapshots.load)
+    from product.nz_election.pipeline.electorate_pages import candidate_cards
+    visible = text(Tree(candidate_cards(seat(), '2026-11-07T06:00:00Z')).root)
+    assert 'Data to 22 October 2026.' in visible
+    assert 'Data to 20 October 2026.' not in visible

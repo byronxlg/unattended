@@ -82,10 +82,13 @@ def candidate_cards(row, built=None):
     from .snapshot_views import footnote
     if not cards:
         return ''
-    title = 'Who stood in 2026?' if built and post_election(built) else 'Who is standing in 2026?'
-    return section('candidates-title', title, 'Candidates for your electorate vote.',
+    from .snapshots import retrieval_date
+    after_close = built and post_election(built)
+    title = 'Who stood in 2026?' if after_close else 'Who is standing in 2026?'
+    subtitle = 'Candidates who stood for your electorate vote.' if after_close else 'Candidates for your electorate vote.'
+    return section('candidates-title', title, subtitle,
                    '<ul class="race-cards" aria-describedby="source-candidates-2026">' + cards + '</ul>', '', '',
-                   source_note=footnote('candidates-2026', '20 October 2026'),
+                   source_note=footnote('candidates-2026', retrieval_date('candidates-2026')),
                    source_id='source-candidates-2026', css='race-candidates module')
 
 
