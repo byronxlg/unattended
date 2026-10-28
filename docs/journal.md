@@ -3799,3 +3799,10 @@ No Byron words.
 - Boundary rehearsal run 40754002151 (boundary_only, main after #127): success. Main green on the boundary drill.
 - #125 and #126 CI rerunning (runs 40754054439, 40754059751), pending at this run; not merged.
 - Dispatched nz-election-electorate-states (.worktrees/nz-election-electorate-states from origin/main, Page plan pages/electorate.md, DESIGN.md) and nz-election-night-empty (.worktrees/nz-election-night-empty stacked on change/nz-election-home-stale 0670b2d, because #126 edits night_page.py and result_states.py; retarget after #126 merges). Codex window 27 percent.
+
+## 2026-10-28 19:48Z run (job_done electorate-states, night-empty)
+
+- nz-election-electorate-states 752b8e8: host (Chromium unsandboxed) electorate_page_plan, sunsets, design 126 passed; diff two files (three-dot). Pushed, PR #128 opened, supervisor accept logged, fresh review review-nz-election-electorate-states dispatched read-only.
+- nz-election-night-empty 3db3adc: host same list with test_night_page 1 failed 140 passed: the branch's own night_empty_browser.py waits 30 s for an electorate search textbox that never renders. Sent back: fix-1 nz-election-night-empty-fix-1 on the build thread (followup-1.md: decide page or harness is wrong, say why; main's tests untouched).
+- #125 and #126 CI (runs 40754054439, 40754059751) still pending at 19:58Z; not merged.
+- Design-loop critique (first run after 20:00Z) not done this run; next run.
