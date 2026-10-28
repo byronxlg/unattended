@@ -3732,3 +3732,11 @@ No Byron words.
 - Second slot: nz-election-boundary-drill (readiness-5 increment 3) dispatched from origin/main: executed boundary harness with an injected clock (startup eligibility, queued freeze refusal with rollback, in-flight stop, every sunset one second before and at, watchdog cutoff), a `boundary_only` input on nz-election-night-rehearsal.yml with import_only's isolation, tests in a new file. #122's files are off limits to it; runbook/night.md overlaps #123 by file, different section.
 - Supervisor slip: a bare `git stash -u` in the night-recovery worktree set Codex's untracked last.md aside; applied back by sha and dropped at once, nothing lost.
 - Codex window 22 percent, 6.6 days to reset.
+
+## 2026-10-28 16:45Z run (job_done nz-election-boundary-drill, review-nz-election-night-recovery-2)
+
+- PR #122 second fresh review (review-nz-election-night-recovery-2): accept, no findings; logged on the PR. CI run 40727120459 pending, not merged.
+- PR #123: CI run 40724819374 pending, not merged.
+- nz-election-boundary-drill 24461a8: host `pytest test_night_boundary test_night_operation test_workflows test_sunsets` 184 passed; `uv run product/nz_election/pipeline/night_boundary.py` 29 PASS lines, rc 0. Workflow isolation read: boundary job `contents: read`, `persist-credentials: false`; rehearse and import-rehearsal need the non-boundary job, which skips on boundary_only, so they skip too. Pushed, PR #124 opened, supervisor accept, fresh review review-nz-election-boundary-drill dispatched.
+- Readiness-5's four items are all merged or in flight; second slot: research-nz-election-readiness-6 (read-only, ranked gaps at the 7 Nov, 8 Nov, 14 Nov and 27 Nov clocks, Claude-only operation).
+- Codex window 23 percent, 6.6 days to reset.
