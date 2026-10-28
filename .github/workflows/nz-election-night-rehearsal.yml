@@ -3,6 +3,10 @@ name: NZ election night publication rehearsal
 on:
   workflow_dispatch:
     inputs:
+      import_only:
+        description: Run only the synthetic local result import and rollback rehearsal
+        type: boolean
+        default: false
       generation:
         description: Initial run (0) or bounded successor (1)
         type: choice
@@ -25,6 +29,7 @@ concurrency:
 
 jobs:
   rehearse:
+    if: inputs.import_only != true
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -92,3 +97,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GENERATION: ${{ inputs.generation }}
         run: uv run product/nz_election/pipeline/night_rehearsal.py --generation "$GENERATION" --chain
+
+  import-rehearsal:
+    if: inputs.import_only == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Rehearse synthetic settlement, official import and rollback locally
+        run: python3 product/nz_election/pipeline/import_rehearsal.py

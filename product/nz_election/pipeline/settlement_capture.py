@@ -47,14 +47,15 @@ def reject_labelled(env, row):
             raise ValueError('NIGHT_CAPTURE_NOT_REAL')
 
 
-def prepare(data, out):
+def prepare(data, out, *, provenance_check=reject_labelled):
     envs = export.validate_bundle(data)
     env = envs.get('night/live/current', {})
     rows = env.get('data', [])
     if len(rows) != 1:
         raise ValueError('NIGHT_BASELINE')
     row = rows[0]
-    reject_labelled(env, row)
+    # The offline adapter proves known synthetic provenance; the CLI always rejects it.
+    provenance_check(env, row)
     if (row.get('mode') != night_live.MODE or 'result_state' in row
             or row.get('acquisition_source', {}).get('kind') != 'preliminary'):
         raise ValueError('NIGHT_BASELINE')
