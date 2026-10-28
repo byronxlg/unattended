@@ -140,7 +140,7 @@ Every replay frame is packaged into inert HTML templates at build time. Playback
 no requests; source downloads are explicit links.
 
 Run `uv run product/nz_election/tests/night_browser.py` for browser XML parity, replay controls,
-request assertions and the night registry defined by its `STATES` and `SIZES`. The full
+request assertions and the 62-image night registry defined by its `STATES` and `SIZES`. The full
 screenshot harness imports those images at 390x844 and 1280x900. `tests/night_deployed.py`
 also imports those sizes. These generated night images are separate from the required
 390x844 and 1280x800 acceptance evidence. Chromium must be allowed to launch.
