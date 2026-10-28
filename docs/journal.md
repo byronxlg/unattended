@@ -3755,3 +3755,11 @@ No Byron words.
 - home-stale 3babf1e: host `pytest test_home_handover.py test_sunsets.py test_design.py` 119 passed incl. Chromium (9 were sandbox-denied in Codex); 5 new regressions fail on origin/main per last.md. Moved assertion (authorised in the brief): home_handover_dom.mjs populated-HTML equality after the cutoff replaced by retained seats, "Live updates ended", no "Live preliminary results". home-ended-390 screenshot looked at (synthetic fixture): ended status visible, seats kept; nit: raw ISO capture time in the status line, to the design backlog. Pushed, PR #126, supervisor accept, fresh review review-nz-election-home-stale dispatched.
 - #122 #123 #124 CI still pending (runs 40727120459, 40724819374, 40729528902); not merged.
 - Codex window 24 percent, 6.6 days to reset.
+
+## 2026-10-28 17:27Z (job_done review-history-sunsets, review-home-stale)
+
+- PR #122 night-recovery merged b958f9b, PR #123 official-capture merged d2100cd, PR #124 boundary-drill merged b8d5b82 (CI green, reviews accept); worktrees and branches removed.
+- Boundary drill Actions proof: `gh workflow run nz-election-night-rehearsal.yml --ref main -f boundary_only=true`, run 40736058756, in progress at run end.
+- PR #125 fresh review: request changes. Item 1 confirmed: `check_workflow_history.py:396` `end <= stamp <= query_end` lets a success at the sunset instant recover a failure before it. Item 2 (state, journal, prompt deletions) rejected: `git diff origin/main...branch` shows only product files and the runbook; the reviewer compared against a newer main. Fix-1 nz-election-history-sunsets-fix-1 dispatched on the build thread.
+- PR #126 fresh review: request changes. Item 1 confirmed: `home_handover_dom.mjs:85` accepts "120 seats" or "0 national seats reported" on raw HTML after the cutoff, so party counts and percent counted could vanish unchecked. Item 2 rejected as above. Fix-1 nz-election-home-stale-fix-1 dispatched on the build thread.
+- Codex window 25 percent, 6.6 days to reset. What went wrong: both reviews flagged the same false state-rollback; the review prompt's diff base should be the merge base. Not changed this run.
