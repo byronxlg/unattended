@@ -426,7 +426,7 @@ def ribbon(built, envs):
         return ''
     left = (day - today).days
     advance = records.get('advance-opens', {}).get('date')
-    from .vote_page import advance_open
+    from .vote_page import advance_open, advance_line
     if left == 0:
         phase = 'Voting places are open until 7pm'
     elif advance_open(records, today):
@@ -435,7 +435,7 @@ def ribbon(built, envs):
         phase = 'Advance voting opens ' + (f'{date.fromisoformat(advance):%-d %B}' if advance else 'soon')
     count = 'Election day is today' if left == 0 else f'<b>{left}</b> day{"s" if left != 1 else ""} to election day'
     return (f'<section id="dates" class="ribbon" aria-label="Voting now"><p><span class="live-dot" aria-hidden="true"></span>{phase}</p><p>{count}</p>'
-            f'<p><a href="{PREFIX}vote/">How and where to vote</a></p></section>')
+            f'<p><a href="{PREFIX}vote/">How and where to vote</a></p>' + advance_line(envs) + '</section>')
 
 
 def section(name, heading, dek, graphic, publisher, date, more=None, *, prose=False, source=None,

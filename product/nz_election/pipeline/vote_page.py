@@ -52,6 +52,27 @@ def deadline_details(records, include_enrolment):
     return body, targets
 
 
+def advance_line(envs):
+    """Only a complete current-election total can answer the advance-count question."""
+    from .build import link, compact_time
+    env = (envs or {}).get('advance-voting', {})
+    rows = [r for r in env.get('data', []) if r['date'].startswith('2026-')]
+    if not rows:
+        return ''
+    row = max(rows, key=lambda r: r['date'])
+    if row['cumulative'] is None:
+        return ''
+    ids = {ref['source_id'] for ref in row['source_ref']}
+    source = next((s for s in env.get('source', []) if s['id'] in ids), None)
+    if source is None:
+        return ''
+    day = date.fromisoformat(row['date'])
+    sentence = f"{row['cumulative']:,} advance votes reported through {day.day} {day:%B}."
+    caveat = ' ' + escape(source['caveat']) if source.get('caveat') else ''
+    return ('<p>' + sentence + caveat + ' ' + link(source['url'], 'Electoral Commission')
+            + '. Retrieved ' + escape(compact_time(source['fetched_at'])) + '.</p>')
+
+
 def page(built, rows=None, envs=None):
     from .build import PREFIX, link, compact_time
     rows = load_voting() if rows is None else rows
@@ -116,7 +137,7 @@ def page(built, rows=None, envs=None):
         until = records.get('advance-closes', {}).get('date')
         lede = ('<p class="vote-lede">Advance voting is open' + (f' until {date.fromisoformat(until):%-d %B}' if until else '')
                 + '. You can vote at any voting place in the country.</p>')
-    places_body = lede + button + countdown
+    places_body = lede + button + countdown + advance_line(envs)
     if not places_body and graphic:
         # A date-only answer still belongs under the where-and-when question.
         places_body, graphic = graphic, ''
