@@ -201,3 +201,59 @@ def test_visible_advance_sentence_with_inline_style_is_accepted(release, route, 
     path.write_text(html.replace('<p>175,748', '<p style="display:block; visibility:visible">175,748'))
     accept(data, site)
     assert 'PASS advance' in capsys.readouterr().out
+
+
+# Independent of the production constant so dropping a class cannot drop its test.
+STYLESHEET_HIDING_CLASSES = (
+    'bloc', 'candidate-photo', 'card-bar', 'chart-data', 'funding-returns',
+    'funding-table', 'gauge', 'geography-layout', 'label-connector', 'layer-general',
+    'layer-maori', 'markets', 'narrow', 'nav-cue', 'og', 'phone', 'seat-data',
+    'source-note', 'strip-note', 'trend', 'wide',
+)
+
+
+def test_stylesheet_hiding_inventory_cannot_drift():
+    import hashlib
+    from pathlib import Path
+    import re
+    from product.nz_election.pipeline.advance_acceptance import HIDING_CLASSES
+    raw = (Path(__file__).resolve().parents[1] / 'web/styles.css').read_bytes()
+    # Pin all CSS, not just recognized declarations: new syntax or a different
+    # hiding technique must trigger review instead of evading our inventory.
+    assert hashlib.sha256(raw).hexdigest() == '965bf70fa077046b430eb189c995c9578da6105ceac37b205584e7040f1eb176', (
+        'Stylesheet changed: review all hiding/clipping selectors and behavioural cases before updating this pin')
+    css = re.sub(r'/\*.*?\*/', '', raw.decode(), flags=re.S)
+    found = set()
+    for selector, body in re.findall(r'([^{}]+)\{([^{}]*)\}', css):
+        if re.search(r'(?:^|;)\s*(?:display\s*:\s*none|visibility\s*:\s*(?:hidden|collapse)|'
+                     r'clip(?:-path)?\s*:|overflow(?:-[xy])?\s*:\s*(?:hidden|clip)|'
+                     r'(?:width|height)\s*:\s*1px)', body, re.I):
+            found.update(re.findall(r'\.([a-zA-Z_][\w-]*)', selector))
+    assert found == HIDING_CLASSES == set(STYLESHEET_HIDING_CLASSES)
+
+
+@pytest.mark.parametrize('route', ['index.html', 'vote/index.html'])
+@pytest.mark.parametrize('css_class', STYLESHEET_HIDING_CLASSES)
+def test_stylesheet_hidden_advance_is_not_published(release, route, css_class):
+    from product.nz_election.pipeline import advance_acceptance
+    data, site = release
+    path = site / route
+    html = path.read_text()
+    start = html.index('<p>175,748 advance votes reported through 27 October.')
+    end = html.index('</p>', start) + len('</p>')
+    paragraph = html[start:end]
+    # Multiple class tokens and a nested ancestor exercise subtree suppression.
+    replacement = '<div class="ordinary ' + css_class + '"><div>' + paragraph + '</div></div>'
+    path.write_text(html[:start] + replacement + html[end:])
+    with pytest.raises(ValueError, match='^ADVANCE_NOT_PUBLISHED$'):
+        advance_acceptance.check(data, site)
+
+
+@pytest.mark.parametrize('route', ['index.html', 'vote/index.html'])
+def test_stylesheet_visible_advance_is_accepted(release, route):
+    from product.nz_election.pipeline import advance_acceptance
+    data, site = release
+    path = site / route
+    html = path.read_text()
+    path.write_text(html.replace('<p>175,748', '<p class="ordinary chart-data-visible">175,748'))
+    advance_acceptance.check(data, site)

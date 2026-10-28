@@ -10,6 +10,17 @@ class AdvanceAcceptanceError(ValueError):
     """Only fixed codes cross the CLI boundary, never supplied file contents."""
 
 
+# Classes in reviewed stylesheet selectors that hide or clip content. Exclude
+# conditional selectors too: acceptance must not depend on viewport or UI state.
+# The stylesheet inventory and byte pin in test_advance_acceptance guard drift.
+HIDING_CLASSES = frozenset({
+    'bloc', 'candidate-photo', 'card-bar', 'chart-data', 'funding-returns',
+    'funding-table', 'gauge', 'geography-layout', 'label-connector', 'layer-general',
+    'layer-maori', 'markets', 'narrow', 'nav-cue', 'og', 'phone', 'seat-data',
+    'source-note', 'strip-note', 'trend', 'wide',
+})
+
+
 class VisibleText(HTMLParser):
     def __init__(self, html):
         super().__init__(convert_charrefs=True)
@@ -19,13 +30,13 @@ class VisibleText(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
-        # The advance line has no stylesheet hiding rules. Inline hiding and
-        # semantic hidden attributes must suppress the entire descendant subtree.
+        # Reject hidden ancestry even if a descendant itself has visible styling.
+        class_hidden = bool(HIDING_CLASSES.intersection((attrs.get('class') or '').split()))
         style = re.sub(r'/\*.*?\*/', '', attrs.get('style') or '', flags=re.S)
         inline_hidden = any(re.fullmatch(
             r'\s*(?:display\s*:\s*none|visibility\s*:\s*(?:hidden|collapse))\s*(?:!\s*important\s*)?',
             declaration, flags=re.I) for declaration in style.split(';'))
-        hidden = (inline_hidden or tag in {'script', 'style', 'template', 'head'} or 'hidden' in attrs or
+        hidden = (class_hidden or inline_hidden or tag in {'script', 'style', 'template', 'head'} or 'hidden' in attrs or
                   (attrs.get('aria-hidden') or '').strip().lower() == 'true')
         if tag not in {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}:
             self.stack.append((tag, hidden))
