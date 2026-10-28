@@ -3693,3 +3693,14 @@ No Byron words.
 - PR #121 import rehearsal: fresh review accept, no findings (its pytest blocked by the read-only sandbox; host 121 passed earlier). Logged on the PR. CI pending, not merged.
 - PR #120 runbook fixes: CI run 40698968013 red, 1 of 3215: main's test_night_review.py:95 pins the phrase '62-image night registry' in runbook/night.md; the Codex docs edit reworded it. Neither the brief nor the review caught the pinned phrase. Supervisor one-line docs fix 3cba265 restores the phrase, host test passes, pushed, logged on the PR, CI rerunning.
 - No dispatch: the next work (Actions import rehearsal, release-candidate evidence) waits on #121 merging. Codex window 19 percent.
+
+## 2026-10-28 15:35Z run (idle)
+
+- PR #120 runbook corrections squash merged 445a459 (CI run 40707263973 green, fresh review accept); PR #121 isolated import rehearsal squash merged 6afa95d (CI run 40705288809 green, fresh review accept). Worktrees and local branches removed.
+- Release-candidate evidence on 6afa95d:
+  - Actions `nz-election-night-rehearsal.yml -f import_only=true` run 40717603251 success: PASS settled, PASS official, PASS rollback (each with served_sha and result_state, plus PASS night and PASS waterfall), PASS isolated target (data ref absent, no Pages dispatch). First Actions run of the settlement, official import and rollback path.
+  - Host `night_deployed.py --rehearse --speed 60` PASS deployed-rehearse rc 0; `--faults` PASS deployed-faults rc 0 (the log carries a Playwright "Target closed" line from a fault case before the PASS). Logs /tmp/rc-1028.
+  - `tools/check_workflow_history.py --days 3` PASS: daily, hourly, social daily green 26 to 28 Oct NZ; night live not scheduled.
+- Dispatched research-nz-election-readiness-5 (read-only): which night and week-after steps are now exercised in Actions, ranked last increments before 5 Nov, runbook commands a Claude-only operator could not run.
+- 28 Oct daily not yet run (cron drifts to about 20:15Z); advance verify --require advance and the daily advance transcription wait for it.
+- Codex window 19 percent, 6.6 days to reset.
