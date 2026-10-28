@@ -3609,3 +3609,9 @@ No Byron words.
 - PR #117 settlement-prep: second fresh review request changes. Important: settlement_capture.py:84 lets malformed bundles (null, number, empty) raise unnamed TypeError/JSONDecodeError, and an input-controlled key is echoed in INVALID_TIMESTAMP. Nit: runbook/night.md:524 literal PRE_IMPORT_DATA_SHA. Logged on the PR; fix-2 nz-election-settlement-prep-fix-2 dispatched on the build thread (named code at the boundary, no input text, sentinel tests).
 - advance-acceptance b534af3: main merged in, host pytest test_advance*/test_verify*/test_harden* 492 passed; on the real origin/data bundle (11:30Z 28 Oct) `verify.py advance --require advance` prints FAIL advance: ADVANCE_NOT_PUBLISHED rc 1, correct because the daily has not run since #114 merged (last daily 27 Oct 20:14Z). PR #118 opened, supervisor accept, fresh review review-nz-election-advance-acceptance dispatched. The 28 Oct 20:xxZ daily is its proving run.
 - Codex window 10 percent, 6.8 days to reset. No judgement calls.
+
+## 2026-10-28 11:48Z (job_done review-nz-election-advance-acceptance)
+
+- PR #118 fresh review: request changes, one Important: `advance_acceptance.py:22` VisibleText ignores CSS visibility; the count sentence inside `display:none` still yields ACCEPTED (reviewer's in-memory probe). Accepted as stated (acceptance must mean a reader can see it). Logged on the PR; fix-1 `nz-election-advance-acceptance-fix-1` dispatched on the build thread (hidden attribute, inline display/visibility, aria-hidden; regressions on home and vote/).
+- PR #117 fix-2 `nz-election-settlement-prep-fix-2` ended rc 1 after 142 s, stderr "thread ... not found" (second occurrence after publish-rehearsal on 26 Oct), no last.md, staged partial of 3 files (+54/-7). Same remedy as then: fresh job `nz-election-settlement-prep-fix-2-r1` on a new thread, told to continue from `git diff --cached`. Logged on #117.
+- Codex window 11 percent, 6.8 days to reset. Both CI runs pending.
