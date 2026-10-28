@@ -3784,3 +3784,11 @@ No Byron words.
 - #126 second fresh review accept, no findings (timeline removed before results inserted; counts kept at cutoff). Logged on the PR.
 - CI pending on #125, #126, #127; nothing merged. No Codex job running: every next step (merge #127, boundary_only rehearsal on main, main into #125/#126) waits on #127's CI, so no dispatch this run. next-run-after set about 18:50Z.
 - Codex window 26 percent, 6.5 days to reset.
+
+## 2026-10-28 19:23Z (idle)
+
+- PR #127 boundary-watchdog squash merged as d94c191 (CI green, fresh review accept); worktree and branch removed.
+- Boundary-only rehearsal dispatched on main: run 40754002151.
+- #125 (run 40739227779) and #126 (run 40742752973) CI red on the same two cases only, test_night_boundary watchdog-cutoff and watchdog-queued-cutoff, main's defect fixed by #127. Main merged into both (af9b26d, 0670b2d), host test_night_boundary.py 46 passed on each, pushed, CI rerunning.
+- research-nz-election-readiness-7 dispatched read-only (round 6 brief, in-flight list extended).
+- Codex window 26 percent, 6.5 days to reset.
