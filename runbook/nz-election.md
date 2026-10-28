@@ -34,7 +34,7 @@ last-good run and acquisition remain authoritative.
 After dispatch, inspect the publication summary, the union manifest and subsequent Pages run.
 Pages responds to daily completion even on failure, resolves an exact data SHA separately from
 code and retains the election freeze guard. Verify actual code/data HEADs in build-manifest.json,
-markets.json/.csv and the home panel. Dispatch hourly next and check it retains daily files.
+markets.json/.csv, the home panel, and captured night and advance files (newer data is retained). Dispatch hourly next and check it retains daily files (before 7 Nov 06:00Z only; after that the hourly is a no-op).
 
 For rollback, dispatch `Publish the blog` on main with a reviewed compatible pair of `code_sha`
 and `data_sha`, each 40 lowercase hex characters. M1 code cannot read M2 filenames. Always select
@@ -65,7 +65,7 @@ are optional (SKIP) unless `--require night,waterfall` is given, which election-
 It then runs the social, social fix-round and night-operation freeze tests.
 Checks continue after failures; the last line is `PASS harden` or
 `FAIL harden: <first failing step>`, with exit status 0 or 1 respectively.
-A SKIP or FAIL result line fails its step even when the process exits zero.
+A SKIP or FAIL result line fails its step even when the process exits zero, except the exact absent night/waterfall SKIPs that harden.py accepts when those families are not required.
 Read earlier output for all failures, including missing family lines.
 
 History is enabled with `--history` and is required for milestone PASS. Without
