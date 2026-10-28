@@ -499,6 +499,8 @@ normalization, and checks the reconstructed row against the pinned row exactly. 
 rebuilds result states nor fetches or publishes. It creates only the requested file, refuses
 an existing destination, and rejects incomplete, terminal, demo, replay or synthetic-labelled
 input, including XML matching known synthetic captures. A missing parent directory is an error.
+Preparation failures exit nonzero with `NIGHT_CAPTURE_PREP_FAILED`; upstream error text and
+untrusted bundle content are never printed.
 
 Before import, check that the recorded SHA is the intended last complete live bundle, the
 source is the actual preliminary EC acquisition endpoint, and retrieval and source count times
@@ -514,17 +516,23 @@ not supply review approval or edit the manifest. Commit the reviewed real captur
 entry to main before dispatch. Never mark synthetic bytes as real. Test/rehearsal paths,
 including `result-states/`, are rejected. No real capture is bundled with this workflow.
 
-The official import still requires the separately acquired, reviewed official capture described
-above. Record its settled baseline SHA as `SETTLED_DATA_SHA`. Use the same recorded SHA used
-for preparation for settlement; each transition needs one dispatch:
+For settlement, use the same recorded SHA used for preparation:
 
 ```sh
 gh workflow run nz-election-result-import.yml --ref main \
   -f state=settled -f capture=result-import/2026-11-07-preliminary-final.json \
-  -f data_sha=PRE_IMPORT_DATA_SHA
+  -f data_sha="$PRE_IMPORT_DATA_SHA"
+```
+
+After settlement has published, the official import still requires the separately acquired,
+reviewed official capture described above. When ready to import it, record the current data SHA
+and confirm it names the intended settled baseline before dispatching:
+
+```sh
+SETTLED_DATA_SHA=$(gh api repos/byronxlg/unattended/git/ref/heads/data --jq .object.sha)
 gh workflow run nz-election-result-import.yml --ref main \
   -f state=official -f capture=result-import/2026-11-27-official.json \
-  -f data_sha=SETTLED_DATA_SHA
+  -f data_sha="$SETTLED_DATA_SHA"
 ```
 
 The script checks ancestry before checking out exactly the requested data commit. It validates

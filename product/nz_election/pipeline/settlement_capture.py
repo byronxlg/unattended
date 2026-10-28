@@ -81,8 +81,9 @@ def main():
     args = parser.parse_args()
     try:
         print(json.dumps(prepare(args.data, args.out), ensure_ascii=False, indent=2))
-    except (ValueError, OSError) as exc:
-        raise SystemExit(str(exc)) from None
+    except Exception:
+        # Upstream validators may include untrusted keys or values in their errors.
+        raise SystemExit('NIGHT_CAPTURE_PREP_FAILED') from None
 
 
 if __name__ == '__main__':
