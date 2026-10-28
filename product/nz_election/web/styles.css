@@ -537,8 +537,18 @@ svg.trend.narrow{display:none}
 .funding-table table{min-width:620px;font-size:var(--fs-body)}
 .funding-table td:first-child,.funding-table th:first-child{position:sticky;left:0;background:var(--paper);min-width:150px;max-width:220px;white-space:normal}
 .funding-table td,.funding-table th,.funding-table caption{font-size:var(--fs-body)}
+/* Fragment navigation reveals the complete group without requiring JavaScript. */
+.funding-jumps{display:flex;flex-wrap:wrap;gap:0 20px;list-style:none;padding:0;margin:16px 0}
+.funding-jumps a{display:inline-block;padding:10px 0}
+.funding-group h3{font-size:var(--fs-lead);margin:0}
+.funding-group h3 a{display:block;padding:12px 0}
+.funding-group{border-top:1px solid var(--hair)}
+.funding-returns{display:none}
+.funding-group:target>.funding-returns{display:block}
+.funding-group:target h3{font-weight:800}
+@media print{.funding-returns{display:block}}
 .funding-party{border-left:5px solid var(--c);padding-left:8px;white-space:nowrap}
-@media(min-width:900px){.funding-page{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 40px}.funding-intro{grid-column:1/-1;max-width:none}.funding-intro h1{font-size:var(--fs-h2);margin-top:0}.funding-intro p{margin:6px 0}.funding-page>figure{grid-column:1;grid-row:2;align-self:start;margin:4px 0 8px}.funding-bar{margin-bottom:2px}.funding-bar-label{margin-bottom:2px}.funding-page>#largest-returns{grid-column:2;grid-row:2 / span 2}.funding-page>#largest-returns>.module{margin-top:20px}.funding-page>#funding-time{grid-column:1;grid-row:3;margin-top:0;padding-top:12px}.funding-page>#funding-time .dek{margin-bottom:12px}.funding-page>#all-returns,.funding-page>.source-note{grid-column:1/-1}.funding-page .funding-table table{min-width:100%}.funding-page .funding-table td,.funding-page .funding-table th{padding:8px 4px}}
+@media(min-width:900px){.funding-page{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto min-content 1fr;gap:0 40px;align-items:start}.funding-intro{grid-column:1/-1;max-width:none}.funding-intro h1{font-size:var(--fs-h2);margin-top:0}.funding-intro p{margin:6px 0}.funding-page>figure{grid-column:1;grid-row:2;align-self:start;margin:4px 0 8px}.funding-bar{margin-bottom:2px}.funding-bar-label{margin-bottom:2px}.funding-page>#largest-returns{grid-column:2;grid-row:2 / span 2}.funding-page>#largest-returns>.module{margin-top:4px;padding-top:12px}.funding-page>#funding-time{grid-column:1;grid-row:3;margin-top:0;padding-top:12px}.funding-page>#funding-time .dek{margin-bottom:12px}.funding-page>#all-returns,.funding-page>.source-note{grid-column:1/-1}.funding-page .funding-table table{min-width:100%}.funding-page .funding-table td,.funding-page .funding-table th{padding:8px 4px}}
 footer a{font-size:var(--fs-body)}
 
 @media(max-width:599px){
