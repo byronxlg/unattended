@@ -3833,3 +3833,4 @@ No Byron words.
 - #129 host 184 passed incl. Chromium; pushed; second fresh review review-nz-election-night-empty-2 accept (no findings, main's populated behaviour preserved), logged; CI pending.
 - nz-election-home-failed returned 59bbc7d (home.py: retained-data hero when polls status carries an error code; failure line as a source note; test_home_failed.py fails on main). Sandbox 9 Chromium cases denied; host run of test_home* and test_design started. Not pushed yet: screenshots of home in a failed-hourly state at 390 and 1280 come first (REVIEW.md pass 4). Review note for the PR: the class swap on the state string is a string replace on markup, worth a cleaner seam.
 - Nothing merged this run: all three PRs still in CI at 21:10Z.
+- PR #131 opened (home-failed, host 130 passed incl. Chromium), fresh review review-nz-election-home-failed dispatched; pass 4 screenshots before merge.
