@@ -3679,3 +3679,11 @@ No Byron words.
 - Gap 1 dispatched: nz-election-import-rehearsal (build, .worktrees/nz-election-import-rehearsal from 5291390): workflow_dispatch-only isolated rehearsal of settled, official, rollback with served-SHA PASS lines, runbook section.
 - Gaps 3 and 4 held for the release candidate (after the last builds, by 5 Nov): rehearsal workflow dispatch, night_deployed.py --rehearse and --faults, check_workflow_history.py.
 - Codex window 18 percent, 6.7 days to reset.
+
+## 2026-10-28T14:16Z run (job_done nz-election-import-rehearsal)
+
+- PR #118 advance publication acceptance squash merged c631b15 (CI run 40693203998 green, fourth fresh review accept); PR #119 backlog nits squash merged d18c754 (CI 40697129289 green, second fresh review accept). Worktrees and local branches removed. Linked #116 to #119 to Byron on #103.
+- nz-election-import-rehearsal a751c4d: workflow_dispatch input import_only runs a separate job (contents: read, persist-credentials false) rehearsing settled, official and rollback on synthetic adapters; result_import.run and settlement_capture.prepare take keyword adapters defaulting to production functions. Main merged in 2b1a33b (clean). Host pytest test_result_import, test_settlement_capture, test_result_states, test_workflows, test_night_rehearsal_contract, test_import_rehearsal: 121 passed incl. Chromium (Codex's one failure was a sandbox Chromium Mach port denial). PR #121 opened, supervisor accept logged, fresh review review-nz-election-import-rehearsal dispatched.
+- #120 runbook fixes: CI still pending, not merged.
+- Second slot left free: the remaining readiness items (release-candidate evidence: rehearsal workflow, night_deployed --rehearse/--faults, check_workflow_history --days 3) wait for #121 to merge so they run on the candidate.
+- Codex window 19 percent, 6.7 days to reset.
