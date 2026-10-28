@@ -867,3 +867,131 @@ def test_publication_rehearsal_relative_artifact_path(tmp_path, monkeypatch):
     assert (out / 'served/build-manifest.json').is_file()
     assert not (out / 'repository.git').exists()
     night_rehearsal.successor(out, 'c'*40)
+
+
+def recovery_run(*, status='completed', conclusion='failure',
+                 created='2026-11-07T06:02:00Z', updated='2026-11-07T06:03:00Z'):
+    return dict(status=status, conclusion=conclusion, createdAt=created, updatedAt=updated)
+
+
+@pytest.mark.parametrize('conclusion,updated,eligible', [
+    ('failure', '2026-11-07T06:03:00Z', True),
+    ('cancelled', '2026-11-07T06:03:00Z', True),
+    ('timed_out', '2026-11-07T06:03:00Z', True),
+    ('failure', '2026-11-07T11:29:59Z', True),
+    ('success', '2026-11-07T11:20:00Z', True),
+    ('success', '2026-11-07T11:20:01Z', False),
+])
+def test_dead_loop_recovery_outcomes(monkeypatch, conclusion, updated, eligible):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    calls = []
+    runs = [recovery_run(conclusion=conclusion, updated=updated)]
+    monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: json.dumps(runs))
+    monkeypatch.setattr(night_start.subprocess, 'run', lambda *a, **k: calls.append(a))
+    assert (night_start.main(lambda: datetime.fromisoformat('2026-11-07T11:30:00Z'),
+                             dispatch=True) == 0) is eligible
+    assert len(calls) == int(eligible)
+
+
+@pytest.mark.parametrize('status', ['queued', 'pending', 'in_progress', 'waiting', 'requested'])
+def test_dead_loop_pending_suppresses(monkeypatch, status):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    runs = [recovery_run(), recovery_run(status=status, created='2026-11-07T06:12:00Z')]
+    monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: json.dumps(runs))
+    monkeypatch.setattr(night_start.subprocess, 'run', lambda *a, **k: pytest.fail('duplicate dispatch'))
+    assert night_start.main(lambda: datetime.fromisoformat('2026-11-07T06:20:00Z'), dispatch=True) == 1
+
+
+@pytest.mark.parametrize('offset', [0, 1, 86400])
+def test_dead_loop_recovery_cutoff(monkeypatch, offset):
+    from product.nz_election.pipeline import night_start
+    monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: json.dumps([recovery_run()]))
+    monkeypatch.setattr(night_start.subprocess, 'run', lambda *a, **k: pytest.fail('late dispatch'))
+    assert night_start.main(lambda: night_live.CLOSE + timedelta(seconds=offset), dispatch=True) == 1
+
+
+@pytest.mark.parametrize('dispatch_fails', [False, True])
+def test_dead_loop_recovery_bound_and_visibility_lag(tmp_path, monkeypatch, dispatch_fails):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    instant = datetime.fromisoformat('2026-11-07T06:10:00Z')
+    calls = []
+    monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: b'[]')
+    def dispatch(*args, **kwargs):
+        calls.append(args)
+        if dispatch_fails:
+            raise subprocess.TimeoutExpired('gh', 60)
+    monkeypatch.setattr(night_start.subprocess, 'run', dispatch)
+    for attempt in range(8):
+        night_start.main(lambda: instant, dispatch=True, state=tmp_path)
+        assert len(calls) == min(attempt + 1, 6)
+        # Repeated ticks with unchanged history cannot duplicate an accepted/uncertain dispatch.
+        night_start.main(lambda: instant + timedelta(seconds=599), dispatch=True, state=tmp_path)
+        assert len(calls) == min(attempt + 1, 6)
+        instant += timedelta(minutes=10)
+    assert len(json.loads((tmp_path / 'night-recovery-2026.json').read_text())) == 6
+
+
+def test_dead_loop_wrapper_recovers_after_marker_grace(tmp_path):
+    import os
+    import sys
+    marker = tmp_path / 'night-start-2026.dispatched'
+    marker.touch()
+    os.utime(marker, (0, 0))
+    calls = tmp_path / 'dispatches'
+    worker = [sys.executable, '-c', f"""
+from datetime import datetime
+from pathlib import Path
+from product.nz_election.pipeline import night_start
+night_start.subprocess.check_output = lambda *a, **k: {json.dumps([recovery_run()])!r}
+night_start.subprocess.run = lambda *a, **k: Path({str(calls)!r}).write_text('dispatched')
+raise SystemExit(night_start.main(lambda: datetime.fromisoformat('2026-11-07T06:20:00Z'),
+                                 dispatch=True, state=Path({str(tmp_path)!r})))
+"""]
+    command = watchdog_command(tmp_path, worker)
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=5)
+    assert result.returncode == 0, result.stderr
+    assert calls.read_text() == 'dispatched'
+    assert 'watchdog: no active night-live run, dispatched start/recovery' in result.stdout
+    again = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=5)
+    assert 'dispatched' not in again.stdout
+
+
+@pytest.mark.parametrize('history', [None, {}, '', [None], [{'status': 'completed', 'createdAt': None}]])
+def test_dead_loop_malformed_history_fails_closed(monkeypatch, history):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: json.dumps(history))
+    monkeypatch.setattr(night_start.subprocess, 'run', lambda *a, **k: pytest.fail('invalid history dispatch'))
+    assert night_start.main(lambda: datetime.fromisoformat('2026-11-07T06:20:00Z'), dispatch=True) == 1
+
+
+def test_dead_loop_newest_run_controls_grace(monkeypatch):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    runs = [recovery_run(), recovery_run(conclusion='success', created='2026-11-07T07:00:00Z',
+                                         updated='2026-11-07T11:25:00Z')]
+    monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: json.dumps(runs))
+    monkeypatch.setattr(night_start.subprocess, 'run', lambda *a, **k: pytest.fail('successor still in grace'))
+    assert night_start.main(lambda: datetime.fromisoformat('2026-11-07T11:30:00Z'), dispatch=True) == 1
+
+
+@pytest.mark.parametrize('ledger', ['null', '{}', '""', '[null]', '[1.5]', '["bad"]'])
+def test_dead_loop_invalid_ledger_fails_closed(tmp_path, monkeypatch, ledger):
+    from datetime import datetime
+    from product.nz_election.pipeline import night_start
+    (tmp_path / 'night-recovery-2026.json').write_text(ledger)
+    monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: b'[]')
+    monkeypatch.setattr(night_start.subprocess, 'run', lambda *a, **k: pytest.fail('invalid ledger dispatch'))
+    assert night_start.main(lambda: datetime.fromisoformat('2026-11-07T06:20:00Z'),
+                            dispatch=True, state=tmp_path) == 1
+
+
+def test_dead_loop_cutoff_after_reservation(tmp_path, monkeypatch):
+    from product.nz_election.pipeline import night_start
+    instants = iter([night_live.CLOSE - timedelta(seconds=1)] * 4 + [night_live.CLOSE])
+    monkeypatch.setattr(night_start.subprocess, 'check_output', lambda *a, **k: b'[]')
+    monkeypatch.setattr(night_start.subprocess, 'run', lambda *a, **k: pytest.fail('late dispatch'))
+    assert night_start.main(lambda: next(instants), dispatch=True, state=tmp_path) == 1

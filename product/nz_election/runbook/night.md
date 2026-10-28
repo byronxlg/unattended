@@ -206,8 +206,11 @@ family using the existing page renderer. Archives and explicit replay queries do
 
 Predeploy this code by 5 November. Two annual cron entries request starts at **7 November
 06:02 and 06:07 UTC**. Independently, `bin/tick` checks from 06:10 UTC and dispatches
-once if no night-live run has been created since 06:00 UTC and none is pending.
-A failed run counts as an attempt; the watchdog does not retry it. GitHub cron may drift.
+if no run is pending and the newest night-live run failed, was cancelled or timed out.
+A successful run without a successor gets ten minutes from its completion update for
+the successor to appear. If no run exists since opening, the initial fallback still starts
+at 06:10 UTC. Queued, pending, waiting and in-progress runs suppress dispatch. GitHub cron
+may drift. All starts and recoveries stop at 8 November 06:00 UTC, exclusive.
 The whole watchdog subprocess (including uv startup, eligibility and dispatch) has a 60-second
 wall-clock limit. On timeout its process group is killed, a line is logged and tick continues.
 A nonblocking OS lock at `state/night-start.lock` serializes check and dispatch across ticks.
@@ -215,16 +218,32 @@ The worker inherits the locked file description, so killing the wrapper alone ca
 another attempt while its worker remains alive. Timeout cleanup kills the worker group before
 the wrapper closes its lock; the lock releases when its last holder exits.
 Do not delete the lock file while ticks run.
-After a successful dispatch, `state/night-start-2026.dispatched` suppresses further watchdog
-attempts for the entire remaining 2026 live window, covering run-list visibility lag. The marker
-is intentionally retained; manual recovery uses the explicit dispatch command below.
-Failed or timed-out dispatches do not write a success marker; a later tick rechecks GitHub.
+
+The success marker `state/night-start-2026.dispatched` now suppresses checks for ten minutes,
+not the entire window. A durable ledger, `state/night-recovery-2026.json`, reserves each
+dispatch before calling GitHub and enforces ten minutes between attempts, including failed
+or timed-out dispatches whose acceptance is uncertain. It allows **six watchdog attempts for
+the entire 2026 window**, including the initial fallback if needed. This permits several
+independent recoveries without an unbounded retry storm against broken code or GitHub.
+Do not remove the ledger to retry. Exhaustion, malformed history/state and query failures
+fail closed. Scheduled and normal successor runs do not consume this watchdog budget.
 The shared window guard is checked again immediately before invoking the dispatch command.
-For manual recovery during the live window:
+A successful dispatch prints `watchdog: no active night-live run, dispatched start/recovery`
+with a UTC timestamp in the tick log.
+
+If the tick scheduler is down, Claude runs the same locked, bounded recovery from the repo root:
+
+```sh
+python3 bin/night-watchdog state
+gh run list --workflow nz-election-night-live.yml
+```
+
+If the watchdog itself is broken or its budget exhausted, inspect the run list first.
+Only during the live window, with no pending/running run and after the ten-minute successor
+grace, use the explicit manual recovery command (outside the watchdog budget):
 
 ```sh
 gh workflow run nz-election-night-live.yml --ref main
-gh run list --workflow nz-election-night-live.yml
 ```
 
 The injected-clock guard rejects production before 7 November 06:00 UTC, including manual dispatch.

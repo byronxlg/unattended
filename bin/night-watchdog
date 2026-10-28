@@ -11,15 +11,18 @@ import time
 
 def watchdog(state, *, command=None, timeout=60, log=print):
     deadline = time.monotonic() + timeout
+    supplied_command = command is not None
     command = command or ['uv', 'run', 'product/nz_election/pipeline/night_start.py', '--dispatch']
+    if not supplied_command:
+        command += ['--state', str(state)]
     marker = state / 'night-start-2026.dispatched'
     with (state / 'night-start.lock').open('a') as lock:
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             return
-        # Keep the marker for the entire 2026 window, even before GitHub lists the run.
-        if marker.exists():
+        # Cover visibility lag without permanently suppressing dead-loop recovery.
+        if marker.exists() and time.time() - marker.stat().st_mtime < 600:
             return
         child = None
         try:
@@ -29,7 +32,7 @@ def watchdog(state, *, command=None, timeout=60, log=print):
             result = child.wait(timeout=max(0, deadline - time.monotonic()))
             if result == 0:
                 marker.touch()
-                log('watchdog: no night-live run since opening, dispatched')
+                log('watchdog: no active night-live run, dispatched start/recovery')
             elif result != 1:
                 log('watchdog: night-live start failed')
         except subprocess.TimeoutExpired:
