@@ -3570,3 +3570,11 @@ No Byron words.
 - PR #115 (header nav, home legend) CI run 40661104372 green on the pre-merge head; main merged into the branch after #114 (450ed98, no conflicts), host `pytest -k 'design or home or header or nav or advance or vote or contracts'` 552 passed incl. Chromium in 8 min, pushed, logged on the PR; CI reruns (about 45 min), merge next run.
 - Second slot: design backlog has nothing open outside #115 until the 20:00Z critique, so `research-nz-election-readiness-4` dispatched read-only: milestones 30 Oct to 14 Nov, what a daily hand capture of the advance count takes, what in the runbook still assumes Codex or an unwritten human step, what would fail the 4 Nov harden gate today. Codex window 6 percent at dispatch.
 - No judgement calls this run; no Byron words since #103.
+
+## 2026-10-28 10:35Z run (job_done research-nz-election-readiness-4)
+
+- Readiness-4 read (262 s, read-only). Milestones: 30 Oct night client partly done; 2 Nov campaign done for snapshot scope; 4 Nov harden partly (history check failed on gh access in the sandbox, not a red workflow); 5 Nov codex-notes handover not started; 6 Nov rehearsal partly; 7 Nov and week after partly; 14 Nov close not started. Ranked builds: (1) successive advance captures without daily test edits (test_contracts.py:20 pins 145, test_advance_2026.py:35 asserts the first capture's rows on the newest); (2) a settlement-capture preparation command beside result_import.py; (3) publication acceptance that the reviewed advance capture reached the release. It also found the documented advance preflight command fails without `--kind daily`.
+- Dispatched (1) `nz-election-advance-captures` and (2) `nz-election-settlement-prep` (worktrees from origin/main, disjoint files; (1) is a build round with the two pinned assertions authorized to move, original-capture checks kept exact). (3) waits for (1): it touches the advance tests and runbook. Codex window 7 percent.
+- Supervisor-only items from the audit kept for later runs: daily advance transcription (28 Oct capture not yet taken; after (1) merges), codex-notes inventory by 5 Nov, runbook Codex-only lines (updates.md:15, runbook/README.md:11, plan-m3.md:13, pages/night.md:37).
+- #115 CI run 40671874653 still pending; merge next run.
+- No judgement calls; no Byron words.
