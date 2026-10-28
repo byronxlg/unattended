@@ -193,16 +193,17 @@ def night_summary(envs, built):
         from .sunsets import NIGHT_CLOSE, instant
         return night_waiting(ended=instant(built) >= NIGHT_CLOSE)
     clock, row, refs = max(observations, key=lambda item: (bool(item[1].get('packaging_label')), item[0]))
-    from .result_states import sentence
+    from .result_states import sentence, live_status
     seats = '; '.join(escape(refs['parties'][p]['short_name']) + ' ' + str(r['total_seats'])
                       for p, r in sorted(row['party_results'].items(), key=lambda item: -item[1]['total_seats']) if r['total_seats'] or row['reported_house'] == 0)
     majority = f' {row["reported_house"] // 2 + 1} for a majority.' if row['reported_house'] else ''
     if row['reported_house'] == 0:
         seats = '0 national seats reported.'
+    status = sentence(row, built) if row.get('result_state') else live_status(built, row.get('retrieved_at', ''))
     return ('<section id="night-summary" class="home-hero"><h1>Who is winning now?</h1>'
             '<figure id="home-night" aria-describedby="source-night"><p class="seat-answer">' + seats + '</p>'
             f'<p>{row["statistics"]["percent_voting_places_counted"]}% of voting places reported. House: {row["reported_house"]} seats.{majority}</p>'
-            '<p>' + escape(sentence(row, built)) + (' Updated ' + escape(clock.replace('T', ' ')) + ' (source local time).' if not row.get('result_state') else '') + '</p></figure>'
+            f'<p id="home-live-status" role="status" data-retrieved-at="{escape(row.get("retrieved_at", ""), quote=True)}" data-mode="{escape(row["mode"], quote=True)}">' + escape(status) + '</p>' + ('<p>Updated ' + escape(clock.replace('T', ' ')) + ' (source local time).</p>' if not row.get('result_state') else '') + '</figure>'
             '<p>Government formation is separate from these seat totals.</p>'
             + footnote('night', 'Electoral Commission', updated(envs, 'night/index', built))
             + f'<p><a href="{PREFIX}night/">Election night results</a></p></section>')
@@ -520,8 +521,9 @@ def page(envs, built, presentation):
         top = '<h1>New Zealand voted on 7 November</h1>' if post_election(built) else '<h1>New Zealand votes on 7 November</h1>'
     from .sunsets import NIGHT_CLOSE, instant
     if instant(built) < NIGHT_CLOSE:
+        from .result_sources import official_results_notice, official_results_at
         # Embed the fallback before the publication freeze, independently of the feed.
-        top = (f'<div id="home-live" data-loop-ends-at="{NIGHT_CLOSE.isoformat()}" '
+        top = (f'<div id="home-live" data-result-notice="{escape(official_results_notice(built), quote=True)}" data-result-notice-at="{official_results_at().isoformat()}" data-post-date-notice="{escape(official_results_notice(official_results_at().isoformat()), quote=True)}" data-loop-ends-at="{NIGHT_CLOSE.isoformat()}" '
                f'data-waiting="{escape(night_waiting(), quote=True)}" '
                f'data-settled="{escape(night_waiting(ended=True), quote=True)}">{top}</div>'
                f'<script type="module" src="{PREFIX}home-live.mjs"></script>')

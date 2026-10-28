@@ -109,3 +109,39 @@ def test_retirement_browser(case):
 @pytest.mark.parametrize('case', ['cached-after-stop', 'waiting-after-stop'])
 def test_retirement_dom(case, tmp_path):
     test_dom_handover(case, tmp_path)
+
+
+def test_populated_stale_and_ended_dom(tmp_path):
+    test_dom_handover('populated-stale', tmp_path)
+
+
+@pytest.mark.parametrize('clock,expected', [
+    ('2026-11-07T10:00:00Z', 'Stale: last complete cycle retrieved'),
+    ('2026-11-08T06:01:00Z', 'Live updates ended.'),
+    ('2026-11-14T00:00:00Z', 'Live updates ended.'),
+    ('2026-11-27T00:00:00Z', 'Live updates ended.'),
+])
+def test_unsettled_home_status(tmp_path, clock, expected):
+    from html.parser import HTMLParser
+    from product.nz_election.pipeline import night_page
+    from product.nz_election.pipeline import night_live
+    from product.nz_election.pipeline.daily_refresh import daily_refresh
+    from product.nz_election.pipeline.export import validate_bundle
+    from product.nz_election.tests.night_live_cases import Clock, captures
+    captured = night_live.cycle(acquire=captures().__getitem__, now=Clock().now)
+    daily_refresh(tmp_path / 'data', loaders={'night': lambda: night_live.loaded(captured)}, now=captured['retrieved_at'])
+    envs = validate_bundle(tmp_path / 'data')
+    class Visible(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.text = ''
+        def handle_data(self, data):
+            self.text += data
+    visible = Visible()
+    site = build(tmp_path / 'data', tmp_path / 'site/nz-election', built=clock)
+    visible.feed((site / 'index.html').read_text())
+    assert expected in visible.text
+    assert 'Live preliminary results' not in visible.text
+    assert 'House:' in visible.text and '% of voting places reported' in visible.text
+    row = envs['night/live/current']['data'][0]
+    assert night_page.live_status(clock, row['retrieved_at']) in visible.text
