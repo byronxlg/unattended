@@ -80,6 +80,11 @@ def main(out):
                         assert page.get_by_text('Replay of 2023', exact=True).is_visible()
                         assert 'Results last updated 10 November 2024 at 00:00.' not in page.locator('#night-snapshot').inner_text()
                         assert '2023 final count' in page.locator('#night-snapshot').inner_text()
+                        replay = next(s for s in envs['night/index']['data'] if s['id'] == '2023')
+                        archive = envs[replay['snapshot_paths'][0][:-5]]
+                        captured = max(s['fetched_at'] for s in archive['source']
+                                       if s['id'] in archive['data'][0]['source_ref'])
+                        assert page.get_by_text(f'Source XML captured at {captured}.').is_visible()
                         assert 'timezone unverified' not in page.locator('body').inner_text()
                         assert page.get_by_role('heading', name='All 8 majority combinations', exact=True).is_visible()
                         combinations = page.get_by_role('list', name=re.compile(r'All majority combinations$'))

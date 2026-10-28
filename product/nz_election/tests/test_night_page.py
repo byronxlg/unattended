@@ -323,16 +323,21 @@ await empty.tick(); assert.equal(status, ENDED);
 
 
 def test_night_replay_does_not_present_archive_maintenance_as_count_date(night_envs):
+    from copy import deepcopy
     from product.nz_election.pipeline.content_checks import Tree
+    from product.nz_election.pipeline.night_page import reader_update
+    before = deepcopy(night_envs)
+    source = next(r for env in before.values() for r in env['data']
+                  if r.get('mode') == 'Final snapshot' and 'ec-2023-xml/election.xml' in r.get('source_ref', []))
+    archive_updated = source['source_updated_local']
     tree = Tree(page(night_envs, '2026-10-28T00:00:00Z'))
-    for sequence in ('2023', 'illustrative-2023'):
-        replay = next(n for n in tree.nodes if n.attrs.get('id') == 'sequence-' + sequence)
-        assert '2024' not in replay.text
+    assert night_envs == before
+    for identity in ('night-snapshot', 'sequence-2023', 'sequence-illustrative-2023'):
+        replay = next(n for n in tree.nodes if n.attrs.get('id') == identity)
+        assert archive_updated not in replay.text
+        assert reader_update(archive_updated) not in replay.text
         assert 'Results last updated' not in replay.text
         assert 'Final archive updated' not in replay.text
-    source = next(r for env in night_envs.values() for r in env['data']
-                  if r.get('mode') == 'Final snapshot' and 'ec-2023-xml/election.xml' in r.get('source_ref', []))
-    assert source['source_updated_local'] == '2024-11-10T00:00:00'
 
 
 def test_night_live_retains_real_update_time(night_envs):
