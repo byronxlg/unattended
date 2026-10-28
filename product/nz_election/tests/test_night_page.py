@@ -10,7 +10,6 @@ def test_absent_night_page():
     html = page({}, '2026-10-21T00:00:00Z')
     assert '17 days until election day' in html
     assert '/vote/' in html and 'https://www.electionresults.govt.nz/' in html
-    assert all(tag not in html for tag in ('<figure', '<table', '<progress'))
     provenance(html)
 
 

@@ -19,6 +19,20 @@ from product.nz_election.tests.night_live_browser import transition_packages
 from playwright.sync_api import sync_playwright, expect
 
 
+def assert_no_election_figures(text, *, leader_rows, reporting_bars):
+    number = r'\d[\d,.]*'
+    assert not re.search(rf'\b{number}\s+(?:seats?\b|for a majority\b)|\b(?:house|seats?|majority)\s*:?\s*{number}', text, re.I), 'Unexpected seat total'
+    assert not re.search(rf'{number}\s*(?:percent\b|%)', text, re.I), 'Unexpected reporting percentage'
+    assert not re.search(rf'\b{number}\s+(?:(?:valid|party|electorate|candidate)\s+)*votes?\b', text, re.I), 'Unexpected vote count'
+    assert leader_rows == 0, 'Unexpected electorate leader rows'
+    assert reporting_bars == 0, 'Unexpected reporting bar'
+
+
+def check_empty_results(main):
+    assert_no_election_figures(main.inner_text(), leader_rows=main.get_by_role('row').count(),
+                              reporting_bars=main.get_by_role('progressbar').count())
+
+
 def proof(browser, root, *, ended=False, width=390):
     built = '2026-11-08T06:01:00Z' if ended else '2026-11-07T06:01:00Z'
     site = build(root / 'absent', root / ('ended' if ended else 'waiting') / 'nz-election', built=built)
@@ -50,18 +64,22 @@ def proof(browser, root, *, ended=False, width=390):
         main = page.locator('main')
         expect(main.get_by_role('link', name='Official Electoral Commission results')).to_have_attribute('href', 'https://www.electionresults.govt.nz/')
         if ended:
-            expect(main).to_contain_text('Live updates ended.')
+            expect(main.get_by_role('status')).to_contain_text('Live updates ended.')
+            check_empty_results(main)
             page.clock.run_for(180000)
             assert requests == []
+            check_empty_results(main)
         else:
-            expect(main).to_contain_text('Waiting for the first complete results.')
+            expect(main.get_by_role('status')).to_contain_text('Waiting for the first complete results.')
+            check_empty_results(main)
             assert len(requests) == 1
             page.screenshot(path=str(root / f'waiting-{width}.png'))
             # Exercise both a failed acquisition and a valid but still empty publication.
             current[0] = dict(available=False, loop_ended=False, loop_ends_at=NIGHT_CLOSE.isoformat())
             with page.expect_response('**/night-live.json'):
                 page.clock.run_for(120000)
-            expect(main).to_contain_text('Waiting for the first complete results.')
+            expect(main.get_by_role('status')).to_contain_text('Waiting for the first complete results.')
+            check_empty_results(main)
             current[0] = pack
             with page.expect_response('**/night-live.json'):
                 page.clock.run_for(60000)
@@ -84,7 +102,7 @@ def proof(browser, root, *, ended=False, width=390):
             page.clock.set_system_time(NIGHT_CLOSE)
             count = len(requests)
             page.clock.run_for(181000)
-            expect(main).to_contain_text('Live updates ended.')
+            expect(main.get_by_role('status')).to_contain_text('Live updates ended.')
             expect(main).to_contain_text('House 122')
             assert len(requests) == count
             assert all(at < NIGHT_CLOSE.timestamp() * 1000 for at in requests)
