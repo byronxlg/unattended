@@ -6,6 +6,7 @@
 from datetime import timedelta
 import json
 import mimetypes
+import re
 from pathlib import Path
 import sys
 from urllib.parse import urlparse
@@ -68,9 +69,17 @@ def proof(browser, root, *, ended=False, width=390):
             expect(main).to_contain_text('2,851,211')
             expect(main.get_by_role('heading', name='Who is winning?', exact=True)).to_have_count(1)
             assert len(navigations) == 1
-            page.get_by_role('textbox').fill('Auckland Central')
-            expect(main).to_contain_text('Auckland Central')
-            page.get_by_role('textbox').fill('')
+            search = main.get_by_role('searchbox', name='Find an electorate', exact=True)
+            expect(search).to_be_visible()
+            table = main.get_by_role('table', name=re.compile('^Electorate provisional leaders:'))
+            rows = table.get_by_role('row')
+            unfiltered_count = rows.count()
+            assert unfiltered_count > 2
+            search.fill('Auckland Central')
+            expect(rows).to_have_count(2)
+            expect(rows.nth(1)).to_contain_text('Auckland Central')
+            search.fill('')
+            expect(rows).to_have_count(unfiltered_count)
             page.screenshot(path=str(root / f'populated-{width}.png'))
             page.clock.set_system_time(NIGHT_CLOSE)
             count = len(requests)
