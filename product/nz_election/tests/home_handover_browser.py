@@ -42,6 +42,8 @@ def run(case):
                      for party, result in row['party_results'].items() if result['total_seats']},
             house=row['reported_house'], percent=row['statistics']['percent_voting_places_counted'])
         def visible_counts(page):
+            assert page.locator('#home-night').count() == 1
+            assert page.locator('#source-night').count() == 1
             text = page.locator('#home-night').inner_text()
             parties = {}
             for party in expected_counts['parties']:
@@ -97,6 +99,7 @@ def run(case):
                         assert requests == [] and not errors
                         context.close()
                         continue
+                    assert page.locator('#home-night').count() == 1
                     assert page.locator('#seats').count() == 1
                     assert requests == []
                     if case == 'absent':
@@ -104,6 +107,7 @@ def run(case):
                     page.clock.run_for(35000)
                     page.wait_for_function("document.querySelector('#night-summary') !== null")
                     assert page.locator('#seats').count() == 0
+                    assert page.locator('#night').count() == 0
                     assert page.locator('#dates').inner_text() == 'Voting closed on 7 November at 7pm.'
                     assert page.locator('#night-summary a[href$="night/"]').count() == 1
                     if case in {'absent', 'recovery'}:

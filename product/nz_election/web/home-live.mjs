@@ -26,6 +26,8 @@ if (target) {
   const tick = () => {
     if (Date.now() < OPEN) return;
     if (!handedOver) {
+      // The pre-election timeline shares the result figure and source IDs.
+      document.querySelector('#night')?.remove();
       const dates = document.querySelector('#dates');
       if (dates) dates.innerHTML = '<p>Voting closed on 7 November at 7pm.</p>';
       handedOver = true;

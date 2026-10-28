@@ -70,11 +70,13 @@ function ended(before) {
   assert.match(status(), /Live updates ended/);
   assert.doesNotMatch(status(), /Live preliminary results/);
 }
+let timelinePresent = !seeded && scenario !== 'waiting-after-stop';
+const timeline = {remove: () => { timelinePresent = false; }};
 const dates = {innerHTML:'Enrolment closed on 25 October; advance voting from 26 October; election day 7 November.'};
 globalThis.location = {href:'https://example.test/unattended/nz-election/'};
 globalThis.document = {
   hidden:false,
-  querySelector: selector => selector === '#home-live' ? target : selector === '#dates' ? dates : null,
+  querySelector: selector => selector === '#home-live' ? target : selector === '#dates' ? dates : selector === '#night' && timelinePresent ? timeline : null,
   addEventListener: (name, fn) => { listeners[name] = fn; }
 };
 globalThis.setInterval = fn => intervals.push(fn);
@@ -104,6 +106,7 @@ if (seeded) {
   process.exit(0);
 }
 if (late) {
+  assert.equal(timelinePresent, false, 'obsolete timeline must retire on handover');
   assert.equal(target.innerHTML, settled);
   intervals.forEach(fn => fn()); await flush();
   assert.equal(requests.length, 0);
@@ -117,6 +120,7 @@ now = open - 1; intervals.forEach(fn => fn()); await flush();
 assert.equal(requests.length, 0);
 now = open + 60000; intervals.forEach(fn => fn()); await flush();
 assert.equal(requests.length, 1);
+assert.equal(timelinePresent, false, 'obsolete timeline must retire on handover');
 assert.equal(dates.innerHTML, '<p>Voting closed on 7 November at 7pm.</p>');
 if (['absent', 'recovery'].includes(scenario)) assert.equal(target.innerHTML, waiting);
 else counts();
