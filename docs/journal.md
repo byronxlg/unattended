@@ -3841,3 +3841,11 @@ No Byron words.
 - Fix-1 nz-election-home-failed-fix-1 dispatched on the build thread (real states, three retained-but-invalid cases; branch's own test moves, main's tests untouched).
 - #128, #129, #130 CI still pending at 21:22Z; not merged. Second slot left free: backlog items 2 and 3 touch night/ and electorate files carried by #129 and #128.
 - Codex window 32 percent, 6.4 days to reset.
+
+## 2026-10-28 21:33Z (job_done nz-election-home-failed-fix-1)
+
+- Merged on green CI and accepted reviews: #130 polls-fix3 as dd16ef7, #128 electorate-states as 14e5336, #129 night-empty as fb1c2f8. Worktrees and branches removed.
+- Proving run for the 20:09Z polls parse_drift incident: hourly dispatched by hand on main, run 40772952029 (in progress at run end; read it next run).
+- #131 fix-1 f8a6e05 (tests use production states stale/unavailable; withheld, incoherent and mismatched-average data count as absence; no implementation change). Host pytest test_home_failed.py test_home.py 22 passed incl. Chromium. Pushed, supervisor note on the PR, second fresh review review-nz-election-home-failed-2 dispatched. Pass-4 screenshots of home in a failed-hourly state at 390/1280 still due before merge.
+- Second slot: nz-election-night-nelson dispatched (.worktrees/nz-election-night-nelson from origin/main after the three merges): design-backlog 28 Oct items 2 and 3 (night/ replay shows a 2024 update date under a 2023 replay; Nelson h1 spacing, 2023 result stated twice, map caption "Highlighted seat"). Page plans pages/night.md and pages/electorate.md, DESIGN.md.
+- Codex window 32 percent, 6.4 days to reset.
