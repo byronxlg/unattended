@@ -3518,3 +3518,11 @@ Next: merge #113 on accept and CI green, link on #103; advance-2026 host-verify,
 - nz-election-advance-2026 4ae0d41: transcribed EC capture (175,748 through 27 Oct, informal, excludes overseas) with provenance, preflight PASS, lint ok; 7 failed 470 passed: 6 Chromium sandbox denials, 1 contract conflict (test_advance.py:206 assumes no committed 2026 capture). Committing a real capture moves that contract; follow-up 1 authorizes that one assertion to run against an empty registered set, invariant unchanged. Dispatched nz-election-advance-2026-fix-1 on the build thread.
 - Second slot: nz-election-nav-legend dispatched (.worktrees/nz-election-nav-legend from origin/main; design-backlog: header nav clips "Electora" at 390, home legend orphans TOP between blocs; DESIGN.md, pages/home.md).
 - Codex window 2 percent at 07:30Z.
+
+## 2026-10-28 07:45Z (job_done nz-election-advance-2026-fix-1, nz-election-nav-legend)
+
+No Byron words.
+- advance-2026 fix-1 44b052f (absence assertion isolated, committed capture verified). Host: `pytest -k "advance or vote or home"` 478 passed incl. Chromium, rc 0; build on origin/data PASS 82 routes; vote/ 390 looked at (no count line yet: the advance-voting family is not on origin/data until the daily publishes it; rendering covered by test_advance_2026.py). PR #114 opened, supervisor accept, fresh review review-nz-election-advance-2026 dispatched.
+- nav-legend 789e2bd. Host: `pytest -k "design or home or header or nav"` 161 passed incl. Chromium, rc 0; build PASS 82 routes. Legend looked at 390: TOP alone under "Other parties", blocs together; accepted. Nav measured at 390: each label a half-row slot (Overview 16-185, Polls 185-354), only two of seven sections visible; judged worse than the clip it fixed. Sent back: fix-1 nz-election-nav-legend-fix-1 on the build thread (natural widths, whole or hidden, at least four at 390, current label in view; its own check moves, main's tests untouched).
+- PR #113 CI run 40649525376 still pending; not merged.
+- Codex window 3 percent at 07:44Z.
