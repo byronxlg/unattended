@@ -471,19 +471,21 @@ mapping, never a guessed join. The source timestamp must be on or after 27 Novem
 acquisition provenance, not the operator selection or a national XML flag.
 The configured official URL is an inference to confirm against the EC once published.
 
-The 27 November capture is a human step. This increment only imports manifest-checked fixtures,
-with no network capture. The input JSON contains `raw` (XML text by relative filename) and
-`retrieved_at` (UTC), and `acquisition_source` with `kind: "official"` and
-`url: "https://electionresults.govt.nz/electionresults_2026/xml/election.xml"`. Record these
-from the actual acquisition endpoint; never relabel a preliminary fetch. Every XML source URL
-in the package must match the declared root. Legacy captures without this field remain
-preliminary (or demo), never official. Register reviewed bytes and provenance in the existing fixture manifest
-before import. The following command exercises the committed **synthetic offline fixture**;
-it must never be published as an actual election result:
+On or after 27 November NZDT, use the operator capture command in the publication steps
+below. It acquires all 75 XML files serially from an explicit, confirmed official base URL
+and preflights them against the pinned settled bundle. The capture contains `raw` (XML text
+by relative filename), `retrieved_at` (UTC), `acquisition_source` with `kind: "official"`,
+and `files` with each file's URL, UTC retrieval time, sha256 and acquisition source.
+Never relabel a preliminary fetch. The output is unreviewed until its provenance and counts
+have been reviewed and registered. Legacy captures without acquisition source remain preliminary.
+
+The following commands exercise the committed **synthetic offline fixture**;
+they must never be published as an actual election result:
 
 ```sh
+uv run product/nz_election/tests/result_states_browser.py
 uv run product/nz_election/pipeline/result_states.py official \
-  --data artifacts/settled-data --out artifacts/official-data \
+  --data artifacts/result-states/settled-data --out artifacts/official-data \
   --capture result-states/2026-11-27-official.json --now 2026-11-27T11:00:00Z
 uv run product/nz_election/pipeline/verify.py night --data artifacts/official-data
 uv run product/nz_election/pipeline/build.py --data artifacts/official-data \
@@ -561,12 +563,66 @@ gh workflow run nz-election-result-import.yml --ref main \
   -f data_sha="$PRE_IMPORT_DATA_SHA"
 ```
 
-After settlement has published, the official import still requires the separately acquired,
-reviewed official capture described above. When ready to import it, record the current data SHA
-and confirm it names the intended settled baseline before dispatching:
+After settlement has published, confirm the actual official endpoint against the EC. The
+configured `https://electionresults.govt.nz/electionresults_2026/xml/` remains an inference:
+if it differs, stop for an explicit reviewed source-contract change. Do not guess a URL or
+relabel a preliminary endpoint. Record the current data SHA and confirm it is the intended
+settled baseline, then acquire into a new output directory:
 
 ```sh
 SETTLED_DATA_SHA=$(gh api repos/byronxlg/unattended/git/ref/heads/data --jq .object.sha)
+git fetch origin data
+git worktree add --detach artifacts/official-pin "$SETTLED_DATA_SHA"
+# Set this only after confirming the official base URL against the EC.
+OFFICIAL_BASE_URL=https://electionresults.govt.nz/electionresults_2026/xml/
+uv run product/nz_election/tools/official_capture.py \
+  --data artifacts/official-pin/product/nz_election/data \
+  --base-url "$OFFICIAL_BASE_URL" --out artifacts/official-capture
+```
+
+Expected line:
+
+```text
+PASS official capture: 75 files, 71 electorates; official state accepted; review required
+```
+
+The command uses the real UTC clock, refuses before 27 November NZDT, and does not change
+the preliminary sunset. It bounds responses and retries, refuses redirects, verifies every
+file checksum, requires identical reference bytes and 71 details, checks national/detail
+vote and voting-place totals, and runs the existing official-state preparation and bundle
+validation. PASS means those bytes are accepted by the official path against this baseline;
+it is not approval to register or publish. Output destinations must be new and outside both
+the pinned bundle and registered fixtures. Existing captures are never overwritten.
+
+Failures print named codes without source content: `OFFICIAL_NOT_DUE`, `OFFICIAL_SOURCE`,
+`OFFICIAL_INCOMPLETE`, `OFFICIAL_CHECKSUM`, `OFFICIAL_REFERENCE_DRIFT`, `OFFICIAL_TOTALS`,
+`OFFICIAL_CLOCK`, `OFFICIAL_BASELINE`, `OFFICIAL_PREFLIGHT_FAILED`, `OFFICIAL_OUTPUT`,
+`OFFICIAL_TOO_LARGE`, `OFFICIAL_HTTP_REJECTED`, `OFFICIAL_RETRIES_EXHAUSTED`, or
+`OFFICIAL_CAPTURE_FAILED`. Reference drift requires explicit approval of a separately
+reviewed mapping/contract change; there is no bypass or guessed join. A totals mismatch
+requires investigation or a new complete capture, never editing individual captured files.
+
+Review `artifacts/official-capture/result-import/2026-11-27-official.json` and
+`artifacts/official-capture/manifest-draft.json` before registering. Confirm the endpoint is
+real official EC acquisition, inspect all file hashes/times and counts, and check the draft's
+baseline manifest hash against the pinned bundle and recorded `SETTLED_DATA_SHA`. The helper
+never edits the registered manifest and supplies neither a reviewer nor real-capture approval.
+After review, copy the capture unchanged:
+
+```sh
+mkdir -p product/nz_election/fixtures/result-import
+cp -n artifacts/official-capture/result-import/2026-11-27-official.json \
+  product/nz_election/fixtures/result-import/2026-11-27-official.json
+```
+
+Verify the destination sha256 against the draft. Add the draft entry to
+`product/nz_election/fixtures/manifest.json`, retaining its relative path, URL, retrieval time,
+sha256, bytes and licence; record review notes, a nonempty `reviewer`, and change
+`capture_kind` to `human-reviewed-real` only after review. Commit and merge the reviewed
+capture PR using the same review process above. Never register synthetic fixture bytes as real.
+Use the same settled SHA used for preflight when dispatching:
+
+```sh
 gh workflow run nz-election-result-import.yml --ref main \
   -f state=official -f capture=result-import/2026-11-27-official.json \
   -f data_sha="$SETTLED_DATA_SHA"
