@@ -72,6 +72,9 @@ if (typeof document !== 'undefined' && [null, 'live'].includes(new URL(location.
       visible: () => !document.hidden,
       fetcher: () => fetch(url, {cache: 'no-store', credentials: 'omit', mode: 'same-origin', redirect: 'error', signal: AbortSignal.timeout(20000)}),
       status: text => {
+        if (target.dataset.hasSnapshot === 'false' && !live.last && Date.now() >= OPEN && !live.ended()) {
+          text = 'Waiting for the first complete results. Check official results.';
+        }
         // A cached pre-date build must retire its due notice even when polling has ended.
         if (Date.now() >= Date.parse(target.dataset.resultNoticeAt)) {
           const lowerInitial = value => value[0].toLowerCase() + value.slice(1);

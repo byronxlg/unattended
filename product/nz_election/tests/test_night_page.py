@@ -10,7 +10,6 @@ def test_absent_night_page():
     html = page({}, '2026-10-21T00:00:00Z')
     assert '17 days until election day' in html
     assert '/vote/' in html and 'https://www.electionresults.govt.nz/' in html
-    assert all(tag not in html for tag in ('<figure', '<table', '<progress', '<script'))
     provenance(html)
 
 
@@ -272,3 +271,56 @@ def test_night_replay_reporting_identifies_final_count_not_update_clock(night_en
             assert f"{refs['id']} final count" in text
             if 'elapsed_seconds' in row:
                 assert f'frame {frame} of {len(seq["snapshot_paths"])}' in text
+
+
+@pytest.mark.parametrize('built,expected', [
+    ('2026-11-07T06:01:00Z', 'Waiting for the first complete results.'),
+    ('2026-11-08T06:01:00Z', 'Live updates ended.'),
+])
+def test_empty_night_status(built, expected):
+    from product.nz_election.pipeline.content_checks import Tree
+    tree = Tree(page({}, built))
+    assert expected in tree.root.text
+    assert 'dated packaged snapshot' not in tree.root.text
+    assert any(n.tag == 'a' and n.attrs.get('href') == 'https://www.electionresults.govt.nz/'
+               and 'Official Electoral Commission results' in n.text for n in tree.nodes)
+
+
+def test_empty_night_first_capture_and_cutoff(tmp_path):
+    result = subprocess.run(['uv', 'run', str(Path(__file__).with_name('night_empty_browser.py')), str(tmp_path)],
+                            capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert 'PASS empty night browser' in result.stdout
+
+
+def test_empty_night_polling_status_and_cutoff():
+    import json
+    from product.nz_election.pipeline.sunsets import NIGHT_CLOSE
+    from product.nz_election.pipeline.result_states import live_status
+    module = (Path(__file__).parents[1] / 'web/night-live.mjs').resolve().as_uri()
+    stop = NIGHT_CLOSE.isoformat()
+    ended = live_status(stop, '', has_snapshot=False)
+    script = '''import {NightLive} from MODULE;
+import assert from 'node:assert/strict';
+const stop = Date.parse(STOP);
+let now = stop - 300000, requests = [], rendered = [], status, response = {ok:false};
+const live = new NightLive({loopEndsAt:STOP, now:()=>now,
+  status:text=>status=text, render:pack=>rendered.push(pack),
+  fetcher:async()=>{requests.push(now);return response;}});
+await live.tick(); assert.equal(requests.length, 1);
+response = {ok:true,json:async()=>({available:false,loop_ended:false,loop_ends_at:STOP})};
+now += 120000; await live.tick(); assert.equal(rendered.length,0);
+const pack = {available:true,mode:'Live preliminary results',retrieved_at:new Date(now).toISOString(),
+ reference_version:'a'.repeat(64),html:'<p>Offline verification: 123 valid party votes</p>',
+ loop_ended:false,loop_ends_at:STOP};
+response = {ok:true,json:async()=>pack}; now += 60000; await live.tick();
+assert.deepEqual(rendered,[pack]); assert.equal(requests.length,3);
+for (const delta of [0,1,60000,3600000]) {
+ now = stop + delta; await live.tick(); assert.equal(requests.length,3);
+ assert.match(status,/Live updates ended/);
+}
+const empty = new NightLive({loopEndsAt:STOP,now:()=>now,
+ status:text=>status=text,fetcher:()=>assert.fail('request after cutoff')});
+await empty.tick(); assert.equal(status, ENDED);
+'''.replace('MODULE', repr(module)).replace('STOP', json.dumps(stop)).replace('ENDED', json.dumps(ended))
+    subprocess.run(['node', '--input-type=module', '-e', script], check=True)

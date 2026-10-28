@@ -2,7 +2,7 @@
 from datetime import datetime
 from html import escape
 from itertools import combinations
-from .build import PREFIX, table, render, config
+from .build import PREFIX, table, config
 from . import home_graphics as g
 from .presentation import election_countdown
 from .result_states import sentence, comparison, live_status
@@ -129,11 +129,7 @@ def page(envs, built):
     absent_source = (f'<div class="source-note" id="source-night"><p>{FREEZE_NOTICE}</p>'
                      f'<p class="source-actions"><a href="{LAW}">Electoral Act s197</a>'
                      f'<a href="{RESULTS}">Official Electoral Commission results</a></p></div>')
-    if not sequences and not pre_close:
-        return f'<section class="night-page"><h1>Who is winning?</h1>{absent_source}</section>'
-    if not sequences:
-        return '<h1>Who is winning?</h1>' + render('night', countdown=escape(election_countdown(built)), source=absent_source, timeline=dates)
-    links = '<nav aria-label="Packaged results">' + ''.join(f'<a href="?sequence={s["id"]}">{escape("Latest 2026 results" if s["id"] == "live" else s["mode"])}{(' (' + escape(s["id"]) + ')') if s['id'] != 'live' else ''}</a>' for s in sequences) + '</nav>'
+    links = '<nav aria-label="Packaged results">' + ''.join(f'<a href="?sequence={s["id"]}">{escape("Latest 2026 results" if s["id"] == "live" else s["mode"])}{(' (' + escape(s["id"]) + ')') if s['id'] != 'live' else ''}</a>' for s in sequences) + '</nav>' if sequences else ''
     panels = []
     for seq in sequences:
         refs = envs[seq['reference_path'][:-5]]['data'][0]
@@ -151,13 +147,16 @@ def page(envs, built):
         panels.append(f'<section data-sequence="{seq["id"]}">' + ''.join(frames) + f'<p class="night-mode">{escape(seq["mode"])}{(' (' + escape(seq["id"]) + ')') if seq['id'] != 'live' else ''}</p></section>')
     # Keep replay explicit before close; prefer the complete live cycle after close.
     default = next((s for s in sequences if s['id'] == ('2023' if pre_close else 'live')),
-                   next((s for s in sequences if s['id'] == '2026-media'), sequences[0]))
-    selected = next(p for p in panels if f'data-sequence="{default["id"]}"' in p)
+                   next((s for s in sequences if s['id'] == '2026-media'), sequences[0] if sequences else {'id': ''}))
+    selected = next((p for p in panels if f'data-sequence="{default["id"]}"' in p),
+                    '<h1>Who is winning?</h1>' + absent_source)
+    if sequences:
+        selected = selected.replace('combinations-' + default['id'], 'combinations-static-' + default['id']).replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ')
     retrieval = ''
     if default['id'] == 'live':
         retrieval = envs[default['snapshot_paths'][0][:-5]]['data'][0]['retrieved_at']
     current = envs.get('night/live/current', {}).get('data', [{}])[0] if default['id'] == 'live' else {}
-    status = sentence(current, built) if current.get('result_state') else escape(live_status(built, retrieval))
+    status = sentence(current, built) if current.get('result_state') else escape(live_status(built, retrieval, has_snapshot=bool(sequences)))
     if current.get('result_state') and envs['night/live/current'].get('run_url') == 'offline-verification':
         status += ' Offline verification: synthetic data.'
     result_notice = official_results_notice(built, [current])
@@ -168,7 +167,7 @@ def page(envs, built):
                 '<select id="night-speed"><option value="1">1x</option><option value="10">10x</option><option value="60">60x</option></select>'
                 '<span id="night-clock" aria-live="off">Paused</span>'
                 '<span id="night-announcement" role="status" aria-live="polite" aria-atomic="true"></span></div>')
-    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + f'<p id="night-live-status" role="status">{status}</p>' + controls + f'<div id="night-snapshot" data-result-notice="{escape(result_notice, quote=True)}" data-result-notice-at="{result_notice_at}" data-post-date-notice="{escape(post_date_notice, quote=True)}" data-loop-ends-at="{stamp(lambda: CLOSE)}" data-retrieved-at="{escape(retrieval)}" data-mode="{escape(current.get("mode", ""))}">' + selected.replace('combinations-' + default['id'], 'combinations-static-' + default['id']).replace('night-row-' + default['id'], 'night-row-static-' + default['id']).replace('night-search-' + default['id'], 'night-search-static-' + default['id']).replace('source-' + default['id'], 'source-static-' + default['id']).replace('aria-label="', 'aria-label="Static ') + '</div>'
+    return (f'<link rel="stylesheet" href="{PREFIX}night.css"><div class="night-page">' + (before if pre_close else '') + f'<p id="night-live-status" role="status">{status}</p>' + controls + f'<div id="night-snapshot" data-result-notice="{escape(result_notice, quote=True)}" data-result-notice-at="{result_notice_at}" data-post-date-notice="{escape(post_date_notice, quote=True)}" data-loop-ends-at="{stamp(lambda: CLOSE)}" data-has-snapshot="{str(bool(sequences)).lower()}" data-retrieved-at="{escape(retrieval)}" data-mode="{escape(current.get("mode", ""))}">' + selected + '</div>'
             + ('' if current.get('result_state') else f'<p id="night-result-status">2026: Preliminary; {result_notice[0].lower() + result_notice[1:]}</p>') + dates + links +
             ''.join(f'<template id="sequence-{s["id"]}">{p}</template>' for s, p in zip(sequences, panels)) +
             f'</div><script type="module" src="{PREFIX}night.mjs"></script><script type="module" src="{PREFIX}night-live.mjs"></script>')

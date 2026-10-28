@@ -17,7 +17,7 @@ export class ReplayClock {
 
 if (typeof document !== 'undefined') {
   const container = document.querySelector('#night-snapshot');
-  if (container) {
+  if (container?.querySelector('[data-sequence]')) {
     const id = new URL(location.href).searchParams.get('sequence');
     const template = document.getElementById('sequence-' + (id === '2023-illustrative' ? 'illustrative-2023' : id));
     if (template instanceof HTMLTemplateElement) container.replaceChildren(template.content.cloneNode(true));
