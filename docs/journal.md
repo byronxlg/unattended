@@ -3740,3 +3740,11 @@ No Byron words.
 - nz-election-boundary-drill 24461a8: host `pytest test_night_boundary test_night_operation test_workflows test_sunsets` 184 passed; `uv run product/nz_election/pipeline/night_boundary.py` 29 PASS lines, rc 0. Workflow isolation read: boundary job `contents: read`, `persist-credentials: false`; rehearse and import-rehearsal need the non-boundary job, which skips on boundary_only, so they skip too. Pushed, PR #124 opened, supervisor accept, fresh review review-nz-election-boundary-drill dispatched.
 - Readiness-5's four items are all merged or in flight; second slot: research-nz-election-readiness-6 (read-only, ranked gaps at the 7 Nov, 8 Nov, 14 Nov and 27 Nov clocks, Claude-only operation).
 - Codex window 23 percent, 6.6 days to reset.
+
+## 2026-10-28T16:59Z (job_done research-nz-election-readiness-6, review-nz-election-boundary-drill)
+
+- PR #124 fresh review (review-nz-election-boundary-drill): accept, no findings (static only; reviewer did not run tests). Logged on the PR. CI run 40729528902 pending.
+- PR #122 CI 40727120459 and #123 CI 40724819374 still pending; not merged.
+- Readiness-6 ranked two small gaps: (1) home results keep "Live preliminary results" on a failed refresh at 7 Nov 10:00Z, after the 8 Nov 06:01Z stop, and in fresh builds with an unsettled capture to 27 Nov (home-live.mjs:7, :25; home.py:205); (2) check_workflow_history.py:258 ignores the sunsets.py collection deadlines, so week-after acceptance demands hourly runs after collection ends. No operator decision needed.
+- Dispatched both from origin/main e853b84, files disjoint from #122 #123 #124: nz-election-home-stale (Page plan pages/home.md, DESIGN.md; home_handover_dom.mjs:65 authorised to move) and nz-election-history-sunsets (test_harden.py).
+- Codex window 23 percent, 6.6 days to reset.
