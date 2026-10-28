@@ -1,0 +1,3 @@
+Fresh review of PR #122 (branch change/nz-election-night-recovery, base 1d1d9fa) against REVIEW.md. Read `git diff 1d1d9fa..HEAD` and REVIEW.md only. Focus: can recovery dispatch more than the bounded budget, run past the night stop cutoff (8 Nov 06:00Z), race the existing lock, or double-start a live loop that is merely slow; do the new tests fail on 1d1d9fa for the right reason. Output: verdict (accept / request changes), findings ranked Important / nit with file:line. Read-only.
+
+Second review, after fix-1 (0f709cf). The first review found: night_start.py --dispatch without --state skipped the budget and took no lock; the new tests did not fail at 1d1d9fa on the keyword. Check that both are fixed and that nothing else regressed. Diff: `git diff 1d1d9fa..HEAD`.
