@@ -78,6 +78,13 @@ workflow discovered in `.github/workflows/`. It covers the last three complete
 Pacific/Auckland calendar days, excluding today. It reports run, success, failure
 and recovery counts plus the reason for every failed workflow/day.
 
+Recognised `sunsets.py hourly`, `daily` and `social` guards cap the required
+history at the shared collection deadlines. Intervals crossing a sunset require
+only pre-sunset runs; fully expired intervals need no runs, so an expired schedule
+may be disabled. Publication freezes still exclude their guarded intervals.
+Unrecognised guard commands remain strict. Daily manual imports remain possible
+after collection ends but are not required for scheduled-history acceptance.
+
 - Hourly workflow: gaps between consecutive successful runs are measured across
   midnight and must never exceed 3 hours. Each day's boundaries are the last
   success before it and the first success after it within the checked window.
