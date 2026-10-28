@@ -93,7 +93,10 @@ def check(data=None, site=None):
                 visible = ' '.join(''.join(VisibleText((site / route).read_text()).parts).split())
             except (OSError, ValueError):
                 raise AdvanceAcceptanceError('ADVANCE_RENDER_MISMATCH') from None
-            sentences = re.findall(r'[\d,]+ advance votes reported through \d+ \w+\.', visible)
+            # Consume the whole numeric token, including malformed prefixes, so
+            # present-but-invalid counts remain mismatches rather than absences.
+            sentences = re.findall(
+                r'(?<![\d,.+\-\u2212])[\d,.+\-\u2212]+ advance votes reported through \d+ \w+\.', visible)
             if expected_sentence and not sentences:
                 raise AdvanceAcceptanceError('ADVANCE_NOT_PUBLISHED')
             if sentences != ([expected_sentence] if expected_sentence else []):

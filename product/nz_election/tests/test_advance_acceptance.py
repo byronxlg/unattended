@@ -257,3 +257,17 @@ def test_stylesheet_visible_advance_is_accepted(release, route):
     html = path.read_text()
     path.write_text(html.replace('<p>175,748', '<p class="ordinary chart-data-visible">175,748'))
     advance_acceptance.check(data, site)
+
+
+@pytest.mark.parametrize('route', ['index.html', 'vote/index.html'])
+@pytest.mark.parametrize('prefix', ['-', '\u2212', '0.', '1', '+', '.', ','],
+                         ids=['negative', 'unicode-minus', 'decimal', 'extra-digit', 'plus', 'period', 'comma'])
+def test_complete_visible_count_token_required(release, route, prefix):
+    data, site = release
+    path = site / route
+    html = path.read_text()
+    sentence = '175,748 advance votes reported through 27 October.'
+    assert sentence in html
+    path.write_text(html.replace(sentence, prefix + sentence))
+    with pytest.raises(SystemExit, match='^FAIL advance: ADVANCE_RENDER_MISMATCH$'):
+        accept(data, site)
