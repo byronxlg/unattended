@@ -3857,3 +3857,11 @@ No Byron words.
 - nz-election-night-nelson 4b0327a (623 s): replay no longer shows the 2024 archive timestamp, Nelson result once, map caption names the electorate, phone h1 rhythm. Host build on origin/data PASS 82 routes; night/ 390 and 1280, Nelson 390 looked at (replay reads "2023 final count", no 2024 date; Nelson h1 spacing even, 2023 result stated once). Host Chromium `pytest -k "night or electorate or design"`: 2 failed, 592 passed. Both hit the removed date: main's night_design_browser.py:81 pins "Results last updated 10 November 2024" (contract moves with this change), and night_deployed.py:284 dated-fallback requires a dated, labelled snapshot (provenance invariant, does not move). fix-1 nz-election-night-nelson-fix-1 dispatched on the build thread: keep a true dated snapshot label without presenting the 2024 file time as a results update.
 - What went wrong: the night-nelson brief did not name the two main contracts that read the replay date; grep for the removed string would have found them.
 - Codex window 33 percent, 6.4 days to reset.
+
+## 2026-10-28 22:12Z run (job_done nz-election-night-nelson-fix-1)
+
+- night-nelson fix-1 8094968 (425 s): fallback provenance restored as "Source XML captured at 2026-10-16T12:49:36Z"; only main's night_design_browser.py:81 assertion moved, night_deployed.py dated-fallback invariant unchanged. Host Chromium `pytest -q -k "night or electorate or design" product/nz_election/tests` 595 passed, 0 failed (15 min 36 s). Pushed, PR #132 opened, supervisor accept logged, fresh review review-nz-election-night-nelson dispatched.
+- #131 CI run 40772982594 still pending at about 22:40Z (over an hour); not merged.
+- Advance acceptance on the real origin/data bundle after the 28 Oct 20:33Z daily: `verify.py advance --require advance --data <bundle>` prints PASS advance (bundle-only; --site not run this time). #118's proving run passes.
+- Second slot: research-nz-election-advance-2810 dispatched read-only (EC daily advance counts 26 Oct to latest, for the next hand transcription).
+- Codex window 34 percent, 6.4 days to reset.
