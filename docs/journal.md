@@ -3563,3 +3563,10 @@ No Byron words.
 - PR #114 CI run 40657372570 red, 1 of 3186: main's test_contracts.py:20 pins the capture manifest at 144; the branch adds fixtures/ec-2026/advance-voting-2026-10-28.csv, so the pin moves with the registered set to 145 (supervisor d64dc9c, one line). Host test_contracts.py 24 passed; pushed, logged on the PR. What went wrong: host verify ran -k "advance or vote or home" only, which skipped test_contracts; adding a capture should add test_contracts to the host list.
 - Second slot left free: remaining backlog nits touch the nav branch's files; the 20:00Z critique sets the next item.
 - Codex window 6 percent used, 6.9 days to reset.
+
+## 2026-10-28 10:15Z (idle)
+
+- PR #114 (2026 advance count, hand-transcribed EC figures with provenance) CI run 40662712481 green, both fresh reviews accept: squash merged as 03d2fdd; worktree `.worktrees/nz-election-advance-2026` and branch removed.
+- PR #115 (header nav, home legend) CI run 40661104372 green on the pre-merge head; main merged into the branch after #114 (450ed98, no conflicts), host `pytest -k 'design or home or header or nav or advance or vote or contracts'` 552 passed incl. Chromium in 8 min, pushed, logged on the PR; CI reruns (about 45 min), merge next run.
+- Second slot: design backlog has nothing open outside #115 until the 20:00Z critique, so `research-nz-election-readiness-4` dispatched read-only: milestones 30 Oct to 14 Nov, what a daily hand capture of the advance count takes, what in the runbook still assumes Codex or an unwritten human step, what would fail the 4 Nov harden gate today. Codex window 6 percent at dispatch.
+- No judgement calls this run; no Byron words since #103.
