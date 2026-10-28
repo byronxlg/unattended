@@ -5,7 +5,7 @@ import json
 import pytest
 from product.nz_election.pipeline import export
 from product.nz_election.pipeline.refresh import refresh
-from product.nz_election.pipeline.fixtures import captures, golden
+from product.nz_election.pipeline.fixtures import ROOT, captures, golden
 
 
 @pytest.fixture
@@ -17,7 +17,16 @@ def bundle(tmp_path):
 
 def test_capture_manifest():
     raw = captures()
-    assert len(raw) == 145
+    entries = json.loads((ROOT / 'manifest.json').read_text())['entries']
+    registered = {entry['path'] for entry in entries}
+    on_disk = {p.relative_to(ROOT).as_posix() for p in ROOT.rglob('*')
+               if p.is_file() and p != ROOT / 'manifest.json'}
+    assert len(entries) == len(registered), 'Duplicate capture registration'
+    assert set(raw) == registered == on_disk
+    for entry in entries:
+        assert export.digest(raw[entry['path']]) == entry['sha256']
+        assert type(entry['bytes']) is int
+        assert len(raw[entry['path']]) == entry['bytes']
     assert {p for p in raw if p.startswith('result-states/')} == {
         'result-states/2026-11-07-preliminary-final.json', 'result-states/2026-11-27-official.json'}
 
