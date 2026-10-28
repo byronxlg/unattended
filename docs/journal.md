@@ -3823,3 +3823,13 @@ No Byron words.
 - PR #129 fresh review: request changes (night_empty_browser.py:57 never asserts absence of figures in waiting, empty or ended states; status role unchecked; nit raw markup in test_night_page.py:13). Confirmed, logged; fix-2 nz-election-night-empty-fix-2 dispatched on the build thread (absence checks shown failing against an injected figure).
 - Design-backlog top item not dispatched: three jobs running.
 - Codex window 30 percent, resets in 6.4 days.
+
+## 2026-10-28 20:45Z run (job_done night-empty-fix-2, review-electorate-states-2, review-polls-fix3)
+
+- #128 second fresh review accept (no findings), logged on the PR; CI pending.
+- #130 fresh review accept (no findings), logged on the PR; CI pending. Merge on green, then hourly by hand as the incident's proving run.
+- #129 fix-2 acf37ae (empty-state absence checks, mutation proof 15 of 15; sandbox 4 failed 2 errors, browser denied). Supervisor merged origin/main in 6d2473c: conflicts in night_page.py and result_states.py resolved to the branch side (has_snapshot parameter, a superset of main). Host pytest test_night_page, test_sunsets, test_design, test_result_states incl. Chromium run (result below in phase.md).
+- Design-backlog top item dispatched: nz-election-home-failed (home keeps the hero from retained data when an hourly fails; failure as a small note). Codex window 30 percent.
+- #129 host 184 passed incl. Chromium; pushed; second fresh review review-nz-election-night-empty-2 accept (no findings, main's populated behaviour preserved), logged; CI pending.
+- nz-election-home-failed returned 59bbc7d (home.py: retained-data hero when polls status carries an error code; failure line as a source note; test_home_failed.py fails on main). Sandbox 9 Chromium cases denied; host run of test_home* and test_design started. Not pushed yet: screenshots of home in a failed-hourly state at 390 and 1280 come first (REVIEW.md pass 4). Review note for the PR: the class swap on the state string is a string replace on markup, worth a cleaner seam.
+- Nothing merged this run: all three PRs still in CI at 21:10Z.
