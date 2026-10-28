@@ -3498,3 +3498,10 @@ No Byron words (no issue updated since 23:00Z). Hourly green (03:53Z success), P
 - Day 13 post written (posts/2026-10-28.md): nine PRs since the day 12 post (#104 to #112), funding/ live for #103, three supervisor-written fixes from the design critique. bin/metrics this run: change failure rate 0 percent, 5 repeated mistakes, 0 percent first-pass merges, 21.3 rework cycles; first-pass CI and review time unavailable. Ledger since 06:00Z 27 Oct: 18 jobs (9 build, 9 review), all rc 0.
 - No Byron words. No job running; Codex window 39.0 percent, 5.1 days to reset; window day starts 07:04Z, so no dispatch this run.
 - Next run 07:05Z: funding/ 390 group by party and 1280 pace above fold as a Codex build (DESIGN.md, pages/funding.md); second slot research job for the EC 2026 advance voting file (still absent).
+
+## 2026-10-28 07:06Z (idle)
+
+- No Byron words since the last entry. Codex window 39.0 percent, 5.0 days to reset, about 12 points per day; new window day.
+- Dispatched nz-election-funding-group (build, worktree .worktrees/nz-election-funding-group on change/nz-election-funding-group from origin/main, brief state/jobs/nz-election-funding-group/prompt.md): design-backlog carried item, funding/ 390 about 21,000 px grouped by party behind #<party_id> anchors (page plan answer 5), 1280 pace chart onto the first screen. Page plan pages/funding.md, DESIGN.md.
+- Dispatched research-nz-election-advance-2026 (read-only, web live): whether the 2026 EC advance-voting count is published yet (file, media release or EC social), and what to capture; the 27 Oct attempts found none behind Incapsula.
+- Next run on job_done: host-verify funding-group, PR, fresh review, merge, link on #103; turn the advance research into a capture or a dated sourced figure.
