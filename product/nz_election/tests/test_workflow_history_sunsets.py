@@ -87,3 +87,41 @@ def test_repository_freeze_and_sunset_intersect(kind, close, cron):
     if history.END < close:
         expected.append((history.END, close))
     assert history.active_intervals(source, start, end) == expected
+
+
+@pytest.mark.parametrize('kind,close,cron', CASES)
+@pytest.mark.parametrize('recovery_seconds,covered,passes', [
+    (-1, True, False), (-0.5, True, True), (-0.5, False, False),
+    (0, True, False), (1, True, False),
+], ids=['tied', 'before', 'before-with-gap', 'at-sunset', 'after-sunset'])
+def test_sunset_recovery_evidence(kind, close, cron, recovery_seconds, covered, passes,
+                                  tmp_path, capsys):
+    directory = tmp_path / '.github/workflows'
+    directory.mkdir(parents=True)
+    # Hourly cadence exercises recovery for each recognised collection deadline.
+    (directory / 'collection.yml').write_text(workflow(kind, '17 * * * *'))
+    close = close.astimezone(timezone.utc)
+    now = datetime.combine((close - timedelta(seconds=1)).astimezone(history.NZ).date()
+                           + timedelta(days=1), time.min, history.NZ)
+    start = datetime.combine(now.astimezone(history.NZ).date() - timedelta(days=1),
+                             time.min, history.NZ).astimezone(timezone.utc)
+    records = []
+    stamp = start
+    while covered and stamp < close - timedelta(seconds=1):
+        records.append(dict(createdAt=stamp.isoformat(), event='schedule',
+                            status='completed', conclusion='success'))
+        stamp += timedelta(hours=1)
+    records += [dict(createdAt=(close - timedelta(seconds=1)).isoformat(), event='schedule',
+                     status='completed', conclusion='failure'),
+                dict(createdAt=(close + timedelta(seconds=recovery_seconds)).isoformat(),
+                     event='workflow_dispatch', status='completed', conclusion='success')]
+    # Return even out-of-range evidence to exercise the checker's own filtering.
+    runner = lambda *a, **k: SimpleNamespace(returncode=0, stdout=json.dumps(records))
+    assert history.main(['--days', '1'], runner=runner, now=now, root=tmp_path) == int(not passes)
+    output = capsys.readouterr().out
+    if recovery_seconds >= 0 or recovery_seconds == -1:
+        assert '1 failures without success within 2 hours' in output
+    elif not covered:
+        assert 'success gap' in output
+    else:
+        assert '1 recovered' in output
