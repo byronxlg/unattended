@@ -54,11 +54,11 @@ def total(rows):
 def headline(records):
     if not records:
         return ''
-    party, rows = groups(records)[0]
+    leader = funding_totals(groups(records))[0]
     years = {r['received'][:4] for r in records if r.get('received')}
     period = ' in ' + next(iter(years)) if len(years) == 1 else ''
-    count = return_count(rows)
-    return f'{name(party, rows)} has declared {whole_money(total(rows))} across {count}, the most of any party{period}.'
+    return (f'{leader["name"]} has declared {leader["amount"]} across {leader["returns"]}, '
+            f'the most of any party{period}.')
 
 
 def returns_table(records, caption, *, parties=False):
