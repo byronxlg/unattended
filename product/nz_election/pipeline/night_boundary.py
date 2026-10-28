@@ -7,6 +7,7 @@ from contextlib import contextmanager, redirect_stdout
 from datetime import datetime, timedelta
 from functools import partial
 import io
+import json
 import os
 from pathlib import Path
 import socket
@@ -222,6 +223,10 @@ def inflight(root, *, phase):
 
 
 def watchdog(root, *, queued=False):
+    state = root / 'watchdog'
+    state.mkdir()
+    (state / 'night-start.lock').touch()
+    ledger = state / 'night-recovery-2026.json'
     clock = clock_at(STOP - timedelta(seconds=1))
     calls = []
     def history(*args, **kwargs):
@@ -232,11 +237,15 @@ def watchdog(root, *, queued=False):
     def dispatch(*args, **kwargs):
         calls.append('dispatch')
     with patch.object(night_start.subprocess, 'check_output', history), patch.object(night_start.subprocess, 'run', dispatch):
-        check(night_start.main(clock.now, dispatch=True) == (1 if queued else 0), 'WATCHDOG_CUTOFF')
+        check(night_start.main(clock.now, dispatch=True, state=state) == (1 if queued else 0), 'WATCHDOG_CUTOFF')
         check(calls == (['history'] if queued else ['history', 'dispatch']), 'WATCHDOG_CALLS')
+        attempts = [] if queued else [(STOP - timedelta(seconds=1)).isoformat()]
+        check((json.loads(ledger.read_text()) if ledger.exists() else []) == attempts, 'WATCHDOG_RESERVATION')
         clock.origin = STOP
+        clock.seconds = 0
         calls.clear()
-        check(night_start.main(clock.now, dispatch=True) == 1 and not calls, 'WATCHDOG_LATE_WORK')
+        check(night_start.main(clock.now, dispatch=True, state=state) == 1 and not calls, 'WATCHDOG_LATE_WORK')
+        check((json.loads(ledger.read_text()) if ledger.exists() else []) == attempts, 'WATCHDOG_LATE_RESERVATION')
 
 
 def sunset(root, *, kind, event, offset):
