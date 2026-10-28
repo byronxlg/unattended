@@ -196,3 +196,38 @@ def deployed_data_sha(transport=http):
             return sha if isinstance(sha, str) and re.fullmatch(r'[0-9a-f]{40}', sha) else None
     except (ValueError, KeyError, TypeError, URLError, OSError, HTTPException):
         return None
+
+
+def official_xml(root, path, *, transport=http, sleep=time.sleep, now=lambda: datetime.now(timezone.utc)):
+    """Operator-selected official endpoint; independent of the preliminary sunset."""
+    from . import result_sources
+    import re
+    if (type(root) is not str or root != result_sources.ROOTS['official'] or type(path) is not str
+            or not re.fullmatch(r'(?:electorates|parties|candidates|election)\.xml|e(0[1-9]|[1-6][0-9]|7[01])/e\1\.xml', path)):
+        raise FetchError('OFFICIAL_SOURCE')
+    url = root + path
+    for attempt in range(3):
+        if not result_sources.official_date_reached(now().isoformat()):
+            raise FetchError('OFFICIAL_NOT_DUE')
+        headers = {}
+        try:
+            with transport(Request(url, headers={'User-Agent': USER_AGENT}), timeout=20) as response:
+                headers = response.headers
+                if response.status != 200:
+                    raise HTTPError(url, response.status, 'EC fetch failed', headers, None)
+                raw = response.read(LIMIT + 1)
+                if len(raw) > 2_000_000:
+                    raise FetchError('OFFICIAL_TOO_LARGE')
+                return raw
+        except HTTPError as exc:
+            headers = exc.headers or {}
+            exc.close()
+            if exc.code == 404:
+                raise FetchError('OFFICIAL_INCOMPLETE') from None
+            if exc.code not in {429, 500, 502, 503, 504}:
+                raise FetchError('OFFICIAL_HTTP_REJECTED') from None
+        except (URLError, TimeoutError, OSError, HTTPException):
+            pass
+        if attempt == 2:
+            raise FetchError('OFFICIAL_RETRIES_EXHAUSTED')
+        sleep(delay(headers, attempt, now))

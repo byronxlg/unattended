@@ -3740,3 +3740,47 @@ No Byron words.
 - nz-election-boundary-drill 24461a8: host `pytest test_night_boundary test_night_operation test_workflows test_sunsets` 184 passed; `uv run product/nz_election/pipeline/night_boundary.py` 29 PASS lines, rc 0. Workflow isolation read: boundary job `contents: read`, `persist-credentials: false`; rehearse and import-rehearsal need the non-boundary job, which skips on boundary_only, so they skip too. Pushed, PR #124 opened, supervisor accept, fresh review review-nz-election-boundary-drill dispatched.
 - Readiness-5's four items are all merged or in flight; second slot: research-nz-election-readiness-6 (read-only, ranked gaps at the 7 Nov, 8 Nov, 14 Nov and 27 Nov clocks, Claude-only operation).
 - Codex window 23 percent, 6.6 days to reset.
+
+## 2026-10-28T16:59Z (job_done research-nz-election-readiness-6, review-nz-election-boundary-drill)
+
+- PR #124 fresh review (review-nz-election-boundary-drill): accept, no findings (static only; reviewer did not run tests). Logged on the PR. CI run 40729528902 pending.
+- PR #122 CI 40727120459 and #123 CI 40724819374 still pending; not merged.
+- Readiness-6 ranked two small gaps: (1) home results keep "Live preliminary results" on a failed refresh at 7 Nov 10:00Z, after the 8 Nov 06:01Z stop, and in fresh builds with an unsettled capture to 27 Nov (home-live.mjs:7, :25; home.py:205); (2) check_workflow_history.py:258 ignores the sunsets.py collection deadlines, so week-after acceptance demands hourly runs after collection ends. No operator decision needed.
+- Dispatched both from origin/main e853b84, files disjoint from #122 #123 #124: nz-election-home-stale (Page plan pages/home.md, DESIGN.md; home_handover_dom.mjs:65 authorised to move) and nz-election-history-sunsets (test_harden.py).
+- Codex window 23 percent, 6.6 days to reset.
+
+## 2026-10-28T17:11Z (job_done nz-election-history-sunsets, nz-election-home-stale)
+
+- history-sunsets 498932c: host `pytest test_harden.py test_workflow_history_sunsets.py` 274 passed; the 12 new cases fail with origin/main's check_workflow_history.py (12 failed); no existing tests edited. Pushed, PR #125, supervisor accept, fresh review review-nz-election-history-sunsets dispatched.
+- home-stale 3babf1e: host `pytest test_home_handover.py test_sunsets.py test_design.py` 119 passed incl. Chromium (9 were sandbox-denied in Codex); 5 new regressions fail on origin/main per last.md. Moved assertion (authorised in the brief): home_handover_dom.mjs populated-HTML equality after the cutoff replaced by retained seats, "Live updates ended", no "Live preliminary results". home-ended-390 screenshot looked at (synthetic fixture): ended status visible, seats kept; nit: raw ISO capture time in the status line, to the design backlog. Pushed, PR #126, supervisor accept, fresh review review-nz-election-home-stale dispatched.
+- #122 #123 #124 CI still pending (runs 40727120459, 40724819374, 40729528902); not merged.
+- Codex window 24 percent, 6.6 days to reset.
+
+## 2026-10-28 17:27Z (job_done review-history-sunsets, review-home-stale)
+
+- PR #122 night-recovery merged b958f9b, PR #123 official-capture merged d2100cd, PR #124 boundary-drill merged b8d5b82 (CI green, reviews accept); worktrees and branches removed.
+- Boundary drill Actions proof: `gh workflow run nz-election-night-rehearsal.yml --ref main -f boundary_only=true`, run 40736058756, in progress at run end.
+- PR #125 fresh review: request changes. Item 1 confirmed: `check_workflow_history.py:396` `end <= stamp <= query_end` lets a success at the sunset instant recover a failure before it. Item 2 (state, journal, prompt deletions) rejected: `git diff origin/main...branch` shows only product files and the runbook; the reviewer compared against a newer main. Fix-1 nz-election-history-sunsets-fix-1 dispatched on the build thread.
+- PR #126 fresh review: request changes. Item 1 confirmed: `home_handover_dom.mjs:85` accepts "120 seats" or "0 national seats reported" on raw HTML after the cutoff, so party counts and percent counted could vanish unchecked. Item 2 rejected as above. Fix-1 nz-election-home-stale-fix-1 dispatched on the build thread.
+- Codex window 25 percent, 6.6 days to reset. What went wrong: both reviews flagged the same false state-rollback; the review prompt's diff base should be the merge base. Not changed this run.
+
+## 2026-10-28 17:39Z run (job_done history-sunsets-fix-1, home-stale-fix-1)
+
+- #125 history-sunsets fix-1 5450f61: host `pytest product/nz_election/tests/ -k 'harden or history or sunset'` 373 passed; with check_workflow_history.py at 498932c 3 failed (the at-sunset cases). Pushed, supervisor accept logged, second fresh review review-nz-election-history-sunsets-2 dispatched.
+- #126 home-stale fix-1 66a4e99: Codex could not run Chromium; host run of test_home_handover.py and test_night_page.py 3 failed 61 passed, test_browser_handover[zero|complete|recovery], strict mode violation: two `<figure id="home-night">` in the live home DOM (results figure and pre-results dates figure). Request changes logged on #126; fix-2 nz-election-home-stale-fix-2 dispatched on the build thread (one #home-night in every state, asserted).
+- Incident: boundary_only rehearsal run 40736058756 on b8d5b82 failed watchdog-cutoff (WATCHDOG_CUTOFF) and watchdog-queued-cutoff (WATCHDOG_CALLS); reproduced on host, main's test_night_boundary.py 2 failed 44 passed. Cause: #124's drill was built before #122 made night_start.main dispatch require shared state and the watchdog lock; each PR's CI ran on its own base and both were merged in the 17:27Z run. Supervisor mistake logged in state/mistakes.jsonl. Fix job nz-election-boundary-watchdog dispatched (.worktrees/nz-election-boundary-watchdog from origin/main; drill harness only, main's tests and night_start.py untouched).
+- Codex window 25 percent, 6.6 days to reset. Three jobs running.
+
+## 2026-10-28 18:01Z run (job_done boundary-watchdog, home-stale-fix-2, review-history-sunsets-2)
+
+- boundary-watchdog a5dc4a6 (drill supplies isolated state and lock, one file): host pytest test_night_boundary.py test_night_operation.py 146 passed, night_boundary.py 29 PASS 0 FAIL. PR #127 opened, supervisor accept, fresh review review-nz-election-boundary-watchdog dispatched. Merge first, then rerun the boundary_only rehearsal on main.
+- #126 fix-2 4186cd0 (pre-election timeline removed at handover, ids unique): host Chromium test_home_handover.py test_night_page.py 64 passed rc 0, pushed, accept logged, second fresh review review-nz-election-home-stale-2 dispatched (prompt now says three-dot diff).
+- #125 second fresh review request changes on state files only: same two-dot diff artifact as before (three-dot diff is product files only); rejected with reasoning on the PR, fix accepted. CI run 40739227779 pending; merge after #127 turns main green.
+- Codex window 26 percent, 6.5 days to reset. Two review jobs running.
+
+## 2026-10-28 18:22Z run (job_done review-nz-election-boundary-watchdog, review-nz-election-home-stale-2)
+
+- #127 fresh review accept, no findings (drill creates the lock and passes temporary state into the real night_start.main; ledger unchanged at cutoff). Logged on the PR.
+- #126 second fresh review accept, no findings (timeline removed before results inserted; counts kept at cutoff). Logged on the PR.
+- CI pending on #125, #126, #127; nothing merged. No Codex job running: every next step (merge #127, boundary_only rehearsal on main, main into #125/#126) waits on #127's CI, so no dispatch this run. next-run-after set about 18:50Z.
+- Codex window 26 percent, 6.5 days to reset.

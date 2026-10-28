@@ -1,0 +1,7 @@
+**Verdict: accept**, based on the permitted static review. No Important or nit findings.
+
+- **Isolation:** `boundary_only` skips `non-boundary`, which also skips both dependent jobs. The boundary job has only checkout and the drill, with `contents: read` and credentials persistence disabled. No configured secrets, Pages deployment, or production push steps run. Checkout still uses GitHub’s read-only token.
+- **Real execution:** Scenarios call production entry points with controlled times. Queued publication and rollback exercise local Git; watchdog runs `night_start.main`; sunset checks call `allowed`, `skip`, and `require_collection`. Boundary expectations are independent of production constants.
+- **Detection:** Before/at assertions and mutation tests cover one-second startup, stop, and sunset shifts, plus removal of the publisher freeze guard. Scenario exceptions produce `FAIL` and a nonzero exit.
+
+**Verification limit:** Read only `REVIEW.md` and `git diff 0abfc3b..HEAD`. Tests were not executed. Failure on the base for the intended behavioral reason remains unverified: the new tests import `night_boundary`, which is absent on the base, so copying only the tests there would fail during collection.
