@@ -90,7 +90,8 @@ def test_each_rendered_page_is_checked(release, route, mutation):
                    'hidden': '<span hidden>' + sentence + '</span>', 'missing': ''}[mutation]
     assert sentence in html
     path.write_text(html.replace(sentence, replacement))
-    with pytest.raises(SystemExit, match='ADVANCE_RENDER_MISMATCH$'):
+    code = 'ADVANCE_NOT_PUBLISHED' if mutation in {'hidden', 'missing'} else 'ADVANCE_RENDER_MISMATCH'
+    with pytest.raises(SystemExit, match=code + '$'):
         accept(data, site)
 
 
@@ -169,3 +170,34 @@ def test_malformed_registry_has_fixed_code(release, tmp_path, monkeypatch, bad):
     monkeypatch.setattr(advance, 'ROOT', registry)
     with pytest.raises(SystemExit, match='^FAIL advance: ADVANCE_CAPTURE_INVALID$'):
         accept(data)
+
+
+@pytest.mark.parametrize('route', ['index.html', 'vote/index.html'])
+@pytest.mark.parametrize('attributes', [
+    'hidden', 'aria-hidden="true"', 'style="display:none"',
+    'style="visibility:hidden"', 'style="color:red; DISPLAY : NONE !important;"',
+    'style="visibility:/* hidden from readers */hidden"',
+])
+@pytest.mark.parametrize('ancestor', [False, True], ids=['paragraph', 'ancestor'])
+def test_hidden_advance_sentence_is_not_published(release, route, attributes, ancestor):
+    data, site = release
+    path = site / route
+    html = path.read_text()
+    start = html.index('<p>175,748 advance votes reported through 27 October.')
+    end = html.index('</p>', start) + len('</p>')
+    paragraph = html[start:end]
+    replacement = ('<div ' + attributes + '><div>' + paragraph + '</div></div>' if ancestor else
+                   paragraph.replace('<p>', '<p ' + attributes + '>', 1))
+    path.write_text(html[:start] + replacement + html[end:])
+    with pytest.raises(SystemExit, match='^FAIL advance: ADVANCE_NOT_PUBLISHED$'):
+        accept(data, site)
+
+
+@pytest.mark.parametrize('route', ['index.html', 'vote/index.html'])
+def test_visible_advance_sentence_with_inline_style_is_accepted(release, route, capsys):
+    data, site = release
+    path = site / route
+    html = path.read_text()
+    path.write_text(html.replace('<p>175,748', '<p style="display:block; visibility:visible">175,748'))
+    accept(data, site)
+    assert 'PASS advance' in capsys.readouterr().out

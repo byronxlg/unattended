@@ -19,8 +19,14 @@ class VisibleText(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
-        hidden = (tag in {'script', 'style', 'template', 'head'} or 'hidden' in attrs or
-                  attrs.get('aria-hidden') == 'true')
+        # The advance line has no stylesheet hiding rules. Inline hiding and
+        # semantic hidden attributes must suppress the entire descendant subtree.
+        style = re.sub(r'/\*.*?\*/', '', attrs.get('style') or '', flags=re.S)
+        inline_hidden = any(re.fullmatch(
+            r'\s*(?:display\s*:\s*none|visibility\s*:\s*(?:hidden|collapse))\s*(?:!\s*important\s*)?',
+            declaration, flags=re.I) for declaration in style.split(';'))
+        hidden = (inline_hidden or tag in {'script', 'style', 'template', 'head'} or 'hidden' in attrs or
+                  (attrs.get('aria-hidden') or '').strip().lower() == 'true')
         if tag not in {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}:
             self.stack.append((tag, hidden))
         self.parts.append(' ')
@@ -77,6 +83,8 @@ def check(data=None, site=None):
             except (OSError, ValueError):
                 raise AdvanceAcceptanceError('ADVANCE_RENDER_MISMATCH') from None
             sentences = re.findall(r'[\d,]+ advance votes reported through \d+ \w+\.', visible)
+            if expected_sentence and not sentences:
+                raise AdvanceAcceptanceError('ADVANCE_NOT_PUBLISHED')
             if sentences != ([expected_sentence] if expected_sentence else []):
                 raise AdvanceAcceptanceError('ADVANCE_RENDER_MISMATCH')
     if latest['cumulative'] is None:
