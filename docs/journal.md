@@ -3712,3 +3712,9 @@ No Byron words.
 - Dispatched (1) nz-election-night-recovery and (2) nz-election-official-capture as builds on worktrees from 1d1d9fa. Both touch runbook/night.md, so each brief limits it to its own section. (3) goes on the next free slot (last build 5 Nov).
 - Correction of the 13:27Z entry: the runbook dry-read claimed `harden.py --history` does not exist; it does (harden.py:59, required for PASS). My edit to plan-week-after.md line 43 was wrong and is reverted. The supervisor took a Codex claim without a grep; same lesson as the brief rule: check the code before writing a fix.
 - Codex window 19 percent, 6.6 days to reset.
+
+## 2026-10-28 16:00Z run (job_done nz-election-night-recovery)
+
+- nz-election-night-recovery ac8d50a (5 files: bin/night-watchdog, bin/tick comment, night_start.py, runbook/night.md, test_night_operation.py; six recovery attempts per night, ten-minute grace). Host: pytest test_night_operation, test_workflows, test_sunsets 168 passed; bash -n bin/tick and py_compile bin/night-watchdog ok; lint ok. Codex reports 18 new dead_loop cases fail at 1d1d9fa. Codex noted its own `bash -n bin/night-watchdog` fails because the file is Python; not a defect.
+- PR #122 opened, supervisor accept logged; fresh review review-nz-election-night-recovery dispatched (focus: budget bound, cutoff, lock race, slow-not-dead loop).
+- nz-election-official-capture still running. Codex window 20 percent, 6.6 days to reset.
