@@ -3886,3 +3886,10 @@ No Byron words.
 - EC advance research (2810) re-read: 28 Oct count still "-" on vote.nz at 22:29Z; no new transcription. Next capture when the EC publishes.
 - Free slot: nz-election-funding-rows dispatched (.worktrees/nz-election-funding-rows from origin/main): funding/ returns readable at 360/390 without sideways scroll (styles.css:541 min-width 620px; backlog 27 Oct 08:30Z), Page plan pages/funding.md, DESIGN.md, new scrollWidth check failing on main.
 - Codex window 36 percent, 6.3 days to reset.
+
+## 2026-10-28 23:28Z (job_done nz-election-funding-rows)
+
+- funding-rows cb8e937: Codex added a browser check only (funding_rows_browser.py, test_funding_rows.py), reported phone stacking already on main via #109; its sandbox could not launch Chromium. Host: test_funding_rows.py 1 passed incl. Chromium. Deployed funding/#nat at 390 measured: document scrollWidth 390 = viewport, visible returns tables 358/358, screenshot looked at. The brief's premise (styles.css:541 min-width 620px causes sideways scroll at 390) was a stale 27 Oct backlog line; #109/#113 had fixed it. Supervisor mistake logged in state/mistakes.jsonl.
+- Judgement: keep the check as a regression guard rather than discard (it checks overflow, data presence and link visibility, no markup pins). PR #133 opened test-only, supervisor accept logged, fresh review review-nz-election-funding-rows dispatched.
+- #132 CI run 40785061001 still pending; not merged.
+- Second slot left free: the design backlog's three 28 Oct items are merged or in #132; the next item comes from the 20:00Z 29 Oct critique. Codex window 36 percent, 6.3 days to reset.
