@@ -92,7 +92,7 @@ def images(browser, out):
                                 else:
                                     assert '2,851,211' in page.locator('#night-snapshot').inner_text()
                                     assert 'House 122' in page.locator('#night-snapshot').inner_text()
-                                    assert 'Final archive updated' in page.locator('#night-snapshot .night-frame-context').inner_text()
+                                    assert 'Final archive updated' not in page.locator('#night-snapshot .night-frame-context').inner_text()
                                     assert page.locator('#night-announcement').inner_text() == 'Replay ended.'
                                 if state == 'reset-focus':
                                     page.locator('#night-play').focus()

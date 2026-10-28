@@ -144,11 +144,7 @@ def test_replay_frames_explain_coverage_without_inventing_data(night_envs):
             assert 'voting-place coverage and seats are published only in the final archive' in context.text
             assert 'Results cover' not in frame.text and 'House 122' not in frame.text
         else:
-            basis = night_envs['night/illustrative-2023/step-2']['data'][0]['derivation']['basis']
-            updated = night_envs[basis[:-5]]['data'][0]['source_updated_local']
-            from datetime import datetime
-            stamp = datetime.fromisoformat(updated)
-            assert f'Final archive updated {stamp.day} {stamp:%B %Y} at {stamp:%H:%M}' in context.text
+            assert 'Final archive updated' not in context.text
             assert 'House 122' in frame.text and '2,851,211' in frame.text
 
 
@@ -324,3 +320,62 @@ const empty = new NightLive({loopEndsAt:STOP,now:()=>now,
 await empty.tick(); assert.equal(status, ENDED);
 '''.replace('MODULE', repr(module)).replace('STOP', json.dumps(stop)).replace('ENDED', json.dumps(ended))
     subprocess.run(['node', '--input-type=module', '-e', script], check=True)
+
+
+def test_night_replay_does_not_present_archive_maintenance_as_count_date(night_envs):
+    from copy import deepcopy
+    from product.nz_election.pipeline.content_checks import Tree
+    from product.nz_election.pipeline.night_page import reader_update
+    before = deepcopy(night_envs)
+    source = next(r for env in before.values() for r in env['data']
+                  if r.get('mode') == 'Final snapshot' and 'ec-2023-xml/election.xml' in r.get('source_ref', []))
+    archive_updated = source['source_updated_local']
+    tree = Tree(page(night_envs, '2026-10-28T00:00:00Z'))
+    assert night_envs == before
+    for identity in ('night-snapshot', 'sequence-2023', 'sequence-illustrative-2023'):
+        replay = next(n for n in tree.nodes if n.attrs.get('id') == identity)
+        assert archive_updated not in replay.text
+        assert reader_update(archive_updated) not in replay.text
+        assert 'Results last updated' not in replay.text
+        assert 'Final archive updated' not in replay.text
+
+
+def test_night_live_retains_real_update_time(night_envs):
+    from copy import deepcopy
+    from product.nz_election.pipeline.night_page import snapshot
+    row = deepcopy(next(r for env in night_envs.values() for r in env['data']
+                        if r.get('mode') == 'Final snapshot' and 'ec-2023-xml/election.xml' in r.get('source_ref', [])))
+    row.update(mode='Live preliminary results', source_updated_local='2026-11-07T20:30:00')
+    refs = night_envs['night/references/2023']['data'][0]
+    html = snapshot(row, refs, 'live', 'night/live/current.json')
+    assert 'Results last updated 7 November 2026 at 20:30.' in html
+    assert 'updated 20:30' in html
+
+
+def test_night_replay_retains_source_date_from_election_year(night_envs):
+    from copy import deepcopy
+    from product.nz_election.pipeline.night_page import snapshot
+    row = deepcopy(next(r for env in night_envs.values() for r in env['data']
+                        if r.get('mode') == 'Final snapshot' and 'ec-2023-xml/election.xml' in r.get('source_ref', [])))
+    row['source_updated_local'] = '2023-11-03T14:00:00'
+    refs = night_envs['night/references/2023']['data'][0]
+    assert 'Results last updated 3 November 2023 at 14:00.' in snapshot(row, refs, '2023', 'night/2023/final.json')
+
+
+def test_night_replay_fallback_dates_capture_provenance():
+    from product.nz_election.pipeline.content_checks import Tree
+    from product.nz_election.pipeline.night import load
+    payloads, sources, _ = load()
+    captured = next(s['fetched_at'] for s in sources if s['id'] == 'ec-2023-xml/election.xml')
+    envs = {key: {'data': rows, 'source': sources + [dict(id='unrelated', fetched_at='2099-01-01T00:00:00Z')]}
+            for key, rows in payloads.items()}
+    tree = Tree(page(envs, '2026-10-28T00:00:00Z'))
+    for identity in ('night-snapshot', 'sequence-2023', 'sequence-illustrative-2023'):
+        content = next(n for n in tree.nodes if n.attrs.get('id') == identity).text
+        assert f'Source XML captured at {captured}.' in content
+        assert '2023 final count' in content
+        assert 'Official results' in content
+        assert '2099-01-01' not in content
+        assert 'Results last updated' not in content
+    fallback = next(n for n in tree.nodes if n.attrs.get('id') == 'night-snapshot').text
+    assert 'Final snapshot' in fallback
