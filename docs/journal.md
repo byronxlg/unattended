@@ -3834,3 +3834,10 @@ No Byron words.
 - nz-election-home-failed returned 59bbc7d (home.py: retained-data hero when polls status carries an error code; failure line as a source note; test_home_failed.py fails on main). Sandbox 9 Chromium cases denied; host run of test_home* and test_design started. Not pushed yet: screenshots of home in a failed-hourly state at 390 and 1280 come first (REVIEW.md pass 4). Review note for the PR: the class swap on the state string is a string replace on markup, worth a cleaner seam.
 - Nothing merged this run: all three PRs still in CI at 21:10Z.
 - PR #131 opened (home-failed, host 130 passed incl. Chromium), fresh review review-nz-election-home-failed dispatched; pass 4 screenshots before merge.
+
+## 2026-10-28 21:21Z run (job_done review-nz-election-home-failed)
+
+- PR #131 fresh review: request changes. test_home_failed.py:18,40 use state='failed', which export.py:223 rejects (real refresh failures write stale with retained data, unavailable without); absence covers only a missing bundle. Confirmed by the supervisor at the cited lines, logged on the PR. Review probes say home.py already withholds the hero for withheld, incoherent and mismatched retained data.
+- Fix-1 nz-election-home-failed-fix-1 dispatched on the build thread (real states, three retained-but-invalid cases; branch's own test moves, main's tests untouched).
+- #128, #129, #130 CI still pending at 21:22Z; not merged. Second slot left free: backlog items 2 and 3 touch night/ and electorate files carried by #129 and #128.
+- Codex window 32 percent, 6.4 days to reset.
