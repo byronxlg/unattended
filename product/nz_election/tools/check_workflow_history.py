@@ -15,10 +15,11 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(ROOT))
 from product.nz_election.pipeline.deployment_guard import START, END
 from product.nz_election.pipeline.night_live import CLOSE
+from product.nz_election.pipeline.sunsets import HOURLY_CLOSE, DAILY_CLOSE, SOCIAL_CLOSE
 
 POLICY = (
     'Cron is evaluated in UTC and reported by NZ calendar day; inactive days require no runs. '
-    'Declared publication and night-operation guards bound the active window. '
+    'Declared publication, night-operation and collection sunset guards bound the active window. '
     'Hourly: gaps between consecutive successful runs are measured across midnight and must be at most 3 hours. '
     'Use the last success before each day and first success after it within the window; '
     'use window start/end only when no such success exists. '
@@ -257,6 +258,12 @@ def workflow_commands(source):
 def active_intervals(source, start, end):
     commands = list(workflow_commands(source))
     scripts = {words[0].removeprefix('./') for words in commands}
+    deadlines = {'hourly': HOURLY_CLOSE, 'daily': DAILY_CLOSE, 'social': SOCIAL_CLOSE}
+    for words in commands:
+        # Overrides and unknown arguments are not evidence of the shared deadline.
+        if (words[0].removeprefix('./') == 'product/nz_election/pipeline/sunsets.py'
+                and len(words) == 2 and words[1] in deadlines):
+            end = min(end, deadlines[words[1]])
     if 'product/nz_election/pipeline/night_live.py' in scripts:
         start, end = max(start, END), min(end, CLOSE)
     intervals = [(start, end)] if start < end else []
