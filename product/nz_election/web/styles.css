@@ -308,8 +308,11 @@ body>header .nav-cue{display:none}
 body>header a:focus-visible{outline-color:var(--accent)}
 .footer-routes{display:flex;flex-wrap:wrap;gap:0 20px}
 .footer-routes a{display:inline-flex;align-items:center;min-height:44px}
-/* A central focus-scroll region makes partly clipped links scroll fully into view. */
-@media(max-width:799px){body>header{padding-top:0;padding-bottom:0;gap:0}body>header .nav-strip{display:flex;width:100%;align-items:center}body>header .nav-cue{display:block;color:var(--mast-ink);font-size:var(--fs-h3);text-align:right;width:20px;flex:none}body>header nav{min-width:0;flex:1;margin:0;gap:0;flex-wrap:nowrap;overflow-x:auto;scroll-padding-inline:50%;scrollbar-width:thin;scrollbar-color:var(--accent) var(--mast)}body>header nav a{padding:8px 6px 7px;font-size:var(--fs-body);white-space:nowrap;min-height:44px;min-width:44px;flex:none}body>header nav a:focus-visible{outline-offset:-3px}body>header .brand{min-height:44px}}
+/* Keep compact tabs and a separate cue so the scroll affordance cannot cover a target. */
+@media(max-width:799px){body>header{padding-top:0;padding-bottom:0;gap:0}body>header .nav-strip{display:flex;width:100%;align-items:center}body>header .nav-cue{display:block;color:var(--mast-ink);font-size:var(--fs-h3);text-align:right;width:20px;flex:none}body>header nav{min-width:0;flex:1;margin:0;gap:0;flex-wrap:nowrap;overflow-x:auto;scroll-padding-inline:0;scrollbar-width:thin;scrollbar-color:var(--accent) var(--mast)}body>header nav a{padding:8px 6px 7px;font-size:var(--fs-body);white-space:nowrap;min-height:44px;min-width:44px;flex:none}body>header nav a:focus-visible{outline-offset:-3px}body>header .brand{min-height:44px}}
+
+/* Keyboard focus scrolls the complete target into the central region, also without scripts. */
+@media(max-width:799px){body>header nav:focus-within{scroll-padding-inline:50%}}
 
 /* Footer */
 footer a{font-size:var(--fs-body)}
@@ -345,15 +348,16 @@ footer p{margin:4px 0}
 .bloc.government .n{grid-column:2;grid-row:1/span 2;color:var(--left)}
 .bloc.government .who{color:var(--left)}
 .bloc.government .who,.bloc.government small{grid-column:1}
-.seat-legend{display:flex;justify-content:space-between;gap:12px;margin:20px 0 0;font-size:var(--fs-body)}
+.seat-legend{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin:20px 0 0;font-size:var(--fs-body)}
 .seat-legend ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:4px 14px}
-.seat-legend ul:last-child{justify-content:flex-end}
+.seat-legend ul[aria-label="Government"]{justify-content:flex-end}
+.seat-legend .neutral{flex-basis:100%;color:var(--soft)}
 .seat-legend li{white-space:nowrap}
 .seat-legend i,.map-key i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
 .seat-legend b{font-weight:800}
 .hero-dek{font-size:var(--fs-body);color:var(--grey);max-width:62ch;margin:20px auto 4px}
 .hero .home-footnote .source-actions{justify-content:center}
-@media(max-width:599px){.hero{padding-top:28px}.seat-legend{flex-direction:column;align-items:stretch}.seat-legend ul:last-child{justify-content:flex-start}.bloc small{display:none}}
+@media(max-width:599px){.hero{padding-top:28px}.seat-legend{flex-direction:column;align-items:stretch}.seat-legend ul[aria-label="Government"]{justify-content:flex-start}.seat-legend .neutral{flex-basis:auto}.bloc small{display:none}}
 
 /* Modules */
 .module{margin-top:72px;padding-top:20px;border-top:3px solid var(--ink);scroll-margin-top:16px}

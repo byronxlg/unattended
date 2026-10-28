@@ -33,11 +33,17 @@ the bar; the screenshot is.
 ## Page anatomy
 
 1. Masthead: dark band, brand mark, route tabs scroll horizontally in one row on phones, with a visible
-   trailing chevron and native scrollbar. Text stays 16 px and targets at least 44 px. Keyboard
-   focus scrolls each link into view: 50% inline scroll padding makes the centre of the nav
-   its focus-scroll region, so Chromium cannot leave a link partly visible at an edge. This
-   works without JavaScript; the focus ring stays inset to avoid clipping. Funding takes
-   the former Methods tab; secondary routes, including Methods and sources, stay linked in the footer on every route.
+   trailing chevron and native scrollbar. Phone tabs use natural widths, with at least four
+   complete labels at 390 px. A reviewed inline body-load handler measures the links and
+   scrolls the current route fully into view. It hides whole edge tabs with opacity, leaving
+   their natural widths and keyboard access intact. Scroll, focus, font loading and resize
+   update the measurements. Visible links use opacity 1 and hidden links opacity 0.
+   Layout refreshes reveal the current route even if another link retains focus; keyboard
+   focus changes reveal the focused link. No experimental CSS is required and nothing animates.
+   Text stays 16 px and targets at least 44 px. While the nav has focus, 50% inline scroll
+   padding makes its centre the focus-scroll region; the focus ring stays inset.
+   Without JavaScript, all links remain available through native scrolling and keyboard focus.
+   Funding takes the former Methods tab; secondary routes, including Methods and sources, stay linked in the footer on every route.
 2. Ribbon (home): the election phase today, a countdown, the one action ("How and where to vote").
 3. Hero: kicker (one or three words), one question as the h1, the answer in one sentence, one
    big graphic, a two-line grey dek with the caveats, one footnote line.
@@ -64,7 +70,7 @@ the bar; the screenshot is.
 
 | Component | Function | Use |
 |---|---|---|
-| Seat hemicycle | `hemicycle(result)`, `seat_legend(result)` | one dot per seat in contiguous party sectors, opposition left, government right, dashed radial with a paper-colour underlay at the majority, big bloc numbers under each end |
+| Seat hemicycle | `hemicycle(result)`, `seat_legend(result)` | one dot per seat in contiguous party sectors, opposition left, government right, dashed radial with a paper-colour underlay at the majority, big bloc numbers under each end; legend keeps each bloc together, followed by a labelled Other parties row for unaligned parties |
 | Majority cards | `majority_cards(groups, names, colours)` | three smallest winning combinations as cards, all combinations in an open list; party chips and seat totals from the night source |
 | Trend chart | `trend(averages, polls, election, wide=)` | all parties, polls as faint dots, 30-day average as thick lines (4 px over 15%), end labels with values, 5% line, shaded run-up to election day. Render `wide` and `narrow`; CSS shows one |
 | Poll table | `poll_table(polls, average, names, count, reports=)` | heat-tinted cells (`--c`, `--a`), average row outlined first |
