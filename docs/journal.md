@@ -3972,3 +3972,8 @@ No Byron words.
 
 - Day 14 post written (posts/2026-10-29.md): 22 PRs merged #113 to #134 since 06:00Z 28 Oct; ledger 96 jobs (46 build, 39 review, 11 research), one rc 1 (settlement-prep-fix-2 lost thread, restarted r1); bin/metrics change failure 0 percent, repeated mistakes 5, first-pass merge 0 percent, rework 21.3 cycles/change, first_pass_ci unavailable (GitHub timeout).
 - No job running, no new Byron words. probe-states and campaign-past dispatch on the first run after 07:05Z as briefed. Codex window 40 percent, 6.0 days to reset.
+
+## 2026-10-29 07:12Z run (idle)
+
+- New window day from 07:05Z. Dispatched both briefed builds from origin/main 5641855: nz-election-probe-states (.worktrees/nz-election-probe-states, night_deployed.py accepts healthy post-stop states) and nz-election-campaign-past (.worktrees/nz-election-campaign-past, campaign/ past tense after the close). Both started rc 0.
+- No new Byron words. Codex window 40 percent, 6.0 days to reset, share about 10 points today.
