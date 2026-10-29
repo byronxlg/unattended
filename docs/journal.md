@@ -3919,3 +3919,11 @@ No Byron words.
 - readiness-8 read: one gap, scheduled shutdown still reads as failure on polls/ (build.py:280 "Update overdue") and the markets panel (market_panel.py:60 "Update overdue or failed") after the sunsets; its in-memory probes show polls_overdue=True at 7 Nov 06:00Z through 27 Nov. No operator decision needed.
 - Dispatched nz-election-sunset-surfaces (.worktrees/nz-election-sunset-surfaces from origin/main): ended wording with the retained date past each sunset, failure kept visible, five clocks healthy and failed; one old-wording contract may move with the change.
 - #133 CI 40790564107 still pending; not merged.
+
+## 2026-10-29 00:27Z run (job_done nz-election-sunset-surfaces)
+
+- sunset-surfaces 131115b (build.py seat_module, market_panel.py panel, tests): host pytest test_sunsets, test_polls_plan, test_markets, test_home_failed 161 passed; Codex reports 18 new cases fail on origin/main code; lint ok
+- origin/data build at --now 2026-11-08T06:01Z PASS 82 routes; polls/ and home state read "Scheduled updates ended. Showing polls to 26 Oct 2026."; polls/ 390 state block screenshotted and looked at
+- PR #134 opened, supervisor accept logged; fresh review review-nz-election-sunset-surfaces dispatched read-only, asked specifically whether a non-fresh status without an error reaches the new failure lines (possible KeyError on last_attempt_at, or a false "last update failed" in the markets panel)
+- #133 CI 40790564107 still pending at 00:35Z; not merged
+- Second slot left free this run: readiness-8 had one gap; next candidates are the EC 28 Oct advance transcription (not yet seen published) and the 20:00Z design critique
