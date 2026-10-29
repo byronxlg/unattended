@@ -28,6 +28,7 @@ from product.nz_election.pipeline.fixtures import golden, GOLDEN_PATHS
 from product.nz_election.pipeline.refresh import PRODUCT, config, source_entries, code_sha, utc_now
 from product.nz_election.pipeline.storage import replace_directory
 from product.nz_election.pipeline.presentation import overdue
+from product.nz_election.pipeline.sunsets import allowed
 
 PREFIX = '/unattended/nz-election/'
 TEMPLATES = PRODUCT / 'web/templates'
@@ -275,7 +276,12 @@ def seat_module(envs, built, presentation=None):
     state = ''
     update = link(envs['status']['run_url'], 'Update details') if safe_url(envs['status']['run_url']) else f'<a href="{PREFIX}downloads/">Update details</a>'
     last = max(p['fieldwork_end'] for p in polls)
-    if status.get('error_code'):
+    if not allowed('hourly', built, 'schedule'):
+        failure = (f'<p>The {compact_time(status["last_attempt_at"])} update failed; showing previous data from {compact_time(status["last_success_at"])}.</p>'
+                   if status['state'] != 'fresh' else '')
+        state = (f'<div class="state"><p>Scheduled updates ended. Showing polls to {observation_label(last)}.</p>'
+                 f'{failure}<p class="source-actions">{update}</p></div>')
+    elif status.get('error_code'):
         state = f'<div class="state"><p>The {compact_time(status["last_attempt_at"])} update failed; showing previous data from {compact_time(status["last_success_at"])}. </p><p class="source-actions">{update}</p></div>'
     elif stale:
         state = f'<div class="state"><p>Update overdue. Last checked {compact_time(checked)}. Showing polls to {observation_label(last)}. </p><p class="source-actions">{update}</p></div>'

@@ -83,3 +83,31 @@ def test_recent_polls_newest_first_with_original_reports(populated):
         # Each row's report belongs to that poll, rather than the collection source.
         links = [n.attrs.get('href') for n in descendants(row) if n.tag == 'a']
         assert set(poll['reference_urls']) <= set(links)
+
+
+@pytest.mark.parametrize('built,ended', [
+    ('2026-11-07T05:59:59Z', False),
+    ('2026-11-07T06:00:00Z', True),
+    ('2026-11-07T10:00:00Z', True),
+    ('2026-11-08T06:01:00Z', True),
+    ('2026-11-14T00:00:00Z', True),
+    ('2026-11-27T00:00:00Z', True),
+])
+@pytest.mark.parametrize('failed', [False, True])
+def test_retained_polls_scheduled_shutdown(populated, built, ended, failed, monkeypatch):
+    from product.nz_election.pipeline.build import observation_label
+    from product.nz_election.tools.check_visible_text import VisibleText
+    envs = deepcopy(populated[0])
+    status = next(r for r in envs['status']['data'] if r['dataset'] == 'polls')
+    status.update(state='stale' if failed else 'fresh', error_code='parse_drift' if failed else None,
+                  last_attempt_at='2026-11-07T05:00:00Z', last_success_at='2026-11-07T04:00:00Z')
+    retained = deepcopy(envs)
+    monkeypatch.setenv('GITHUB_EVENT_NAME', 'workflow_dispatch')
+    text = VisibleText(polls_page(envs, built)).text
+    assert ('Scheduled updates ended.' in text) is ended
+    assert ('update failed' in text) is failed
+    if ended:
+        last = max(p['fieldwork_end'] for p in envs['polls']['data'])
+        assert f'Showing polls to {observation_label(last)}.' in text
+        assert 'Update overdue' not in text
+    assert envs == retained

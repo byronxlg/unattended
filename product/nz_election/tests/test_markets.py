@@ -246,3 +246,38 @@ def test_market_collections_and_identifiers_error_parity():
     env['data'].append(deepcopy(env['data'][0]))
     with pytest.raises(ValueError, match='^INVALID_MARKET$'):
         export.validate_envelope(env, 'markets')
+
+
+@pytest.mark.parametrize('built,ended', [
+    ('2026-11-07T06:00:00Z', False),
+    ('2026-11-07T10:00:00Z', False),
+    ('2026-11-08T06:01:00Z', False),
+    ('2026-11-14T00:00:00Z', False),
+    ('2026-11-14T11:00:00Z', True),
+    ('2026-11-27T00:00:00Z', True),
+])
+@pytest.mark.parametrize('failed', [False, True])
+@pytest.mark.parametrize('old', [False, True])
+def test_retained_markets_scheduled_shutdown(built, ended, failed, old, monkeypatch):
+    from datetime import datetime, timedelta, timezone
+    from product.nz_election.pipeline import sunsets
+    from product.nz_election.pipeline.build import compact_time
+    from product.nz_election.tools.check_visible_text import VisibleText
+    envs = environment()
+    collected = (min(datetime.fromisoformat(built), sunsets.DAILY_CLOSE) - timedelta(hours=1)).astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    observed = NOW if old else collected
+    for row in envs['markets']['data']:
+        row['observed_at'] = observed
+    envs['status'] = {'data': [dict(dataset='markets', state='stale' if failed else 'fresh',
+                                  error_code='INVALID_MARKET' if failed else None,
+                                  last_attempt_at=collected, last_success_at=NOW if old else collected)]}
+    retained = deepcopy(envs)
+    monkeypatch.setenv('GITHUB_EVENT_NAME', 'workflow_dispatch')
+    text = VisibleText(panel(envs, built)).text
+    assert ('Scheduled updates ended.' in text) is ended
+    assert f'Observed {compact_time(observed)}.' in text
+    assert ('Update overdue or failed.' in text) is (not ended and (failed or old))
+    assert ('Source observations are more than 36 hours old.' in text) is (not ended and old)
+    assert ('The last update failed.' in text) is (ended and failed)
+    assert '52.5%' in text
+    assert envs == retained
