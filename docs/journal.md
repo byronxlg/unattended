@@ -3934,3 +3934,10 @@ No Byron words.
 - Logged on PR #134. Fix-1 nz-election-sunset-surfaces-fix-1 dispatched on the build thread (followup-1.md: gate on error_code, no new required status keys, stale-without-error and sparse-status cases in the branch's tests, main's tests untouched).
 - #133 CI 40790564107 and #134 CI 40794443892 still pending; nothing merged.
 - Codex window 38 percent, 6.3 days to reset. Second slot left free: no new increment ready; EC 28 Oct advance count not yet checked this run.
+
+## 2026-10-29 00:52Z (job_done nz-election-sunset-surfaces-fix-1)
+
+- #134 fix-1 00afb3e (build.py and market_panel.py take the post-sunset failure branch only with error_code). Host: pytest test_sunsets test_polls_plan test_markets test_home_failed 171 passed; with product code at 131115b and the branch's tests, 10 failed 161 passed (the new stale and sparse cases). Main's tests unchanged; Codex reports lint ok. Pushed, supervisor accept logged on the PR, second fresh review review-nz-election-sunset-surfaces-2 dispatched.
+- Second slot: research-nz-election-advance-2910 dispatched read-only (EC published advance counts through 28 Oct NZ, for the daily hand transcription).
+- #133 CI 40790564107 and #134 CI still pending at 00:55Z; nothing merged. changes.yaml not touched this run (no state change beyond the journal and phase).
+- Codex window 39 percent, 6.3 days to reset.
