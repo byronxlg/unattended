@@ -3949,3 +3949,10 @@ No Byron words.
 - Advance research: the EC voting statistics page still shows 26 Oct 69,034 and 27 Oct 106,714 (total 175,748) with "-" for 28 and 29 Oct at 00:54Z. No new transcription; the existing capture already holds both days.
 - Second slot: research-nz-election-readiness-9 dispatched read-only (readiness-8 brief with #134 added to the done list).
 - Codex window 39 percent, 6.3 days to reset.
+
+## 2026-10-29 01:15Z (job_done research-nz-election-readiness-9)
+
+- Readiness-9 found two gaps: (1) tests/night_deployed.py:318 requires a live night/ response for ever after close while night-live.mjs:28 stops polling by design; in-memory probes FAIL night-data-transport at 8 Nov 06:01Z, 14 Nov and 27 Nov on a healthy site, and the empty shell fails the :284 fallback; (2) campaign/ keeps present-tense campaign copy at every clock (build.py:573, campaign_page.py:69).
+- Both briefed (state/jobs/nz-election-probe-states, state/jobs/nz-election-campaign-past), not dispatched: the window day since 07:05Z 28 Oct has used 40 points against an even share of about 10. Judgement: hold to the share rule; both are small and the last-build date is 5 Nov, so a six-hour wait costs nothing on the schedule. Alternative rejected: dispatch now and run the window down before the 4 Nov reset.
+- #134 CI run 40797015506 pending, not merged.
+- Codex window 40 percent, 6.2 days to reset.
