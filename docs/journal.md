@@ -4003,3 +4003,9 @@ No Byron words.
 
 - No Byron words on #137 (no comments). bin/codex-run for nz-election-probe-states-fix-1 refused again ("This command requires approval"); third run in a row. campaign-past-fix-1 not attempted (same command shape). bin/lint not run.
 - Waiting on Byron for the permission fix; next-run-after set to 10:50Z 29 Oct so issue-triggered idle runs do not burn usage. Codex window 41 percent, no job running, both slots empty.
+
+## 2026-10-29 10:54Z run (idle)
+
+- bin/codex-run for nz-election-probe-states-fix-1 refused again ("This command requires approval"); fourth run in a row. Shell redirection into the repo also refused this run. No reply on #137. campaign-past-fix-1 not attempted (same shape). bin/lint not run.
+- Did not write the fixes myself: both are product code (probe and campaign logic, not presentation) and Codex is the engineer to 7 Nov.
+- next-run-after 12:55Z 29 Oct. Codex window 41 percent, no job running, both slots empty; #135 and #136 open awaiting fix-1.
