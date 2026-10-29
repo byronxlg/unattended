@@ -14,7 +14,8 @@ from urllib.parse import urljoin, urlsplit
 
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from product.nz_election.pipeline import export, night, xml_parser
+from product.nz_election.pipeline import export, night, result_states, xml_parser
+from product.nz_election.pipeline.sunsets import NIGHT_CLOSE
 from product.nz_election.pipeline.fetch import night_xml
 from product.nz_election.tests.night_browser import launch_chromium, SIZES
 
@@ -251,6 +252,7 @@ def probe_phase(page, base, *, now=None):
     return dict(name='before-close' if observed < opening else 'after-close',
                 schedule_url=url, opening_utc=match[1], opening_ms=opening_ms,
                 clock_source='host-utc', observed_utc=observed.isoformat(),
+                stopped=observed >= NIGHT_CLOSE, cutoff_utc=NIGHT_CLOSE.isoformat(),
                 page_now_ms=result.get('now_ms'))
 
 
@@ -281,10 +283,19 @@ def probe(page, base, record, responses, feed_root=FEED, *, now=None):
                                  snapshot=page.locator('#night-snapshot').inner_text())
     fallback = record.data['fallback']
     live = page.locator('#night-snapshot').get_attribute('data-retrieved-at')
-    record.check('dated-fallback', bool(live) or (
+    target = page.locator('#night-snapshot')
+    mode = target.get_attribute('data-mode')
+    empty = (target.get_attribute('data-has-snapshot') == 'false' and not live and not mode
+             and target.is_visible()
+             and 'Official Electoral Commission results' in fallback['snapshot']
+             and ('Waiting for the first complete results.' in fallback['status']
+                  or 'Live updates ended.' in fallback['status']
+                  or fallback['status'].startswith('Results start at ')))
+    dated = bool(live) or (
         bool(re.search(r'20\d\d-\d\d-\d\d', fallback['snapshot'])) and
         'Official results' in fallback['snapshot'] and
-        ('Final snapshot' in fallback['snapshot'] or 'Recorded demo' in fallback['snapshot'])),
+        ('Final snapshot' in fallback['snapshot'] or 'Recorded demo' in fallback['snapshot']))
+    record.check('dated-fallback', dated or empty,
         'Live retrieval: ' + str(live) if live else json.dumps(fallback))
     requests = list(record.data['requests'])
     record.check('page-same-origin', all(origin(r['url']) == origin(base) for r in requests), json.dumps(requests))
@@ -315,9 +326,18 @@ def probe(page, base, record, responses, feed_root=FEED, *, now=None):
                     page.locator('.night-page a[href$="vote/"]').is_visible())
     valid_after_open = [r for r in seen if 200 <= r['status'] < 300 and r['validates'] and
                         r['started_ms'] >= phase['opening_ms']]
-    acceptable = (before_state if phase['name'] == 'before-close' else bool(valid_after_open))
+    terminal = next((state for state, label in result_states.MODES.items() if mode == label), None)
+    state = terminal or ('stopped' if phase['stopped'] else
+                         'waiting' if not live or phase['name'] == 'before-close' else 'live')
+    retained = dated and target.is_visible() and page.locator('#night-snapshot .night-votes').is_visible()
+    polling = [r for r in record.data['requests'] if night_data_url(r['url'], base)]
+    stopped = phase['stopped'] or terminal is not None
+    acceptable = ((retained or empty) and not polling and not seen if stopped else
+                  before_state if phase['name'] == 'before-close' else bool(valid_after_open))
+    record.data['page_state'] = state
     record.check('night-data-transport', acceptable and not failures and not pending and not errors,
-                 json.dumps(dict(phase=phase['name'], before_close_state=before_state,
+                 json.dumps(dict(phase=phase['name'], page_state=state, retained_results=retained,
+                                 empty_shell=empty, polling_requests=polling, before_close_state=before_state,
                                  valid_after_open=len(valid_after_open), responses=len(seen),
                                  failed_requests=failures, pending_requests=pending, page_errors=errors)))
     record.phase('probe', started)

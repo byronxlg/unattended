@@ -343,3 +343,128 @@ def test_phase_uses_injected_host_clock(after, page_time):
     assert phase['name'] == ('after-close' if after else 'before-close')
     assert phase['observed_utc'] == host_instant(after).isoformat()
     assert phase['page_now_ms'] == page_time
+
+
+PROBE_DATES = [
+    ('2026-11-07T08:00:00Z', 'live'),
+    ('2026-11-08T06:01:00Z', 'stopped'),
+    ('2026-11-14T00:00:00Z', 'settled'),
+    ('2026-11-27T00:00:00Z', 'official'),
+]
+
+
+@pytest.mark.parametrize('instant,state,fault', [
+    (instant, state, fault) for instant, state in PROBE_DATES
+    for fault in (['healthy', 'missing-response'] if state == 'live' else
+                  ['healthy', 'polling', 'missing-results'])
+])
+@pytest.mark.parametrize('empty', [False, True])
+def test_probe_result_states(monkeypatch, tmp_path, instant, state, fault, empty):
+    from datetime import datetime
+    from types import SimpleNamespace
+    from product.nz_election.pipeline import result_states
+    from product.nz_election.tests import night_deployed as deployed
+    base = 'https://site.example/product/'
+    record = Record('probe', base, tmp_path)
+    mode = result_states.MODES.get(state, 'Live preliminary results')
+    attributes = {'data-mode': '' if empty else mode,
+                  'data-retrieved-at': '' if empty else '2026-11-07T07:00:00Z',
+                  'data-has-snapshot': str(not empty).lower()}
+    status = ('Waiting for the first complete results. Check official results.' if state == 'live' else
+              'Live updates ended. Check official results.')
+    snapshot = 'Official Electoral Commission results' if empty else 'Retained party votes'
+    def locator(selector):
+        text = status if selector == '#night-live-status' else snapshot
+        return SimpleNamespace(inner_text=lambda: '' if fault == 'missing-results' else text,
+                               get_attribute=attributes.get,
+                               is_visible=lambda: fault != 'missing-results' and
+                               (not empty or '.night-votes' not in selector))
+    page = SimpleNamespace(goto=lambda url: None, wait_for_load_state=lambda state: None,
+                           evaluate=lambda *args: schedule_result(True), locator=locator)
+    monkeypatch.setattr(deployed, 'pictures', lambda *args: None)
+    monkeypatch.setattr(deployed, 'cors_probe', lambda *args, **kwargs: None)
+    responses = []
+    if fault == 'polling' or state == 'live' and fault == 'healthy':
+        record.data['requests'].append(dict(url=base + 'night-live.json', state='finished', status=200))
+        responses.append(SimpleNamespace(url=base + 'night-live.json', status=200, ok=True,
+                                         json=lambda: dict(available=False),
+                                         request=SimpleNamespace(timing=dict(startTime=datetime.fromisoformat(instant).timestamp()*1000))))
+    deployed.probe(page, base, record, responses, now=lambda: datetime.fromisoformat(instant))
+    checks = {c['check']: c['status'] for c in record.data['checks']}
+    expected = fault == 'healthy'
+    assert (checks['night-data-transport'] == 'PASS') is expected
+    assert record.write()[1] is not expected
+
+
+@pytest.mark.parametrize('instant,state,fault', [
+    (instant, state, fault) for instant, state in PROBE_DATES
+    for fault in (['healthy', 'missing-response'] if state == 'live' else
+                  ['healthy', 'polling', 'missing-results'])
+])
+@pytest.mark.parametrize('empty', [False, True])
+def test_browser_probe_result_states(local_site, tmp_path, instant, state, fault, empty):
+    script = '''
+import json, sys, time
+from datetime import datetime
+from pathlib import Path
+from types import SimpleNamespace
+from playwright.sync_api import sync_playwright
+from product.nz_election.pipeline.result_states import MODES
+from product.nz_election.pipeline.night_page import page as night_page
+from product.nz_election.pipeline.sunsets import NIGHT_CLOSE
+from product.nz_election.tests.night_deployed import Record, launch_chromium, observe, probe, fault_package
+base, out, instant, state, fault, empty = sys.argv[1:]
+record = Record('probe', base, Path(out))
+pack = fault_package(record.out)
+mode = MODES.get(state, pack['mode'])
+html = pack['html'] if fault != 'missing-results' else ''
+body = ('<p id="night-live-status">Live updates ended.</p><div id="night-snapshot" '
+        'data-has-snapshot="true" data-mode="' + mode + '" data-retrieved-at="' + pack['retrieved_at'] +
+        '" data-loop-ends-at="' + NIGHT_CLOSE.isoformat() + '">' + html +
+        '</div><div id="night-controls" hidden></div><script type="module" src="' + base + 'night-live.mjs"></script>')
+if empty == 'True':
+    body = night_page({}, instant)
+    if fault == 'missing-results':
+        body = body.replace('Official Electoral Commission results', '')
+if fault == 'polling' and state != 'live':
+    body += '<script>fetch("' + base + 'night-live.json")</script>'
+with sync_playwright() as pw, launch_chromium(pw) as browser, browser.new_context() as context:
+    responses = observe(context, record)
+    page = context.new_page()
+    page.clock.install(time=datetime.fromisoformat(instant))
+    # Playwright's network clock stays real when the page clock is simulated.
+    offset = datetime.fromisoformat(instant).timestamp() * 1000 - time.time() * 1000
+    class TimedResponses:
+        def __iter__(self):
+            for response in responses:
+                yield SimpleNamespace(url=response.url, status=response.status, ok=response.ok,
+                    json=response.json, request=SimpleNamespace(timing={
+                        'startTime': response.request.timing['startTime'] + offset}))
+    page.route(base + 'night/', lambda route: route.fulfill(content_type='text/html', body=body))
+    # A missing live response remains a transport failure during the live window.
+    page.route(base + 'night-live.json', lambda route: route.fulfill(
+        status=503 if fault == 'missing-response' else 200,
+        content_type='application/json', body=json.dumps({'available': False})))
+    probe(page, base, record, TimedResponses(), feed_root=base + 'offline-feed/',
+          now=lambda: datetime.fromisoformat(instant))
+line, failed = record.write()
+print(line)
+expected = fault == 'healthy'
+assert failed is not expected, line
+'''
+    result = subprocess.run(['uv', 'run', '--with', 'playwright', 'python', '-c', script,
+                             local_site, str(tmp_path), instant, state, fault, str(empty)],
+                            capture_output=True, text=True, timeout=120)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+@pytest.mark.parametrize('state', ['settled', 'official'])
+@pytest.mark.parametrize('fault', ['healthy', 'polling', 'missing-results'])
+def test_probe_terminal_state_before_cutoff(monkeypatch, tmp_path, state, fault):
+    test_probe_result_states(monkeypatch, tmp_path, PROBE_DATES[0][0], state, fault, False)
+
+
+@pytest.mark.parametrize('fault', ['healthy', 'polling', 'missing-results'])
+def test_probe_at_shared_cutoff(monkeypatch, tmp_path, fault):
+    from product.nz_election.pipeline.sunsets import NIGHT_CLOSE
+    test_probe_result_states(monkeypatch, tmp_path, NIGHT_CLOSE.isoformat(), 'stopped', fault, False)
