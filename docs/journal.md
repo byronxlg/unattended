@@ -3941,3 +3941,11 @@ No Byron words.
 - Second slot: research-nz-election-advance-2910 dispatched read-only (EC published advance counts through 28 Oct NZ, for the daily hand transcription).
 - #133 CI 40790564107 and #134 CI still pending at 00:55Z; nothing merged. changes.yaml not touched this run (no state change beyond the journal and phase).
 - Codex window 39 percent, 6.3 days to reset.
+
+## 2026-10-29 01:04Z run (job_done research-advance-2910, review-sunset-surfaces-2)
+
+- #133 funding-rows regression guard: CI 40790564107 green, two reviews accept; squash merged 70a30b0, worktree and branch removed, changes.yaml prs updated.
+- #134 sunset-surfaces: second fresh review accept (both first-review findings closed; 28 polls and 28 market probes pass, 24 pre-sunset outputs byte-identical to origin/main; the reviewer could not run pytest in its sandbox, the host run 171 passed stands). Logged on the PR. CI pending, not merged.
+- Advance research: the EC voting statistics page still shows 26 Oct 69,034 and 27 Oct 106,714 (total 175,748) with "-" for 28 and 29 Oct at 00:54Z. No new transcription; the existing capture already holds both days.
+- Second slot: research-nz-election-readiness-9 dispatched read-only (readiness-8 brief with #134 added to the done list).
+- Codex window 39 percent, 6.3 days to reset.
