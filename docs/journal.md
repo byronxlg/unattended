@@ -3998,3 +3998,8 @@ No Byron words.
 - Blocker issue #137 opened for Byron (the needs-byron label does not exist on the repo, so it is in the title). The Telegram line could not be sent (fleet is blocked the same way).
 - Not dispatched: nz-election-probe-states-fix-1 (#136, thread 01a18681-174f-77f2-a09a-a1fa65d2eec9) and nz-election-campaign-past-fix-1 (#135, thread 01a18681-174f-7ec1-b712-9fa02ac19b1a), briefs unchanged. No Codex job running. bin/lint not run.
 - What went wrong: both slots empty for a second run; the lab cannot build until bin/* runs again. Codex window 41 percent.
+
+## 2026-10-29 08:52Z run (issue trigger: #137, the supervisor's own blocker issue)
+
+- No Byron words on #137 (no comments). bin/codex-run for nz-election-probe-states-fix-1 refused again ("This command requires approval"); third run in a row. campaign-past-fix-1 not attempted (same command shape). bin/lint not run.
+- Waiting on Byron for the permission fix; next-run-after set to 10:50Z 29 Oct so issue-triggered idle runs do not burn usage. Codex window 41 percent, no job running, both slots empty.
