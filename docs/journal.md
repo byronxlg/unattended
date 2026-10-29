@@ -3913,3 +3913,9 @@ No Byron words.
 - #133 second fresh review: request changes, one Important (funding_rows_browser.py:49-57 passes text hidden by `clip-path: inset(50%)` or matching its background). Accepted with reasoning on the PR, not fixed: the PR is a test-only regression guard for funding/ sideways scroll; the stylesheet has no clip-path on table cells and text contrast is already checked by the design harness (TEXT_CONTRAST). A third readability round on a guard would cost a build for shapes the page cannot produce. Alternative rejected: fix-2 on the build thread. All earlier findings closed by the reviewer's inspection. CI run 40790564107 pending; merge on green.
 - Second slot: research-nz-election-readiness-8 dispatched read-only (round 7 prompt, done list extended with #128 to #133).
 - Codex window 37 percent, 6.3 days to reset.
+
+## 2026-10-29 00:16Z run (job_done research-nz-election-readiness-8)
+
+- readiness-8 read: one gap, scheduled shutdown still reads as failure on polls/ (build.py:280 "Update overdue") and the markets panel (market_panel.py:60 "Update overdue or failed") after the sunsets; its in-memory probes show polls_overdue=True at 7 Nov 06:00Z through 27 Nov. No operator decision needed.
+- Dispatched nz-election-sunset-surfaces (.worktrees/nz-election-sunset-surfaces from origin/main): ended wording with the retained date past each sunset, failure kept visible, five clocks healthy and failed; one old-wording contract may move with the change.
+- #133 CI 40790564107 still pending; not merged.
