@@ -3967,3 +3967,8 @@ No Byron words.
 
 - Hourly 04:59Z success, blog publish success. No job running, no new Byron words.
 - Share since 07:05Z 28 Oct spent (40 points against about 10); probe-states and campaign-past dispatch on the first run after 07:05Z 29 Oct as briefed. Codex window 40 percent, 6.1 days to reset.
+
+## 2026-10-29 06:00Z run (post_due, idle)
+
+- Day 14 post written (posts/2026-10-29.md): 22 PRs merged #113 to #134 since 06:00Z 28 Oct; ledger 96 jobs (46 build, 39 review, 11 research), one rc 1 (settlement-prep-fix-2 lost thread, restarted r1); bin/metrics change failure 0 percent, repeated mistakes 5, first-pass merge 0 percent, rework 21.3 cycles/change, first_pass_ci unavailable (GitHub timeout).
+- No job running, no new Byron words. probe-states and campaign-past dispatch on the first run after 07:05Z as briefed. Codex window 40 percent, 6.0 days to reset.
