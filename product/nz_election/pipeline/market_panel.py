@@ -64,7 +64,7 @@ def panel(envs, built):
         if not ended and overdue(observed, built, 'daily'):
             body += ' Source observations are more than 36 hours old.'
         body += '</p>'
-        if ended and status and status.get('state') != 'fresh':
+        if ended and status.get('error_code'):
             body += '<p>The last update failed.</p>'
         for family, title in [('next-pm', 'Next prime minister'), ('government-membership', 'Government membership'), ('seat-bands', 'Seat bands')]:
             body += '<figure aria-describedby="source-markets"><table aria-describedby="source-markets"><caption>' + title + ' / Market price (Yes)</caption><tbody>'

@@ -111,3 +111,24 @@ def test_retained_polls_scheduled_shutdown(populated, built, ended, failed, monk
         assert f'Showing polls to {observation_label(last)}.' in text
         assert 'Update overdue' not in text
     assert envs == retained
+
+
+@pytest.mark.parametrize('built', ['2026-11-07T06:00:00Z', '2026-11-27T00:00:00Z'])
+@pytest.mark.parametrize('missing_attempt', [False, True])
+def test_sunset_stale_polls_without_failure_evidence(populated, built, missing_attempt):
+    from product.nz_election.pipeline.build import observation_label
+    from product.nz_election.tools.check_visible_text import VisibleText
+    envs = deepcopy(populated[0])
+    status = next(r for r in envs['status']['data'] if r['dataset'] == 'polls')
+    status['state'] = 'stale'
+    status.pop('error_code', None)
+    if missing_attempt:
+        status.pop('last_attempt_at', None)
+    retained = deepcopy(envs)
+    text = VisibleText(polls_page(envs, built)).text
+    assert 'Scheduled updates ended.' in text
+    assert 'update failed' not in text
+    last = max(p['fieldwork_end'] for p in envs['polls']['data'])
+    assert f'Showing polls to {observation_label(last)}.' in text
+    assert 'Every poll this year' in text
+    assert envs == retained

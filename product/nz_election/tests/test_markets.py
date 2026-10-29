@@ -281,3 +281,24 @@ def test_retained_markets_scheduled_shutdown(built, ended, failed, old, monkeypa
     assert ('The last update failed.' in text) is (ended and failed)
     assert '52.5%' in text
     assert envs == retained
+
+
+@pytest.mark.parametrize('built', ['2026-11-14T11:00:00Z', '2026-11-27T00:00:00Z'])
+@pytest.mark.parametrize('status', [
+    {'dataset': 'markets', 'state': 'stale', 'last_attempt_at': NOW},
+    {'dataset': 'markets', 'state': 'stale'},
+    {'dataset': 'markets'},
+])
+def test_sunset_markets_without_failure_evidence(built, status):
+    from product.nz_election.pipeline.build import compact_time
+    from product.nz_election.tools.check_visible_text import VisibleText
+    envs = environment()
+    envs['status'] = {'data': [deepcopy(status)]}
+    retained = deepcopy(envs)
+    text = VisibleText(panel(envs, built)).text
+    assert 'Scheduled updates ended.' in text
+    assert 'update failed' not in text
+    observed = min(row['observed_at'] for row in envs['markets']['data'])
+    assert f'Observed {compact_time(observed)}.' in text
+    assert '52.5%' in text
+    assert envs == retained

@@ -278,7 +278,7 @@ def seat_module(envs, built, presentation=None):
     last = max(p['fieldwork_end'] for p in polls)
     if not allowed('hourly', built, 'schedule'):
         failure = (f'<p>The {compact_time(status["last_attempt_at"])} update failed; showing previous data from {compact_time(status["last_success_at"])}.</p>'
-                   if status['state'] != 'fresh' else '')
+                   if status.get('error_code') else '')
         state = (f'<div class="state"><p>Scheduled updates ended. Showing polls to {observation_label(last)}.</p>'
                  f'{failure}<p class="source-actions">{update}</p></div>')
     elif status.get('error_code'):
