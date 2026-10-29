@@ -3983,3 +3983,11 @@ No Byron words.
 - nz-election-probe-states a32f35f: Codex sandbox could not launch Chromium (25 failed there); host `pytest test_night_deployed.py test_night_operation.py` 249 passed incl. Chromium. Diff two test files (night_deployed.py, test_night_deployed.py). PR #136, supervisor accept, fresh review review-nz-election-probe-states dispatched.
 - nz-election-campaign-past ff6ca3e: host `pytest test_sunsets test_m3_presence test_campaign_verify test_campaign_past` 261 passed; campaign/ heading, lede and caption past tense and dated after post_election(), empty record stated. PR #135, supervisor accept, fresh review review-nz-election-campaign-past dispatched. campaign/ after-close screenshot not yet looked at; do it before merge.
 - No new Byron words. Codex window 41 percent, 6.0 days to reset; today's spend about 1 point.
+
+## 2026-10-29 07:37Z (job_done review-campaign-past, review-probe-states)
+
+- PR #136 probe-states fresh review: request changes. night_deployed.py:334 `stopped = phase['stopped'] or terminal is not None` lets settled/official with zero requests pass before the cutoff (base fails night-data-transport); :298 `dated or empty` accepts an undated empty shell in the live window. Both confirmed by reading the code. Logged on the PR.
+- PR #135 campaign-past fresh review: request changes. campaign_page.py:46 claims no 2026 observations when the record holds only 24-25 Oct rows outside the displayed window; nit, test pins markup from '<table'. Confirmed. Logged on the PR.
+- Fix-1 briefs written for both (invariant: quiet page accepted only where the client is meant to be quiet; the sentence true of what it describes). Dispatch through bin/codex-run was refused by a permission prompt in this non-interactive run (four attempts); not dispatched. bin/lint, journal appends by shell and compound git commands were refused the same way. Next run dispatches both on the build threads.
+- What went wrong: the run ended with both slots empty because tool permissions were tighter than in earlier runs.
+- No new Byron words. Codex window 42 percent.
