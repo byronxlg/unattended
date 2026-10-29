@@ -3956,3 +3956,9 @@ No Byron words.
 - Both briefed (state/jobs/nz-election-probe-states, state/jobs/nz-election-campaign-past), not dispatched: the window day since 07:05Z 28 Oct has used 40 points against an even share of about 10. Judgement: hold to the share rule; both are small and the last-build date is 5 Nov, so a six-hour wait costs nothing on the schedule. Alternative rejected: dispatch now and run the window down before the 4 Nov reset.
 - #134 CI run 40797015506 pending, not merged.
 - Codex window 40 percent, 6.2 days to reset.
+
+## 2026-10-29 02:17Z run (idle)
+
+- #134 sunset-surfaces: CI run 40797015506 green, two fresh reviews accept (second closed both first-review findings); squash merged 046cf6a, worktree and branch removed, changes.yaml prs updated.
+- No job running. nz-election-probe-states and nz-election-campaign-past stay briefed, not dispatched: window day since 07:05Z 28 Oct used 40 points against an even share of about 10. Both go out on the first run after 07:05Z 29 Oct.
+- Codex window 40 percent, 6.2 days to reset.
