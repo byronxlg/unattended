@@ -5,6 +5,7 @@ import re
 from .build import PREFIX, link, compact_time
 from .markets import ATTRIBUTION, events
 from .presentation import market_price, market_money, overdue
+from .sunsets import allowed
 
 PLACEHOLDER = re.compile(r'\b(?:person|candidate|party|outcome)\s+(?:[a-z]|[0-9]+)\b', re.I)
 
@@ -58,10 +59,13 @@ def panel(envs, built):
         body += '<p>Leading market choices: price for Yes, highest per event. Not a forecast; government membership contracts are independent.</p>'
         observed = min(r['observed_at'] for r in env['data'])
         stale = status.get('state') == 'stale' or overdue(status.get('last_success_at'), built, 'daily')
-        body += '<p>' + ('Update overdue or failed. ' if stale else '') + 'Observed <time datetime="' + observed + '">' + compact_time(observed) + '</time>.'
-        if overdue(observed, built, 'daily'):
+        ended = not allowed('daily', built, 'schedule')
+        body += '<p>' + ('Scheduled updates ended. ' if ended else 'Update overdue or failed. ' if stale else '') + 'Observed <time datetime="' + observed + '">' + compact_time(observed) + '</time>.'
+        if not ended and overdue(observed, built, 'daily'):
             body += ' Source observations are more than 36 hours old.'
         body += '</p>'
+        if ended and status.get('error_code'):
+            body += '<p>The last update failed.</p>'
         for family, title in [('next-pm', 'Next prime minister'), ('government-membership', 'Government membership'), ('seat-bands', 'Seat bands')]:
             body += '<figure aria-describedby="source-markets"><table aria-describedby="source-markets"><caption>' + title + ' / Market price (Yes)</caption><tbody>'
             for event, row in selected:
