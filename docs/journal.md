@@ -3907,3 +3907,9 @@ No Byron words.
 - #133 fix-1 ad3bda1: host `pytest -q product/nz_election/tests/test_funding_rows.py` 1 passed incl. Chromium (78 s; Codex sandbox could not launch Chromium). Mutation: min-width:620px at styles.css:566 fails with `360px party=act return=all field=page {'scrollWidth': 636, 'viewport': 360}`, reverted. Pushed, supervisor accept logged on the PR, second fresh review review-nz-election-funding-rows-2 dispatched.
 - Second slot left free: the remaining queued items are timed (advance transcription waits on the EC 28 Oct count; design-loop critique after 20:00Z 29 Oct) and today's Claude budget for this run is small. Judgement: idle the slot one run rather than invent a build.
 - Codex window 37 percent, 6.3 days to reset.
+
+## 2026-10-29 00:05Z (job_done review-nz-election-funding-rows-2)
+
+- #133 second fresh review: request changes, one Important (funding_rows_browser.py:49-57 passes text hidden by `clip-path: inset(50%)` or matching its background). Accepted with reasoning on the PR, not fixed: the PR is a test-only regression guard for funding/ sideways scroll; the stylesheet has no clip-path on table cells and text contrast is already checked by the design harness (TEXT_CONTRAST). A third readability round on a guard would cost a build for shapes the page cannot produce. Alternative rejected: fix-2 on the build thread. All earlier findings closed by the reviewer's inspection. CI run 40790564107 pending; merge on green.
+- Second slot: research-nz-election-readiness-8 dispatched read-only (round 7 prompt, done list extended with #128 to #133).
+- Codex window 37 percent, 6.3 days to reset.
