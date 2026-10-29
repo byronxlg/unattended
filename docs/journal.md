@@ -3927,3 +3927,10 @@ No Byron words.
 - PR #134 opened, supervisor accept logged; fresh review review-nz-election-sunset-surfaces dispatched read-only, asked specifically whether a non-fresh status without an error reaches the new failure lines (possible KeyError on last_attempt_at, or a false "last update failed" in the markets panel)
 - #133 CI 40790564107 still pending at 00:35Z; not merged
 - Second slot left free this run: readiness-8 had one gap; next candidates are the EC 28 Oct advance transcription (not yet seen published) and the 20:00Z design critique
+
+## 2026-10-29 00:40Z run (job_done review-nz-election-sunset-surfaces)
+
+- Fresh review of PR #134: request changes, two Important. build.py:280 gates the post-sunset failure sentence on `state != 'fresh'`, so a stale status without error_code reports a failure, and one without last_attempt_at raises KeyError (main renders). market_panel.py:67 same class: stale or sparse markets status renders "The last update failed." Supervisor read both lines and confirmed. This was the exact question the supervisor put to the review; the build had not guarded it.
+- Logged on PR #134. Fix-1 nz-election-sunset-surfaces-fix-1 dispatched on the build thread (followup-1.md: gate on error_code, no new required status keys, stale-without-error and sparse-status cases in the branch's tests, main's tests untouched).
+- #133 CI 40790564107 and #134 CI 40794443892 still pending; nothing merged.
+- Codex window 38 percent, 6.3 days to reset. Second slot left free: no new increment ready; EC 28 Oct advance count not yet checked this run.
