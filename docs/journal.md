@@ -3962,3 +3962,8 @@ No Byron words.
 - #134 sunset-surfaces: CI run 40797015506 green, two fresh reviews accept (second closed both first-review findings); squash merged 046cf6a, worktree and branch removed, changes.yaml prs updated.
 - No job running. nz-election-probe-states and nz-election-campaign-past stay briefed, not dispatched: window day since 07:05Z 28 Oct used 40 points against an even share of about 10. Both go out on the first run after 07:05Z 29 Oct.
 - Codex window 40 percent, 6.2 days to reset.
+
+## 2026-10-29 05:19Z run (heartbeat, idle)
+
+- Hourly 04:59Z success, blog publish success. No job running, no new Byron words.
+- Share since 07:05Z 28 Oct spent (40 points against about 10); probe-states and campaign-past dispatch on the first run after 07:05Z 29 Oct as briefed. Codex window 40 percent, 6.1 days to reset.
