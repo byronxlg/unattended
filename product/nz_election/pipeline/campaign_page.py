@@ -2,6 +2,7 @@
 from datetime import date, timedelta
 from html import escape
 from .advance import ATTRIBUTION
+from .sunsets import post_election
 
 
 def eligible(envs, historical=False):
@@ -39,8 +40,11 @@ def source(envs, historical=False):
 def page(envs, built=None, historical=False):
     from .build import render, table, PREFIX
     rows = eligible(envs, historical)
+    closed = post_election(built)
+    year = 2023 if historical else 2026
     if not rows:
-        return render('campaign', module='')
+        empty = f'<p>The retained record contained no {year} advance-voting observations.</p>' if closed else ''
+        return render('campaign', module=empty)
     env = envs['advance-voting']
     historical_label = '<p class="notice">Offline verification: historical 2023 advance voting. Not live data.</p>' if historical else ''
     status = next((r for r in envs.get('status', {}).get('data', []) if r['dataset'] == 'advance'), {})
@@ -59,14 +63,20 @@ def page(envs, built=None, historical=False):
             marks.append(f'<path d="M{previous[1]} {previous[2]} L{x} {y}" fill="none" stroke="currentColor" stroke-width="2"/>')
         marks.append(f'<circle cx="{x}" cy="{y}" r="3" fill="currentColor"/>')
         previous = day, x, y
+    question = 'How many people voted early?' if closed else 'How many people have voted early?'
+    lede = (f'Retained observations of {year} advance votes through {rows[-1]["date"]}: national daily votes and cumulative totals. '
+            'Days without a published count were left as gaps.' if closed else
+            'National daily votes and the running total. Days without a published count are left as gaps.')
+    caption = (f'{year} cumulative advance votes observed through {rows[-1]["date"]}' if closed else
+               'Cumulative advance votes')
     chart = ''
     if marks:
-        chart = ('<figure aria-describedby="source-advance"><figcaption>Cumulative advance votes</figcaption>'
+        chart = (f'<figure aria-describedby="source-advance"><figcaption>{caption}</figcaption>'
                  '<svg viewBox="0 0 300 150" role="img" aria-label="Cumulative advance votes; exact dates and counts in the table below" aria-describedby="source-advance" style="width:100%;max-height:300px">' + ''.join(marks) + '</svg>'
                  f'<p>{rows[0]["date"]} to {rows[-1]["date"]}; scale 0 to {peak:,} votes.</p></figure>')
     records = [[r['date'], *(f'{r[k]:,}' if r[k] is not None else 'Unknown across gap' for k in ('daily', 'cumulative'))] for r in rows]
     module = (f'<section id="advance" data-campaign-module="advance-voting">{historical_label}'
-              '<h2>How many people have voted early?</h2><p>National daily votes and the running total. Days without a published count are left as gaps.</p>' + window_note(envs, historical) + retained + chart +
+              f'<h2>{question}</h2><p>{lede}</p>' + window_note(envs, historical) + retained + chart +
               table('Daily advance votes', ['Date', 'Daily', 'Cumulative'], records, source='source-advance') +
               f'<div class="source-note" id="source-advance"><p>{ATTRIBUTION} Observed through {rows[-1]["date"]}. '
               f'Retrieved {escape(env["fetched_at"])}.</p><p class="source-actions"><a href="{PREFIX}methods/#source-advance">Sources and method</a></p></div></section>')
