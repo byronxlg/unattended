@@ -49,7 +49,7 @@ def check_site(site, envs):
             from .home_graphics import hex_map
             from .snapshot_views import load, result
             from .electorate_locator import LOCATOR_BYTE_CAP
-            require(candidate_cards(row) in html, 'reconciled candidates and explicit incumbent flags')
+            require(candidate_cards(row, built) in html, 'reconciled candidates and explicit incumbent flags')
             require('class="electorate-page"' in html, 'electorate overview')
             graphic, _ = hex_map(envs, load('hexmap'), {r['slug']: r for r in config('electorates')},
                                  lambda r: result(r, envs), selected=row['slug'])
