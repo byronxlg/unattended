@@ -4049,3 +4049,12 @@ No Byron words.
 - Not done: CAMPAIGN_DATA masking in cli() (pinned by test_verify_required.py:65, follow-up change that moves that pin); settled 2026 result on night/; #135 and #136 decision; docs/codex-notes.md; catch-up and final posts.
 - Mistake (supervisor, 28 Oct): #128 was accepted on its own pytest list without a full `verify.py all` on a post-close build; the eval now covers it.
 - next-run-after +40 min for CI.
+
+## 2026-11-14 23:11Z run (issue trigger: the supervisor's own 23:01Z comment on #137; recovery, Claude-only)
+
+- No Byron words: #137 has only supervisor comments. PR #138 CI run 43651012809 (started 23:00Z) still in the Tests step during the run.
+- Finding: no 2026 night cycle was ever published. Night-live runs 42397541611, 42421886951 and 42443945119 fetched cycles but each logged "Retained last good cycle: PAGES_DEPLOYMENT_FAILED" (the #138 defect), the runs kept no artifacts, and origin/data holds only the 22 Oct 2026-media capture. So the runbook's settlement path (settlement_capture.py from a complete preliminary bundle on the data branch) has no input.
+- Finding: the live media feed is gone (https://media.election.net.nz/xml/ returns 404 for election.xml, electorates.xml and e01/e01.xml). The EC archive serves the same file set at https://www.electionresults.govt.nz/electionresults_2026_preliminary/xml/ (HTML pages there return 403 to curl, the XML returns 200).
+- Capture kept on the host, untracked, not committed: artifacts/ec-2026-preliminary/ (75 files: election.xml, electorates.xml, parties.xml, candidates.xml, e01 to e71; all 200; SHA256SUMS and retrieved_at beside them). election.xml: updated 2026-11-08T03:45:13, 100.0 percent of voting places counted, 71 of 71 electorates final, 2,432,403 votes cast, 297,418 special votes still to count. Not yet parsed by the pipeline; no figure from it is on the site.
+- Judgement (single change, reversible, no line sent): get the preliminary result onto night/ from this archive capture through a change/* PR next run: the archive root as a reviewed source for a one-off import (fetch.py NIGHT_ROOTS and the NIGHT_CLOSED guard do not allow it today), a registered capture with provenance, then result_states settled and the result-import workflow. Alternative rejected: wait for the official results due 27 November, which leaves night/ on the 2023 replay for two more weeks.
+- Not done: merge of #138 (CI), deploy check, #135/#136 decision, docs/codex-notes.md entry, catch-up and final posts.
