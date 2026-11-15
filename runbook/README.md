@@ -18,6 +18,16 @@ monitor; the blog going stale is the signal.
 
 Scheduled: the tick (launchd, 600 s); Pages publish on every push to `main` (Actions); CI on PRs.
 
+## Shut down 2026-11-15
+
+Byron, 2026-11-15: "Shut down the site. Keep data that was collected but stop any collection."
+The tick is booted out and its plist is no longer in `~/Library/LaunchAgents` (the copy in
+`infra/host/` is the only one; a plist left in that folder is loaded again at every login, which
+is how the lab restarted itself on 2026-11-14). The GitHub Pages site is unpublished and every
+workflow except CI is disabled. Kept: this repo, the `data` branch, `artifacts/`, SSM
+`/unattended/prd`. Do not restart any of it unless Byron asks; management `docs/decisions.md` D84
+has the way back.
+
 ## It stopped
 
 - `launchctl print gui/$(id -u)/com.unattended.tick` shows the job; if absent, install per the
